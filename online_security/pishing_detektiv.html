@@ -26,7 +26,7 @@
             color: var(--text-color);
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -39,7 +39,7 @@
             background: var(--white);
             width: 100%;
             max-width: 1500px;
-            min-height: 800px;
+            min-height: 525px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.1);
             border-radius: 20px;
             overflow: hidden;
@@ -50,7 +50,7 @@
         /* Linke Seite: Erklärungen & Auswertung */
         .left-panel {
             flex: 1;
-            padding: 60px;
+            padding: 47px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -58,24 +58,24 @@
 
         .left-panel h1 {
             color: var(--brand-color);
-            font-size: 46px;
+            font-size: 40px;
             margin-top: 0;
             line-height: 1.2;
-            margin-bottom: 30px;
+            margin-bottom: 23px;
         }
 
         .intro-text {
-            font-size: 24px;
-            margin-bottom: 25px;
+            font-size: 21px;
+            margin-bottom: 20px;
         }
 
         .instructions-list {
             background: #eef2f5;
-            padding: 30px 40px;
+            padding: 23px 31px;
             border-radius: var(--border-radius);
             border-left: 6px solid var(--accent-color);
-            font-size: 22px;
-            margin-bottom: 30px;
+            font-size: 19px;
+            margin-bottom: 23px;
         }
 
         .instructions-list ul {
@@ -84,7 +84,7 @@
         }
 
         .instructions-list li {
-            margin-bottom: 12px;
+            margin-bottom: 9px;
         }
 
         /* Rechte Seite: Die Chat-Simulation */
@@ -94,7 +94,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 31px;
             border-left: 2px solid #ddd;
         }
 
@@ -103,7 +103,7 @@
             border: 16px solid #111;
             border-radius: 40px;
             background-color: #e5ddd5;
-            height: 750px;
+            height: 615px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -115,16 +115,16 @@
         .phone-header {
             background: var(--brand-color);
             color: white;
-            padding: 15px 20px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             z-index: 10;
         }
 
         .phone-header .back-btn {
-            font-size: 26px;
+            font-size: 22px;
             cursor: default;
         }
 
@@ -136,7 +136,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 21px;
         }
 
         .phone-header .contact-info {
@@ -144,45 +144,45 @@
         }
 
         .phone-header .contact-name {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: bold;
         }
 
         .phone-header .contact-number {
-            font-size: 14px;
+            font-size: 12px;
             opacity: 0.8;
         }
 
         /* Chat-Bereich */
         .phone-chat {
             flex-grow: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             scroll-behavior: smooth;
         }
 
         .chat-date {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .chat-date span {
             background: #e1f5fe;
-            padding: 5px 12px;
+            padding: 4px 9px;
             border-radius: 12px;
-            font-size: 14px;
+            font-size: 12px;
             color: #555;
             box-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
 
         .bubble {
             max-width: 85%;
-            padding: 12px 16px;
+            padding: 9px 12px;
             border-radius: 12px;
-            font-size: 18px;
+            font-size: 15px;
             line-height: 1.4;
             position: relative;
             box-shadow: 0 1px 2px rgba(0,0,0,0.15);
@@ -214,7 +214,7 @@
             font-size: 12px;
             color: #888;
             text-align: right;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         /* Typing Indicator */
@@ -237,10 +237,10 @@
         /* Aktionsbereich (Buttons) */
         .phone-actions {
             background: #f0f0f0;
-            padding: 15px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 9px;
             border-top: 1px solid #ddd;
             z-index: 10;
         }
@@ -249,7 +249,7 @@
             background: white;
             border: 2px solid #ccc;
             color: var(--text-color);
-            padding: 12px 15px;
+            padding: 9px 12px;
             border-radius: 10px;
             cursor: pointer;
             text-align: left;
@@ -265,8 +265,8 @@
 
         .choice-btn strong {
             display: block;
-            font-size: 18px;
-            margin-bottom: 4px;
+            font-size: 15px;
+            margin-bottom: 3px;
             color: var(--accent-color);
         }
 
@@ -276,17 +276,17 @@
 
         .choice-btn .preview-text {
             color: #555;
-            font-size: 16px;
+            font-size: 14px;
             font-style: italic;
             display: block;
         }
 
         /* Endbildschirm Feedback Boxen */
         .feedback-box {
-            padding: 25px;
+            padding: 20px;
             border-radius: var(--border-radius);
-            margin-bottom: 25px;
-            font-size: 24px;
+            margin-bottom: 20px;
+            font-size: 21px;
         }
 
         .feedback-box.success {
@@ -302,22 +302,22 @@
         .tip-box {
             background: #fff3e0;
             border-left: 6px solid var(--warning-orange);
-            padding: 25px;
+            padding: 20px;
             border-radius: var(--border-radius);
-            font-size: 24px;
+            font-size: 21px;
         }
 
         .btn-restart {
             background-color: var(--brand-color);
             color: var(--white);
             border: none;
-            padding: 20px 40px;
-            font-size: 24px;
+            padding: 16px 31px;
+            font-size: 21px;
             font-weight: bold;
             border-radius: var(--border-radius);
             cursor: pointer;
             transition: background-color 0.3s;
-            margin-top: 30px;
+            margin-top: 23px;
             display: inline-block;
         }
 
@@ -331,9 +331,9 @@
                 flex-direction: column;
                 min-height: auto;
             }
-            .left-panel { padding: 30px; }
-            .right-panel { padding: 30px; flex: none; }
-            .phone-frame { max-width: 500px; height: 700px; }
+            .left-panel { padding: 23px; }
+            .right-panel { padding: 23px; flex: none; }
+            .phone-frame { max-width: 500px; height: 574px; }
         }
     </style>
 </head>
@@ -357,7 +357,7 @@
                     <li>Finden Sie heraus, ab wann es gefährlich wird!</li>
                 </ul>
             </div>
-            <p style="font-size: 20px; color: var(--link-color); font-weight: bold;">
+            <p style="font-size: 17px; color: var(--link-color); font-weight: bold;">
                 👉 Der Chat startet rechts im Smartphone-Display.
             </p>
         </div>
@@ -521,7 +521,7 @@
 
         // Deaktiviere das Chat-Eingabefenster
         document.getElementById('action-area').innerHTML = `
-            <div style="text-align:center; color:#888; padding:15px; font-weight:bold; font-size: 18px;">
+            <div style="text-align:center; color:#888; padding:12px; font-weight:bold; font-size: 15px;">
                 🔒 Kontakt wurde blockiert
             </div>`;
         document.getElementById('action-area').style.visibility = 'visible';

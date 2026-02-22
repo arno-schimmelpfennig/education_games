@@ -22,12 +22,12 @@
         /* Basis-Typografie (Zielgruppe 50+: Groß & Lesbar) */
         body {
             font-family: Arial, "Open Sans", sans-serif;
-            font-size: 20px;
+            font-size: 17px;
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -39,7 +39,7 @@
             background: var(--white);
             width: 100%;
             max-width: 1200px;
-            min-height: 700px;
+            min-height: 560px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border-radius: var(--border-radius);
             overflow: hidden;
@@ -52,7 +52,7 @@
         header {
             background-color: var(--brand-color);
             color: var(--white);
-            padding: 20px 30px;
+            padding: 16px 23px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -60,14 +60,14 @@
 
         header h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
         }
 
         .status-bar {
             display: flex;
-            gap: 30px;
+            gap: 23px;
             font-weight: bold;
-            font-size: 22px;
+            font-size: 19px;
         }
 
         .timer-warning {
@@ -83,7 +83,7 @@
 
         /* Hauptinhaltsbereich */
         .main-content {
-            padding: 30px;
+            padding: 23px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -101,7 +101,7 @@
 
         /* Startbildschirm */
         .intro-text {
-            font-size: 24px;
+            font-size: 21px;
             max-width: 800px;
             margin: 0 auto 40px auto;
             text-align: center;
@@ -111,13 +111,13 @@
             max-width: 800px;
             margin: 0 auto 40px auto;
             background: #eef2f5;
-            padding: 30px;
+            padding: 23px;
             border-radius: var(--border-radius);
             border-left: 6px solid var(--accent-color);
         }
 
         .instructions-list li {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         /* Buttons (Touch-freundlich, groß) */
@@ -125,8 +125,8 @@
             background-color: var(--brand-color);
             color: var(--white);
             border: none;
-            padding: 18px 40px;
-            font-size: 22px;
+            padding: 14px 31px;
+            font-size: 19px;
             font-weight: bold;
             border-radius: var(--border-radius);
             cursor: pointer;
@@ -164,13 +164,13 @@
 
         .email-header-info {
             background: #f9f9f9;
-            padding: 20px;
+            padding: 16px;
             border-bottom: 2px solid #ddd;
         }
 
         .email-row {
-            margin-bottom: 10px;
-            font-size: 22px;
+            margin-bottom: 8px;
+            font-size: 19px;
         }
         .email-row strong {
             display: inline-block;
@@ -179,20 +179,20 @@
         }
 
         .email-body {
-            padding: 30px;
-            font-size: 22px;
+            padding: 23px;
+            font-size: 19px;
             flex-grow: 1;
             white-space: pre-line;
         }
 
         .email-attachment {
-            padding: 20px;
+            padding: 16px;
             background: #fff3e0; /* Leicht orange für Aufmerksamkeit */
             border-top: 2px dashed #ccc;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         /* Hotspot / Klickbare verdächtige Elemente */
@@ -200,7 +200,7 @@
             cursor: pointer;
             position: relative;
             display: inline-block;
-            padding: 2px 6px;
+            padding: 2px 5px;
             margin: -2px -6px;
             border-radius: 4px;
             transition: all 0.3s ease;
@@ -225,8 +225,8 @@
             left: 0;
             background: #333;
             color: #fff;
-            padding: 8px 12px;
-            font-size: 16px;
+            padding: 6px 9px;
+            font-size: 14px;
             border-radius: 6px;
             white-space: nowrap;
             opacity: 0;
@@ -255,20 +255,20 @@
 
         /* Erklärungs-Boxen (Feedback) */
         #feedback-area {
-            margin-top: 20px;
-            min-height: 120px;
+            margin-top: 16px;
+            min-height: 96px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .feedback-item {
-            padding: 15px 20px;
+            padding: 12px 16px;
             border-radius: var(--border-radius);
-            font-size: 20px;
+            font-size: 17px;
             display: flex;
             align-items: flex-start;
-            gap: 15px;
+            gap: 12px;
             animation: fadeIn 0.4s ease-out;
             background-color: #e8f5e9;
             border-left: 6px solid var(--success-green);
@@ -292,10 +292,10 @@
             transform: translateX(-50%);
             background-color: var(--warning-orange);
             color: white;
-            padding: 15px 30px;
+            padding: 12px 23px;
             border-radius: 30px;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 17px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             z-index: 100;
             opacity: 0;
@@ -310,23 +310,23 @@
 
         /* Controls / Footer der E-Mail */
         .controls {
-            margin-top: 20px;
+            margin-top: 16px;
             display: flex;
             justify-content: center;
         }
 
         /* Endbildschirm */
         .score-display {
-            font-size: 48px;
+            font-size: 41px;
             font-weight: bold;
             color: var(--brand-color);
             text-align: center;
             margin: 30px 0;
         }
         .score-text {
-            font-size: 26px;
+            font-size: 22px;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 31px;
         }
     </style>
 </head>
@@ -344,7 +344,7 @@
     <!-- Startbildschirm -->
     <main class="main-content">
         <div id="screen-start" class="screen active">
-            <h2 style="text-align: center; font-size: 36px; color: var(--brand-color);">Willkommen im Einsatz!</h2>
+            <h2 style="text-align: center; font-size: 31px; color: var(--brand-color);">Willkommen im Einsatz!</h2>
             <p class="intro-text">
                 Als Phishing-Detektiv ist es Ihre Aufgabe, betrügerische E-Mails zu entlarven. 
                 Wir zeigen Ihnen gleich 5 E-Mails. Ihre Aufgabe ist es, verdächtige Merkmale zu finden.
@@ -359,7 +359,7 @@
                     <li><strong>5. Unerwartete Anhänge:</strong> Vorsicht bei .zip oder .exe Dateien!</li>
                 </ul>
             </div>
-            <p style="text-align: center; font-size: 22px; font-weight: bold;">
+            <p style="text-align: center; font-size: 19px; font-weight: bold;">
                 Klicken Sie auf alle verdächtigen Stellen in der E-Mail!<br>
                 Sie haben 60 Sekunden pro E-Mail Zeit.
             </p>
@@ -392,7 +392,7 @@
 
         <!-- Endbildschirm -->
         <div id="screen-end" class="screen">
-            <h2 style="text-align: center; font-size: 36px; color: var(--brand-color);">Einsatz beendet!</h2>
+            <h2 style="text-align: center; font-size: 31px; color: var(--brand-color);">Einsatz beendet!</h2>
             <div class="score-display" id="final-score-numbers">8/11</div>
             <p class="score-text" id="final-score-text">Auswertung läuft...</p>
             

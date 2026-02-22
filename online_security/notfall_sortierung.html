@@ -24,11 +24,11 @@
         /* Basis-Typografie (Zielgruppe 50+: Groß & Lesbar) */
         body {
             font-family: Arial, "Open Sans", sans-serif;
-            font-size: 22px;
+            font-size: 19px;
             color: var(--text-color);
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -42,7 +42,7 @@
             background: var(--white);
             width: 100%;
             max-width: 1200px;
-            min-height: 800px;
+            min-height: 525px;
             box-shadow: 0 15px 50px rgba(0,0,0,0.1);
             border-radius: var(--border-radius);
             display: flex;
@@ -55,7 +55,7 @@
         header {
             background-color: var(--brand-color);
             color: var(--white);
-            padding: 25px 40px;
+            padding: 20px 31px;
             text-align: center;
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
@@ -63,7 +63,7 @@
 
         header h1 {
             margin: 0;
-            font-size: 38px;
+            font-size: 33px;
             letter-spacing: 1px;
         }
 
@@ -73,7 +73,7 @@
             flex-direction: column;
             align-items: center;
             flex-grow: 1;
-            padding: 40px;
+            padding: 31px;
         }
 
         .screen.active {
@@ -90,20 +90,20 @@
         .scenario-box {
             background-color: #ffebee;
             border-left: 8px solid var(--brand-color);
-            padding: 25px 35px;
+            padding: 20px 27px;
             border-radius: 8px;
-            margin-bottom: 30px;
-            font-size: 26px;
+            margin-bottom: 23px;
+            font-size: 22px;
             width: 100%;
             max-width: 900px;
             box-sizing: border-box;
         }
 
         .instruction-text {
-            font-size: 24px;
+            font-size: 21px;
             font-weight: bold;
             color: var(--accent-color);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         /* Sortier-Liste */
@@ -115,7 +115,7 @@
             max-width: 900px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         /* Die einzelnen Karten */
@@ -123,10 +123,10 @@
             background: var(--white);
             border: 3px dashed #ccc;
             border-radius: 12px;
-            padding: 15px 25px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
-            font-size: 26px;
+            font-size: 22px;
             font-weight: bold;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
@@ -162,13 +162,13 @@
         /* Karten-Elemente */
         .drag-handle {
             color: #aaa;
-            font-size: 34px;
+            font-size: 29px;
             margin-right: 20px;
             cursor: grab;
         }
 
         .item-number {
-            font-size: 32px;
+            font-size: 28px;
             margin-right: 20px;
             min-width: 40px;
             text-align: center;
@@ -183,7 +183,7 @@
         .arrow-controls {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             margin-left: 20px;
         }
 
@@ -191,7 +191,7 @@
             background: #eef2f5;
             border: none;
             border-radius: 6px;
-            font-size: 24px;
+            font-size: 21px;
             width: 45px;
             height: 40px;
             cursor: pointer;
@@ -208,15 +208,15 @@
 
         /* Kontroll-Bereich (Unten) */
         .controls {
-            margin-top: 40px;
+            margin-top: 31px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .attempts-display {
-            font-size: 24px;
+            font-size: 21px;
             font-weight: bold;
             color: var(--warning-orange);
         }
@@ -225,8 +225,8 @@
             background-color: var(--brand-color);
             color: var(--white);
             border: none;
-            padding: 20px 50px;
-            font-size: 28px;
+            padding: 16px 39px;
+            font-size: 24px;
             font-weight: bold;
             border-radius: var(--border-radius);
             cursor: pointer;
@@ -244,7 +244,7 @@
         .emergency-banner {
             background-color: var(--brand-color);
             color: white;
-            padding: 40px;
+            padding: 31px;
             border-radius: 16px;
             text-align: center;
             width: 100%;
@@ -261,7 +261,7 @@
         }
 
         .emergency-number {
-            font-size: 80px;
+            font-size: 69px;
             font-weight: bold;
             letter-spacing: 5px;
             margin: 10px 0;
@@ -269,8 +269,8 @@
         }
 
         .result-title {
-            font-size: 42px;
-            margin-bottom: 10px;
+            font-size: 36px;
+            margin-bottom: 8px;
         }
 
         /* Konfetti Canvas */
@@ -285,9 +285,9 @@
         }
 
         @media(max-width: 900px) {
-            .sortable-item { font-size: 20px; padding: 10px 15px; }
-            .item-number { font-size: 24px; margin-right: 10px; }
-            .emergency-number { font-size: 50px; }
+            .sortable-item { font-size: 17px; padding: 8px 12px; }
+            .item-number { font-size: 21px; margin-right: 10px; }
+            .emergency-number { font-size: 43px; }
         }
     </style>
 </head>
@@ -324,21 +324,21 @@
     <!-- ENDBILDSCHIRM -->
     <main id="screen-end" class="screen">
         <h2 class="result-title" id="result-title" style="color: var(--success-green);">Hervorragend gelöst!</h2>
-        <p style="font-size: 26px; max-width: 800px; text-align: center;">
+        <p style="font-size: 22px; max-width: 800px; text-align: center;">
             Sie haben im Notfall genau richtig gehandelt. Wenn Sie diese Schritte befolgen, minimieren Sie den Schaden erheblich.
         </p>
 
         <div class="emergency-banner">
-            <div style="font-size: 28px; text-transform: uppercase;">Zentraler Sperrnotruf</div>
+            <div style="font-size: 24px; text-transform: uppercase;">Zentraler Sperrnotruf</div>
             <div class="emergency-number">116 116</div>
-            <div style="font-size: 24px; font-weight: bold; background: white; color: var(--brand-color); padding: 10px; border-radius: 8px; display: inline-block; margin-top: 15px;">
+            <div style="font-size: 21px; font-weight: bold; background: white; color: var(--brand-color); padding: 8px; border-radius: 8px; display: inline-block; margin-top: 12px;">
                 📱 Tippen Sie diese Nummer jetzt in Ihr Handy!
             </div>
         </div>
 
-        <p style="font-size: 22px; color: #666;">(Die Nummer ist gebührenfrei und rund um die Uhr erreichbar, um Konten und Karten sperren zu lassen.)</p>
+        <p style="font-size: 19px; color: #666;">(Die Nummer ist gebührenfrei und rund um die Uhr erreichbar, um Konten und Karten sperren zu lassen.)</p>
         
-        <button class="btn" onclick="location.reload()" style="margin-top: 20px;">Noch einmal spielen</button>
+        <button class="btn" onclick="location.reload()" style="margin-top: 16px;">Noch einmal spielen</button>
     </main>
 </div>
 
