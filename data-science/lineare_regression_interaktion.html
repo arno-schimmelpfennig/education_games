@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lineare Regression | Webinar-Interaktion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+    :root {
+      --brand-main: #631832;
+      --brand-accent: #173262;
+      --text-main: #231a24;
+      --text-light: #606f8c;
+      --bg-body: #edf1f7;
+      --surface: #ffffff;
+      --good: #1f8b4c;
+      --warn: #d17b1f;
+      --soft-border: #dbe3ef;
+      --panel-shadow: 0 12px 28px rgba(23, 50, 98, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 20% 0%, #f7f9fd 0%, var(--bg-body) 42%, #e9eef6 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: 100vh;
+    }
+
+    #sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--soft-border);
+      box-shadow: 2px 0 18px rgba(18, 40, 76, 0.07);
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .brandline {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: var(--brand-main);
+      line-height: 1.25;
+    }
+
+    .lead {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #434f63;
+      line-height: 1.55;
+    }
+
+    .story-box,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .usage-box {
+      background: #f8fafe;
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .story-box strong,
+    .chat-box strong,
+    .answer-box strong,
+    .usage-box strong {
+      color: var(--brand-accent);
+    }
+
+    .path-box {
+      background: #f8fafe;
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .path-box strong {
+      color: var(--brand-accent);
+    }
+
+    .path-box p {
+      margin: 6px 0 8px;
+      font-size: 0.84rem;
+      line-height: 1.42;
+      color: #45546d;
+    }
+
+    .path-content {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .path-box.collapsed .path-content {
+      display: none;
+    }
+
+    .path-status {
+      font-size: 0.78rem;
+      line-height: 1.36;
+      color: #5f6d84;
+      background: #fff;
+      border: 1px dashed #cbd4e4;
+      border-radius: 8px;
+      padding: 7px 8px;
+      margin-bottom: 8px;
+    }
+
+    .path-link {
+      display: block;
+      margin-top: 8px;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 11px;
+      font-size: 0.87rem;
+      font-weight: 700;
+      border: 1px solid var(--soft-border);
+      background: #eaf1fc;
+      color: #1f3f77;
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.12);
+      transition: filter 0.15s ease, opacity 0.15s ease;
+    }
+
+    .path-link:hover { filter: brightness(1.04); }
+
+    .path-link.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      box-shadow: none;
+      background: #f2f5fb;
+      color: #6b7a93;
+    }
+
+    .extension-box {
+      background: linear-gradient(155deg, #fff2f3 0%, #f4f8ff 55%, #eef4ff 100%);
+      border: 1px solid rgba(99, 24, 50, 0.28);
+      border-radius: 14px;
+      padding: 12px 13px;
+      box-shadow: 0 10px 20px rgba(37, 62, 107, 0.14);
+    }
+
+    .extension-kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #631832;
+      color: #fff;
+    }
+
+    .extension-box strong {
+      color: #2f1a40;
+      font-size: 0.94rem;
+    }
+
+    .extension-box p {
+      margin: 7px 0 9px;
+      font-size: 0.83rem;
+      line-height: 1.42;
+      color: #42506a;
+    }
+
+    .extension-link {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(92deg, #173262 0%, #2f5b96 100%);
+      box-shadow: 0 8px 16px rgba(23, 50, 98, 0.24);
+      transition: filter 0.15s ease;
+    }
+
+    .extension-link:hover {
+      filter: brightness(1.05);
+    }
+
+    #step-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: var(--brand-main);
+    }
+
+    #step-box {
+      position: relative;
+      transition: filter 0.22s ease, opacity 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    body.intro-active #step-box {
+      background: linear-gradient(160deg, #f3f6fb 0%, #edf2fa 100%);
+      border-color: #ced8e8;
+      filter: grayscale(0.42);
+      opacity: 0.92;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+      transform: translateY(1px);
+    }
+
+    body.intro-active #step-box::after {
+      content: "Schrittvorschau: startet nach dem Intro";
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #5b6981;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid #d4dceb;
+      border-radius: 999px;
+      padding: 3px 8px;
+    }
+
+    body.intro-active #step-box #step-title,
+    body.intro-active #step-box #step-text {
+      color: #4f5f77;
+    }
+
+    #step-text,
+    #chat-question,
+    #answer-text {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #344153;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 7px;
+    }
+
+    .timeline-item {
+      border-radius: 10px;
+      border: 1px solid var(--soft-border);
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      color: #5a667a;
+      background: #fff;
+      transition: all 0.2s;
+    }
+
+    .timeline-item.active {
+      border-color: rgba(99, 24, 50, 0.45);
+      background: #fff4f8;
+      color: var(--brand-main);
+      font-weight: 700;
+    }
+
+    .timeline-item.done {
+      border-color: rgba(31, 139, 76, 0.25);
+      background: #f2fbf6;
+      color: #256441;
+    }
+
+    .ctrl-group {
+      margin-top: auto;
+      display: grid;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.93rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: var(--brand-accent);
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.2);
+    }
+
+    button:hover { filter: brightness(1.06); }
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      filter: none;
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--text-main);
+      border: 1px solid var(--soft-border);
+      box-shadow: none;
+      font-weight: 600;
+    }
+
+    #stage {
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding-bottom: 18px;
+      scrollbar-gutter: stable;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--soft-border);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.83rem;
+      color: #334257;
+      box-shadow: 0 4px 10px rgba(17, 37, 72, 0.07);
+    }
+
+    .chip strong { color: var(--brand-main); }
+
+    .codepath-bar {
+      background: linear-gradient(160deg, #ffffff 0%, #f1f6ff 100%);
+      border: 1px solid #cbd8ed;
+      border-radius: 12px;
+      padding: 9px 10px;
+      box-shadow: 0 6px 14px rgba(17, 37, 72, 0.09);
+    }
+
+    .codepath-title {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #4d6080;
+      text-transform: uppercase;
+    }
+
+    .codepath-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 6px;
+    }
+
+    .codepath-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      border-radius: 9px;
+      border: 1px solid #d3dff2;
+      background: rgba(255, 255, 255, 0.88);
+      color: #344763;
+      padding: 7px 8px;
+      font-size: 0.77rem;
+      font-weight: 700;
+      min-height: 34px;
+    }
+
+    .codepath-step:hover {
+      border-color: #b9cae7;
+      background: #ffffff;
+    }
+
+    .codepath-step.active {
+      border-color: #3e659a;
+      background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
+    }
+
+    .codepath-index {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.66rem;
+      font-weight: 800;
+      border: 1px solid #aebfde;
+      background: #edf3ff;
+      color: #2f4f7a;
+    }
+
+    .codepath-step.active .codepath-index {
+      border-color: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .canvas-wrap {
+      background: linear-gradient(145deg, #ffffff, #f5f8fd);
+      border: 1px solid #dbe3ef;
+      border-radius: 16px;
+      box-shadow: var(--panel-shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 340px;
+    }
+
+    .canvas-caption {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--soft-border);
+      border-radius: 9px;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      color: #536178;
+      z-index: 2;
+    }
+
+    .canvas-model-meta {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--soft-border);
+      border-radius: 9px;
+      padding: 6px 8px;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      color: #4e5d74;
+      text-align: right;
+      z-index: 2;
+      max-width: min(290px, 56vw);
+    }
+
+    .canvas-model-meta strong {
+      color: #2f4669;
+    }
+
+    .canvas-footnote {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--soft-border);
+      border-radius: 9px;
+      padding: 5px 8px;
+      font-size: 0.73rem;
+      line-height: 1.35;
+      color: #55637a;
+      z-index: 2;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .bottom-panel {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) minmax(320px, 430px);
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .control-card,
+    .knowledge-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      box-shadow: var(--panel-shadow);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .control-card h3,
+    .knowledge-card h3 {
+      margin: 0 0 10px;
+      font-size: 0.98rem;
+      color: var(--brand-accent);
+    }
+
+    .slider-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: #425066;
+      margin-bottom: 4px;
+    }
+
+    .label-with-tip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .tip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .tip-icon {
+      all: unset;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1px solid #b7c3d7;
+      background: #fff;
+      color: #425066;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: help;
+      user-select: none;
+    }
+
+    .tip-icon:focus-visible {
+      outline: 2px solid #173262;
+      outline-offset: 1px;
+    }
+
+    .tip-text {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: min(290px, 58vw);
+      background: #1f2f47;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      box-shadow: 0 10px 20px rgba(17, 37, 72, 0.35);
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      z-index: 9;
+    }
+
+    .tip-text::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 9px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid #1f2f47;
+    }
+
+    .tip-wrap:hover .tip-text,
+    .tip-wrap:focus-within .tip-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand-main);
+      cursor: pointer;
+    }
+
+    input[type="range"]:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-row.single {
+      grid-template-columns: 1fr;
+    }
+
+    .btn-row button {
+      padding: 10px;
+      font-size: 0.82rem;
+    }
+
+    .btn-row button.ghost {
+      background: #fff;
+      color: var(--brand-accent);
+      border: 1px solid rgba(23, 50, 98, 0.3);
+      box-shadow: none;
+    }
+
+    .control-hint {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #5f6d84;
+      background: #f8fafe;
+      border: 1px dashed #c9d3e3;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    .anchor-mode-row {
+      margin-top: 10px;
+    }
+
+    .anchor-hint {
+      margin-top: 7px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #5f6d84;
+      background: #f7fafc;
+      border: 1px dashed #c9d3e3;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    .anchor-grid {
+      margin-top: 8px;
+      display: none;
+      gap: 10px;
+      background: #f7fafc;
+      border: 1px solid #dbe3ef;
+      border-radius: 9px;
+      padding: 8px;
+    }
+
+    .anchor-grid.active {
+      display: grid;
+    }
+
+    .slope-mini-box {
+      margin-top: 8px;
+      padding: 8px 9px;
+      border-radius: 8px;
+      border: 1px solid #d9e2f0;
+      background: #f8fbff;
+      font-size: 0.78rem;
+      line-height: 1.38;
+      color: #4a5972;
+    }
+
+    .slope-mini-box strong {
+      color: #173262;
+    }
+
+    .slope-impact-note {
+      margin-top: 6px;
+      font-weight: 700;
+      color: #243e67;
+    }
+
+    .knowledge-card ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 6px;
+      font-size: 0.84rem;
+      color: #39485f;
+      line-height: 1.45;
+    }
+
+    .knowledge-card h3.sub-head {
+      margin-top: 14px;
+    }
+
+    .explain-block {
+      background: #f8fafe;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .model-equation {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #2e3c52;
+      font-weight: 700;
+    }
+
+    .deep-points {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 6px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #38485f;
+    }
+
+    .mini-note {
+      margin-top: 10px;
+      font-size: 0.79rem;
+      color: #627087;
+      background: #f8fafe;
+      border: 1px dashed #c9d3e3;
+      border-radius: 9px;
+      padding: 8px;
+    }
+
+    .badge-webinar {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(90deg, var(--brand-main), #7d2b4b);
+      border-radius: 999px;
+      padding: 5px 10px;
+      letter-spacing: 0.01em;
+    }
+
+    #intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    body.intro-active #intro-overlay {
+      display: flex;
+    }
+
+    #intro-backdrop {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 22% 10%, rgba(255, 255, 255, 0.45), transparent 38%),
+        linear-gradient(140deg, rgba(15, 35, 66, 0.42), rgba(30, 42, 66, 0.52));
+      backdrop-filter: blur(2.2px);
+    }
+
+    #intro-card {
+      position: relative;
+      z-index: 2;
+      width: min(700px, 96vw);
+      background: linear-gradient(150deg, #ffffff 0%, #f5f8fd 100%);
+      border: 1px solid #d5deec;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(15, 35, 66, 0.3);
+      padding: 20px 20px 16px;
+    }
+
+    #intro-eyebrow {
+      display: inline-block;
+      margin-bottom: 8px;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #4f6283;
+    }
+
+    #intro-title {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      line-height: 1.3;
+      color: var(--brand-main);
+    }
+
+    #intro-text {
+      margin: 0 0 10px;
+      font-size: 0.92rem;
+      line-height: 1.52;
+      color: #36455d;
+    }
+
+    #intro-list {
+      margin: 0 0 12px;
+      padding-left: 17px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.86rem;
+      color: #3a4b64;
+    }
+
+    #intro-start-btn {
+      width: auto;
+      min-width: 230px;
+      padding-inline: 18px;
+    }
+
+    #quiz-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 96;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    body.quiz-active #quiz-overlay {
+      display: flex;
+    }
+
+    #quiz-backdrop {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(140deg, rgba(15, 35, 66, 0.4), rgba(22, 33, 54, 0.5));
+      backdrop-filter: blur(2px);
+    }
+
+    #quiz-card {
+      position: relative;
+      z-index: 2;
+      width: min(760px, 96vw);
+      max-height: min(86vh, 900px);
+      overflow-y: auto;
+      background: linear-gradient(150deg, #ffffff 0%, #f5f8fd 100%);
+      border: 1px solid #d5deec;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(15, 35, 66, 0.3);
+      padding: 18px 18px 14px;
+    }
+
+    #quiz-card h3 {
+      margin: 0 0 6px;
+      color: var(--brand-main);
+      font-size: 1.06rem;
+    }
+
+    #quiz-card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: #44536c;
+    }
+
+    .quiz-question {
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+
+    .quiz-question legend {
+      margin: 0 0 6px;
+      padding: 0;
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: #2f3f5a;
+    }
+
+    .quiz-option {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      color: #43536b;
+      line-height: 1.35;
+    }
+
+    .quiz-option:last-child { margin-bottom: 0; }
+
+    #quiz-feedback {
+      margin: 10px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.36;
+      color: #2f3f5a;
+      min-height: 20px;
+    }
+
+    .quiz-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    #code-popup-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2600;
+      display: none;
+    }
+
+    #code-popup-overlay[aria-hidden="false"] {
+      display: block;
+    }
+
+    #code-popup-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 28, 51, 0.54);
+      backdrop-filter: blur(2px);
+    }
+
+    #code-popup-modal {
+      position: absolute;
+      inset: 4vh 4vw;
+      background: #fff;
+      border: 1px solid #d4dceb;
+      border-radius: 16px;
+      box-shadow: 0 24px 44px rgba(11, 28, 50, 0.35);
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+    }
+
+    #code-popup-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #dbe3ef;
+      background: linear-gradient(110deg, #f7f9fd 0%, #eef3fb 100%);
+    }
+
+    #code-popup-head h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #173262;
+    }
+
+    #code-popup-head button {
+      width: auto;
+      min-width: 116px;
+      padding: 8px 12px;
+    }
+
+    #code-popup-subtitle {
+      margin: 0;
+      padding: 9px 14px;
+      border-bottom: 1px solid #e2e8f3;
+      font-size: 0.82rem;
+      color: #4d5c74;
+      background: #fbfdff;
+    }
+
+    #code-popup-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+
+    @media (max-width: 1080px) {
+      body { overflow: auto; height: auto; }
+      #app-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      #sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--soft-border);
+      }
+      #stage {
+        grid-template-rows: auto 420px auto;
+      }
+      .bottom-panel {
+        grid-template-columns: 1fr;
+      }
+      #code-popup-modal {
+        inset: 2vh 2vw;
+      }
+    }
+  </style>
+</head>
+<body class="intro-active">
+  <div id="intro-overlay" aria-hidden="false">
+    <div id="intro-backdrop"></div>
+    <section id="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+      <span id="intro-eyebrow">Info-Hinweis zum Start</span>
+      <h2 id="intro-title">Was du hier siehst und warum das wichtig ist</h2>
+      <p id="intro-text">
+        Du siehst historische Messpunkte (Temperatur, Heizkosten). Danach baust du selbst eine Gerade und lernst:
+        Machine Learning macht genau diese Parameterauswahl später automatisch.
+      </p>
+      <ul id="intro-list">
+        <li>Schritt 1-4: Prinzip manuell verstehen (m, b, Fehler, Prognose).</li>
+        <li>Schritt 5: Transfer zu ML/ChatGPT: Die Maschine optimiert Parameter statt Handregler.</li>
+      </ul>
+      <button id="intro-start-btn">Verstanden, Interaktion starten</button>
+    </section>
+  </div>
+  <div id="quiz-overlay" aria-hidden="true">
+    <div id="quiz-backdrop"></div>
+    <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+      <h3 id="quiz-title">Zwischen-Quiz: Lineare Regression</h3>
+      <p>3 Fragen, mindestens 2 richtig zum Freischalten von "Matrizen verstehen".</p>
+      <form id="linear-quiz-form">
+        <fieldset class="quiz-question">
+          <legend>1) Wofür steht die Steigung m?</legend>
+          <label class="quiz-option"><input type="radio" name="q1" value="a">Für den Startwert bei x=0</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="b">Für die Änderung von y pro +1 Einheit in x</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="c">Für die Anzahl der Datenpunkte</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>2) Was bedeutet ein kleinerer MAE?</legend>
+          <label class="quiz-option"><input type="radio" name="q2" value="a">Das Modell hat mehr Parameter</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b">Die Linie ist immer steiler</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c">Die Vorhersagen liegen im Mittel näher an den Beobachtungen</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>3) Warum reicht später oft keine einzelne x-Achse?</legend>
+          <label class="quiz-option"><input type="radio" name="q3" value="a">Weil reale Probleme oft mehrere Einflussfaktoren gleichzeitig haben</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="b">Weil eine Achse mathematisch falsch ist</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="c">Weil m und b dann verboten sind</label>
+        </fieldset>
+      </form>
+      <div id="quiz-feedback"></div>
+      <div class="quiz-actions">
+        <button id="grade-linear-quiz">Quiz auswerten</button>
+        <button id="close-linear-quiz" class="secondary">Schließen</button>
+      </div>
+    </section>
+  </div>
+  <div id="code-popup-overlay" aria-hidden="true">
+    <div id="code-popup-backdrop"></div>
+    <section id="code-popup-modal" role="dialog" aria-modal="true" aria-labelledby="code-popup-title">
+      <div id="code-popup-head">
+        <h3 id="code-popup-title">Code-Praxis (Python)</h3>
+        <button id="close-code-popup" class="secondary" type="button">Schliessen</button>
+      </div>
+      <p id="code-popup-subtitle">Vertiefung für Einsteiger: von Theorie zu `scikit-learn` und `statsmodels`.</p>
+      <iframe id="code-popup-frame" src="about:blank" title="Code-Praxis Popup" loading="lazy"></iframe>
+    </section>
+  </div>
+  <div id="app-layout">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Webinar Studio</div>
+      <h1>Lineare Regression<br>ohne Mathe-Stress</h1>
+      <p class="lead">
+        Gemeinsame Lernansicht für Moderation und Teilnehmende: Regler bewegen, Wirkung sofort gemeinsam sehen.
+      </p>
+      <span class="badge-webinar">Eine Ansicht für alle im Webinar</span>
+
+      <div class="story-box">
+        <strong>Alltagsszenario:</strong>
+        Eine Familie in Europa schaut auf ihre monatlichen Heizkosten.
+        Frage: Wie stark hängen die Kosten von der Außentemperatur ab?
+      </div>
+
+      <div class="step-box" id="step-box">
+        <h3 id="step-title"></h3>
+        <p id="step-text"></p>
+      </div>
+
+      <div class="chat-box">
+        <strong>Diskussionsfrage für die Runde:</strong>
+        <p id="chat-question"></p>
+      </div>
+
+      <div class="answer-box">
+        <strong id="answer-title">Auflösung zum vorherigen Schritt:</strong>
+        <p id="answer-text"></p>
+      </div>
+
+      <div class="timeline" id="timeline"></div>
+
+      <div class="usage-box">
+        <strong>Wann nutze ich das später im Job?</strong><br>
+        Wenn ein Zielwert ungefähr linear mit einem Einflussfaktor steigt oder fällt (Kosten, Zeit, Verbrauch, Nachfrage).
+      </div>
+
+      <div class="path-box collapsed" id="linear-path-box">
+        <strong>Lernpfad danach</strong>
+        <p id="linear-path-teaser">Lernpfad bleibt bis Schritt 5 eingeklappt.</p>
+        <div class="path-content">
+          <p>Für diese Veröffentlichung endet der Lernpfad bei linearer Regression. Nach dem Quiz kannst du direkt in die Code-Praxis wechseln.</p>
+          <div class="path-status" id="linear-quiz-status">Zwischen-Quiz wird nach Schritt 5 freigeschaltet.</div>
+          <button id="open-linear-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
+          <a id="to-matrix-link" class="path-link disabled" href="lineare_regression_code_praxis.html" aria-disabled="true">Weiter: Lineare Regression Code-Praxis</a>
+          <button id="replay-linear" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
+        </div>
+      </div>
+
+      <div class="extension-box">
+        <div class="extension-kicker">Erweiterung</div>
+        <strong>Von Theorie zu Anwendung</strong>
+        <p>Für Einsteiger mit Berufsbezug: dieselbe Regression als klare Python-Praxis mit `scikit-learn` und `statsmodels`.</p>
+        <a class="extension-link" href="lineare_regression_code_praxis.html">Code-Praxis (Python) im Popup öffnen</a>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="next-step">Nächster Lern-Schritt</button>
+        <button id="reset-session" class="secondary">Session zurücksetzen</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="codepath-bar" aria-label="Codepfad Navigation">
+        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-steps">
+          <a class="codepath-step active" href="lineare_regression_code_praxis.html">
+            <span class="codepath-index">1</span>
+            <span>Linear Regression</span>
+          </a>
+          <div class="codepath-step is-disabled" aria-disabled="true">
+            <span class="codepath-index">2</span>
+            <span>Block 2 folgt</span>
+          </div>
+          <div class="codepath-step is-disabled" aria-disabled="true">
+            <span class="codepath-index">3</span>
+            <span>Block 3 folgt</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="chip-row">
+        <div class="chip"><strong>Steigung m:</strong> <span id="chip-slope">-2.8</span></div>
+        <div class="chip"><strong>Achsenabschnitt b:</strong> <span id="chip-intercept">123.0</span> €</div>
+        <div class="chip"><strong>Mittlerer Fehler (MAE):</strong> <span id="chip-mae">0.0</span> €</div>
+        <div class="chip"><strong>Prognose bei <span id="chip-temp">8</span>°C:</strong> <span id="chip-pred">0.0</span> €</div>
+      </div>
+
+      <section class="canvas-wrap">
+        <div class="canvas-caption"><strong>Streudiagramm:</strong> Punkte = Monatsdaten | Linie = lineares Modell | gestrichelt = Residuen</div>
+        <div class="canvas-model-meta" id="model-meta"></div>
+        <canvas id="chart" role="img" aria-label="Streudiagramm mit Außentemperatur auf der x-Achse und Heizkosten auf der y-Achse."></canvas>
+        <div class="canvas-footnote">x-Achse: Außentemperatur (°C) | y-Achse: Heizkosten pro Monat (€) | Datengrundlage: 7 synthetische Monatsbeobachtungen</div>
+      </section>
+
+      <section class="bottom-panel">
+        <div class="control-card">
+          <h3>Interaktive Steuerung: Modell einstellen</h3>
+          <div class="slider-grid">
+            <div>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  Steigung m (pro +1°C)
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Hilfe zur Steigung m">i</button>
+                    <span class="tip-text">Was? Verändert die Richtung und Stärke des Zusammenhangs. Warum? Damit ihr seht, wie stark die Kosten pro zusätzlichem Grad steigen oder sinken.</span>
+                  </span>
+                </span>
+                <span id="slope-value">-2.8</span>
+              </div>
+              <input id="slope" type="range" min="-8" max="2" step="0.1" value="-2.8" title="Steuert, um wie viele Euro sich die Heizkosten pro +1°C verändern.">
+              <div class="slope-mini-box">
+                <strong>Warum die Steigung wichtig ist</strong><br>
+                Nur durch das "Kippen" ändert sich die Aussage über den Einfluss von Temperatur.
+                Ohne passende Steigung ist die Prognose systematisch falsch, auch wenn die Linie "irgendwie durch die Punkte" läuft.
+                <div class="slope-impact-note" id="slope-impact-note"></div>
+              </div>
+            </div>
+            <div>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  <span id="intercept-label-text">Achsenabschnitt b (bei 0°C)</span>
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Hilfe zum Achsenabschnitt b">i</button>
+                    <span class="tip-text">Was? Verschiebt die gesamte Linie nach oben oder unten. Warum? Damit ihr systematische Über- oder Unterschätzung ausgleichen könnt.</span>
+                  </span>
+                </span>
+                <span id="intercept-value">123.0 €</span>
+              </div>
+              <input id="intercept" type="range" min="70" max="180" step="0.5" value="123" title="Verschiebt das Modell insgesamt nach oben oder unten (Basisniveau bei 0°C).">
+            </div>
+            <div>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  Temperatur für Prognose
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Hilfe zur Prognose-Temperatur">i</button>
+                    <span class="tip-text">Was? Wählt den Temperaturwert auf der x-Achse. Warum? Damit ihr für konkrete Wetterlagen sofort die vorhergesagten Kosten vergleichen könnt.</span>
+                  </span>
+                </span>
+                <span id="temp-value">8°C</span>
+              </div>
+              <input id="temp" type="range" min="-5" max="18" step="1" value="8" title="Wählt die Temperatur aus, für die das Modell eine Kostenprognose berechnet.">
+            </div>
+          </div>
+
+          <div class="anchor-mode-row">
+            <button id="toggle-anchor-mode" class="secondary">Anker-Modus: AUS</button>
+            <div class="anchor-hint" id="anchor-hint"></div>
+            <div class="anchor-grid" id="anchor-controls">
+              <div>
+                <div class="slider-label">
+                  <span class="label-with-tip">
+                    Anker x0 (Temperatur)
+                    <span class="tip-wrap">
+                      <button type="button" class="tip-icon" aria-label="Hilfe zu Anker-x0">i</button>
+                      <span class="tip-text">Was? Setzt die bekannte x-Position des Referenzpunkts. Warum? Damit ihr die Gerade von einem realen, selbst gewählten Ausgangspunkt aufspannt.</span>
+                    </span>
+                  </span>
+                  <span id="anchor-x-value">0°C</span>
+                </div>
+                <input id="anchor-x" type="range" min="-5" max="18" step="1" value="0" title="Legt die Temperatur des bekannten Referenzpunkts fest.">
+              </div>
+              <div>
+                <div class="slider-label">
+                  <span class="label-with-tip">
+                    Anker y0 (Heizkosten)
+                    <span class="tip-wrap">
+                      <button type="button" class="tip-icon" aria-label="Hilfe zu Anker-y0">i</button>
+                      <span class="tip-text">Was? Setzt die bekannte y-Position des Referenzpunkts. Warum? Zusammen mit m wird die Gerade dadurch eindeutig festgelegt und b folgt automatisch.</span>
+                    </span>
+                  </span>
+                  <span id="anchor-y-value">123.0 €</span>
+                </div>
+                <input id="anchor-y" type="range" min="55" max="165" step="1" value="123" title="Legt die bekannten Heizkosten des Referenzpunkts fest.">
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button id="show-best">Beste Linie zeigen</button>
+            <button id="toggle-reference" class="ghost">Referenz ein/aus</button>
+          </div>
+          <div class="btn-row single">
+            <button id="reset-sliders" class="secondary">Regler zurücksetzen (m, b, Temperatur)</button>
+          </div>
+          <div class="control-hint" id="control-hint"></div>
+          <div class="mini-note">
+            Merksatz: Lineare Regression sucht eine Gerade, die im Mittel möglichst nah an allen Punkten liegt.
+          </div>
+        </div>
+
+        <div class="knowledge-card">
+          <h3>Heizkosten-Beispiel verständlich lesen</h3>
+          <div class="explain-block">
+            <p class="model-equation" id="equation-text"></p>
+            <ul class="deep-points">
+              <li id="deep-slope"></li>
+              <li id="deep-intercept"></li>
+              <li id="deep-prediction"></li>
+              <li id="deep-mae"></li>
+            </ul>
+          </div>
+
+          <h3 class="sub-head">Vorteile und Grenzen</h3>
+          <ul>
+            <li><strong>Vorteil:</strong> Sehr schnell, gut erklärbar, guter Startpunkt für viele Probleme.</li>
+            <li><strong>Vorteil:</strong> Zeigt sofort die Richtung: steigt etwas oder fällt es?</li>
+            <li><strong>Nachteil:</strong> Klappt schlecht bei stark gekrümmten Zusammenhängen.</li>
+            <li><strong>Nachteil:</strong> Ausreißer können die Linie sichtbar verschieben.</li>
+            <li><strong>Praxis:</strong> Für Forecasting im ersten Schritt oft besser als direkt ein komplexes Modell.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const points = [
+      { x: -2, y: 152 },
+      { x: 0, y: 144 },
+      { x: 3, y: 129 },
+      { x: 6, y: 116 },
+      { x: 10, y: 96 },
+      { x: 14, y: 79 },
+      { x: 16, y: 72 }
+    ];
+
+    const bestModel = { m: -4.65, b: 143.2 };
+
+    const steps = [
+      {
+        title: "Schritt 1: Richtung verstehen",
+        text: "Zeige nur die Punkte: Das sind historische Messwerte (x = Temperatur, y = Heizkosten), z. B. aus vergangenen Monaten. Kalte Monate liegen oben, warme Monate unten. Ohne Formel erkennt man so bereits den negativen Zusammenhang zwischen Temperatur und Heizkosten.",
+        chat: "Diskussion: Wenn es draußen wärmer wird, gehen die Heizkosten eher rauf oder runter?",
+        answer: "Meist runter. In den Daten sieht man einen negativen Zusammenhang: Mit steigender Temperatur liegen die Heizkosten im Mittel niedriger."
+      },
+      {
+        title: "Schritt 2: Erste Gerade bauen",
+        text: "Aufgabe: Baue eine Gerade in Balance, nicht die perfekte Linie. 1) Kippe mit m, bis die Richtung passt (bei mehr °C eher geringere Kosten). 2) Verschiebe mit b nach oben/unten, bis die Punktwolke grob gleichmäßig um die Linie liegt. Ziel: Viele Punkte sinnvoll abdecken, nicht jeden Punkt exakt treffen.",
+        chat: "Diskussion: Welche Steigung passt hier eher: -1, -4 oder -7?",
+        answer: "Eine Steigung um -4 bis -5 passt hier besser als -1. -7 ist oft zu steil. Ziel ist eine plausible Balance über alle Punkte, nicht ein einzelner perfekter Treffer."
+      },
+      {
+        title: "Schritt 3: Fehler sichtbar machen",
+        text: "Die gestrichelten Abstände sind Residuen: pro Monat die Differenz zwischen Messwert und Vorhersage. Je kürzer sie insgesamt sind, desto kleiner wird der durchschnittliche Fehler (MAE).",
+        chat: "Diskussion: Wird unser Modell besser, wenn die gestrichelten Linien insgesamt kürzer werden?",
+        answer: "Ja. Kürzere Residuen bedeuten kleineren Vorhersagefehler im Mittel. Genau das ist das Ziel der linearen Regression."
+      },
+      {
+        title: "Schritt 4: Prognose verwenden",
+        text: "Bewege den Temperatur-Regler und lies die Prognose ab. Vergleiche aktiv mit 0°C: So sieht man direkt, wie stark die Kosten je Temperaturbereich steigen oder fallen.",
+        chat: "Diskussion: Was schätzt ihr für 5°C - eher 90€, 120€ oder 150€?",
+        answer: "Typisch liegt die Schätzung in diesem Setup eher nahe bei 120€. Die genaue Zahl hängt von eurer aktuellen Gerade (m,b) ab."
+      },
+      {
+        title: "Schritt 5: Transfer zu Machine Learning",
+        text: "Jetzt der ML-Transfer: Was ihr bisher manuell gemacht habt (Gerade kippen/verschieben), lernt ein ML-Verfahren automatisch aus vielen Daten. Mit nur einer x-Achse stoßt ihr aber an Grenzen, sobald mehrere Einflussfaktoren wichtig werden. Genau deshalb geht es als Nächstes mit Matrizen weiter. Bei ChatGPT bleibt das Grundprinzip ähnlich, nur mit sehr viel mehr Parametern und anderer Zielgröße.",
+        chat: "Diskussion: Was macht die Maschine hier automatisch, was wir vorher per Regler von Hand gemacht haben?",
+        answer: "Sie passt die Parameter automatisch an (bei uns m und b), indem sie den Fehler über viele Beispiele minimiert. Bei ChatGPT ist die Idee gleich, nur in viel größerem Maßstab."
+      }
+    ];
+
+    const state = {
+      m: -2.8,
+      b: 123,
+      temp: 8,
+      stepIndex: 0,
+      showReference: false,
+      anchorMode: false,
+      anchorX: 0,
+      anchorY: 123,
+      hasAdvanced: false,
+      quizReady: false
+    };
+    const defaults = {
+      m: -2.8,
+      b: 123,
+      temp: 8,
+      anchorMode: false,
+      anchorX: 0,
+      anchorY: 123
+    };
+
+    const chart = document.getElementById("chart");
+    const ctx = chart.getContext("2d");
+    const slopeInput = document.getElementById("slope");
+    const interceptInput = document.getElementById("intercept");
+    const tempInput = document.getElementById("temp");
+    const anchorXInput = document.getElementById("anchor-x");
+    const anchorYInput = document.getElementById("anchor-y");
+    const anchorControlsEl = document.getElementById("anchor-controls");
+    const anchorModeBtn = document.getElementById("toggle-anchor-mode");
+    const interceptLabelTextEl = document.getElementById("intercept-label-text");
+    const introOverlay = document.getElementById("intro-overlay");
+    const introStartBtn = document.getElementById("intro-start-btn");
+    const linearQuizOverlay = document.getElementById("quiz-overlay");
+    const codePopupOverlay = document.getElementById("code-popup-overlay");
+    const codePopupFrame = document.getElementById("code-popup-frame");
+    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const openLinearQuizBtn = document.getElementById("open-linear-quiz");
+    const replayLinearBtn = document.getElementById("replay-linear");
+    const closeLinearQuizBtn = document.getElementById("close-linear-quiz");
+    const gradeLinearQuizBtn = document.getElementById("grade-linear-quiz");
+    const linearQuizStatusEl = document.getElementById("linear-quiz-status");
+    const linearQuizFeedbackEl = document.getElementById("quiz-feedback");
+    const toMatrixLink = document.getElementById("to-matrix-link");
+    const linearQuizForm = document.getElementById("linear-quiz-form");
+    const linearPathBox = document.getElementById("linear-path-box");
+    const linearPathTeaser = document.getElementById("linear-path-teaser");
+
+    const timelineEl = document.getElementById("timeline");
+
+    const xRange = { min: -5, max: 18 };
+    const yRange = { min: 55, max: 165 };
+    const linearQuizAnswers = { q1: "b", q2: "c", q3: "a" };
+
+    function getEffectiveB() {
+      return state.anchorMode ? state.anchorY - state.m * state.anchorX : state.b;
+    }
+
+    function yHat(x) {
+      return getEffectiveB() + state.m * x;
+    }
+
+    function computeMAE() {
+      const total = points.reduce((sum, p) => sum + Math.abs(p.y - yHat(p.x)), 0);
+      return total / points.length;
+    }
+
+    function setCanvasSize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = chart.getBoundingClientRect();
+      chart.width = Math.floor(rect.width * dpr);
+      chart.height = Math.floor(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function toCanvasX(x, width, pad) {
+      return pad.left + ((x - xRange.min) / (xRange.max - xRange.min)) * (width - pad.left - pad.right);
+    }
+
+    function toCanvasY(y, height, pad) {
+      return height - pad.bottom - ((y - yRange.min) / (yRange.max - yRange.min)) * (height - pad.top - pad.bottom);
+    }
+
+    function drawAxes(width, height, pad) {
+      ctx.strokeStyle = "#cfd9e8";
+      ctx.lineWidth = 1;
+      const xTicks = [];
+      const yTicks = [];
+
+      for (let t = -5; t <= 18; t += 3) {
+        const x = toCanvasX(t, width, pad);
+        ctx.beginPath();
+        ctx.moveTo(x, pad.top);
+        ctx.lineTo(x, height - pad.bottom);
+        ctx.stroke();
+        xTicks.push(t);
+      }
+
+      for (let y = 60; y <= 160; y += 20) {
+        const yy = toCanvasY(y, height, pad);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yy);
+        ctx.lineTo(width - pad.right, yy);
+        ctx.stroke();
+        yTicks.push(y);
+      }
+
+      ctx.strokeStyle = "#7b889e";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, height - pad.bottom);
+      ctx.lineTo(width - pad.right, height - pad.bottom);
+      ctx.moveTo(pad.left, pad.top);
+      ctx.lineTo(pad.left, height - pad.bottom);
+      ctx.stroke();
+
+      ctx.fillStyle = "#5d6c82";
+      ctx.font = "11px Inter";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      xTicks.forEach((tick) => {
+        ctx.fillText(`${tick}`, toCanvasX(tick, width, pad), height - pad.bottom + 6);
+      });
+
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      yTicks.forEach((tick) => {
+        ctx.fillText(`${tick}`, pad.left - 8, toCanvasY(tick, height, pad));
+      });
+
+      ctx.fillStyle = "#425066";
+      ctx.font = "12px Inter";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("Außentemperatur (°C)", (pad.left + (width - pad.right)) / 2, height - pad.bottom - 8);
+      ctx.save();
+      ctx.translate(20, (pad.top + (height - pad.bottom)) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText("Heizkosten pro Monat (€)", 0, 0);
+      ctx.restore();
+    }
+
+    function drawModelLine(width, height, pad, model, color, dash = []) {
+      const x1 = xRange.min;
+      const x2 = xRange.max;
+      const y1 = model.b + model.m * x1;
+      const y2 = model.b + model.m * x2;
+
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(x1, width, pad), toCanvasY(y1, height, pad));
+      ctx.lineTo(toCanvasX(x2, width, pad), toCanvasY(y2, height, pad));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawResiduals(width, height, pad) {
+      ctx.save();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = "rgba(209, 123, 31, 0.65)";
+      ctx.lineWidth = 1.7;
+      points.forEach((p) => {
+        const predY = yHat(p.x);
+        ctx.beginPath();
+        ctx.moveTo(toCanvasX(p.x, width, pad), toCanvasY(p.y, height, pad));
+        ctx.lineTo(toCanvasX(p.x, width, pad), toCanvasY(predY, height, pad));
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    function drawPoints(width, height, pad) {
+      points.forEach((p) => {
+        const x = toCanvasX(p.x, width, pad);
+        const y = toCanvasY(p.y, height, pad);
+        ctx.beginPath();
+        ctx.fillStyle = "#173262";
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+
+    function drawPredictionMarker(width, height, pad) {
+      const x = state.temp;
+      const y = yHat(x);
+      const cx = toCanvasX(x, width, pad);
+      const cy = toCanvasY(y, height, pad);
+
+      ctx.save();
+      ctx.fillStyle = "rgba(99, 24, 50, 0.9)";
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "11px Inter";
+      ctx.fillText("P", cx - 3.5, cy + 4);
+      ctx.restore();
+    }
+
+    function findSlopeAnchorX() {
+      for (let x = xRange.min + 1; x <= xRange.max - 2; x += 1) {
+        const yA = yHat(x);
+        const yB = yHat(x + 1);
+        if (
+          yA >= yRange.min + 6 && yA <= yRange.max - 6 &&
+          yB >= yRange.min + 6 && yB <= yRange.max - 6
+        ) {
+          return x;
+        }
+      }
+      return null;
+    }
+
+    function drawParameterGuides(width, height, pad) {
+      const effectiveB = getEffectiveB();
+      const bY = effectiveB;
+
+      if (state.anchorMode) {
+        const ax = toCanvasX(state.anchorX, width, pad);
+        const ay = toCanvasY(state.anchorY, height, pad);
+        if (state.anchorY >= yRange.min && state.anchorY <= yRange.max) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.fillStyle = "#2d6a9c";
+          ctx.arc(ax, ay, 5.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = "#2d6a9c";
+          ctx.font = "12px Inter";
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(`Anker (${state.anchorX}°C, ${state.anchorY.toFixed(1)} €)`, ax + 8, ay - 10);
+          ctx.restore();
+        }
+      }
+
+      if (bY >= yRange.min && bY <= yRange.max) {
+        const bx = toCanvasX(0, width, pad);
+        const by = toCanvasY(bY, height, pad);
+        const labelY = Math.max(pad.top + 12, Math.min(height - pad.bottom - 12, by - 12));
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = "#1f8b4c";
+        ctx.arc(bx, by, 5.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#1f8b4c";
+        ctx.font = "12px Inter";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          state.anchorMode
+            ? `b (abgeleitet) = ${effectiveB.toFixed(1)} €`
+            : `b = ${effectiveB.toFixed(1)} €`,
+          bx + 8,
+          labelY
+        );
+        ctx.restore();
+      }
+
+      const slopeAnchor = findSlopeAnchorX();
+      if (slopeAnchor === null) return;
+
+      const x1 = slopeAnchor;
+      const x2 = slopeAnchor + 1;
+      const y1 = yHat(x1);
+      const y2 = yHat(x2);
+
+      const ax = toCanvasX(x1, width, pad);
+      const ay = toCanvasY(y1, height, pad);
+      const bx = toCanvasX(x2, width, pad);
+      const by = toCanvasY(y2, height, pad);
+
+      ctx.save();
+      ctx.setLineDash([4, 3]);
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(23, 50, 98, 0.75)";
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, ay);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(99, 24, 50, 0.78)";
+      ctx.beginPath();
+      ctx.moveTo(bx, ay);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.fillStyle = "#173262";
+      ctx.font = "11px Inter";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("Δx = 1°C", (ax + bx) / 2, ay - 4);
+
+      ctx.fillStyle = "#631832";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`Δy = ${state.m.toFixed(1)} €`, bx + 6, (ay + by) / 2);
+      ctx.restore();
+    }
+
+    function renderChart() {
+      setCanvasSize();
+      const width = chart.clientWidth;
+      const height = chart.clientHeight;
+      const pad = { top: 24, right: 24, bottom: 66, left: 74 };
+
+      const showModel = state.stepIndex >= 1;
+      const showResiduals = state.stepIndex >= 2;
+      const showPrediction = state.stepIndex >= 3;
+
+      ctx.clearRect(0, 0, width, height);
+      drawAxes(width, height, pad);
+      if (showResiduals) {
+        drawResiduals(width, height, pad);
+      }
+      if (state.showReference && state.stepIndex >= 4) {
+        drawModelLine(width, height, pad, bestModel, "rgba(31, 139, 76, 0.65)", [9, 5]);
+      }
+      if (showModel) {
+        drawModelLine(width, height, pad, { m: state.m, b: getEffectiveB() }, "#631832");
+        drawParameterGuides(width, height, pad);
+      }
+      drawPoints(width, height, pad);
+      if (showPrediction) {
+        drawPredictionMarker(width, height, pad);
+      }
+    }
+
+    function updateReadout() {
+      const mae = computeMAE();
+      const prediction = yHat(state.temp);
+      const effectiveB = getEffectiveB();
+
+      document.getElementById("slope-value").textContent = state.m.toFixed(1);
+      document.getElementById("intercept-value").textContent = state.anchorMode
+        ? `${effectiveB.toFixed(1)} € (auto)`
+        : `${effectiveB.toFixed(1)} €`;
+      document.getElementById("temp-value").textContent = `${state.temp}°C`;
+      document.getElementById("anchor-x-value").textContent = `${state.anchorX}°C`;
+      document.getElementById("anchor-y-value").textContent = `${state.anchorY.toFixed(1)} €`;
+
+      document.getElementById("chip-slope").textContent = state.m.toFixed(1);
+      document.getElementById("chip-intercept").textContent = effectiveB.toFixed(1);
+      document.getElementById("chip-mae").textContent = mae.toFixed(1);
+      document.getElementById("chip-temp").textContent = state.temp;
+      document.getElementById("chip-pred").textContent = prediction.toFixed(1);
+      if (state.anchorMode) {
+        document.getElementById("model-meta").innerHTML =
+          `<strong>Anker-Modus aktiv</strong><br>Anker: (${state.anchorX}°C, ${state.anchorY.toFixed(1)} €)<br>m = ${state.m.toFixed(1)} €/°C | b (auto) = ${effectiveB.toFixed(1)} €`;
+        interceptLabelTextEl.textContent = "Achsenabschnitt b (aus Ankerpunkt abgeleitet)";
+      } else {
+        document.getElementById("model-meta").innerHTML =
+          `<strong>Parameter im Diagramm</strong><br>m = ${state.m.toFixed(1)} €/°C | b = ${effectiveB.toFixed(1)} €<br>y = ${effectiveB.toFixed(1)} + (${state.m.toFixed(1)} × x)`;
+        interceptLabelTextEl.textContent = "Achsenabschnitt b (bei 0°C)";
+      }
+      document.getElementById("slope-impact-note").textContent = getSlopeImpactText(state.m);
+      updateDeepExplanation(mae, prediction, effectiveB);
+    }
+
+    function getSlopeImpactText(m) {
+      if (Math.abs(m) < 0.05) {
+        return `Aktuell m = ${m.toFixed(1)}: +1°C verändert die Kosten laut Modell kaum.`;
+      }
+      if (m < 0) {
+        return `Aktuell m = ${m.toFixed(1)}: +1°C führt zu ca. ${Math.abs(m).toFixed(1)} € weniger Heizkosten.`;
+      }
+      return `Aktuell m = ${m.toFixed(1)}: +1°C führt zu ca. ${m.toFixed(1)} € mehr Heizkosten.`;
+    }
+
+    function describeDeltaEuro(delta) {
+      if (Math.abs(delta) < 0.05) return "nahezu kein Unterschied";
+      return delta > 0 ? `${delta.toFixed(1)} € mehr` : `${Math.abs(delta).toFixed(1)} € weniger`;
+    }
+
+    function updateDeepExplanation(mae, prediction, effectiveB) {
+      const zeroPrediction = yHat(0);
+      const slopeValue = Math.abs(state.m).toFixed(1);
+      const perDegreeText = state.m < -0.05
+        ? `pro +1°C sinken die erwarteten Heizkosten im Mittel um ${slopeValue} €.`
+        : state.m > 0.05
+          ? `pro +1°C steigen die erwarteten Heizkosten im Mittel um ${slopeValue} €.`
+          : "die Heizkosten ändern sich pro +1°C laut Modell kaum.";
+
+      const comparedToZero = prediction - zeroPrediction;
+
+      document.getElementById("equation-text").textContent = state.anchorMode
+        ? `Aktuelle Modellgleichung: Heizkosten ≈ ${state.anchorY.toFixed(1)} + (${state.m.toFixed(1)} × (Temperatur - ${state.anchorX}))`
+        : `Aktuelle Modellgleichung: Heizkosten ≈ ${effectiveB.toFixed(1)} + (${state.m.toFixed(1)} × Temperatur in °C)`;
+      document.getElementById("deep-slope").textContent =
+        `Steigung m = ${state.m.toFixed(1)} bedeutet: ${perDegreeText}`;
+      document.getElementById("deep-intercept").textContent = state.anchorMode
+        ? `Ankerpunkt (${state.anchorX}°C, ${state.anchorY.toFixed(1)} €) ist fix. Daraus ergibt sich b = ${effectiveB.toFixed(1)} € bei 0°C.`
+        : `Achsenabschnitt b = ${effectiveB.toFixed(1)} heißt: Bei 0°C prognostiziert das Modell ${zeroPrediction.toFixed(1)} €. Das ist ein Rechenanker, kein Naturgesetz.`;
+      document.getElementById("deep-prediction").textContent =
+        `Für ${state.temp}°C liegt die Prognose bei ${prediction.toFixed(1)} €; gegenüber 0°C sind das ${describeDeltaEuro(comparedToZero)}.`;
+      document.getElementById("deep-mae").textContent =
+        `MAE = ${mae.toFixed(1)} € heißt: Pro Monat liegt die Linie im Durchschnitt um etwa ${mae.toFixed(1)} € neben den echten Werten.`;
+    }
+
+    function updateStepAnswer() {
+      const titleEl = document.getElementById("answer-title");
+      const textEl = document.getElementById("answer-text");
+
+      if (!state.hasAdvanced) {
+        titleEl.textContent = "Auflösung zum vorherigen Schritt:";
+        textEl.textContent = "Die Auflösung erscheint, sobald ihr zum nächsten Schritt wechselt.";
+        return;
+      }
+
+      const prevIdx = (state.stepIndex - 1 + steps.length) % steps.length;
+      const prevStep = steps[prevIdx];
+      titleEl.textContent = `Auflösung zu Schritt ${prevIdx + 1}:`;
+      textEl.textContent = prevStep.answer;
+    }
+
+    function renderTimeline() {
+      timelineEl.innerHTML = "";
+      steps.forEach((step, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        if (idx < state.stepIndex) item.classList.add("done");
+        if (idx === state.stepIndex) item.classList.add("active");
+        item.textContent = `${idx + 1}. ${step.title.replace("Schritt " + (idx + 1) + ": ", "")}`;
+        timelineEl.appendChild(item);
+      });
+    }
+
+    function updateStepContent() {
+      if (state.stepIndex === steps.length - 1) {
+        state.quizReady = true;
+      }
+      const step = steps[state.stepIndex];
+      document.getElementById("step-title").textContent = step.title;
+      document.getElementById("step-text").textContent = step.text;
+      document.getElementById("chat-question").textContent = step.chat;
+      updateLinearQuizAvailability();
+      updateStepAnswer();
+      syncControlsToStep();
+      updateReadout();
+      renderChart();
+      renderTimeline();
+    }
+
+    function updateLinearQuizAvailability() {
+      const ready = state.quizReady;
+      openLinearQuizBtn.hidden = !ready;
+      replayLinearBtn.hidden = !ready;
+      linearPathBox.classList.toggle("collapsed", !ready);
+      linearPathTeaser.textContent = ready
+        ? "Geoeffnet: Quiz, Weiterlink und Replay sind jetzt verfuegbar."
+        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+
+      if (!ready) {
+        linearQuizStatusEl.textContent = `Zwischen-Quiz wird nach Schritt ${steps.length} freigeschaltet.`;
+        linearQuizStatusEl.style.borderColor = "#cbd4e4";
+        linearQuizStatusEl.style.background = "#fff";
+        linearQuizStatusEl.style.color = "#5f6d84";
+        return;
+      }
+
+      if (toMatrixLink.classList.contains("disabled")) {
+        linearQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Zwischen-Quiz starten (2 von 3 richtig).";
+        linearQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
+        linearQuizStatusEl.style.background = "#fff7fa";
+        linearQuizStatusEl.style.color = "#6f2d45";
+      }
+    }
+
+    function syncControlsToStep() {
+      const lineControlsEnabled = state.stepIndex >= 1;
+      const predictionEnabled = state.stepIndex >= 3;
+      const refEnabled = state.stepIndex >= 4;
+      const anchorUnlocked = state.stepIndex >= 4;
+
+      if (!anchorUnlocked && state.anchorMode) {
+        state.b = getEffectiveB();
+        state.anchorMode = false;
+      }
+
+      slopeInput.disabled = !lineControlsEnabled;
+      interceptInput.disabled = !lineControlsEnabled || state.anchorMode;
+      tempInput.disabled = !predictionEnabled;
+      document.getElementById("show-best").disabled = !refEnabled || state.anchorMode;
+      document.getElementById("toggle-reference").disabled = !refEnabled;
+      anchorModeBtn.disabled = !anchorUnlocked;
+      anchorXInput.disabled = !anchorUnlocked || !state.anchorMode;
+      anchorYInput.disabled = !anchorUnlocked || !state.anchorMode;
+      anchorControlsEl.classList.toggle("active", anchorUnlocked && state.anchorMode);
+      anchorModeBtn.textContent = state.anchorMode ? "Anker-Modus: AN" : "Anker-Modus: AUS";
+
+      const anchorHintEl = document.getElementById("anchor-hint");
+      if (!anchorUnlocked) {
+        anchorHintEl.textContent = "Anker-Modus wird ab Schritt 5 freigeschaltet (nach den Grundlagen).";
+      } else if (state.anchorMode) {
+        anchorHintEl.textContent = "Anker-Modus aktiv: Ihr setzt (x0,y0) direkt, b wird daraus automatisch berechnet.";
+      } else {
+        anchorHintEl.textContent = "Optional: Aktiviert den Anker-Modus, wenn ihr mit einem bekannten Referenzpunkt arbeiten wollt.";
+      }
+
+      const hintEl = document.getElementById("control-hint");
+      if (!lineControlsEnabled) {
+        hintEl.textContent = "Regler werden ab Schritt 2 aktiv. In Schritt 1 betrachtet ihr nur die Punkte.";
+      } else if (state.stepIndex === 1) {
+        hintEl.textContent = "Schritt 2-Aufgabe: Erst mit m die Linie kippen, dann mit b verschieben. Ziel ist eine ausgewogene Lage durch die Punktwolke, nicht perfektes Treffen jedes Punkts.";
+      } else if (state.stepIndex === 2) {
+        hintEl.textContent = "Jetzt Residuen lesen: gute Balance heißt, dass die vertikalen Abstände insgesamt kurz und ohne einseitigen Bias sind.";
+      } else if (!predictionEnabled) {
+        hintEl.textContent = "Steigung und Achsenabschnitt sind aktiv. Temperatur-Prognose kommt in Schritt 4.";
+      } else if (!refEnabled) {
+        hintEl.textContent = "Alle Regler sind aktiv. Referenzlinie wird in Schritt 5 freigeschaltet.";
+      } else {
+        hintEl.textContent = state.anchorMode
+          ? "Alle Steuerungen sind aktiv. Im Anker-Modus ist b abgeleitet und daher nicht direkt verstellbar."
+          : "Alle Steuerungen sind aktiv. Optional könnt ihr jetzt den Anker-Modus nutzen.";
+      }
+    }
+
+    function nextStep() {
+      state.hasAdvanced = true;
+      state.stepIndex = (state.stepIndex + 1) % steps.length;
+      updateStepContent();
+    }
+
+    function animateToBest() {
+      const startM = state.m;
+      const startB = state.b;
+      const duration = 450;
+      const start = performance.now();
+
+      function frame(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const ease = 1 - Math.pow(1 - t, 3);
+        state.m = startM + (bestModel.m - startM) * ease;
+        state.b = startB + (bestModel.b - startB) * ease;
+
+        slopeInput.value = state.m;
+        interceptInput.value = state.b;
+
+        updateReadout();
+        renderChart();
+
+        if (t < 1) requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    slopeInput.addEventListener("input", (e) => {
+      state.m = Number(e.target.value);
+      updateReadout();
+      renderChart();
+    });
+
+    interceptInput.addEventListener("input", (e) => {
+      state.b = Number(e.target.value);
+      updateReadout();
+      renderChart();
+    });
+
+    tempInput.addEventListener("input", (e) => {
+      state.temp = Number(e.target.value);
+      updateReadout();
+      renderChart();
+    });
+
+    anchorXInput.addEventListener("input", (e) => {
+      state.anchorX = Number(e.target.value);
+      updateReadout();
+      renderChart();
+    });
+
+    anchorYInput.addEventListener("input", (e) => {
+      state.anchorY = Number(e.target.value);
+      updateReadout();
+      renderChart();
+    });
+
+    anchorModeBtn.addEventListener("click", () => {
+      if (state.stepIndex < 4) return;
+
+      if (!state.anchorMode) {
+        state.anchorX = state.temp;
+        state.anchorY = yHat(state.anchorX);
+        anchorXInput.value = state.anchorX;
+        anchorYInput.value = state.anchorY;
+        state.anchorMode = true;
+        interceptInput.value = getEffectiveB();
+      } else {
+        state.b = getEffectiveB();
+        state.anchorMode = false;
+        interceptInput.value = state.b;
+      }
+
+      syncControlsToStep();
+      updateReadout();
+      renderChart();
+    });
+
+    document.getElementById("next-step").addEventListener("click", nextStep);
+
+    document.getElementById("show-best").addEventListener("click", () => {
+      if (state.stepIndex < 4 || state.anchorMode) return;
+      animateToBest();
+      state.stepIndex = Math.max(state.stepIndex, 4);
+      updateStepContent();
+    });
+
+    document.getElementById("toggle-reference").addEventListener("click", () => {
+      if (state.stepIndex < 4) return;
+      state.showReference = !state.showReference;
+      renderChart();
+    });
+
+    document.getElementById("reset-sliders").addEventListener("click", () => {
+      state.m = defaults.m;
+      state.b = defaults.b;
+      state.temp = defaults.temp;
+      state.anchorMode = defaults.anchorMode;
+      state.anchorX = defaults.anchorX;
+      state.anchorY = defaults.anchorY;
+      slopeInput.value = state.m;
+      interceptInput.value = state.b;
+      tempInput.value = state.temp;
+      anchorXInput.value = state.anchorX;
+      anchorYInput.value = state.anchorY;
+      syncControlsToStep();
+      updateReadout();
+      renderChart();
+    });
+
+    document.getElementById("reset-session").addEventListener("click", () => {
+      state.m = defaults.m;
+      state.b = defaults.b;
+      state.temp = defaults.temp;
+      state.anchorMode = defaults.anchorMode;
+      state.anchorX = defaults.anchorX;
+      state.anchorY = defaults.anchorY;
+      state.hasAdvanced = false;
+      state.quizReady = false;
+      state.stepIndex = 0;
+      state.showReference = false;
+      slopeInput.value = state.m;
+      interceptInput.value = state.b;
+      tempInput.value = state.temp;
+      anchorXInput.value = state.anchorX;
+      anchorYInput.value = state.anchorY;
+      updateStepContent();
+    });
+
+    window.addEventListener("resize", renderChart);
+
+    function closeIntroOverlay() {
+      document.body.classList.remove("intro-active");
+      introOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function unlockMatrixNavigation() {
+      toMatrixLink.classList.remove("disabled");
+      toMatrixLink.setAttribute("aria-disabled", "false");
+      linearQuizStatusEl.textContent = "Zwischen-Quiz bestanden. Die Code-Praxis ist freigeschaltet.";
+      linearQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
+      linearQuizStatusEl.style.background = "#f3fbf6";
+      linearQuizStatusEl.style.color = "#275b3f";
+    }
+
+    function openLinearQuiz() {
+      if (!state.quizReady || document.body.classList.contains("intro-active")) return;
+      document.body.classList.add("quiz-active");
+      linearQuizOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeLinearQuiz() {
+      document.body.classList.remove("quiz-active");
+      linearQuizOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function openCodePopup(url) {
+      codePopupFrame.src = url;
+      codePopupOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeCodePopup() {
+      codePopupOverlay.setAttribute("aria-hidden", "true");
+      codePopupFrame.src = "about:blank";
+    }
+
+    function gradeLinearQuiz() {
+      let score = 0;
+      Object.keys(linearQuizAnswers).forEach((qid) => {
+        const checked = linearQuizForm.querySelector(`input[name="${qid}"]:checked`);
+        if (checked && checked.value === linearQuizAnswers[qid]) score += 1;
+      });
+
+      if (score >= 2) {
+        linearQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Stark - Code-Praxis ist freigeschaltet.`;
+        linearQuizFeedbackEl.style.color = "#1f8b4c";
+        unlockMatrixNavigation();
+      } else {
+        linearQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
+        linearQuizFeedbackEl.style.color = "#9a324d";
+      }
+    }
+
+    introStartBtn.addEventListener("click", closeIntroOverlay);
+    document.getElementById("intro-backdrop").addEventListener("click", closeIntroOverlay);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && document.body.classList.contains("intro-active")) {
+        closeIntroOverlay();
+      }
+      if (e.key === "Escape" && document.body.classList.contains("quiz-active")) {
+        closeLinearQuiz();
+      }
+      if (e.key === "Escape" && codePopupOverlay.getAttribute("aria-hidden") === "false") {
+        closeCodePopup();
+      }
+    });
+
+    openLinearQuizBtn.addEventListener("click", openLinearQuiz);
+    closeLinearQuizBtn.addEventListener("click", closeLinearQuiz);
+    gradeLinearQuizBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      gradeLinearQuiz();
+    });
+    document.getElementById("quiz-backdrop").addEventListener("click", closeLinearQuiz);
+    replayLinearBtn.addEventListener("click", () => {
+      document.getElementById("reset-session").click();
+    });
+
+    codePopupTriggers.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        openCodePopup(link.getAttribute("href"));
+      });
+    });
+    document.getElementById("close-code-popup").addEventListener("click", closeCodePopup);
+    document.getElementById("code-popup-backdrop").addEventListener("click", closeCodePopup);
+
+    updateStepContent();
+  </script>
+</body>
+</html>
