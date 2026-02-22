@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darf die App das? – Der Berechtigungs-Check</title>
+    <style>
+        /* Farbschema & Corporate Design Variablen */
+        :root {
+            --brand-color: #631832; /* Marke */
+            --accent-color: #173262; /* Akzent */
+            --text-color: #231A24; /* Text */
+            --link-color: #606F8C; /* Link */
+            
+            /* Funktionale Farben für das Spiel */
+            --warning-orange: #E67E22; /* Ablehnen / Warnung */
+            --success-green: #27AE60; /* Erlauben / Richtig */
+            --error-red: #c0392b; /* Falsche Entscheidung */
+            
+            --bg-color: #f4f6f9;
+            --white: #ffffff;
+            --border-radius: 16px;
+        }
+
+        /* Basis-Typografie (Zielgruppe 50+: Groß & Lesbar) */
+        body {
+            font-family: Arial, "Open Sans", sans-serif;
+            font-size: 22px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Hauptcontainer - Optimiert für Beamer (1920x1080) */
+        .app-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 1200px;
+            min-height: 750px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header / Statusleiste */
+        header {
+            background-color: var(--brand-color);
+            color: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .progress {
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        /* Bildschirme */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Start- und Endbildschirm */
+        .intro-text {
+            font-size: 26px;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background-color: var(--brand-color);
+            color: var(--white);
+            border: none;
+            padding: 20px 50px;
+            font-size: 26px;
+            font-weight: bold;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Die App-Karte */
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .app-card {
+            background: var(--white);
+            border: 3px solid #e0e6ed;
+            border-radius: 24px;
+            padding: 40px 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            background-image: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px) rotate(5deg); opacity: 0; }
+            to { transform: translateX(0) rotate(0); opacity: 1; }
+        }
+
+        .app-icon {
+            font-size: 90px;
+            line-height: 1;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+        }
+
+        .app-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        .request-box {
+            background: #eef2f5;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            border-left: 6px solid var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        .request-label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .request-permission {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--brand-color);
+        }
+
+        /* Buttons (Erlauben / Ablehnen) */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 20px 10px;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-deny {
+            background-color: var(--warning-orange);
+            box-shadow: 0 6px 0 #b9651b;
+        }
+        .btn-deny:hover { background-color: #d6751f; }
+        .btn-deny:active { transform: translateY(6px); box-shadow: none; }
+
+        .btn-allow {
+            background-color: var(--success-green);
+            box-shadow: 0 6px 0 #1e8449;
+        }
+        .btn-allow:hover { background-color: #229954; }
+        .btn-allow:active { transform: translateY(6px); box-shadow: none; }
+
+        .action-btn span {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        /* Feedback Modal (Overlay) */
+        #feedback-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 40px;
+            text-align: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .feedback-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .feedback-text {
+            font-size: 26px;
+            max-width: 700px;
+            margin-bottom: 40px;
+            background: #f4f6f9;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 6px solid #ccc;
+        }
+
+        /* Endbildschirm */
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            background: var(--brand-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: bold;
+            margin: 0 auto 30px auto;
+            box-shadow: 0 10px 30px rgba(99, 24, 50, 0.3);
+        }
+
+        .score-message {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>📱 Darf die App das?</h1>
+        <div class="progress" id="progress-display" style="display: none;">App 1 / 6</div>
+    </header>
+
+    <!-- STARTBILDSCHIRM -->
+    <main id="screen-start" class="screen active">
+        <h2 style="font-size: 42px; color: var(--brand-color); margin-bottom: 20px;">Der Berechtigungs-Check</h2>
+        <p class="intro-text">
+            Wenn Sie eine neue App installieren, fragt diese oft nach Zugriff auf Funktionen Ihres Smartphones. 
+            Einige sind notwendig, andere reine Neugierde – oder gar eine Kostenfalle!
+        </p>
+        <p class="intro-text" style="font-weight: bold; color: var(--accent-color);">
+            Wir zeigen Ihnen gleich 6 Apps. Entscheiden Sie: Ist die Anfrage sinnvoll oder gefährlich?
+        </p>
+        <button class="btn" onclick="startGame()">Jetzt starten</button>
+    </main>
+
+    <!-- SPIELBILDSCHIRM -->
+    <main id="screen-game" class="screen">
+        <div class="card-container">
+            <div class="app-card" id="app-card">
+                <div class="app-icon" id="app-icon">🔦</div>
+                <div class="app-name" id="app-name">Taschenlampe</div>
+                
+                <div class="request-box">
+                    <div class="request-label">Möchte Zugriff auf:</div>
+                    <div class="request-permission" id="app-request">Kontakte</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn btn-deny" onclick="makeChoice(false)">
+                        <span>❌</span> Ablehnen
+                    </button>
+                    <button class="action-btn btn-allow" onclick="makeChoice(true)">
+                        <span>✅</span> Erlauben
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FEEDBACK OVERLAY -->
+    <div id="feedback-overlay">
+        <div class="feedback-icon" id="fb-icon">✅</div>
+        <div class="feedback-title" id="fb-title">Richtig entschieden!</div>
+        <div class="feedback-text" id="fb-text">Erklärung hier.</div>
+        <button class="btn" onclick="nextCard()">Weiter zur nächsten App</button>
+    </div>
+
+    <!-- ENDBILDSCHIRM -->
+    <main id="screen-end" class="screen">
+        <h2 style="font-size: 42px; color: var(--brand-color); margin-bottom: 40px;">Auswertung</h2>
+        <div class="score-circle" id="final-score">5/6</div>
+        <div class="score-message" id="score-message">Sie haben ein gutes Gespür!</div>
+        <p class="intro-text">
+            <strong>Tipp für den Alltag:</strong> Überlegen Sie immer, ob eine App die Funktion wirklich für ihre Hauptaufgabe benötigt. Wenn nicht: Lieber ablehnen! Sie können Berechtigungen später in den Einstellungen jederzeit anpassen.
+        </p>
+        <button class="btn" onclick="location.reload()">Noch einmal spielen</button>
+    </main>
+</div>
+
+<script>
+    // --- DATEN DER APPS ---
+    const apps = [
+        {
+            name: "Taschenlampe",
+            icon: "🔦",
+            request: "Kontakte",
+            shouldAllow: false,
+            feedback: "Eine Taschenlampe braucht nur das Kameralicht, niemals Ihre Telefonkontakte. Das ist stark verdächtig!"
+        },
+        {
+            name: "WhatsApp / Messenger",
+            icon: "💬",
+            request: "Mikrofon",
+            shouldAllow: true,
+            feedback: "Für das Aufnehmen von Sprachnachrichten und für Anrufe ist der Mikrofon-Zugriff zwingend nötig."
+        },
+        {
+            name: "Wetter-App",
+            icon: "🌤️",
+            request: "Standort",
+            shouldAllow: true,
+            feedback: "Um Ihnen das aktuelle, lokale Wetter anzuzeigen, ist der GPS-Standort sinnvoll."
+        },
+        {
+            name: "Kostenloses Spiel",
+            icon: "🎮",
+            request: "SMS senden",
+            shouldAllow: false,
+            feedback: "Achtung Kostenfalle! Ein normales Handyspiel muss keine SMS in Ihrem Namen versenden."
+        },
+        {
+            name: "Kamera-App",
+            icon: "📷",
+            request: "Fotos & Galerie",
+            shouldAllow: true,
+            feedback: "Damit die App Ihre neu geschossenen Bilder überhaupt auf dem Handy speichern kann, braucht sie diesen Zugriff."
+        },
+        {
+            name: "Taschenrechner",
+            icon: "🔢",
+            request: "Kamera",
+            shouldAllow: false,
+            feedback: "Ein normaler Taschenrechner muss nichts fotografieren. Solche Anfragen sollten Sie direkt ablehnen!"
+        }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+
+    // --- SPIEL LOGIK ---
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function startGame() {
+        currentIndex = 0;
+        score = 0;
+        document.getElementById('progress-display').style.display = 'block';
+        showScreen('screen-game');
+        renderCard();
+    }
+
+    function renderCard() {
+        const app = apps[currentIndex];
+        
+        // Karte neu animieren
+        const card = document.getElementById('app-card');
+        card.style.animation = 'none';
+        card.offsetHeight; /* trigger reflow */
+        card.style.animation = 'slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+        // Daten einfügen
+        document.getElementById('app-icon').innerText = app.icon;
+        document.getElementById('app-name').innerText = app.name;
+        document.getElementById('app-request').innerText = app.request;
+        document.getElementById('progress-display').innerText = `App ${currentIndex + 1} / ${apps.length}`;
+    }
+
+    function makeChoice(userAllowed) {
+        const app = apps[currentIndex];
+        const isCorrect = (userAllowed === app.shouldAllow);
+
+        if (isCorrect) score++;
+
+        showFeedback(isCorrect, app.feedback);
+    }
+
+    function showFeedback(isCorrect, text) {
+        const overlay = document.getElementById('feedback-overlay');
+        const icon = document.getElementById('fb-icon');
+        const title = document.getElementById('fb-title');
+        const textElement = document.getElementById('fb-text');
+
+        if (isCorrect) {
+            icon.innerText = "🌟";
+            title.innerText = "Richtig entschieden!";
+            title.style.color = "var(--success-green)";
+            textElement.style.borderLeftColor = "var(--success-green)";
+        } else {
+            icon.innerText = "⚠️";
+            title.innerText = "Das war leider falsch!";
+            title.style.color = "var(--error-red)";
+            textElement.style.borderLeftColor = "var(--error-red)";
+        }
+
+        textElement.innerHTML = `<strong>Warum?</strong> ${text}`;
+        overlay.style.display = 'flex';
+    }
+
+    function nextCard() {
+        document.getElementById('feedback-overlay').style.display = 'none';
+        currentIndex++;
+
+        if (currentIndex < apps.length) {
+            renderCard();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        document.getElementById('progress-display').style.display = 'none';
+        showScreen('screen-end');
+
+        document.getElementById('final-score').innerText = `${score}/${apps.length}`;
+        
+        const msg = document.getElementById('score-message');
+        if (score === apps.length) {
+            msg.innerText = "Perfekt! Sie haben ein hervorragendes Gespür!";
+            msg.style.color = "var(--success-green)";
+        } else if (score >= 4) {
+            msg.innerText = "Gut gemacht! Sie sind schon sehr aufmerksam.";
+            msg.style.color = "var(--brand-color)";
+        } else {
+            msg.innerText = "Das üben wir noch. Seien Sie kritischer!";
+            msg.style.color = "var(--warning-orange)";
+        }
+    }
+</script>
+</body>
+</html>

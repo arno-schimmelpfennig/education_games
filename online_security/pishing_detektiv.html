@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Der Anruf – Erkennen Sie den Trick?</title>
+    <style>
+        /* Farbschema & Basis-Variablen */
+        :root {
+            --brand-color: #631832; /* Marke */
+            --accent-color: #173262; /* Akzent */
+            --text-color: #231A24; /* Text */
+            --link-color: #606F8C; /* Link */
+            --warning-orange: #E67E22; /* Warnung */
+            --success-green: #27AE60; /* Richtig */
+            --error-red: #c0392b; /* Übersehen */
+            --bg-color: #f4f6f9;
+            --white: #ffffff;
+            --chat-sent: #dcf8c6; /* Neutrales WhatsApp Grün */
+            --border-radius: 12px;
+        }
+
+        /* Basis-Typografie für optimale Lesbarkeit (50+) */
+        body {
+            font-family: Arial, "Open Sans", sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Hauptcontainer: Split-Layout für Beamer (1920x1080) */
+        .app-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 1500px;
+            min-height: 800px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* Linke Seite: Erklärungen & Auswertung */
+        .left-panel {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .left-panel h1 {
+            color: var(--brand-color);
+            font-size: 46px;
+            margin-top: 0;
+            line-height: 1.2;
+            margin-bottom: 30px;
+        }
+
+        .intro-text {
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        .instructions-list {
+            background: #eef2f5;
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            border-left: 6px solid var(--accent-color);
+            font-size: 22px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .instructions-list li {
+            margin-bottom: 12px;
+        }
+
+        /* Rechte Seite: Die Chat-Simulation */
+        .right-panel {
+            flex: 0 0 550px;
+            background: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            border-left: 2px solid #ddd;
+        }
+
+        /* Das virtuelle Smartphone */
+        .phone-frame {
+            border: 16px solid #111;
+            border-radius: 40px;
+            background-color: #e5ddd5;
+            height: 750px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .phone-header {
+            background: var(--brand-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .phone-header .back-btn {
+            font-size: 26px;
+            cursor: default;
+        }
+
+        .phone-header .avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .phone-header .contact-info {
+            line-height: 1.2;
+        }
+
+        .phone-header .contact-name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .phone-header .contact-number {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Chat-Bereich */
+        .phone-chat {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-date {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .chat-date span {
+            background: #e1f5fe;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #555;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform-origin: bottom left;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .bubble.received {
+            background: #ffffff;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+            color: var(--text-color);
+        }
+
+        .bubble.sent {
+            background: var(--chat-sent);
+            align-self: flex-end;
+            border-top-right-radius: 0;
+            color: var(--text-color);
+            transform-origin: bottom right;
+        }
+
+        .bubble .time {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* Typing Indicator */
+        .typing span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #999;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing span:nth-child(1) { animation-delay: -0.32s; }
+        .typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Aktionsbereich (Buttons) */
+        .phone-actions {
+            background: #f0f0f0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid #ddd;
+            z-index: 10;
+        }
+
+        .choice-btn {
+            background: white;
+            border: 2px solid #ccc;
+            color: var(--text-color);
+            padding: 12px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .choice-btn:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .choice-btn strong {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: var(--accent-color);
+        }
+
+        .choice-btn.stop-btn strong {
+            color: var(--brand-color); /* Marke zur Hervorhebung des Stoppens */
+        }
+
+        .choice-btn .preview-text {
+            color: #555;
+            font-size: 16px;
+            font-style: italic;
+            display: block;
+        }
+
+        /* Endbildschirm Feedback Boxen */
+        .feedback-box {
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .feedback-box.success {
+            background: #e8f5e9;
+            border-left: 6px solid var(--success-green);
+        }
+
+        .feedback-box.error {
+            background: #ffebee;
+            border-left: 6px solid var(--error-red);
+        }
+
+        .tip-box {
+            background: #fff3e0;
+            border-left: 6px solid var(--warning-orange);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            font-size: 24px;
+        }
+
+        .btn-restart {
+            background-color: var(--brand-color);
+            color: var(--white);
+            border: none;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 30px;
+            display: inline-block;
+        }
+
+        .btn-restart:hover {
+            background-color: var(--accent-color);
+        }
+
+        /* Responsive */
+        @media(max-width: 1100px) {
+            .app-container {
+                flex-direction: column;
+                min-height: auto;
+            }
+            .left-panel { padding: 30px; }
+            .right-panel { padding: 30px; flex: none; }
+            .phone-frame { max-width: 500px; height: 700px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="left-panel">
+        <h1>💬 Der Anruf – Erkennen Sie den Trick?</h1>
+        <div id="info-content">
+            <p class="intro-text">
+                <strong>Situation:</strong> Sie erhalten unerwartet eine Nachricht von einer unbekannten Nummer. Die Person gibt sich als Ihr Kind aus.
+            </p>
+            <p class="intro-text">
+                <strong>Ihre Aufgabe:</strong> Lesen Sie den Chat aufmerksam und entscheiden Sie bei jeder Nachricht:<br>
+                Möchten Sie <strong>antworten</strong> und sich weiter auf das Gespräch einlassen, oder werden Sie misstrauisch und <strong>fragen nach</strong>?
+            </p>
+            <div class="instructions-list">
+                <ul>
+                    <li>Beobachten Sie, wie Betrüger psychologischen Druck aufbauen.</li>
+                    <li>Wählen Sie unten im Smartphone die richtige Antwort.</li>
+                    <li>Finden Sie heraus, ab wann es gefährlich wird!</li>
+                </ul>
+            </div>
+            <p style="font-size: 20px; color: var(--link-color); font-weight: bold;">
+                👉 Der Chat startet rechts im Smartphone-Display.
+            </p>
+        </div>
+    </div>
+    
+    <div class="right-panel">
+        <div class="phone-frame">
+            <div class="phone-header">
+                <div class="back-btn">&#8592;</div>
+                <div class="avatar">👤</div>
+                <div class="contact-info">
+                    <div class="contact-name">Unbekannte Nummer</div>
+                    <div class="contact-number">+49 151 2345678</div>
+                </div>
+            </div>
+            
+            <div class="phone-chat" id="chat-window">
+                <div class="chat-date"><span>Heute</span></div>
+                <!-- Chat Bubbles werden hier per JavaScript eingefügt -->
+            </div>
+            
+            <div class="phone-actions" id="action-area" style="visibility: hidden;">
+                <button class="choice-btn" id="btn-engage" onclick="selectOption('engage')">
+                    <strong>Antworten</strong>
+                    <span class="preview-text">...</span>
+                </button>
+                <button class="choice-btn stop-btn" id="btn-stop" onclick="selectOption('stop')">
+                    <strong>Nachfragen / Prüfen</strong>
+                    <span class="preview-text">...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATENSTRUKTUR DER CHAT-STUFEN ---
+    const scamStages = [
+        {
+            level: 1,
+            scammer: "Hallo Mama/Papa, mein Handy ist kaputt gegangen. Das hier ist meine neue Nummer. Du kannst die alte Nummer löschen.",
+            replyEngage: "Klar, mache ich. Ist sonst alles okay bei dir?",
+            replyStop: "Ich rufe dich kurz auf der alten Nummer an, um das zu prüfen."
+        },
+        {
+            level: 2,
+            scammer: "Ja, soweit alles okay. Aber ich habe ein riesiges Problem. Mein Online-Banking geht auf dem neuen Handy noch nicht und ich muss heute dringend etwas überweisen.",
+            replyEngage: "Oh je. Wie viel brauchst du denn?",
+            replyStop: "Ohne Telefonat überweise ich grundsätzlich nichts."
+        },
+        {
+            level: 3,
+            scammer: "Es sind 1.450 Euro. Es ist wirklich total dringend, sonst bekomme ich eine Mahnung mit hohen Gebühren! Bitte hilf mir!",
+            replyEngage: "Okay, schick mir die Kontodaten.",
+            replyStop: "Das ist mir zu unsicher, ich frage jetzt persönlich nach."
+        },
+        {
+            level: 4,
+            scammer: "Hier ist die IBAN: DE12 3456 7890 1234. Empfängername ist 'S. Müller'. Bitte mach eine Echtzeit-Überweisung, sonst ist es zu spät!",
+            replyEngage: "Mache ich sofort fertig.",
+            replyStop: "Der Name passt doch gar nicht! Ich blockiere die Nummer."
+        },
+        {
+            level: 5,
+            scammer: "Hast du es schon überwiesen? Bitte schick mir einen Screenshot! Ich brauche das Geld jetzt sofort!",
+            replyEngage: "Ist überwiesen. Das Geld ist raus.",
+            replyStop: "Nein, ich gehe jetzt zur Polizei."
+        }
+    ];
+
+    let currentStage = 0;
+
+    // Startet das Spiel
+    window.onload = () => {
+        setTimeout(() => triggerStage(), 1000);
+    };
+
+    // Führt die aktuelle Chat-Stufe aus
+    async function triggerStage() {
+        const actionArea = document.getElementById('action-area');
+        actionArea.style.visibility = 'hidden';
+        
+        await showTyping(1800); // Täuscht Tippen vor (Realismus)
+        
+        const stageData = scamStages[currentStage];
+        appendMessage(stageData.scammer, 'received');
+        
+        updateActions(stageData);
+        actionArea.style.visibility = 'visible';
+    }
+
+    // Aktualisiert die Button-Texte
+    function updateActions(stageData) {
+        document.getElementById('btn-engage').querySelector('.preview-text').innerText = `"${stageData.replyEngage}"`;
+        document.getElementById('btn-stop').querySelector('.preview-text').innerText = `"${stageData.replyStop}"`;
+    }
+
+    // Verarbeitung des Klicks
+    function selectOption(choice) {
+        const stageData = scamStages[currentStage];
+        const actionArea = document.getElementById('action-area');
+        actionArea.style.visibility = 'hidden'; // Buttons sofort ausblenden
+        
+        if (choice === 'engage') {
+            appendMessage(stageData.replyEngage, 'sent');
+            currentStage++;
+            
+            if (currentStage >= scamStages.length) {
+                // Letzte Stufe erreicht -> Verloren
+                setTimeout(() => endGame(currentStage, true), 1000);
+            } else {
+                // Nächste Eskalationsstufe
+                setTimeout(() => triggerStage(), 800);
+            }
+        } else {
+            // Betrug gestoppt
+            appendMessage(stageData.replyStop, 'sent');
+            setTimeout(() => endGame(currentStage + 1, false), 1000);
+        }
+    }
+
+    // Zeigt die Auswertung an
+    function endGame(stoppedAtLevel, lost = false) {
+        const infoContent = document.getElementById('info-content');
+        let feedbackHTML = "";
+
+        if (lost) {
+            feedbackHTML = `
+                <div class="feedback-box error">
+                    <h3 style="margin-top:0; color:var(--error-red);">🚨 Betrug erfolgreich!</h3>
+                    <p>Sie haben bis zur letzten Stufe geantwortet. Das Geld ist nun leider unwiederbringlich weg.</p>
+                    <p>Betrüger nutzen die Sorge und Hilfsbereitschaft von Angehörigen gnadenlos aus.</p>
+                </div>`;
+        } else {
+            let specificText = "";
+            if(stoppedAtLevel === 1) specificText = "Perfekt! Sie haben den Trick sofort durchschaut.";
+            else if(stoppedAtLevel === 2) specificText = "Gut gemacht! Bei der Forderung nach Geld sind Sie richtigerweise misstrauisch geworden.";
+            else if(stoppedAtLevel === 3) specificText = "Gut, dass Sie abgebrochen haben! Künstliche Dringlichkeit ist ein typischer Trick, um Sie unvorsichtig zu machen.";
+            else if(stoppedAtLevel === 4) specificText = "Gerade noch rechtzeitig! Ein fremder Name auf der Überweisung ist ein absolutes Warnsignal.";
+            else if(stoppedAtLevel === 5) specificText = "In letzter Sekunde! Sie haben den Betrug gestoppt, bevor das Geld endgültig weg war.";
+
+            feedbackHTML = `
+                <div class="feedback-box success">
+                    <h3 style="margin-top:0; color:var(--success-green);">✅ Sehr gut reagiert!</h3>
+                    <p>Sie haben den Betrug bei <strong>Stufe ${stoppedAtLevel}</strong> gestoppt.</p>
+                    <p>${specificText}</p>
+                </div>`;
+        }
+        
+        feedbackHTML += `
+            <div class="tip-box">
+                <strong>💡 Unser wichtigster Tipp:</strong><br><br>
+                Rufen Sie IMMER die alte, bekannte Nummer an, wenn Sie über Messenger von angeblichen Verwandten um Geld gebeten werden!
+            </div>
+            <button class="btn-restart" onclick="location.reload()">Noch einmal spielen</button>
+        `;
+        
+        // Aktualisiere das linke Panel
+        infoContent.innerHTML = feedbackHTML;
+        infoContent.style.animation = "popIn 0.5s ease";
+
+        // Deaktiviere das Chat-Eingabefenster
+        document.getElementById('action-area').innerHTML = `
+            <div style="text-align:center; color:#888; padding:15px; font-weight:bold; font-size: 18px;">
+                🔒 Kontakt wurde blockiert
+            </div>`;
+        document.getElementById('action-area').style.visibility = 'visible';
+    }
+
+    // --- HILFSFUNKTIONEN FÜR CHAT-UI ---
+
+    function scrollToBottom() {
+        const chat = document.getElementById('chat-window');
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function showTyping(duration) {
+        return new Promise(resolve => {
+            const chat = document.getElementById('chat-window');
+            const typingHTML = `
+                <div class="bubble received typing" id="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>`;
+            chat.insertAdjacentHTML('beforeend', typingHTML);
+            scrollToBottom();
+            
+            setTimeout(() => {
+                const ind = document.getElementById('typing-indicator');
+                if(ind) ind.remove();
+                resolve();
+            }, duration);
+        });
+    }
+
+    function appendMessage(text, type) {
+        const chat = document.getElementById('chat-window');
+        const time = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const bubbleHTML = `
+            <div class="bubble ${type}">
+                ${text}
+                <div class="time">${time}</div>
+            </div>
+        `;
+        chat.insertAdjacentHTML('beforeend', bubbleHTML);
+        scrollToBottom();
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notfall! – Die 5 Schritte</title>
+    <style>
+        /* Farbschema & Corporate Design Variablen */
+        :root {
+            --brand-color: #631832; /* Marke */
+            --accent-color: #173262; /* Akzent */
+            --text-color: #231A24; /* Text */
+            --link-color: #606F8C; /* Link */
+            
+            /* Funktionale Farben für das Spiel */
+            --warning-orange: #E67E22; /* Falsche Position */
+            --success-green: #27AE60; /* Richtige Position */
+            
+            --bg-color: #f4f6f9;
+            --white: #ffffff;
+            --border-radius: 12px;
+        }
+
+        /* Basis-Typografie (Zielgruppe 50+: Groß & Lesbar) */
+        body {
+            font-family: Arial, "Open Sans", sans-serif;
+            font-size: 22px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hauptcontainer - Optimiert für Beamer (1920x1080) */
+        .app-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 1200px;
+            min-height: 800px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--brand-color);
+            color: var(--white);
+            padding: 25px 40px;
+            text-align: center;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 38px;
+            letter-spacing: 1px;
+        }
+
+        /* Bildschirme */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            padding: 40px;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Textbereiche */
+        .scenario-box {
+            background-color: #ffebee;
+            border-left: 8px solid var(--brand-color);
+            padding: 25px 35px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 26px;
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+        }
+
+        .instruction-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        /* Sortier-Liste */
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Die einzelnen Karten */
+        .sortable-item {
+            background: var(--white);
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            font-size: 26px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .sortable-item:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            border-style: solid;
+            border-color: var(--accent-color);
+        }
+
+        .sortable-item.drag-over {
+            border: 3px dashed var(--accent-color);
+            background-color: #e6f0fa;
+            transform: scale(1.02);
+        }
+
+        /* Status-Farben (nach dem Prüfen) */
+        .sortable-item.correct {
+            border: 3px solid var(--success-green);
+            background-color: #e8f5e9;
+        }
+
+        .sortable-item.wrong {
+            border: 3px solid var(--warning-orange);
+            background-color: #fff3e0;
+        }
+
+        /* Karten-Elemente */
+        .drag-handle {
+            color: #aaa;
+            font-size: 34px;
+            margin-right: 20px;
+            cursor: grab;
+        }
+
+        .item-number {
+            font-size: 32px;
+            margin-right: 20px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .item-text {
+            flex-grow: 1;
+            color: var(--text-color);
+        }
+
+        /* Pfeil-Buttons für einfache Bedienung */
+        .arrow-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-left: 20px;
+        }
+
+        .arrow-btn {
+            background: #eef2f5;
+            border: none;
+            border-radius: 6px;
+            font-size: 24px;
+            width: 45px;
+            height: 40px;
+            cursor: pointer;
+            color: var(--accent-color);
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .arrow-btn:hover { background: #d0d8e0; }
+        .arrow-btn:active { transform: scale(0.95); }
+        .arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Kontroll-Bereich (Unten) */
+        .controls {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .attempts-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--warning-orange);
+        }
+
+        .btn {
+            background-color: var(--brand-color);
+            color: var(--white);
+            border: none;
+            padding: 20px 50px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Endbildschirm / 116 116 Banner */
+        .emergency-banner {
+            background-color: var(--brand-color);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(99, 24, 50, 0.4);
+            animation: pulseBanner 2s infinite;
+        }
+
+        @keyframes pulseBanner {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .emergency-number {
+            font-size: 80px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin: 10px 0;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .result-title {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        /* Konfetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @media(max-width: 900px) {
+            .sortable-item { font-size: 20px; padding: 10px 15px; }
+            .item-number { font-size: 24px; margin-right: 10px; }
+            .emergency-number { font-size: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Konfetti Layer -->
+<canvas id="confetti-canvas"></canvas>
+
+<div class="app-container">
+    <header>
+        <h1>🚨 Notfall! – Die 5 Schritte</h1>
+    </header>
+
+    <!-- SPIELBILDSCHIRM -->
+    <main id="screen-game" class="screen active">
+        <div class="scenario-box">
+            <strong>Szenario:</strong> Stellen Sie sich vor, Sie haben gerade auf einen verdächtigen Link in einer SMS geklickt und plötzlich lädt Ihr Handy eine seltsame Datei herunter...
+        </div>
+        
+        <div class="instruction-text">
+            Bringen Sie die 5 Notfall-Schritte in die richtige Reihenfolge:
+        </div>
+
+        <ul class="sortable-list" id="sortable-list">
+            <!-- Items werden per JS generiert -->
+        </ul>
+
+        <div class="controls">
+            <div class="attempts-display" id="attempts-display">Versuche übrig: 3</div>
+            <button class="btn" id="btn-check" onclick="checkOrder()">Reihenfolge prüfen</button>
+        </div>
+    </main>
+
+    <!-- ENDBILDSCHIRM -->
+    <main id="screen-end" class="screen">
+        <h2 class="result-title" id="result-title" style="color: var(--success-green);">Hervorragend gelöst!</h2>
+        <p style="font-size: 26px; max-width: 800px; text-align: center;">
+            Sie haben im Notfall genau richtig gehandelt. Wenn Sie diese Schritte befolgen, minimieren Sie den Schaden erheblich.
+        </p>
+
+        <div class="emergency-banner">
+            <div style="font-size: 28px; text-transform: uppercase;">Zentraler Sperrnotruf</div>
+            <div class="emergency-number">116 116</div>
+            <div style="font-size: 24px; font-weight: bold; background: white; color: var(--brand-color); padding: 10px; border-radius: 8px; display: inline-block; margin-top: 15px;">
+                📱 Tippen Sie diese Nummer jetzt in Ihr Handy!
+            </div>
+        </div>
+
+        <p style="font-size: 22px; color: #666;">(Die Nummer ist gebührenfrei und rund um die Uhr erreichbar, um Konten und Karten sperren zu lassen.)</p>
+        
+        <button class="btn" onclick="location.reload()" style="margin-top: 20px;">Noch einmal spielen</button>
+    </main>
+</div>
+
+<script>
+    // --- DATENSTRUKTUR ---
+    // Die korrekte Reihenfolge (Index 0 bis 4)
+    const correctSteps = [
+        { id: 1, text: "STOPP – nichts anklicken", emoji: "1️⃣" },
+        { id: 2, text: "Gerät offline nehmen (WLAN aus)", emoji: "2️⃣" },
+        { id: 3, text: "Bank anrufen (Nummer von der Karte!)", emoji: "3️⃣" },
+        { id: 4, text: "Passwörter ändern (anderes Gerät)", emoji: "4️⃣" },
+        { id: 5, text: "Beweise sichern (Screenshots)", emoji: "5️⃣" }
+    ];
+
+    // Aktueller Zustand (wird zu Beginn gemischt)
+    let currentOrder = [];
+    let attemptsLeft = 3;
+    let draggedItemIndex = null;
+
+    // --- INITIALISIERUNG ---
+    window.onload = () => {
+        initGame();
+    };
+
+    function initGame() {
+        // Kopiere und mische das Array
+        currentOrder = [...correctSteps];
+        shuffleArray(currentOrder);
+        
+        // Verhindern, dass es zufällig schon richtig ist
+        while(checkIfPerfect()) {
+            shuffleArray(currentOrder);
+        }
+        
+        renderList();
+    }
+
+    // Fisher-Yates Shuffle
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function checkIfPerfect() {
+        return currentOrder.every((step, index) => step.id === correctSteps[index].id);
+    }
+
+    // --- RENDERING ---
+    function renderList(showFeedback = false) {
+        const listEl = document.getElementById('sortable-list');
+        listEl.innerHTML = '';
+
+        currentOrder.forEach((step, index) => {
+            const li = document.createElement('li');
+            li.className = 'sortable-item';
+            
+            // Feedback-Klassen anwenden, falls geprüft wurde
+            if (showFeedback) {
+                if (step.id === correctSteps[index].id) {
+                    li.classList.add('correct');
+                } else {
+                    li.classList.add('wrong');
+                }
+            }
+
+            // Drag & Drop Attribute
+            li.draggable = true;
+            li.dataset.index = index;
+
+            // HTML Inhalt aufbauen
+            li.innerHTML = `
+                <div class="drag-handle">⠿</div>
+                <div class="item-number">${step.emoji}</div>
+                <div class="item-text">${step.text}</div>
+                <div class="arrow-controls">
+                    <button class="arrow-btn" onclick="moveItem(${index}, -1)" ${index === 0 ? 'disabled' : ''}>▲</button>
+                    <button class="arrow-btn" onclick="moveItem(${index}, 1)" ${index === currentOrder.length - 1 ? 'disabled' : ''}>▼</button>
+                </div>
+            `;
+
+            // Drag & Drop Event Listeners
+            li.addEventListener('dragstart', handleDragStart);
+            li.addEventListener('dragover', handleDragOver);
+            li.addEventListener('drop', handleDrop);
+            li.addEventListener('dragenter', handleDragEnter);
+            li.addEventListener('dragleave', handleDragLeave);
+
+            listEl.appendChild(li);
+        });
+    }
+
+    // --- SPIELMECHANIK: PFEILE ---
+    window.moveItem = function(index, direction) {
+        if (index + direction < 0 || index + direction >= currentOrder.length) return;
+        
+        // Elemente im Array tauschen
+        const temp = currentOrder[index];
+        currentOrder[index] = currentOrder[index + direction];
+        currentOrder[index + direction] = temp;
+        
+        renderList(false); // Feedback entfernen beim erneuten Bewegen
+    };
+
+    // --- SPIELMECHANIK: DRAG & DROP ---
+    function handleDragStart(e) {
+        draggedItemIndex = parseInt(this.dataset.index);
+        e.dataTransfer.effectAllowed = 'move';
+        // Ein wenig transparent machen während des Ziehens
+        setTimeout(() => this.style.opacity = '0.5', 0);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); // Erlaubt das Droppen
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        // visuelles Feedback beim Überfliegen
+        const li = e.target.closest('li');
+        if(li && parseInt(li.dataset.index) !== draggedItemIndex) {
+            li.classList.add('drag-over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        const li = e.target.closest('li');
+        if(li) {
+            li.classList.remove('drag-over');
+        }
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        const dropTarget = e.target.closest('li');
+        
+        if (dropTarget) {
+            dropTarget.classList.remove('drag-over');
+            const targetIndex = parseInt(dropTarget.dataset.index);
+            
+            if (draggedItemIndex !== null && draggedItemIndex !== targetIndex) {
+                // Element verschieben im Array
+                const item = currentOrder.splice(draggedItemIndex, 1)[0];
+                currentOrder.splice(targetIndex, 0, item);
+                renderList(false); // Neu zeichnen, Feedback entfernen
+            }
+        }
+        
+        // Alle Opacities zurücksetzen
+        document.querySelectorAll('.sortable-item').forEach(el => el.style.opacity = '1');
+        draggedItemIndex = null;
+        return false;
+    }
+
+    // --- PRÜFUNG & ENDE ---
+    window.checkOrder = function() {
+        attemptsLeft--;
+        document.getElementById('attempts-display').innerText = `Versuche übrig: ${attemptsLeft}`;
+        
+        const isPerfect = checkIfPerfect();
+        renderList(true); // Zeichne Liste neu MIT grünen/orangen Rändern
+
+        if (isPerfect) {
+            // Gewonnen!
+            setTimeout(() => {
+                showEndScreen(true);
+            }, 1000);
+        } else if (attemptsLeft <= 0) {
+            // Verloren, keine Versuche mehr
+            document.getElementById('btn-check').disabled = true;
+            setTimeout(() => {
+                currentOrder = [...correctSteps]; // Auflösung erzwingen
+                renderList(true);
+                setTimeout(() => showEndScreen(false), 2000);
+            }, 1000);
+        }
+    }
+
+    function showEndScreen(won) {
+        document.getElementById('screen-game').classList.remove('active');
+        document.getElementById('screen-end').classList.add('active');
+
+        const title = document.getElementById('result-title');
+        if (won) {
+            title.innerText = "Hervorragend gelöst!";
+            title.style.color = "var(--success-green)";
+            fireConfetti();
+        } else {
+            title.innerText = "Hier ist die richtige Reihenfolge!";
+            title.style.color = "var(--brand-color)";
+        }
+    }
+
+    // --- KONFETTI ANIMATION (Inline & ohne externe Libs) ---
+    function fireConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        const colors = ['#631832', '#173262', '#27AE60', '#E67E22', '#F1C40F', '#3498DB'];
+
+        for (let i = 0; i < 150; i++) {
+            pieces.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                w: Math.random() * 15 + 5,
+                h: Math.random() * 15 + 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: Math.random() * 5 + 3,
+                speedX: Math.random() * 3 - 1.5,
+                rot: Math.random() * 360,
+                rotSpeed: Math.random() * 10 - 5
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+
+            pieces.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.rot += p.rotSpeed;
+
+                if (p.y < canvas.height) active = true;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+            });
+
+            if (active) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Aufräumen
+            }
+        }
+
+        animate();
+        
+        // Resize Handler für Canvas
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing-Detektiv</title>
+    <style>
+        /* Farbschema & Basis-Variablen */
+        :root {
+            --brand-color: #631832; /* Marke */
+            --accent-color: #173262; /* Akzent */
+            --link-color: #606F8C; /* Link */
+            --text-color: #231A24; /* Text */
+            --warning-orange: #E67E22; /* Warnung (funktional) */
+            --success-green: #27ae60; /* Richtig (funktional) */
+            --error-red: #c0392b; /* Übersehen (funktional) */
+            --bg-color: #f4f6f9;
+            --white: #ffffff;
+            --border-radius: 8px;
+        }
+
+        /* Basis-Typografie (Zielgruppe 50+: Groß & Lesbar) */
+        body {
+            font-family: Arial, "Open Sans", sans-serif;
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Hauptcontainer - Optimiert für Beamer (1920x1080) & Responsiv */
+        .app-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 1200px;
+            min-height: 700px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header / Statusleiste */
+        header {
+            background-color: var(--brand-color);
+            color: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 30px;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .timer-warning {
+            color: var(--warning-orange);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Hauptinhaltsbereich */
+        .main-content {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Bildschirme */
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* Startbildschirm */
+        .intro-text {
+            font-size: 24px;
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            text-align: center;
+        }
+
+        .instructions-list {
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            background: #eef2f5;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            border-left: 6px solid var(--accent-color);
+        }
+
+        .instructions-list li {
+            margin-bottom: 15px;
+        }
+
+        /* Buttons (Touch-freundlich, groß) */
+        .btn {
+            background-color: var(--brand-color);
+            color: var(--white);
+            border: none;
+            padding: 18px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            text-align: center;
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-orange);
+        }
+        .btn-warning:hover {
+            background-color: #c86a18;
+        }
+
+        /* E-Mail Darstellung */
+        .email-client {
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            background: #fff;
+            position: relative;
+        }
+
+        .email-header-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .email-row {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        .email-row strong {
+            display: inline-block;
+            width: 100px;
+            color: var(--accent-color);
+        }
+
+        .email-body {
+            padding: 30px;
+            font-size: 22px;
+            flex-grow: 1;
+            white-space: pre-line;
+        }
+
+        .email-attachment {
+            padding: 20px;
+            background: #fff3e0; /* Leicht orange für Aufmerksamkeit */
+            border-top: 2px dashed #ccc;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Hotspot / Klickbare verdächtige Elemente */
+        .hotspot {
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            padding: 2px 6px;
+            margin: -2px -6px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        /* Wenn der Nutzer mit der Maus drüber fährt (Hinweis dass klickbar) */
+        .hotspot:hover {
+            background-color: rgba(230, 126, 34, 0.1);
+        }
+
+        /* Fake Link Style */
+        .fake-link {
+            color: var(--link-color);
+            text-decoration: underline;
+        }
+        /* Link Tooltip (Hover/Touch) */
+        .fake-link::after {
+            content: "Link-Ziel: " attr(data-url);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: #333;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .fake-link:hover::after, .fake-link:active::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Status: Gefunden */
+        .hotspot.found {
+            border: 3px solid var(--success-green);
+            background-color: rgba(39, 174, 96, 0.1);
+            cursor: default;
+        }
+
+        /* Status: Übersehen (nach Auflösung) */
+        .hotspot.missed {
+            border: 3px solid var(--error-red);
+            background-color: rgba(192, 57, 43, 0.1);
+        }
+
+        /* Erklärungs-Boxen (Feedback) */
+        #feedback-area {
+            margin-top: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feedback-item {
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            font-size: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            animation: fadeIn 0.4s ease-out;
+            background-color: #e8f5e9;
+            border-left: 6px solid var(--success-green);
+        }
+
+        .feedback-item.missed-feedback {
+            background-color: #ffebee;
+            border-left: 6px solid var(--error-red);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toast / Hinweis Banner */
+        .hint-toast {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--warning-orange);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        .hint-toast.show {
+            opacity: 1;
+            visibility: visible;
+            top: 40px;
+        }
+
+        /* Controls / Footer der E-Mail */
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Endbildschirm */
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--brand-color);
+            text-align: center;
+            margin: 30px 0;
+        }
+        .score-text {
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>🔍 Phishing-Detektiv</h1>
+        <div class="status-bar" id="game-status" style="display: none;">
+            <div>E-Mail: <span id="level-display">1</span>/5</div>
+            <div id="timer-display">Zeit: 60s</div>
+        </div>
+    </header>
+
+    <!-- Startbildschirm -->
+    <main class="main-content">
+        <div id="screen-start" class="screen active">
+            <h2 style="text-align: center; font-size: 36px; color: var(--brand-color);">Willkommen im Einsatz!</h2>
+            <p class="intro-text">
+                Als Phishing-Detektiv ist es Ihre Aufgabe, betrügerische E-Mails zu entlarven. 
+                Wir zeigen Ihnen gleich 5 E-Mails. Ihre Aufgabe ist es, verdächtige Merkmale zu finden.
+            </p>
+            <div class="instructions-list">
+                <strong>Achten Sie auf diese 5 Warnsignale:</strong>
+                <ul>
+                    <li><strong>1. Seltsamer Absender:</strong> Prüfen Sie die E-Mail-Adresse genau (z.B. PayPaI statt PayPal).</li>
+                    <li><strong>2. Druck & Drohung:</strong> Werden Sie zu schnellem Handeln gedrängt?</li>
+                    <li><strong>3. Falsches Link-Ziel:</strong> Fahren Sie mit der Maus über Links (oder tippen Sie darauf), um das wahre Ziel zu sehen.</li>
+                    <li><strong>4. Rechtschreibfehler:</strong> Häufige Fehler sind ein starkes Warnsignal.</li>
+                    <li><strong>5. Unerwartete Anhänge:</strong> Vorsicht bei .zip oder .exe Dateien!</li>
+                </ul>
+            </div>
+            <p style="text-align: center; font-size: 22px; font-weight: bold;">
+                Klicken Sie auf alle verdächtigen Stellen in der E-Mail!<br>
+                Sie haben 60 Sekunden pro E-Mail Zeit.
+            </p>
+            <button class="btn" onclick="startGame()">Einsatz starten</button>
+        </div>
+
+        <!-- Spielbildschirm -->
+        <div id="screen-game" class="screen">
+            <div class="hint-toast" id="hint-toast">Tipp: Schauen Sie noch einmal genau hin. Es gibt noch Unstimmigkeiten!</div>
+            
+            <div class="email-client">
+                <div class="email-header-info">
+                    <div class="email-row"><strong>Von:</strong> <span id="email-from"></span></div>
+                    <div class="email-row"><strong>An:</strong> <span>Sie &lt;ihre.adresse@beispiel.de&gt;</span></div>
+                    <div class="email-row"><strong>Betreff:</strong> <span id="email-subject"></span></div>
+                </div>
+                <div class="email-body" id="email-body"></div>
+                <div class="email-attachment" id="email-attachment" style="display: none;"></div>
+            </div>
+
+            <div id="feedback-area">
+                <!-- Dynamisches Feedback erscheint hier -->
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="btn-check" onclick="checkLevel()">E-Mail überprüfen</button>
+                <button class="btn btn-warning" id="btn-next" onclick="nextLevel()" style="display: none;">Zur nächsten E-Mail</button>
+            </div>
+        </div>
+
+        <!-- Endbildschirm -->
+        <div id="screen-end" class="screen">
+            <h2 style="text-align: center; font-size: 36px; color: var(--brand-color);">Einsatz beendet!</h2>
+            <div class="score-display" id="final-score-numbers">8/11</div>
+            <p class="score-text" id="final-score-text">Auswertung läuft...</p>
+            
+            <div class="instructions-list" style="text-align: center;">
+                <p><strong>Die wichtigste Lektion:</strong></p>
+                <p>Nicht jede E-Mail ist böswillig, aber gesundes Misstrauen schützt Sie vor Betrug. Nehmen Sie sich immer Zeit, den Absender und Links zu prüfen, bevor Sie klicken oder Daten eingeben.</p>
+            </div>
+            
+            <button class="btn" onclick="location.reload()">Noch einmal spielen</button>
+        </div>
+    </main>
+</div>
+
+<script>
+    // --- DATENSTRUKTUR DER LEVEL (E-Mails) ---
+    const levels = [
+        {
+            // Level 1: PayPal Phishing (Einfach)
+            from: 'Kundenservice <span class="hotspot" data-info="Absender seltsam: Achten Sie auf den Buchstabendreher. Hier steht \'paypai.de\' (mit i) statt paypal.de.">service@paypai.de</span>',
+            subject: '<span class="hotspot" data-info="Druck/Drohung: Betrüger wollen Sie in Panik versetzen (\'in 24 Stunden gesperrt\'), damit Sie unüberlegt handeln.">WICHTIG: Ihr Konto wird in 24 Stunden gesperrt!</span>',
+            body: `Guten Tag,
+            
+            wir haben ungewöhnliche Zugriffsversuche auf Ihr Konto festgestellt. 
+            Zu Ihrer Sicherheit haben wir die Funktionen vorübergehend eingeschränkt.
+            
+            Bitte bestätigen Sie Ihre Identität sofort, ansonsten wird Ihr Konto dauerhaft geschlossen.
+            
+            <a href="#" class="hotspot fake-link" data-url="http://www.secure-login-paypal-update-77.com" data-info="Link-Ziel passt nicht: Wenn Sie das Ziel prüfen, sehen Sie eine fremde Adresse, die nichts mit dem echten PayPal zu tun hat.">Hier klicken zur Kontofreischaltung</a>
+            
+            Mit freundlichen Grüßen
+            Ihr Sicherheits-Team`,
+            attachment: null,
+            totalHotspots: 3
+        },
+        {
+            // Level 2: Falsche Bank / Rechtschreibung / Anhang
+            from: 'Ihre Sparkasse <kundenservice@sparkasse-kunden-info.de>',
+            subject: 'Wichtiges Sicherheitsupdate',
+            body: `Sehr geehrter Kunde,
+            
+            <span class="hotspot" data-info="Rechtschreibfehler: Seriöse Banken prüfen ihre Texte. Fehler wie \'sicherheits problem festgestelt\' deuten stark auf Betrug hin.">wir haben ein sicherheits problem festgestelt in unserem system.</span> 
+            Bitte installieren Sie das angehängte Update, um weiterhin Online-Banking nutzen zu können.
+            
+            Vielen Dank für Ihre Mithilfe.`,
+            attachment: '<span class="hotspot" data-info="Unerwarteter Anhang: Laden Sie niemals \'.exe\' Dateien aus E-Mails herunter! Dies sind Programme, meistens Viren oder Trojaner.">Sicherheitsupdate_2024.exe</span>',
+            totalHotspots: 2
+        },
+        {
+            // Level 3: Paketdienst
+            from: 'DHL Paketankündigung <span class="hotspot" data-info="Absender seltsam: Die Adresse \'info@dhl-paket-verfolgung.com\' ist keine offizielle DHL-Adresse.">info@dhl-paket-verfolgung.com</span>',
+            subject: 'Ihr Paket konnte nicht zugestellt werden',
+            body: `Hallo,
+            
+            Ihr Paket liegt in unserem Verteilzentrum. Es fehlen noch 2,99€ Zollgebühren.
+            <span class="hotspot" data-info="Zahlungsaufforderung/Druck: Unerwartete kleine Geldforderungen für Pakete sind eine sehr häufige Betrugsmasche.">Zahlen Sie sofort, sonst wird das Paket an den Absender vernichtet.</span>
+            
+            <a href="#" class="hotspot fake-link" data-url="http://bit.ly/dhl-track-123" data-info="Link-Ziel passt nicht: Offizielle Unternehmen nutzen keine obskuren Kurzlinks (wie bit.ly) für wichtige Zahlungen.">Jetzt Gebühr bezahlen</a>`,
+            attachment: null,
+            totalHotspots: 3
+        },
+        {
+            // Level 4: Falsche Rechnung
+            from: 'Amazon Buchhaltung <span class="hotspot" data-info="Absender seltsam: Amazon versendet E-Mails von @amazon.de, nicht von \'amazon-orders.de\'.">buchhaltung@amazon-orders.de</span>',
+            subject: 'Ihre Bestellung: Apple iPhone 15 Pro',
+            body: `<span class="hotspot" data-info="Rechtschreibfehler/Ansprache: Die persönliche Anrede fehlt und es gibt Tippfehler (\'Ihhre\').">Anbei Ihhre Rechnung für das bestellte Gerät.</span>
+            
+            Der Betrag von 1.199,00 € wurde von Ihrem Konto abgebucht. 
+            Details finden Sie im Anhang.
+            
+            Bei Fragen kontaktieren Sie uns gerne.`,
+            attachment: '<span class="hotspot" data-info="Unerwarteter Anhang: Rechnungen kommen in der Regel als PDF. Eine \'.zip\' Datei verdeckt oft Schadsoftware.">Rechnung_12345.zip</span>',
+            totalHotspots: 3
+        },
+        {
+            // Level 5: Die echte E-Mail (Lernmoment)
+            from: 'Thalia Newsletter <newsletter@thalia.de>',
+            subject: 'Ihre Buch-Empfehlungen für den Sommer',
+            body: `Guten Tag,
+            
+            der Sommer ist da! Basierend auf Ihren letzten Käufen haben wir einige spannende neue Empfehlungen für Sie zusammengestellt.
+            
+            Egal ob Krimi am Strand oder ein Roman für den Balkon – entdecken Sie unsere Neuheiten.
+            
+            <a href="#" style="color: var(--link-color); text-decoration: underline;">Jetzt Neuheiten entdecken</a>
+            
+            Herzliche Grüße,
+            Ihr Thalia-Team`,
+            attachment: null,
+            totalHotspots: 0,
+            isLegit: true
+        }
+    ];
+
+    // --- GLOBALE VARIABLEN ---
+    let currentLevelIndex = 0;
+    let foundInCurrentLevel = 0;
+    let totalHotspotsFound = 0;
+    let totalHotspotsAvailable = 11; // 3 + 2 + 3 + 3 + 0
+    let timeLeft = 60;
+    let timerInterval;
+    let hintTimeout;
+    let levelCompleted = false;
+
+    // --- SPIELSTEUERUNG ---
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function startGame() {
+        showScreen('screen-game');
+        document.getElementById('game-status').style.display = 'flex';
+        loadLevel(0);
+    }
+
+    function loadLevel(index) {
+        currentLevelIndex = index;
+        const levelData = levels[index];
+        
+        // Reset Variablen
+        foundInCurrentLevel = 0;
+        levelCompleted = false;
+        timeLeft = 60;
+        
+        // UI aktualisieren
+        document.getElementById('level-display').innerText = (index + 1);
+        document.getElementById('timer-display').innerText = `Zeit: ${timeLeft}s`;
+        document.getElementById('timer-display').classList.remove('timer-warning');
+        document.getElementById('hint-toast').classList.remove('show');
+        document.getElementById('feedback-area').innerHTML = '';
+        
+        // Buttons umschalten
+        document.getElementById('btn-check').style.display = 'inline-block';
+        document.getElementById('btn-next').style.display = 'none';
+
+        // E-Mail Inhalte setzen
+        document.getElementById('email-from').innerHTML = levelData.from;
+        document.getElementById('email-subject').innerHTML = levelData.subject;
+        document.getElementById('email-body').innerHTML = levelData.body;
+        
+        const attachmentContainer = document.getElementById('email-attachment');
+        if (levelData.attachment) {
+            attachmentContainer.style.display = 'flex';
+            attachmentContainer.innerHTML = `📎 <strong>Anhang:</strong> ${levelData.attachment}`;
+        } else {
+            attachmentContainer.style.display = 'none';
+        }
+
+        // Event Listener für Hotspots hinzufügen
+        document.querySelectorAll('.hotspot').forEach(el => {
+            el.addEventListener('click', handleHotspotClick);
+        });
+
+        // Fake-Links verhindern dass sie nach oben springen
+        document.querySelectorAll('.fake-link').forEach(el => {
+            el.addEventListener('click', (e) => e.preventDefault());
+        });
+
+        // Timer starten
+        clearInterval(timerInterval);
+        clearTimeout(hintTimeout);
+        
+        timerInterval = setInterval(updateTimer, 1000);
+        
+        // Hinweis nach 30 Sekunden anzeigen (wenn noch nicht alles gefunden wurde)
+        if (!levelData.isLegit) {
+            hintTimeout = setTimeout(() => {
+                if (foundInCurrentLevel < levelData.totalHotspots && !levelCompleted) {
+                    showHint();
+                }
+            }, 30000);
+        }
+    }
+
+    function updateTimer() {
+        if (levelCompleted) return;
+        
+        timeLeft--;
+        const timerDisplay = document.getElementById('timer-display');
+        timerDisplay.innerText = `Zeit: ${timeLeft}s`;
+
+        if (timeLeft <= 15) {
+            timerDisplay.classList.add('timer-warning');
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            checkLevel(); // Automatisch prüfen wenn Zeit abläuft
+        }
+    }
+
+    function showHint() {
+        const hint = document.getElementById('hint-toast');
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 5000);
+    }
+
+    function handleHotspotClick(event) {
+        if (levelCompleted) return;
+        
+        const el = event.currentTarget;
+        
+        // Verhindern, dass Links navigieren
+        event.preventDefault();
+
+        // Wenn schon gefunden, nichts tun
+        if (el.classList.contains('found')) return;
+
+        // Als gefunden markieren
+        el.classList.add('found');
+        foundInCurrentLevel++;
+        totalHotspotsFound++;
+
+        // Feedback Text holen und anzeigen
+        const explanation = el.getAttribute('data-info');
+        addFeedback(explanation, 'success');
+
+        // Wenn alle in diesem Level gefunden wurden, Button pulsieren lassen
+        const levelData = levels[currentLevelIndex];
+        if (foundInCurrentLevel === levelData.totalHotspots) {
+            const btnCheck = document.getElementById('btn-check');
+            btnCheck.style.backgroundColor = 'var(--success-green)';
+            btnCheck.innerText = 'Perfekt! Jetzt überprüfen';
+        }
+    }
+
+    function addFeedback(text, type) {
+        const area = document.getElementById('feedback-area');
+        const item = document.createElement('div');
+        item.className = `feedback-item ${type === 'missed' ? 'missed-feedback' : ''}`;
+        
+        const icon = type === 'success' ? '✅' : '❌';
+        item.innerHTML = `<div>${icon}</div><div>${text}</div>`;
+        
+        // Oben einfügen
+        area.prepend(item);
+    }
+
+    function checkLevel() {
+        if (levelCompleted) return;
+        
+        levelCompleted = true;
+        clearInterval(timerInterval);
+        clearTimeout(hintTimeout);
+        document.getElementById('hint-toast').classList.remove('show');
+
+        const levelData = levels[currentLevelIndex];
+        const btnCheck = document.getElementById('btn-check');
+        const btnNext = document.getElementById('btn-next');
+
+        btnCheck.style.display = 'none';
+        btnNext.style.display = 'inline-block';
+        
+        // Standard-Button zurücksetzen für nächstes Mal
+        btnCheck.style.backgroundColor = '';
+        btnCheck.innerText = 'E-Mail überprüfen';
+
+        // Spezielle Logik für Level 5 (Die echte E-Mail)
+        if (levelData.isLegit) {
+            addFeedback("<strong>Hervorragend!</strong> Sie haben richtig erkannt, dass diese E-Mail völlig sicher ist. Nicht jede E-Mail ist ein Betrugsversuch. Gesundes Misstrauen ist gut, aber diese hier stammt wirklich von Thalia.", "success");
+            btnNext.innerText = "Auswertung ansehen";
+            return;
+        }
+
+        // Logik für Phishing-Levels
+        if (foundInCurrentLevel === levelData.totalHotspots) {
+            // Alles gefunden
+            addFeedback("<strong>Klasse!</strong> Sie haben alle Gefahren in dieser E-Mail erfolgreich identifiziert.", "success");
+        } else {
+            // Nicht alles gefunden - Übersehene aufdecken
+            const missedCount = levelData.totalHotspots - foundInCurrentLevel;
+            addFeedback(`<strong>Achtung:</strong> Sie haben ${missedCount} Warnsignal(e) übersehen. Wir haben sie rot markiert.`, "missed");
+            
+            document.querySelectorAll('.hotspot:not(.found)').forEach(el => {
+                el.classList.add('missed');
+                const explanation = el.getAttribute('data-info');
+                addFeedback(`ÜBERSEHEN: ${explanation}`, "missed");
+            });
+        }
+        
+        if (currentLevelIndex === levels.length - 1) {
+            btnNext.innerText = "Auswertung ansehen";
+        }
+    }
+
+    function nextLevel() {
+        if (currentLevelIndex < levels.length - 1) {
+            loadLevel(currentLevelIndex + 1);
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        document.getElementById('game-status').style.display = 'none';
+        showScreen('screen-end');
+
+        const scoreNumbers = document.getElementById('final-score-numbers');
+        const scoreText = document.getElementById('final-score-text');
+
+        scoreNumbers.innerText = `${totalHotspotsFound} / ${totalHotspotsAvailable} Gefahren erkannt`;
+
+        if (totalHotspotsFound === totalHotspotsAvailable) {
+            scoreText.innerHTML = "<strong>Perfekt!</strong> Sie sind ein echter Phishing-Detektiv. Ihnen macht so schnell niemand etwas vor!";
+            scoreText.style.color = "var(--success-green)";
+        } else if (totalHotspotsFound >= 8) {
+            scoreText.innerHTML = "<strong>Sehr gut!</strong> Sie sind sehr wachsam. Achten Sie künftig noch auf die kleinen Details, dann sind Sie 100% sicher.";
+            scoreText.style.color = "var(--brand-color)";
+        } else {
+            scoreText.innerHTML = "<strong>Übung macht den Meister.</strong> Sie haben einige Tricks der Betrüger übersehen. Lesen Sie sich unsere Tipps unten noch einmal in Ruhe durch.";
+            scoreText.style.color = "var(--warning-orange)";
+        }
+    }
+
+</script>
+</body>
+</html>
