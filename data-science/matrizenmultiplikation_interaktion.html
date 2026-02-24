@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrizenmultiplikation | Webinar-Interaktion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+    :root {
+      --brand-main: #631832;
+      --brand-accent: #173262;
+      --text-main: #231a24;
+      --text-light: #606f8c;
+      --bg-body: #edf1f7;
+      --surface: #ffffff;
+      --soft-border: #dbe3ef;
+      --panel-shadow: 0 12px 28px rgba(23, 50, 98, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 80% 0%, #f7f9fd 0%, var(--bg-body) 44%, #e9eef6 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: 100vh;
+    }
+
+    #sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--soft-border);
+      box-shadow: 2px 0 18px rgba(18, 40, 76, 0.07);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .brandline {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--brand-main);
+      line-height: 1.25;
+    }
+
+    .lead {
+      margin: 0;
+      font-size: 0.93rem;
+      color: #434f63;
+      line-height: 1.52;
+    }
+
+    .story-box,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .usage-box,
+    .path-box {
+      background: #f8fafe;
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      padding: 11px 13px;
+    }
+
+    .story-box strong,
+    .chat-box strong,
+    .answer-box strong,
+    .usage-box strong,
+    .path-box strong {
+      color: var(--brand-accent);
+    }
+
+    #step-title {
+      margin: 0 0 7px;
+      font-size: 0.98rem;
+      color: var(--brand-main);
+    }
+
+    #step-text,
+    #chat-question,
+    #answer-text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: #344153;
+    }
+
+    .step-template {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-template-item {
+      background: #fff;
+      border: 1px dashed #cfd8e8;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    .step-template-item strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.76rem;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: #2f5b96;
+    }
+
+    .step-template-item p {
+      margin: 0;
+      font-size: 0.83rem;
+      line-height: 1.38;
+      color: #3f4e66;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 6px;
+    }
+
+    .timeline-item {
+      border-radius: 10px;
+      border: 1px solid var(--soft-border);
+      padding: 7px 9px;
+      font-size: 0.8rem;
+      color: #5a667a;
+      background: #fff;
+    }
+
+    .timeline-item.active {
+      border-color: rgba(99, 24, 50, 0.45);
+      background: #fff4f8;
+      color: var(--brand-main);
+      font-weight: 700;
+    }
+
+    .timeline-item.done {
+      border-color: rgba(31, 139, 76, 0.25);
+      background: #f2fbf6;
+      color: #256441;
+    }
+
+    .path-box p {
+      margin: 6px 0 8px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      color: #45546d;
+    }
+
+    .path-content {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .path-box.collapsed .path-content {
+      display: none;
+    }
+
+    .path-status {
+      font-size: 0.78rem;
+      line-height: 1.36;
+      color: #5f6d84;
+      background: #fff;
+      border: 1px dashed #cbd4e4;
+      border-radius: 8px;
+      padding: 7px 8px;
+      margin-bottom: 8px;
+    }
+
+    .path-link {
+      display: block;
+      margin-top: 8px;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: 1px solid var(--soft-border);
+      background: #eaf1fc;
+      color: #1f3f77;
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.12);
+    }
+
+    .extension-box {
+      background: linear-gradient(155deg, #fff2f3 0%, #f4f8ff 55%, #eef4ff 100%);
+      border: 1px solid rgba(99, 24, 50, 0.28);
+      border-radius: 14px;
+      padding: 12px 13px;
+      box-shadow: 0 10px 20px rgba(37, 62, 107, 0.14);
+    }
+
+    .extension-kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #631832;
+      color: #fff;
+    }
+
+    .extension-box strong {
+      color: #2f1a40;
+      font-size: 0.94rem;
+    }
+
+    .extension-box p {
+      margin: 7px 0 9px;
+      font-size: 0.83rem;
+      line-height: 1.42;
+      color: #42506a;
+    }
+
+    .extension-link {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(92deg, #173262 0%, #2f5b96 100%);
+      box-shadow: 0 8px 16px rgba(23, 50, 98, 0.24);
+      transition: filter 0.15s ease;
+    }
+
+    .extension-link:hover {
+      filter: brightness(1.05);
+    }
+
+    #code-popup-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2600;
+      display: none;
+    }
+
+    #code-popup-overlay[aria-hidden="false"] {
+      display: block;
+    }
+
+    #code-popup-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 28, 51, 0.54);
+      backdrop-filter: blur(2px);
+    }
+
+    #code-popup-modal {
+      position: absolute;
+      inset: 4vh 4vw;
+      background: #fff;
+      border: 1px solid #d4dceb;
+      border-radius: 16px;
+      box-shadow: 0 24px 44px rgba(11, 28, 50, 0.35);
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+    }
+
+    #code-popup-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #dbe3ef;
+      background: linear-gradient(110deg, #f7f9fd 0%, #eef3fb 100%);
+    }
+
+    #code-popup-head h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #173262;
+    }
+
+    #code-popup-head button {
+      width: auto;
+      min-width: 116px;
+      padding: 8px 12px;
+    }
+
+    #code-popup-subtitle {
+      margin: 0;
+      padding: 9px 14px;
+      border-bottom: 1px solid #e2e8f3;
+      font-size: 0.82rem;
+      color: #4d5c74;
+      background: #fbfdff;
+    }
+
+    #code-popup-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: var(--brand-accent);
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.2);
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--text-main);
+      border: 1px solid var(--soft-border);
+      box-shadow: none;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .ctrl-group {
+      margin-top: auto;
+      display: grid;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    #stage {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding-bottom: 18px;
+      scrollbar-gutter: stable;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--soft-border);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 0.82rem;
+      color: #334257;
+      box-shadow: 0 4px 10px rgba(17, 37, 72, 0.07);
+    }
+
+    .chip strong { color: var(--brand-main); }
+
+    .codepath-bar {
+      background: linear-gradient(160deg, #ffffff 0%, #f1f6ff 100%);
+      border: 1px solid #cbd8ed;
+      border-radius: 12px;
+      padding: 9px 10px;
+      box-shadow: 0 6px 14px rgba(17, 37, 72, 0.09);
+    }
+
+    .codepath-title {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #4d6080;
+      text-transform: uppercase;
+    }
+
+    .codepath-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 6px;
+    }
+
+    .codepath-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      border-radius: 9px;
+      border: 1px solid #d3dff2;
+      background: rgba(255, 255, 255, 0.88);
+      color: #344763;
+      padding: 7px 8px;
+      font-size: 0.77rem;
+      font-weight: 700;
+      min-height: 34px;
+    }
+
+    .codepath-step:hover {
+      border-color: #b9cae7;
+      background: #ffffff;
+    }
+
+    .codepath-step.active {
+      border-color: #3e659a;
+      background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-index {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.66rem;
+      font-weight: 800;
+      border: 1px solid #aebfde;
+      background: #edf3ff;
+      color: #2f4f7a;
+    }
+
+    .codepath-step.active .codepath-index {
+      border-color: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .formula-panel {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 12px;
+      min-width: 0;
+      min-height: 340px;
+    }
+
+    .formula-card,
+    .batch-card {
+      background: linear-gradient(145deg, #ffffff, #f5f8fd);
+      border: 1px solid #dbe3ef;
+      border-radius: 14px;
+      box-shadow: var(--panel-shadow);
+      padding: 12px;
+      min-width: 0;
+      overflow: auto;
+    }
+
+    .card-title {
+      margin: 0 0 8px;
+      font-size: 0.93rem;
+      color: var(--brand-accent);
+      font-weight: 700;
+    }
+
+    .card-meta {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      color: #57647b;
+      line-height: 1.35;
+    }
+
+    .math-box {
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: #304560;
+      white-space: pre-wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.79rem;
+      color: #36445a;
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e4eaf4;
+      padding: 7px 8px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th:first-child,
+    td:first-child { text-align: left; }
+
+    th {
+      background: #f2f6fd;
+      color: #40506b;
+      font-weight: 700;
+      font-size: 0.76rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .bottom-panel {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) minmax(300px, 420px);
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .control-card,
+    .knowledge-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      box-shadow: var(--panel-shadow);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .control-card h3,
+    .knowledge-card h3 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      color: var(--brand-accent);
+    }
+
+    .slider-grid {
+      display: grid;
+      gap: 9px;
+    }
+
+    .mode-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      border: 1px solid #cbd5e6;
+      border-radius: 9px;
+      padding: 8px;
+      background: #fff;
+      color: #344153;
+      box-shadow: none;
+      font-size: 0.77rem;
+      font-weight: 700;
+    }
+
+    .mode-btn.active {
+      border-color: #173262;
+      color: #fff;
+      background: linear-gradient(92deg, #173262 0%, #2f5b96 100%);
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.22);
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.81rem;
+      color: #425066;
+      margin-bottom: 3px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand-main);
+      cursor: pointer;
+    }
+
+    input[type="range"]:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .control-hint {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #5f6d84;
+      background: #f8fafe;
+      border: 1px dashed #c9d3e3;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    .shape-lab {
+      margin-top: 9px;
+      border-radius: 10px;
+      border: 1px dashed #c9d3e3;
+      background: #f8fafe;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .shape-lab strong {
+      color: #1f3f77;
+      font-size: 0.8rem;
+    }
+
+    .shape-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .shape-grid label {
+      display: grid;
+      gap: 3px;
+      font-size: 0.73rem;
+      color: #4f5f78;
+    }
+
+    .shape-grid input {
+      width: 100%;
+      border: 1px solid #ccd7e9;
+      border-radius: 7px;
+      padding: 6px 7px;
+      font-size: 0.78rem;
+      color: #334257;
+      background: #fff;
+    }
+
+    .shape-shortcuts {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .shape-shortcuts button {
+      padding: 7px;
+      font-size: 0.72rem;
+    }
+
+    .shape-result {
+      margin: 0;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #3f4e66;
+      background: #fff;
+      border: 1px solid #d6deed;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    .error-lab {
+      margin-top: 9px;
+      border-radius: 10px;
+      border: 1px dashed #c9d3e3;
+      background: #f8fafe;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .error-lab strong {
+      color: #1f3f77;
+      font-size: 0.8rem;
+    }
+
+    .error-lab p {
+      margin: 0;
+      font-size: 0.77rem;
+      line-height: 1.33;
+      color: #4f5f78;
+    }
+
+    .error-cases {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .error-cases button {
+      padding: 7px;
+      font-size: 0.72rem;
+    }
+
+    .error-dialog {
+      display: none;
+      border-radius: 9px;
+      border: 1px solid #d6deed;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .error-dialog[aria-hidden="false"] {
+      display: block;
+    }
+
+    .error-dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 8px;
+      border-bottom: 1px solid #e4eaf4;
+      background: #f8fbff;
+    }
+
+    .error-dialog-head strong {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      color: #2f4f7a;
+    }
+
+    .error-dialog-head button {
+      width: auto;
+      min-width: 82px;
+      padding: 6px 8px;
+      font-size: 0.72rem;
+    }
+
+    .error-log {
+      margin: 0;
+      padding: 8px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      color: #334257;
+      background: #fff;
+    }
+
+    .error-dialog[data-tone="ok"] {
+      border-color: rgba(31, 139, 76, 0.45);
+      background: #f3fbf6;
+    }
+
+    .error-dialog[data-tone="warn"] {
+      border-color: rgba(209, 123, 31, 0.38);
+      background: #fff9f1;
+    }
+
+    .error-dialog[data-tone="error"] {
+      border-color: rgba(154, 50, 77, 0.38);
+      background: #fff1f5;
+    }
+
+    .knowledge-card ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 6px;
+      font-size: 0.83rem;
+      color: #39485f;
+      line-height: 1.45;
+    }
+
+    #quiz-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 96;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    body.quiz-active #quiz-overlay { display: flex; }
+
+    #quiz-backdrop {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(140deg, rgba(15, 35, 66, 0.4), rgba(22, 33, 54, 0.5));
+      backdrop-filter: blur(2px);
+    }
+
+    #quiz-card {
+      position: relative;
+      z-index: 2;
+      width: min(760px, 96vw);
+      max-height: min(86vh, 900px);
+      overflow-y: auto;
+      background: linear-gradient(150deg, #ffffff 0%, #f5f8fd 100%);
+      border: 1px solid #d5deec;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(15, 35, 66, 0.3);
+      padding: 18px 18px 14px;
+    }
+
+    #quiz-card h3 {
+      margin: 0 0 6px;
+      color: var(--brand-main);
+      font-size: 1.06rem;
+    }
+
+    #quiz-card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: #44536c;
+    }
+
+    .quiz-question {
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+
+    .quiz-question legend {
+      margin: 0 0 6px;
+      padding: 0;
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: #2f3f5a;
+    }
+
+    .quiz-option {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      color: #43536b;
+      line-height: 1.35;
+    }
+
+    .quiz-option:last-child { margin-bottom: 0; }
+
+    #quiz-feedback {
+      margin: 10px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.36;
+      color: #2f3f5a;
+      min-height: 20px;
+    }
+
+    .quiz-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 1120px) {
+      body { overflow: auto; height: auto; }
+      #app-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      #sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--soft-border);
+      }
+      #stage {
+        grid-template-rows: auto auto auto;
+      }
+      #code-popup-modal {
+        inset: 2vh 2vw;
+      }
+      .formula-panel,
+      .bottom-panel {
+        grid-template-columns: 1fr;
+      }
+      .shape-shortcuts {
+        grid-template-columns: 1fr;
+      }
+      .error-cases {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-overlay" aria-hidden="true">
+    <div id="quiz-backdrop"></div>
+    <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+      <h3 id="quiz-title">Abschluss-Quiz: Matrizenmultiplikation</h3>
+      <p>4 Fragen zur Selbstkontrolle (mindestens 3 richtig für "verstanden").</p>
+      <form id="final-quiz-form">
+        <fieldset class="quiz-question">
+          <legend>1) Was macht X * w im Kontext dieses Beispiels?</legend>
+          <label class="quiz-option"><input type="radio" name="q1" value="a">Es addiert nur die Monate</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="b">Es berechnet pro Zeile eine gewichtete Summe der Merkmale</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="c">Es löscht den Bias-Term</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>2) Warum ist Batch-Rechnung mit Matrizen nützlich?</legend>
+          <label class="quiz-option"><input type="radio" name="q2" value="a">Weil man keine Daten mehr braucht</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b">Weil viele Vorhersagen gleichzeitig effizient berechnet werden</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c">Weil Fehler dann immer null sind</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>3) Was hat das mit ChatGPT zu tun?</legend>
+          <label class="quiz-option"><input type="radio" name="q3" value="a">Auch dort werden große Mengen Vektor-/Matrixoperationen für Vorhersagen genutzt</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="b">ChatGPT nutzt keine lineare Algebra</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="c">Nur der Bias wird optimiert</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>4) Welche Aussage zu Shapes ist korrekt?</legend>
+          <label class="quiz-option"><input type="radio" name="q4" value="a">Für A(mxn)·B(nxp) ist das Ergebnis m×p</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="b">A·B ist immer gleich B·A</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="c">Nur wenn m=n darf man multiplizieren</label>
+        </fieldset>
+      </form>
+      <div id="quiz-feedback"></div>
+      <div class="quiz-actions">
+        <button id="grade-final-quiz">Quiz auswerten</button>
+        <button id="close-final-quiz" class="secondary">Schließen</button>
+      </div>
+    </section>
+  </div>
+  <div id="code-popup-overlay" aria-hidden="true">
+    <div id="code-popup-backdrop"></div>
+    <section id="code-popup-modal" role="dialog" aria-modal="true" aria-labelledby="code-popup-title">
+      <div id="code-popup-head">
+        <h3 id="code-popup-title">Code-Praxis (Python)</h3>
+        <button id="close-code-popup" class="secondary" type="button">Schliessen</button>
+      </div>
+      <p id="code-popup-subtitle">Vertiefung für Einsteiger: von Theorie zu `scikit-learn` und `statsmodels`.</p>
+      <iframe id="code-popup-frame" src="about:blank" title="Code-Praxis Popup" loading="lazy"></iframe>
+    </section>
+  </div>
+
+  <div id="app-layout">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Matrizenmultiplikation<br>praktisch lesen</h1>
+      <p class="lead">Jetzt rechnen wir die Matrix-Idee aus Thema 3 als klare Algebra: Zeile mal Gewichtsvektor.</p>
+
+      <div class="story-box">
+        <strong>Brücke aus Thema 3:</strong>
+        Daten liegen als Matrix X vor. Gewichte liegen im Vektor w. Daraus entsteht der Vorhersagevektor y-hat.
+      </div>
+
+      <div class="step-box">
+        <h3 id="step-title"></h3>
+        <p id="step-text"></p>
+        <div class="step-template" aria-label="Lern-Template">
+          <div class="step-template-item">
+            <strong>Warum</strong>
+            <p id="step-why"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Wenn-dann-Konsequenz</strong>
+            <p id="step-consequence"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Mini-Reflexion</strong>
+            <p id="step-reflection"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-box">
+        <strong>Diskussionsfrage:</strong>
+        <p id="chat-question"></p>
+      </div>
+
+      <div class="answer-box">
+        <strong id="answer-title">Auflösung zum vorherigen Schritt:</strong>
+        <p id="answer-text"></p>
+      </div>
+
+      <div class="timeline" id="timeline"></div>
+
+      <div class="usage-box">
+        <strong>Praxis-Übertrag:</strong><br>
+        Matrixmultiplikation ist Kern jeder skalierbaren ML-Pipeline - von klassischer Regression bis zu modernen Sprachmodellen.
+      </div>
+
+      <div class="path-box collapsed" id="final-path-box">
+        <strong>Lernpfad danach</strong>
+        <p id="final-path-teaser">Lernpfad bleibt bis Schritt 6 eingeklappt.</p>
+        <div class="path-content">
+          <p>Wenn etwas unklar ist, spring zu Thema 2 oder 3 zurueck. Wenn klar: gehe weiter zu Thema 5 (Bias-Variance).</p>
+          <div class="path-status" id="final-quiz-status">Abschluss-Quiz wird nach Schritt 6 angeboten.</div>
+          <button id="open-final-quiz" class="secondary" hidden>Abschluss-Quiz starten</button>
+          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Weiter zu Thema 5: Bias-Variance Tradeoff</a>
+          <a class="path-link" href="gradient_descent_interaktion.html">Zu Thema 2: Gradient Descent</a>
+          <a class="path-link" href="matrix_interaktion.html">Zu Thema 3: Matrizen verstehen</a>
+          <button id="replay-topic" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
+        </div>
+      </div>
+
+      <div class="extension-box">
+        <div class="extension-kicker">Erweiterung</div>
+        <strong>Berufsnaher Einstieg in Code</strong>
+        <p>Vom Rechenprinzip zur Praxis: ein geführter Python-Weg mit Training, Vorhersage und OLS-Interpretation.</p>
+        <a class="extension-link" href="lineare_regression_code_praxis.html">Code-Praxis (Python) im Popup öffnen</a>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="next-step">Nächster Lern-Schritt</button>
+        <button id="reset-session" class="secondary">Session zurücksetzen</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="codepath-bar" aria-label="Codepfad Navigation">
+        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-steps">
+          <a class="codepath-step active" href="lineare_regression_code_praxis.html">
+            <span class="codepath-index">1</span>
+            <span>Linear Regression</span>
+          </a>
+          <a class="codepath-step" href="gradient_descent_code_praxis.html">
+            <span class="codepath-index">2</span>
+            <span>Gradient Descent</span>
+          </a>
+          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+            <span class="codepath-index">3</span>
+            <span>Predictive Modeling</span>
+          </a>
+        </div>
+      </section>
+
+      <div class="chip-row">
+        <div class="chip"><strong>Gewicht w_temp:</strong> <span id="chip-w-temp">-4.4</span></div>
+        <div class="chip"><strong>Gewicht w_faktor:</strong> <span id="chip-w-size">26.0</span></div>
+        <div class="chip"><strong>Bias b:</strong> <span id="chip-b">136.0</span></div>
+        <div class="chip"><strong>Ausgewählte Zeile y-hat:</strong> <span id="chip-row-pred">0.0</span> €</div>
+      </div>
+
+      <section class="formula-panel">
+        <div class="formula-card">
+          <p class="card-title">Einzelfall: Zeile · Gewichtsvektor + b</p>
+          <p class="card-meta">Hier wird genau eine Zeile aus X mit den Gewichten multipliziert (Dot-Product).</p>
+          <div class="math-box" id="single-formula"></div>
+          <p class="card-meta" id="single-meta"></p>
+        </div>
+
+        <div class="batch-card">
+          <p class="card-title">Batch-Rechnung: X * w + b</p>
+          <p class="card-meta">Gleiche Rechnung für alle Zeilen gleichzeitig. So entsteht der Vorhersagevektor y-hat.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Monat</th>
+                <th>y Ist (€)</th>
+                <th>y-hat (€)</th>
+              </tr>
+            </thead>
+            <tbody id="batch-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="bottom-panel">
+        <div class="control-card">
+          <h3>Interaktive Parameter</h3>
+          <div class="mode-row">
+            <button id="mode-matrix" class="mode-btn active" type="button">Matrixprodukt</button>
+            <button id="mode-element" class="mode-btn" type="button">Elementweise</button>
+          </div>
+          <div class="slider-grid">
+            <div>
+              <div class="slider-label"><span>Gewicht w_temp</span><span id="w-temp-value">-4.4</span></div>
+              <input id="w-temp" type="range" min="-8" max="2" step="0.1" value="-4.4">
+            </div>
+            <div>
+              <div class="slider-label"><span>Gewicht w_faktor</span><span id="w-size-value">26.0</span></div>
+              <input id="w-size" type="range" min="0" max="50" step="0.5" value="26">
+            </div>
+            <div>
+              <div class="slider-label"><span>Bias b</span><span id="b-value">136.0 €</span></div>
+              <input id="bias" type="range" min="70" max="180" step="0.5" value="136">
+            </div>
+            <div>
+              <div class="slider-label"><span>Zeile für Einzelfallrechnung</span><span id="row-idx-value">1</span></div>
+              <input id="row-idx" type="range" min="1" max="6" step="1" value="1">
+            </div>
+          </div>
+          <div class="shape-lab">
+            <strong>Shape-Checker (A und B)</strong>
+            <div class="shape-grid">
+              <label>A Zeilen
+                <input id="shape-a-rows" type="number" min="1" max="20" step="1" value="6">
+              </label>
+              <label>A Spalten
+                <input id="shape-a-cols" type="number" min="1" max="20" step="1" value="2">
+              </label>
+              <label>B Zeilen
+                <input id="shape-b-rows" type="number" min="1" max="20" step="1" value="2">
+              </label>
+              <label>B Spalten
+                <input id="shape-b-cols" type="number" min="1" max="20" step="1" value="1">
+              </label>
+            </div>
+            <div class="shape-shortcuts">
+              <button id="load-shape-xw" class="secondary" type="button">X*w</button>
+              <button id="load-shape-wx" class="secondary" type="button">w*X</button>
+              <button id="load-shape-ew" class="secondary" type="button">A.*B</button>
+            </div>
+            <p class="shape-result" id="shape-result">Prüfung folgt nach Eingabe.</p>
+          </div>
+          <div class="error-lab">
+            <strong>Fehlermeldungs-Simulation (Mini-Übungen)</strong>
+            <p>Wähle einen Fall. Der Dialog zeigt eine typische Laufzeitmeldung wie in Python/Numpy.</p>
+            <div class="error-cases">
+              <button id="sim-valid" class="secondary" type="button">Übung 1: gültig</button>
+              <button id="sim-dim" class="secondary" type="button">Übung 2: dimension mismatch</button>
+              <button id="sim-broadcast" class="secondary" type="button">Übung 3: broadcast-Fehler</button>
+            </div>
+            <div class="error-dialog" id="error-dialog" aria-hidden="true" data-tone="warn">
+              <div class="error-dialog-head">
+                <strong id="error-dialog-title">Simulierter Lauf</strong>
+                <button id="close-error-dialog" class="secondary" type="button">Schließen</button>
+              </div>
+              <pre class="error-log" id="error-log">Noch kein Fall gewählt.</pre>
+            </div>
+          </div>
+          <div class="control-hint" id="control-hint"></div>
+        </div>
+
+        <div class="knowledge-card">
+          <h3>Kernideen</h3>
+          <ul>
+            <li><strong>Dot-Product:</strong> Pro Zeile werden Merkmal*Gewicht-Beiträge aufsummiert.</li>
+            <li><strong>Batch:</strong> X*w rechnet alle Zeilen in einem mathematischen Block.</li>
+            <li><strong>Nicht kommutativ:</strong> A*B ist nicht automatisch gleich B*A.</li>
+            <li><strong>Elementweise vs Matrixprodukt:</strong> A.*B braucht gleiche Form, A*B braucht passende Innen-Dimension.</li>
+            <li><strong>ML-Bezug:</strong> Training passt die Gewichte so an, dass Fehler über viele Zeilen sinken.</li>
+            <li><strong>ChatGPT-Bezug:</strong> Auch dort laufen große Matrixoperationen, nur in viel höherer Dimension.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const rows = [
+      { month: "Jan", temp: -2, factor: 1.18, y: 170 },
+      { month: "Feb", temp: 1, factor: 1.10, y: 159 },
+      { month: "Mär", temp: 4, factor: 1.04, y: 144 },
+      { month: "Apr", temp: 7, factor: 0.98, y: 130 },
+      { month: "Mai", temp: 11, factor: 0.92, y: 112 },
+      { month: "Jun", temp: 15, factor: 0.88, y: 98 }
+    ];
+
+    const steps = [
+      {
+        title: "Schritt 1: Erinnerung",
+        text: "Wir starten mit X (Datenmatrix) und w (Gewichte). Ziel ist y-hat - Vorhersagen für alle Zeilen.",
+        chat: "Diskussion: Was war in Thema 3 eine Zeile und was eine Spalte?",
+        answer: "Zeile = ein Fall/Monat, Spalte = ein Merkmal wie Temperatur oder Gebäudefaktor."
+      },
+      {
+        title: "Schritt 2: Einzelfall rechnen",
+        text: "Nimm eine Zeile und berechne y-hat mit Dot-Product plus Bias. So sieht man die Matrixmultiplikation im Kleinformat.",
+        chat: "Diskussion: Welche Teile der Formel sind Daten, welche sind Modellparameter?",
+        answer: "Daten kommen aus X (temp, faktor), Parameter sind w_temp, w_faktor und b."
+      },
+      {
+        title: "Schritt 3: Viele Fälle auf einmal",
+        text: "Jetzt dieselbe Logik als Batch: X*w + b liefert y-hat für alle Zeilen zugleich.",
+        chat: "Diskussion: Warum ist das für reale Systeme wichtig?",
+        answer: "Weil viele Vorhersagen effizient und konsistent gleichzeitig berechnet werden können."
+      },
+      {
+        title: "Schritt 4: Was ML automatisiert",
+        text: "Was ihr per Regler macht, optimiert ML automatisch: Gewichte anpassen, Fehler beobachten, iterativ verbessern.",
+        chat: "Diskussion: Welche Kennzahl aus den vorherigen Themen hilft beim Bewerten?",
+        answer: "Der mittlere Fehler (z. B. MAE) zeigt, ob die Vorhersagen im Durchschnitt besser werden."
+      },
+      {
+        title: "Schritt 5: Transfer zu ChatGPT",
+        text: "Bei ChatGPT ist die Idee gleich: Aus Eingaben werden über viele Matrixoperationen nächste Vorhersagen berechnet - nur mit sehr viel mehr Dimensionen und Parametern.",
+        chat: "Diskussion: Was bleibt gleich zwischen unserem Mini-Beispiel und einem großen Sprachmodell?",
+        answer: "Gleich bleibt das Prinzip: numerische Repräsentation, gewichtete Transformationen, Fehlerminimierung im Training."
+      },
+      {
+        title: "Schritt 6: Shape-Checks und Fehlerdiagnose",
+        text: "Nutze jetzt den Shape-Checker und vergleiche Matrixprodukt vs elementweise Multiplikation. Prüfe bewusst den Fall X*w und den Gegenfall w*X.",
+        chat: "Diskussion: Warum ist X*w gültig, aber w*X in diesem Setup nicht?",
+        answer: "Für X(6x2)*w(2x1) stimmen die Innen-Dimensionen. Für w(2x1)*X(6x2) stehen 1 und 6 innen - das ist nicht definiert."
+      }
+    ];
+
+    const stepTemplate = [
+      {
+        why: "Wir brauchen zuerst ein klares Bild der Rollen von X, w und y-hat.",
+        consequence: "Wenn Zeilen und Spalten vertauscht verstanden werden, dann scheitert die Multiplikation fachlich sofort.",
+        reflection: "Welche Tabelle aus deinem Alltag koenntest du direkt als Matrix X lesen?"
+      },
+      {
+        why: "Der Einzelfall macht die abstrakte Matrixregel konkret nachvollziehbar.",
+        consequence: "Wenn du Dot-Product und Bias sauber trennst, dann kannst du jede Vorhersage transparent erklaeren.",
+        reflection: "Welcher Rechenschritt war fuer dich entscheidend: Gewichtung oder Bias?"
+      },
+      {
+        why: "Erst der Batch zeigt, warum Matrixmultiplikation in der Praxis skaliert.",
+        consequence: "Wenn X*w auf alle Zeilen gleichzeitig angewendet wird, dann steigt Effizienz ohne Logikbruch.",
+        reflection: "An welcher Stelle in deinem Kontext waeren gleichzeitige Vorhersagen besonders wertvoll?"
+      },
+      {
+        why: "ML-Verstaendnis entsteht, wenn man Handregler und Training direkt verbindet.",
+        consequence: "Wenn Gewichte iterativ am Fehler ausgerichtet werden, dann ersetzt Optimierung das manuelle Nachjustieren.",
+        reflection: "Welche Kennzahl wuerdest du in einem echten Projekt zuerst beobachten?"
+      },
+      {
+        why: "Der Transfer verankert das Grundprinzip von kleinen bis zu grossen Modellen.",
+        consequence: "Wenn dieselbe Rechenidee in hoher Dimension laeuft, dann bleibt das Prinzip gleich, aber der Massstab explodiert.",
+        reflection: "Was hilft dir, trotz grosser Modelle die Kernlogik nicht aus dem Blick zu verlieren?"
+      },
+      {
+        why: "Viele Praxisfehler entstehen nicht bei der Formel, sondern schon bei den Shapes.",
+        consequence: "Wenn du Matrixprodukt und elementweise Multiplikation trennst, dann kannst du Fehlermeldungen schnell einordnen.",
+        reflection: "Welche kurze Regel nutzt du künftig zuerst: Innen-Dimensionen oder gleiche Form?"
+      }
+    ];
+
+    const state = {
+      wTemp: -4.4,
+      wSize: 26,
+      b: 136,
+      rowIndex: 0,
+      multiplyMode: "matrix",
+      stepIndex: 0,
+      hasAdvanced: false,
+      quizReady: false,
+      finalQuizPassed: false
+    };
+
+    const defaults = { wTemp: -4.4, wSize: 26, b: 136, rowIndex: 0 };
+    const quizAnswers = { q1: "b", q2: "b", q3: "a", q4: "a" };
+
+    const timelineEl = document.getElementById("timeline");
+    const batchBodyEl = document.getElementById("batch-body");
+    const wTempInput = document.getElementById("w-temp");
+    const wSizeInput = document.getElementById("w-size");
+    const biasInput = document.getElementById("bias");
+    const rowIdxInput = document.getElementById("row-idx");
+    const modeMatrixBtn = document.getElementById("mode-matrix");
+    const modeElementBtn = document.getElementById("mode-element");
+    const shapeARowsInput = document.getElementById("shape-a-rows");
+    const shapeAColsInput = document.getElementById("shape-a-cols");
+    const shapeBRowsInput = document.getElementById("shape-b-rows");
+    const shapeBColsInput = document.getElementById("shape-b-cols");
+    const shapeResultEl = document.getElementById("shape-result");
+    const errorDialogEl = document.getElementById("error-dialog");
+    const errorDialogTitleEl = document.getElementById("error-dialog-title");
+    const errorLogEl = document.getElementById("error-log");
+    const codePopupOverlay = document.getElementById("code-popup-overlay");
+    const codePopupFrame = document.getElementById("code-popup-frame");
+    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const openFinalQuizBtn = document.getElementById("open-final-quiz");
+    const replayTopicBtn = document.getElementById("replay-topic");
+    const finalQuizStatusEl = document.getElementById("final-quiz-status");
+    const finalPathBox = document.getElementById("final-path-box");
+    const finalPathTeaser = document.getElementById("final-path-teaser");
+
+    function yHat(row) {
+      return state.b + state.wTemp * row.temp + state.wSize * row.factor;
+    }
+
+    function renderBatch() {
+      batchBodyEl.innerHTML = "";
+      const canComputeBatch = state.stepIndex >= 2 && state.multiplyMode === "matrix";
+      rows.forEach((row, idx) => {
+        const pred = yHat(row);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.month}${idx === state.rowIndex ? " *" : ""}</td>
+          <td>${row.y.toFixed(1)}</td>
+          <td>${canComputeBatch ? pred.toFixed(1) : "-"}</td>
+        `;
+        batchBodyEl.appendChild(tr);
+      });
+    }
+
+    function renderSingleFormula() {
+      const row = rows[state.rowIndex];
+      const pred = yHat(row);
+      if (state.multiplyMode === "matrix") {
+        document.getElementById("single-formula").textContent =
+`x_row = [${row.temp.toFixed(0)}, ${row.factor.toFixed(2)}] (1x2)
+w     = [${state.wTemp.toFixed(1)}, ${state.wSize.toFixed(1)}]^T (2x1)
+
+x_row · w + b
+= (${row.temp.toFixed(0)} * ${state.wTemp.toFixed(1)}) + (${row.factor.toFixed(2)} * ${state.wSize.toFixed(1)}) + ${state.b.toFixed(1)}
+= ${pred.toFixed(1)} €`;
+        document.getElementById("single-meta").textContent = state.stepIndex >= 1
+          ? `Ausgewählte Zeile: ${row.month}. Das ist genau eine Zeilenrechnung der Gesamtformel X*w+b.`
+          : "Ab Schritt 2 wird die Einzelfall-Rechnung inhaltlich vertieft.";
+        document.getElementById("chip-row-pred").textContent = pred.toFixed(1);
+        return;
+      }
+
+      const partTemp = row.temp * state.wTemp;
+      const partFactor = row.factor * state.wSize;
+      document.getElementById("single-formula").textContent =
+`x_row = [${row.temp.toFixed(0)}, ${row.factor.toFixed(2)}] (1x2)
+w_row = [${state.wTemp.toFixed(1)}, ${state.wSize.toFixed(1)}] (1x2)
+
+x_row .* w_row (elementweise)
+= [${row.temp.toFixed(0)}*${state.wTemp.toFixed(1)}, ${row.factor.toFixed(2)}*${state.wSize.toFixed(1)}]
+= [${partTemp.toFixed(1)}, ${partFactor.toFixed(1)}]`;
+      document.getElementById("single-meta").textContent = "Elementweise Multiplikation liefert einen Vektor, nicht direkt eine einzelne Vorhersage y-hat.";
+      document.getElementById("chip-row-pred").textContent = "n/a";
+    }
+
+    function renderTimeline() {
+      timelineEl.innerHTML = "";
+      steps.forEach((step, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        if (idx < state.stepIndex) item.classList.add("done");
+        if (idx === state.stepIndex) item.classList.add("active");
+        item.textContent = `${idx + 1}. ${step.title.replace(`Schritt ${idx + 1}: `, "")}`;
+        timelineEl.appendChild(item);
+      });
+    }
+
+    function updateStepAnswer() {
+      const titleEl = document.getElementById("answer-title");
+      const textEl = document.getElementById("answer-text");
+      if (!state.hasAdvanced) {
+        titleEl.textContent = "Auflösung zum vorherigen Schritt:";
+        textEl.textContent = "Die Auflösung erscheint, sobald ihr zum nächsten Schritt wechselt.";
+        return;
+      }
+      const prevIdx = (state.stepIndex - 1 + steps.length) % steps.length;
+      titleEl.textContent = `Auflösung zu Schritt ${prevIdx + 1}:`;
+      textEl.textContent = steps[prevIdx].answer;
+    }
+
+    function asPositiveInt(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n) || n < 1) return 1;
+      return Math.max(1, Math.floor(n));
+    }
+
+    function setMultiplyMode(mode) {
+      state.multiplyMode = mode;
+      modeMatrixBtn.classList.toggle("active", mode === "matrix");
+      modeElementBtn.classList.toggle("active", mode === "elementwise");
+      renderSingleFormula();
+      renderBatch();
+      evaluateShapeChecker();
+    }
+
+    function evaluateShapeChecker() {
+      const aRows = asPositiveInt(shapeARowsInput.value);
+      const aCols = asPositiveInt(shapeAColsInput.value);
+      const bRows = asPositiveInt(shapeBRowsInput.value);
+      const bCols = asPositiveInt(shapeBColsInput.value);
+      shapeARowsInput.value = aRows;
+      shapeAColsInput.value = aCols;
+      shapeBRowsInput.value = bRows;
+      shapeBColsInput.value = bCols;
+
+      if (state.multiplyMode === "matrix") {
+        if (aCols === bRows) {
+          shapeResultEl.textContent = `Matrixprodukt gültig: A(${aRows}x${aCols}) * B(${bRows}x${bCols}) -> Ergebnis ${aRows}x${bCols}.`;
+          shapeResultEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
+          shapeResultEl.style.background = "#f3fbf6";
+          shapeResultEl.style.color = "#275b3f";
+        } else {
+          shapeResultEl.textContent = `Nicht definiert: Innen-Dimensionen passen nicht (${aCols} != ${bRows}). Typische Fehlermeldung: dimension mismatch.`;
+          shapeResultEl.style.borderColor = "rgba(154, 50, 77, 0.38)";
+          shapeResultEl.style.background = "#fff1f5";
+          shapeResultEl.style.color = "#7b2f44";
+        }
+        return;
+      }
+
+      if (aRows === bRows && aCols === bCols) {
+        shapeResultEl.textContent = `Elementweise gültig: A(${aRows}x${aCols}) .* B(${bRows}x${bCols}) -> Ergebnis ${aRows}x${aCols}.`;
+        shapeResultEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
+        shapeResultEl.style.background = "#f3fbf6";
+        shapeResultEl.style.color = "#275b3f";
+      } else {
+        shapeResultEl.textContent = `Elementweise nicht definiert: Formen müssen identisch sein (${aRows}x${aCols} vs ${bRows}x${bCols}).`;
+        shapeResultEl.style.borderColor = "rgba(154, 50, 77, 0.38)";
+        shapeResultEl.style.background = "#fff1f5";
+        shapeResultEl.style.color = "#7b2f44";
+      }
+    }
+
+    function openErrorDialog(title, tone, lines) {
+      errorDialogTitleEl.textContent = title;
+      errorDialogEl.setAttribute("data-tone", tone);
+      errorLogEl.textContent = lines.join("\n");
+      errorDialogEl.setAttribute("aria-hidden", "false");
+    }
+
+    function closeErrorDialog() {
+      errorDialogEl.setAttribute("aria-hidden", "true");
+    }
+
+    function simulateValidRun() {
+      setMultiplyMode("matrix");
+      setShapePreset(6, 2, 2, 1);
+      openErrorDialog("Übung 1: Gültiger Lauf", "ok", [
+        ">>> A.shape, B.shape",
+        "((6, 2), (2, 1))",
+        ">>> A @ B",
+        "array([...])",
+        "Ergebnis-Shape: (6, 1)",
+        "",
+        "Interpretation: Innen-Dimension 2 passt zu 2."
+      ]);
+    }
+
+    function simulateDimensionMismatch() {
+      setMultiplyMode("matrix");
+      setShapePreset(2, 1, 6, 2);
+      openErrorDialog("Übung 2: Dimension Mismatch", "error", [
+        ">>> A.shape, B.shape",
+        "((2, 1), (6, 2))",
+        ">>> A @ B",
+        "ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0",
+        "with gufunc signature (n?,k),(k,m?)->(n?,m?)",
+        "(size 6 is different from 1)",
+        "",
+        "Interpretation: Innen-Dimensionen 1 und 6 passen nicht."
+      ]);
+    }
+
+    function simulateBroadcastError() {
+      setMultiplyMode("elementwise");
+      setShapePreset(6, 2, 2, 1);
+      openErrorDialog("Übung 3: Broadcast-Fehler", "warn", [
+        ">>> A.shape, B.shape",
+        "((6, 2), (2, 1))",
+        ">>> A * B",
+        "ValueError: operands could not be broadcast together",
+        "with shapes (6,2) (2,1)",
+        "",
+        "Interpretation: Für elementweise Multiplikation müssen Formen identisch oder broadcastbar sein."
+      ]);
+    }
+
+    function syncControlsToStep() {
+      const weightEnabled = state.stepIndex >= 1;
+      const batchEnabled = state.stepIndex >= 2;
+      const modeEnabled = state.stepIndex >= 1;
+
+      wTempInput.disabled = !weightEnabled;
+      wSizeInput.disabled = !weightEnabled;
+      biasInput.disabled = !weightEnabled;
+      rowIdxInput.disabled = !weightEnabled;
+      modeMatrixBtn.disabled = !modeEnabled;
+      modeElementBtn.disabled = !modeEnabled;
+      if (!modeEnabled && state.multiplyMode !== "matrix") {
+        setMultiplyMode("matrix");
+      }
+
+      const hint = document.getElementById("control-hint");
+      if (!weightEnabled) {
+        hint.textContent = "Regler werden ab Schritt 2 aktiv. Erst das Prinzip von X und w einordnen.";
+      } else if (!batchEnabled) {
+        hint.textContent = "Einzelfall-Rechnung aktiv: Zeile auswählen und Dot-Product nachvollziehen. Elementweise dient nur als Kontrast.";
+      } else if (state.stepIndex === 2) {
+        hint.textContent = "Batch-Sicht aktiv: dieselbe Rechnung gilt für alle Zeilen gleichzeitig (nur im Matrixmodus).";
+      } else if (state.stepIndex === 5) {
+        hint.textContent = "Fehlerdiagnose: Prüfe X*w vs w*X und den Unterschied zwischen * und .* im Shape-Checker.";
+      } else {
+        hint.textContent = "Transferphase: Genau diese Rechenstruktur skaliert in großen ML-Modellen.";
+      }
+    }
+
+    function updateReadout() {
+      document.getElementById("w-temp-value").textContent = state.wTemp.toFixed(1);
+      document.getElementById("w-size-value").textContent = state.wSize.toFixed(1);
+      document.getElementById("b-value").textContent = `${state.b.toFixed(1)} €`;
+      document.getElementById("row-idx-value").textContent = `${state.rowIndex + 1}`;
+
+      document.getElementById("chip-w-temp").textContent = state.wTemp.toFixed(1);
+      document.getElementById("chip-w-size").textContent = state.wSize.toFixed(1);
+      document.getElementById("chip-b").textContent = state.b.toFixed(1);
+    }
+
+    function updateStepContent() {
+      if (state.stepIndex === steps.length - 1) {
+        state.quizReady = true;
+      }
+      const step = steps[state.stepIndex];
+      document.getElementById("step-title").textContent = step.title;
+      document.getElementById("step-text").textContent = step.text;
+      document.getElementById("chat-question").textContent = step.chat;
+      const template = stepTemplate[state.stepIndex];
+      document.getElementById("step-why").textContent = template.why;
+      document.getElementById("step-consequence").textContent = template.consequence;
+      document.getElementById("step-reflection").textContent = template.reflection;
+      updateFinalQuizAvailability();
+      updateStepAnswer();
+      syncControlsToStep();
+      updateReadout();
+      evaluateShapeChecker();
+      renderSingleFormula();
+      renderBatch();
+      renderTimeline();
+    }
+
+    function updateFinalQuizAvailability() {
+      const ready = state.quizReady;
+      openFinalQuizBtn.hidden = !ready;
+      replayTopicBtn.hidden = !ready;
+      finalPathBox.classList.toggle("collapsed", !ready);
+      finalPathTeaser.textContent = ready
+        ? "Geoeffnet: Abschluss-Quiz, Weiterlink und Replay sind jetzt verfuegbar."
+        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+
+      if (!ready) {
+        finalQuizStatusEl.textContent = `Abschluss-Quiz wird nach Schritt ${steps.length} angeboten.`;
+        finalQuizStatusEl.style.borderColor = "#cbd4e4";
+        finalQuizStatusEl.style.background = "#fff";
+        finalQuizStatusEl.style.color = "#5f6d84";
+        return;
+      }
+
+      if (!state.finalQuizPassed) {
+        finalQuizStatusEl.textContent = "Letzter Schritt erreicht: Abschluss-Quiz und Replay sind jetzt verfügbar.";
+        finalQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
+        finalQuizStatusEl.style.background = "#fff7fa";
+        finalQuizStatusEl.style.color = "#6f2d45";
+      }
+    }
+
+    function nextStep() {
+      state.hasAdvanced = true;
+      state.stepIndex = (state.stepIndex + 1) % steps.length;
+      updateStepContent();
+    }
+
+    function openQuiz() {
+      if (!state.quizReady) return;
+      document.body.classList.add("quiz-active");
+      document.getElementById("quiz-overlay").setAttribute("aria-hidden", "false");
+    }
+
+    function closeQuiz() {
+      document.body.classList.remove("quiz-active");
+      document.getElementById("quiz-overlay").setAttribute("aria-hidden", "true");
+    }
+
+    function openCodePopup(url) {
+      codePopupFrame.src = url;
+      codePopupOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeCodePopup() {
+      codePopupOverlay.setAttribute("aria-hidden", "true");
+      codePopupFrame.src = "about:blank";
+    }
+
+    function markFinalQuizPassed() {
+      state.finalQuizPassed = true;
+      finalQuizStatusEl.textContent = "Abschluss-Quiz bestanden. Sehr gut - Lernpfad abgeschlossen.";
+      finalQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
+      finalQuizStatusEl.style.background = "#f3fbf6";
+      finalQuizStatusEl.style.color = "#275b3f";
+    }
+
+    function gradeQuiz() {
+      const form = document.getElementById("final-quiz-form");
+      let score = 0;
+      Object.keys(quizAnswers).forEach((qid) => {
+        const checked = form.querySelector(`input[name="${qid}"]:checked`);
+        if (checked && checked.value === quizAnswers[qid]) score += 1;
+      });
+
+      const feedback = document.getElementById("quiz-feedback");
+      if (score >= 3) {
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Abschluss-Check bestanden.`;
+        feedback.style.color = "#1f8b4c";
+        markFinalQuizPassed();
+      } else {
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Noch nicht bestanden - bitte erneut versuchen.`;
+        feedback.style.color = "#9a324d";
+      }
+    }
+
+    wTempInput.addEventListener("input", (e) => {
+      state.wTemp = Number(e.target.value);
+      updateReadout();
+      renderSingleFormula();
+      renderBatch();
+    });
+
+    wSizeInput.addEventListener("input", (e) => {
+      state.wSize = Number(e.target.value);
+      updateReadout();
+      renderSingleFormula();
+      renderBatch();
+    });
+
+    biasInput.addEventListener("input", (e) => {
+      state.b = Number(e.target.value);
+      updateReadout();
+      renderSingleFormula();
+      renderBatch();
+    });
+
+    rowIdxInput.addEventListener("input", (e) => {
+      state.rowIndex = Number(e.target.value) - 1;
+      updateReadout();
+      renderSingleFormula();
+      renderBatch();
+    });
+
+    modeMatrixBtn.addEventListener("click", () => setMultiplyMode("matrix"));
+    modeElementBtn.addEventListener("click", () => setMultiplyMode("elementwise"));
+
+    [shapeARowsInput, shapeAColsInput, shapeBRowsInput, shapeBColsInput].forEach((input) => {
+      input.addEventListener("input", evaluateShapeChecker);
+    });
+
+    function setShapePreset(aRows, aCols, bRows, bCols) {
+      shapeARowsInput.value = aRows;
+      shapeAColsInput.value = aCols;
+      shapeBRowsInput.value = bRows;
+      shapeBColsInput.value = bCols;
+      evaluateShapeChecker();
+    }
+
+    document.getElementById("load-shape-xw").addEventListener("click", () => setShapePreset(6, 2, 2, 1));
+    document.getElementById("load-shape-wx").addEventListener("click", () => setShapePreset(2, 1, 6, 2));
+    document.getElementById("load-shape-ew").addEventListener("click", () => setShapePreset(6, 2, 6, 2));
+    document.getElementById("sim-valid").addEventListener("click", simulateValidRun);
+    document.getElementById("sim-dim").addEventListener("click", simulateDimensionMismatch);
+    document.getElementById("sim-broadcast").addEventListener("click", simulateBroadcastError);
+    document.getElementById("close-error-dialog").addEventListener("click", closeErrorDialog);
+
+    document.getElementById("next-step").addEventListener("click", nextStep);
+
+    document.getElementById("reset-session").addEventListener("click", () => {
+      state.wTemp = defaults.wTemp;
+      state.wSize = defaults.wSize;
+      state.b = defaults.b;
+      state.rowIndex = defaults.rowIndex;
+      state.multiplyMode = "matrix";
+      state.stepIndex = 0;
+      state.hasAdvanced = false;
+      state.quizReady = false;
+      state.finalQuizPassed = false;
+      wTempInput.value = state.wTemp;
+      wSizeInput.value = state.wSize;
+      biasInput.value = state.b;
+      rowIdxInput.value = state.rowIndex + 1;
+      setMultiplyMode("matrix");
+      setShapePreset(6, 2, 2, 1);
+      closeErrorDialog();
+      document.getElementById("quiz-feedback").textContent = "";
+      updateStepContent();
+    });
+
+    replayTopicBtn.addEventListener("click", () => {
+      document.getElementById("reset-session").click();
+    });
+
+    openFinalQuizBtn.addEventListener("click", openQuiz);
+    document.getElementById("close-final-quiz").addEventListener("click", closeQuiz);
+    document.getElementById("grade-final-quiz").addEventListener("click", (e) => {
+      e.preventDefault();
+      gradeQuiz();
+    });
+    document.getElementById("quiz-backdrop").addEventListener("click", closeQuiz);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && document.body.classList.contains("quiz-active")) {
+        closeQuiz();
+      }
+      if (e.key === "Escape" && codePopupOverlay.getAttribute("aria-hidden") === "false") {
+        closeCodePopup();
+      }
+      if (e.key === "Escape" && errorDialogEl.getAttribute("aria-hidden") === "false") {
+        closeErrorDialog();
+      }
+    });
+
+    codePopupTriggers.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        openCodePopup(link.getAttribute("href"));
+      });
+    });
+    document.getElementById("close-code-popup").addEventListener("click", closeCodePopup);
+    document.getElementById("code-popup-backdrop").addEventListener("click", closeCodePopup);
+
+    setMultiplyMode("matrix");
+    setShapePreset(6, 2, 2, 1);
+    closeErrorDialog();
+    updateStepContent();
+  </script>
+</body>
+</html>

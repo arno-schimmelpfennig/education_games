@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrizen verstehen | Webinar-Interaktion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+    :root {
+      --brand-main: #631832;
+      --brand-accent: #173262;
+      --text-main: #231a24;
+      --text-light: #606f8c;
+      --bg-body: #edf1f7;
+      --surface: #ffffff;
+      --soft-border: #dbe3ef;
+      --panel-shadow: 0 12px 28px rgba(23, 50, 98, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 18% 0%, #f7f9fd 0%, var(--bg-body) 44%, #e9eef6 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: 100vh;
+    }
+
+    #sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--soft-border);
+      box-shadow: 2px 0 18px rgba(18, 40, 76, 0.07);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .brandline {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--brand-main);
+      line-height: 1.25;
+    }
+
+    .lead {
+      margin: 0;
+      font-size: 0.93rem;
+      color: #434f63;
+      line-height: 1.52;
+    }
+
+    .story-box,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .usage-box,
+    .path-box {
+      background: #f8fafe;
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      padding: 11px 13px;
+    }
+
+    .story-box strong,
+    .chat-box strong,
+    .answer-box strong,
+    .usage-box strong,
+    .path-box strong {
+      color: var(--brand-accent);
+    }
+
+    #step-title {
+      margin: 0 0 7px;
+      font-size: 0.98rem;
+      color: var(--brand-main);
+    }
+
+    #step-text,
+    #chat-question,
+    #answer-text {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: #344153;
+    }
+
+    .step-template {
+      margin-top: 9px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .step-template-item {
+      background: #fff;
+      border: 1px dashed #cfd8e8;
+      border-radius: 10px;
+      padding: 7px 9px;
+    }
+
+    .step-template-item strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.74rem;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: #2f5b96;
+    }
+
+    .step-template-item p {
+      margin: 0;
+      font-size: 0.81rem;
+      line-height: 1.36;
+      color: #3f4e66;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 6px;
+    }
+
+    .timeline-item {
+      border-radius: 10px;
+      border: 1px solid var(--soft-border);
+      padding: 7px 9px;
+      font-size: 0.8rem;
+      color: #5a667a;
+      background: #fff;
+    }
+
+    .timeline-item.active {
+      border-color: rgba(99, 24, 50, 0.45);
+      background: #fff4f8;
+      color: var(--brand-main);
+      font-weight: 700;
+    }
+
+    .timeline-item.done {
+      border-color: rgba(31, 139, 76, 0.25);
+      background: #f2fbf6;
+      color: #256441;
+    }
+
+    .path-box p {
+      margin: 6px 0 8px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      color: #45546d;
+    }
+
+    .path-content {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .path-box.collapsed .path-content {
+      display: none;
+    }
+
+    .path-status {
+      font-size: 0.78rem;
+      line-height: 1.36;
+      color: #5f6d84;
+      background: #fff;
+      border: 1px dashed #cbd4e4;
+      border-radius: 8px;
+      padding: 7px 8px;
+      margin-bottom: 8px;
+    }
+
+    .path-link {
+      display: block;
+      margin-top: 8px;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: 1px solid var(--soft-border);
+      background: #eaf1fc;
+      color: #1f3f77;
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.12);
+    }
+
+    .path-link.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      box-shadow: none;
+      background: #f2f5fb;
+      color: #6b7a93;
+    }
+
+    .extension-box {
+      background: linear-gradient(155deg, #fff2f3 0%, #f4f8ff 55%, #eef4ff 100%);
+      border: 1px solid rgba(99, 24, 50, 0.28);
+      border-radius: 14px;
+      padding: 12px 13px;
+      box-shadow: 0 10px 20px rgba(37, 62, 107, 0.14);
+    }
+
+    .extension-kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #631832;
+      color: #fff;
+    }
+
+    .extension-box strong {
+      color: #2f1a40;
+      font-size: 0.94rem;
+    }
+
+    .extension-box p {
+      margin: 7px 0 9px;
+      font-size: 0.83rem;
+      line-height: 1.42;
+      color: #42506a;
+    }
+
+    .extension-link {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(92deg, #173262 0%, #2f5b96 100%);
+      box-shadow: 0 8px 16px rgba(23, 50, 98, 0.24);
+      transition: filter 0.15s ease;
+    }
+
+    .extension-link:hover {
+      filter: brightness(1.05);
+    }
+
+    #code-popup-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2600;
+      display: none;
+    }
+
+    #code-popup-overlay[aria-hidden="false"] {
+      display: block;
+    }
+
+    #code-popup-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 28, 51, 0.54);
+      backdrop-filter: blur(2px);
+    }
+
+    #code-popup-modal {
+      position: absolute;
+      inset: 4vh 4vw;
+      background: #fff;
+      border: 1px solid #d4dceb;
+      border-radius: 16px;
+      box-shadow: 0 24px 44px rgba(11, 28, 50, 0.35);
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+    }
+
+    #code-popup-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #dbe3ef;
+      background: linear-gradient(110deg, #f7f9fd 0%, #eef3fb 100%);
+    }
+
+    #code-popup-head h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #173262;
+    }
+
+    #code-popup-head button {
+      width: auto;
+      min-width: 116px;
+      padding: 8px 12px;
+    }
+
+    #code-popup-subtitle {
+      margin: 0;
+      padding: 9px 14px;
+      border-bottom: 1px solid #e2e8f3;
+      font-size: 0.82rem;
+      color: #4d5c74;
+      background: #fbfdff;
+    }
+
+    #code-popup-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: var(--brand-accent);
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.2);
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--text-main);
+      border: 1px solid var(--soft-border);
+      box-shadow: none;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .ctrl-group {
+      margin-top: auto;
+      display: grid;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    #stage {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding-bottom: 18px;
+      scrollbar-gutter: stable;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--soft-border);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 0.82rem;
+      color: #334257;
+      box-shadow: 0 4px 10px rgba(17, 37, 72, 0.07);
+    }
+
+    .chip strong { color: var(--brand-main); }
+
+    .codepath-bar {
+      background: linear-gradient(160deg, #ffffff 0%, #f1f6ff 100%);
+      border: 1px solid #cbd8ed;
+      border-radius: 12px;
+      padding: 9px 10px;
+      box-shadow: 0 6px 14px rgba(17, 37, 72, 0.09);
+    }
+
+    .codepath-title {
+      margin: 0 0 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #4d6080;
+      text-transform: uppercase;
+    }
+
+    .codepath-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 6px;
+    }
+
+    .codepath-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      border-radius: 9px;
+      border: 1px solid #d3dff2;
+      background: rgba(255, 255, 255, 0.88);
+      color: #344763;
+      padding: 7px 8px;
+      font-size: 0.77rem;
+      font-weight: 700;
+      min-height: 34px;
+    }
+
+    .codepath-step:hover {
+      border-color: #b9cae7;
+      background: #ffffff;
+    }
+
+    .codepath-step.active {
+      border-color: #3e659a;
+      background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
+      color: #fff;
+      box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-index {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.66rem;
+      font-weight: 800;
+      border: 1px solid #aebfde;
+      background: #edf3ff;
+      color: #2f4f7a;
+    }
+
+    .codepath-step.active .codepath-index {
+      border-color: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .matrix-panel {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+      min-width: 0;
+      min-height: 340px;
+    }
+
+    .matrix-card,
+    .prediction-card {
+      background: linear-gradient(145deg, #ffffff, #f5f8fd);
+      border: 1px solid #dbe3ef;
+      border-radius: 14px;
+      box-shadow: var(--panel-shadow);
+      padding: 12px;
+      min-width: 0;
+      overflow: auto;
+    }
+
+    .card-title {
+      margin: 0 0 8px;
+      font-size: 0.93rem;
+      color: var(--brand-accent);
+      font-weight: 700;
+    }
+
+    .card-meta {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      color: #57647b;
+      line-height: 1.35;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.79rem;
+      color: #36445a;
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e4eaf4;
+      padding: 7px 8px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th:first-child,
+    td:first-child { text-align: left; }
+
+    th {
+      background: #f2f6fd;
+      color: #40506b;
+      font-weight: 700;
+      font-size: 0.76rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .prediction-card tr.hit-good td {
+      background: rgba(31, 139, 76, 0.1);
+    }
+
+    .prediction-card tr.hit-ok td {
+      background: rgba(194, 145, 23, 0.12);
+    }
+
+    .prediction-card tr.hit-bad td {
+      background: rgba(154, 50, 77, 0.11);
+    }
+
+    .hit-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .hit-badge.hit-good {
+      background: #eaf9f0;
+      color: #266845;
+      border: 1px solid rgba(31, 139, 76, 0.35);
+    }
+
+    .hit-badge.hit-ok {
+      background: #fff8e9;
+      color: #7d5a16;
+      border: 1px solid rgba(194, 145, 23, 0.42);
+    }
+
+    .hit-badge.hit-bad {
+      background: #fff1f5;
+      color: #7b2f44;
+      border: 1px solid rgba(154, 50, 77, 0.38);
+    }
+
+    .bottom-panel {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) minmax(300px, 420px);
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .control-card,
+    .knowledge-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      box-shadow: var(--panel-shadow);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .control-card h3,
+    .knowledge-card h3 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      color: var(--brand-accent);
+    }
+
+    .slider-grid {
+      display: grid;
+      gap: 9px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.81rem;
+      color: #425066;
+      margin-bottom: 3px;
+    }
+
+    .label-with-tip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .tip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .tip-icon {
+      all: unset;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1px solid #b7c3d7;
+      background: #fff;
+      color: #425066;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: help;
+      user-select: none;
+    }
+
+    .tip-icon:focus-visible {
+      outline: 2px solid #173262;
+      outline-offset: 1px;
+    }
+
+    .tip-text {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: min(290px, 58vw);
+      background: #1f2f47;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      box-shadow: 0 10px 20px rgba(17, 37, 72, 0.35);
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      z-index: 9;
+    }
+
+    .tip-text::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 9px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid #1f2f47;
+    }
+
+    .tip-wrap:hover .tip-text,
+    .tip-wrap:focus-within .tip-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand-main);
+      cursor: pointer;
+    }
+
+    input[type="range"]:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .control-hint {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #5f6d84;
+      background: #f8fafe;
+      border: 1px dashed #c9d3e3;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    .knowledge-card ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 6px;
+      font-size: 0.83rem;
+      color: #39485f;
+      line-height: 1.45;
+    }
+
+    .shape-bridge {
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: #f8fafe;
+      border: 1px dashed #c9d3e3;
+      display: grid;
+      gap: 6px;
+    }
+
+    .shape-bridge strong {
+      color: #1f3f77;
+      font-size: 0.82rem;
+    }
+
+    .shape-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .shape-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      border: 1px solid #d5dfef;
+      background: #fff;
+      color: #304560;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .shape-bridge p {
+      margin: 0;
+      color: #4f5f78;
+      font-size: 0.79rem;
+      line-height: 1.35;
+    }
+
+    .term-box {
+      margin-top: 9px;
+      border-radius: 10px;
+      border: 1px solid #d6deed;
+      background: #fff;
+      padding: 9px 10px;
+    }
+
+    .term-box strong {
+      color: #2f4f7a;
+      font-size: 0.81rem;
+    }
+
+    .term-box ul {
+      margin-top: 6px;
+      gap: 5px;
+      font-size: 0.79rem;
+      line-height: 1.35;
+    }
+
+    #quiz-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 96;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    body.quiz-active #quiz-overlay {
+      display: flex;
+    }
+
+    #quiz-backdrop {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(140deg, rgba(15, 35, 66, 0.4), rgba(22, 33, 54, 0.5));
+      backdrop-filter: blur(2px);
+    }
+
+    #quiz-card {
+      position: relative;
+      z-index: 2;
+      width: min(760px, 96vw);
+      max-height: min(86vh, 900px);
+      overflow-y: auto;
+      background: linear-gradient(150deg, #ffffff 0%, #f5f8fd 100%);
+      border: 1px solid #d5deec;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(15, 35, 66, 0.3);
+      padding: 18px 18px 14px;
+    }
+
+    #quiz-card h3 {
+      margin: 0 0 6px;
+      color: var(--brand-main);
+      font-size: 1.06rem;
+    }
+
+    #quiz-card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: #44536c;
+    }
+
+    .quiz-question {
+      background: #fff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+
+    .quiz-question legend {
+      margin: 0 0 6px;
+      padding: 0;
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: #2f3f5a;
+    }
+
+    .quiz-option {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      color: #43536b;
+      line-height: 1.35;
+    }
+
+    .quiz-option:last-child { margin-bottom: 0; }
+
+    #quiz-feedback {
+      margin: 10px 0 0;
+      font-size: 0.82rem;
+      line-height: 1.36;
+      color: #2f3f5a;
+      min-height: 20px;
+    }
+
+    .quiz-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 1120px) {
+      body { overflow: auto; height: auto; }
+      #app-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      #sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--soft-border);
+      }
+      #stage {
+        grid-template-rows: auto auto auto;
+      }
+      #code-popup-modal {
+        inset: 2vh 2vw;
+      }
+      .matrix-panel,
+      .bottom-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-overlay" aria-hidden="true">
+    <div id="quiz-backdrop"></div>
+    <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+      <h3 id="quiz-title">Zwischen-Quiz: Matrizen</h3>
+      <p>4 Fragen, mindestens 3 richtig zum Freischalten von "Matrizenmultiplikation".</p>
+      <form id="matrix-quiz-form">
+        <fieldset class="quiz-question">
+          <legend>1) Was bedeutet eine Zeile in der Datenmatrix X?</legend>
+          <label class="quiz-option"><input type="radio" name="q1" value="a">Ein Fall/eine Beobachtung mit allen Merkmalen</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="b">Ein einzelnes Modellgewicht</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="c">Immer den Fehler des Modells</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>2) Warum brauchen wir mehrere Spalten in X?</legend>
+          <label class="quiz-option"><input type="radio" name="q2" value="a">Damit der Datensatz größer wirkt</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b">Weil reale Vorhersagen oft mehrere Einflussfaktoren haben</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c">Damit m und b verschwinden</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>3) Was passiert mit y-hat, wenn Gewichte schlecht gewählt sind?</legend>
+          <label class="quiz-option"><input type="radio" name="q3" value="a">Nichts, y-hat bleibt gleich</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="b">Nur die Temperaturspalte verschwindet</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="c">Die Vorhersagefehler werden größer</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>4) Welche Shape-Kombination passt für Batch-Vorhersage mit zwei Merkmalen?</legend>
+          <label class="quiz-option"><input type="radio" name="q4" value="a">X: 6x2, w: 2x1, y-hat: 6x1</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="b">X: 2x6, w: 2x1, y-hat: 2x1</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="c">X: 6x2, w: 6x1, y-hat: 2x1</label>
+        </fieldset>
+      </form>
+      <div id="quiz-feedback"></div>
+      <div class="quiz-actions">
+        <button id="grade-matrix-quiz">Quiz auswerten</button>
+        <button id="close-matrix-quiz" class="secondary">Schließen</button>
+      </div>
+    </section>
+  </div>
+  <div id="code-popup-overlay" aria-hidden="true">
+    <div id="code-popup-backdrop"></div>
+    <section id="code-popup-modal" role="dialog" aria-modal="true" aria-labelledby="code-popup-title">
+      <div id="code-popup-head">
+        <h3 id="code-popup-title">Code-Praxis (Python)</h3>
+        <button id="close-code-popup" class="secondary" type="button">Schließen</button>
+      </div>
+      <p id="code-popup-subtitle">Vertiefung für Einsteiger: von Theorie zu `scikit-learn` und `statsmodels`.</p>
+      <iframe id="code-popup-frame" src="about:blank" title="Code-Praxis Popup" loading="lazy"></iframe>
+    </section>
+  </div>
+
+  <div id="app-layout">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Matrizen verstehen<br>nach Regression</h1>
+      <p class="lead">Jetzt erweitern wir das Heizkosten-Beispiel: von einer x-Achse auf mehrere Einflussfaktoren gleichzeitig.</p>
+
+      <div class="story-box">
+        <strong>Brücke aus Thema 1 und Thema 2:</strong>
+        Aus dem linearen Grundmodell (Thema 1) und dem Trainingsblick (Thema 2) geht es jetzt zu mehreren Merkmalen gleichzeitig.
+      </div>
+
+      <div class="step-box">
+        <h3 id="step-title"></h3>
+        <p id="step-text"></p>
+        <div class="step-template" aria-label="Lern-Template">
+          <div class="step-template-item">
+            <strong>Warum</strong>
+            <p id="step-why"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Wenn-dann-Konsequenz</strong>
+            <p id="step-consequence"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Mini-Reflexion</strong>
+            <p id="step-reflection"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-box">
+        <strong>Diskussionsfrage:</strong>
+        <p id="chat-question"></p>
+      </div>
+
+      <div class="answer-box">
+        <strong id="answer-title">Auflösung zum vorherigen Schritt:</strong>
+        <p id="answer-text"></p>
+      </div>
+
+      <div class="timeline" id="timeline"></div>
+
+      <div class="usage-box">
+        <strong>Praxis-Übertrag:</strong><br>
+        Matrixdarstellung ist die Grundlage, damit Modelle mehrere Merkmale gleichzeitig verarbeiten können.
+      </div>
+
+      <div class="path-box collapsed" id="matrix-path-box">
+        <strong>Lernpfad danach</strong>
+        <p id="matrix-path-teaser">Lernpfad bleibt bis Schritt 6 eingeklappt.</p>
+        <div class="path-content">
+          <p>Nächstes Thema 4: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
+          <div class="path-status" id="matrix-quiz-status">Zwischen-Quiz wird nach Schritt 6 angeboten. Danach wird die Navigation freigeschaltet.</div>
+          <button id="open-matrix-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
+          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 4: Matrizenmultiplikation</a>
+          <a class="path-link" href="gradient_descent_interaktion.html">Zurück zu Thema 2: Gradient Descent</a>
+          <button id="replay-matrix" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
+        </div>
+      </div>
+
+      <div class="extension-box">
+        <div class="extension-kicker">Erweiterung</div>
+        <strong>Jetzt in Python umsetzen</strong>
+        <p>Direkt nach der Theorie: trainieren und interpretieren mit `scikit-learn` und `statsmodels` auf Einsteiger-Niveau.</p>
+        <a class="extension-link" href="lineare_regression_code_praxis.html">Code-Praxis (Python) im Popup öffnen</a>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="next-step">Nächster Lern-Schritt</button>
+        <button id="reset-session" class="secondary">Session zurücksetzen</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="codepath-bar" aria-label="Codepfad Navigation">
+        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-steps">
+          <a class="codepath-step active" href="lineare_regression_code_praxis.html">
+            <span class="codepath-index">1</span>
+            <span>Linear Regression</span>
+          </a>
+          <a class="codepath-step" href="gradient_descent_code_praxis.html">
+            <span class="codepath-index">2</span>
+            <span>Gradient Descent</span>
+          </a>
+          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+            <span class="codepath-index">3</span>
+            <span>Predictive Modeling</span>
+          </a>
+        </div>
+      </section>
+
+      <div class="chip-row">
+        <div class="chip"><strong>w_temp:</strong> <span id="chip-w-temp">-4.4</span></div>
+        <div class="chip"><strong>w_faktor:</strong> <span id="chip-w-size">26.0</span></div>
+        <div class="chip"><strong>b:</strong> <span id="chip-b">136.0</span></div>
+        <div class="chip"><strong>MAE:</strong> <span id="chip-mae">0.0</span> €</div>
+        <div class="chip"><strong>Treffer (≤ 8 €):</strong> <span id="chip-hits">0/6</span></div>
+      </div>
+
+      <section class="matrix-panel">
+        <div class="matrix-card">
+          <p class="card-title">Datenmatrix X und Zielvektor y</p>
+          <p class="card-meta" id="matrix-meta">Jede Zeile = ein Monat. Spalten = Merkmale.</p>
+          <table>
+            <thead>
+              <tr id="matrix-head-row"></tr>
+            </thead>
+            <tbody id="matrix-body"></tbody>
+          </table>
+        </div>
+
+        <div class="prediction-card">
+          <p class="card-title">Vorhersagevektor y-hat</p>
+          <p class="card-meta" id="prediction-meta"></p>
+          <table>
+            <thead>
+              <tr>
+                <th>Monat</th>
+                <th>y-hat (€)</th>
+                <th>|Fehler| (€)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="prediction-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="bottom-panel">
+        <div class="control-card">
+          <h3>Interaktive Gewichte</h3>
+          <div class="slider-grid">
+            <div>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  w_temp (pro +1°C)
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Hilfe zu w_temp">i</button>
+                    <span class="tip-text">Was? Dieser Regler bestimmt den Temperatureffekt pro Grad. Warum schieben? Damit ihr seht, wie stark ein einzelnes Merkmal die Vorhersage nach oben oder unten zieht.</span>
+                  </span>
+                </span>
+                <span id="w-temp-value">-4.4</span>
+              </div>
+              <input id="w-temp" type="range" min="-8" max="2" step="0.1" value="-4.4" title="Verändert den Beitrag der Temperatur pro Grad Celsius zur Vorhersage.">
+            </div>
+            <div>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  w_faktor (Einfluss Gebäudefaktor)
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Hilfe zu w_faktor">i</button>
+                    <span class="tip-text">Was? Dieser Regler steuert den Einfluss des Gebäudefaktors. Warum schieben? So erkennt ihr, ob das Modell eher Temperatur oder Gebäudestruktur übergewichtet.</span>
+                  </span>
+                </span>
+                <span id="w-size-value">26.0</span>
+              </div>
+              <input id="w-size" type="range" min="0" max="50" step="0.5" value="26" title="Verändert den Einfluss des Gebäudefaktors auf die Vorhersage.">
+            </div>
+            <div>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  b (Basisniveau)
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Hilfe zum Bias">i</button>
+                    <span class="tip-text">Was? Der Bias verschiebt alle y-hat-Werte gleichzeitig. Warum schieben? Damit ihr globales Unter- oder Überschätzen korrigiert, bevor ihr pro Merkmal feinjustiert.</span>
+                  </span>
+                </span>
+                <span id="b-value">136.0 €</span>
+              </div>
+              <input id="bias" type="range" min="70" max="180" step="0.5" value="136" title="Verschiebt alle Vorhersagen gleichzeitig nach oben oder unten.">
+            </div>
+          </div>
+          <div class="control-hint" id="control-hint"></div>
+        </div>
+
+        <div class="knowledge-card">
+          <h3>Warum Matrix statt 1 Achse?</h3>
+          <ul>
+            <li><strong>Grenze von 1 x-Achse:</strong> Ein Einflussfaktor reicht oft nicht aus.</li>
+            <li><strong>Matrix-Idee:</strong> Mehrere Merkmale werden als Spalten nebeneinander organisiert.</li>
+            <li><strong>Modell:</strong> y-hat = b + w_temp*temp + w_faktor*faktor.</li>
+            <li><strong>Brücke zu Thema 4:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
+          </ul>
+          <div class="shape-bridge">
+            <strong>Shape-Brücke</strong>
+            <div class="shape-row">
+              <span class="shape-pill">X: <span id="shape-x">6x1</span></span>
+              <span class="shape-pill">w: <span id="shape-w">1x1</span></span>
+              <span class="shape-pill">b: <span id="shape-b">1x1</span></span>
+              <span class="shape-pill">y-hat: <span id="shape-yhat">6x1</span></span>
+            </div>
+            <p id="shape-hint">Startzustand: nur ein Merkmal sichtbar. Mit zusätzlicher Spalte wächst X von 6x1 auf 6x2.</p>
+          </div>
+          <div class="term-box">
+            <strong>Begriffe in 30 Sekunden</strong>
+            <ul>
+              <li><strong>Skalar:</strong> eine Zahl (z. B. Bias b).</li>
+              <li><strong>Vektor:</strong> geordnete Liste von Zahlen (z. B. Gewichte w).</li>
+              <li><strong>Matrix:</strong> Tabelle aus Zeilen und Spalten (z. B. X).</li>
+              <li><strong>Transpose:</strong> vertauscht Zeilen und Spalten, z. B. aus 6x2 wird 2x6.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const rows = [
+      { month: "Jan", temp: -2, factor: 1.18, y: 170 },
+      { month: "Feb", temp: 1, factor: 1.10, y: 159 },
+      { month: "Mär", temp: 4, factor: 1.04, y: 144 },
+      { month: "Apr", temp: 7, factor: 0.98, y: 130 },
+      { month: "Mai", temp: 11, factor: 0.92, y: 112 },
+      { month: "Jun", temp: 15, factor: 0.88, y: 98 }
+    ];
+
+    const steps = [
+      {
+        title: "Schritt 1: Grenze von 1 Achse",
+        text: "In Thema 1 hatten wir nur Temperatur. Jetzt kommt ein zweiter Einfluss dazu. Eine einzelne x-Achse reicht nicht mehr, um beide Faktoren sauber abzubilden.",
+        chat: "Diskussion: Welche zusätzliche Information neben Temperatur könnte Heizkosten beeinflussen?",
+        answer: "Typische zusätzliche Faktoren sind Gebäudeeigenschaften (Dämmung, Größe, Typ) oder Nutzungsverhalten."
+      },
+      {
+        title: "Schritt 2: Matrix lesen",
+        text: "Lies X als Tabelle: Zeilen sind Monate, Spalten sind Merkmale. Genau so organisiert ML die Eingaben für viele Fälle gleichzeitig.",
+        chat: "Diskussion: Was bedeutet hier eine Zeile, was bedeutet eine Spalte?",
+        answer: "Eine Zeile steht für einen Fall (Monat), eine Spalte für ein Merkmal (z. B. Temperatur)."
+      },
+      {
+        title: "Schritt 3: Gewichte einstellen",
+        text: "Setze die Gewichte w_temp und w_faktor. Ziel ist nicht Perfektion pro Zeile, sondern ein plausibles Gesamtbild über alle Zeilen.",
+        chat: "Diskussion: Welches Gewicht sollte stärker wirken: Temperatur oder Gebäudefaktor?",
+        answer: "Beide können relevant sein. Entscheidend ist, ob die Vorhersagen über alle Zeilen stabil näher an y liegen."
+      },
+      {
+        title: "Schritt 4: Fehler vergleichen",
+        text: "Beobachte den MAE und die Fehler-Spalte. Gute Parameter reduzieren den durchschnittlichen Fehler über alle Zeilen.",
+        chat: "Diskussion: Wann ist ein Gewicht nützlich und wann überzieht es den Einfluss?",
+        answer: "Nützlich ist ein Gewicht, wenn es den globalen Fehler senkt. Überzogen ist es, wenn manche Zeilen stark danebenliegen."
+      },
+      {
+        title: "Schritt 5: Transfer",
+        text: "Im nächsten Thema rechnen wir das Gleiche als Matrizenmultiplikation: X * w erzeugt y-hat für alle Zeilen auf einmal.",
+        chat: "Diskussion: Was wird in Thema 4 mathematisch automatisiert, was ihr hier per Regler macht?",
+        answer: "Die gleiche Logik wird algebraisch gebündelt: statt pro Zeile einzeln zu rechnen, berechnet Matrixmultiplikation alles in einem Schritt."
+      },
+      {
+        title: "Schritt 6: Shapes und typische Fehler",
+        text: "Prüfe jetzt die Shapes im Wissensblock: X, w, b und y-hat. Genau hier entstehen die meisten Verständnisfehler vor der Matrizenmultiplikation.",
+        chat: "Diskussion: Welche Form müsste w haben, wenn X als 6x2 vorliegt?",
+        answer: "Für X als 6x2 muss w als 2x1 vorliegen, damit y-hat als 6x1 berechnet werden kann."
+      }
+    ];
+
+    const stepTemplate = [
+      {
+        why: "Wir müssen sehen, wann ein einzelner Einflussfaktor nicht mehr ausreicht.",
+        consequence: "Wenn mehrere Faktoren gleichzeitig wirken, dann wird eine Ein-Achsen-Sicht systematisch zu grob.",
+        reflection: "Welcher zweite Faktor ist in deinem Umfeld fast immer mitentscheidend?"
+      },
+      {
+        why: "Ohne Matrix-Leseverständnis bleibt multivariate Regression abstrakt.",
+        consequence: "Wenn ihr Zeilen und Spalten korrekt trennt, dann könnt ihr später Modellfehler gezielt einer Struktur zuordnen.",
+        reflection: "Was war für dich die wichtigste Umdeutung: Zeile als Fall oder Spalte als Merkmal?"
+      },
+      {
+        why: "Gewichte machen aus Daten ein steuerbares Modell.",
+        consequence: "Wenn Gewichte unbalanciert sind, dann verbessert ein Merkmal lokal, während das Gesamtbild kippt.",
+        reflection: "Welches Gewicht hat bei dir den stärksten Einfluss auf den MAE gezeigt?"
+      },
+      {
+        why: "Konsequenzen werden erst durch Fehlervergleich messbar.",
+        consequence: "Wenn MAE und Fehler-Spalte fallen, dann steigt die Verlässlichkeit über alle Zeilen statt nur in Einzelfällen.",
+        reflection: "Ab welchem Fehlerniveau würdest du das Modell im Alltag akzeptieren?"
+      },
+      {
+        why: "Transfer sichert den Sprung von Tabellenlogik zu skalierbarer Algebra.",
+        consequence: "Wenn ihr die gleiche Logik als X*w denkt, dann könnt ihr viele Fälle in einem Schritt berechnen.",
+        reflection: "Welche Aufgabe in deinem Job wäre mit Batch-Vorhersagen sofort effizienter?"
+      },
+      {
+        why: "Shape-Sicherheit verhindert typische Blocker beim Rechnen und beim späteren Coding.",
+        consequence: "Wenn die Innen-Dimensionen nicht passen, dann ist Multiplikation fachlich und technisch nicht definiert.",
+        reflection: "Wie würdest du den Shape-Check in einem Satz erklären?"
+      }
+    ];
+
+    const state = {
+      wTemp: -4.4,
+      wSize: 26,
+      b: 136,
+      stepIndex: 0,
+      hasAdvanced: false,
+      quizReady: false
+    };
+
+    const defaults = { wTemp: -4.4, wSize: 26, b: 136 };
+    const quizAnswers = { q1: "a", q2: "b", q3: "c", q4: "a" };
+    const PLAUSIBLE_ERROR_EUR = 8;
+    const GOOD_ERROR_EUR = 5;
+
+    const wTempInput = document.getElementById("w-temp");
+    const wSizeInput = document.getElementById("w-size");
+    const biasInput = document.getElementById("bias");
+    const timelineEl = document.getElementById("timeline");
+    const matrixBodyEl = document.getElementById("matrix-body");
+    const matrixHeadRowEl = document.getElementById("matrix-head-row");
+    const matrixMetaEl = document.getElementById("matrix-meta");
+    const predictionBodyEl = document.getElementById("prediction-body");
+    const codePopupOverlay = document.getElementById("code-popup-overlay");
+    const codePopupFrame = document.getElementById("code-popup-frame");
+    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const openMatrixQuizBtn = document.getElementById("open-matrix-quiz");
+    const replayMatrixBtn = document.getElementById("replay-matrix");
+    const matrixQuizStatusEl = document.getElementById("matrix-quiz-status");
+    const toMatmulLink = document.getElementById("to-matmul-link");
+    const matrixPathBox = document.getElementById("matrix-path-box");
+    const matrixPathTeaser = document.getElementById("matrix-path-teaser");
+
+    function yHat(row) {
+      return state.b + state.wTemp * row.temp + state.wSize * row.factor;
+    }
+
+    function computeMAE() {
+      const total = rows.reduce((sum, row) => sum + Math.abs(row.y - yHat(row)), 0);
+      return total / rows.length;
+    }
+
+    function renderTables() {
+      matrixBodyEl.innerHTML = "";
+      predictionBodyEl.innerHTML = "";
+
+      const showPrediction = state.stepIndex >= 2;
+      const showError = state.stepIndex >= 3;
+      const showFactorColumn = state.stepIndex >= 1;
+
+      matrixHeadRowEl.innerHTML = showFactorColumn
+        ? `
+            <th>Monat</th>
+            <th>Temp (°C)</th>
+            <th>Gebäudefaktor</th>
+            <th>y Ist (€)</th>
+          `
+        : `
+            <th>Monat</th>
+            <th>Temp (°C)</th>
+            <th>y Ist (€)</th>
+          `;
+
+      if (!showFactorColumn) {
+        matrixMetaEl.textContent = "Schritt 1: X startet als 6x1 (nur Temperatur). Ab Schritt 2 wird daraus X als 6x2.";
+      } else {
+        matrixMetaEl.textContent = "Ab Schritt 2: X ist 6x2 mit Temperatur und Gebäudefaktor. y bleibt der Zielvektor.";
+      }
+
+      let plausibleHits = 0;
+
+      rows.forEach((row) => {
+        const trX = document.createElement("tr");
+        trX.innerHTML = showFactorColumn
+          ? `
+              <td>${row.month}</td>
+              <td>${row.temp.toFixed(0)}</td>
+              <td>${row.factor.toFixed(2)}</td>
+              <td>${row.y.toFixed(1)}</td>
+            `
+          : `
+              <td>${row.month}</td>
+              <td>${row.temp.toFixed(0)}</td>
+              <td>${row.y.toFixed(1)}</td>
+            `;
+        matrixBodyEl.appendChild(trX);
+
+        const pred = yHat(row);
+        const err = Math.abs(row.y - pred);
+        const hitClass = err <= GOOD_ERROR_EUR ? "hit-good" : (err <= PLAUSIBLE_ERROR_EUR ? "hit-ok" : "hit-bad");
+        const hitLabel = err <= GOOD_ERROR_EUR ? "sehr nah" : (err <= PLAUSIBLE_ERROR_EUR ? "plausibel" : "zu weit");
+        if (err <= PLAUSIBLE_ERROR_EUR) plausibleHits += 1;
+        const trP = document.createElement("tr");
+        if (showPrediction) trP.classList.add(hitClass);
+        trP.innerHTML = `
+          <td>${row.month}</td>
+          <td>${showPrediction ? pred.toFixed(1) : "-"}</td>
+          <td>${showPrediction && showError ? err.toFixed(1) : "-"}</td>
+          <td>${showPrediction ? `<span class="hit-badge ${hitClass}">${hitLabel}</span>` : "-"}</td>
+        `;
+        predictionBodyEl.appendChild(trP);
+      });
+
+      document.getElementById("chip-hits").textContent = showPrediction ? `${plausibleHits}/${rows.length}` : `-/${rows.length}`;
+
+      const meta = document.getElementById("prediction-meta");
+      if (!showPrediction) {
+        meta.textContent = "Ab Schritt 3 sichtbar: Vorhersagen pro Zeile.";
+      } else if (!showError) {
+        meta.textContent = "Vorhersagen aktiv: Bewege die Regler und beobachte sofort, wie Status und Trefferquote kippen.";
+      } else {
+        meta.textContent = "Fehlervergleich aktiv: Zeile gilt als plausibel getroffen bei |Fehler| ≤ 8 €.";
+      }
+    }
+
+    function renderTimeline() {
+      timelineEl.innerHTML = "";
+      steps.forEach((step, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        if (idx < state.stepIndex) item.classList.add("done");
+        if (idx === state.stepIndex) item.classList.add("active");
+        item.textContent = `${idx + 1}. ${step.title.replace(`Schritt ${idx + 1}: `, "")}`;
+        timelineEl.appendChild(item);
+      });
+    }
+
+    function updateStepAnswer() {
+      const titleEl = document.getElementById("answer-title");
+      const textEl = document.getElementById("answer-text");
+      if (!state.hasAdvanced) {
+        titleEl.textContent = "Auflösung zum vorherigen Schritt:";
+        textEl.textContent = "Die Auflösung erscheint, sobald ihr zum nächsten Schritt wechselt.";
+        return;
+      }
+      const prevIdx = (state.stepIndex - 1 + steps.length) % steps.length;
+      titleEl.textContent = `Auflösung zu Schritt ${prevIdx + 1}:`;
+      textEl.textContent = steps[prevIdx].answer;
+    }
+
+    function syncControlsToStep() {
+      const weightsEnabled = state.stepIndex >= 2;
+      wTempInput.disabled = !weightsEnabled;
+      wSizeInput.disabled = !weightsEnabled;
+      biasInput.disabled = !weightsEnabled;
+
+      const hint = document.getElementById("control-hint");
+      if (!weightsEnabled) {
+        hint.textContent = "Regler werden ab Schritt 3 aktiv. Erst Matrixlogik verstehen, dann Gewichte justieren.";
+      } else if (state.stepIndex === 2) {
+        hint.textContent = "Aufgabe: Schiebe die Regler und erhöhe die Trefferquote. Plausibel heißt hier |Fehler| ≤ 8 € pro Zeile.";
+      } else if (state.stepIndex === 3) {
+        hint.textContent = "Jetzt auf MAE und Fehler-Spalte achten: Balance statt Einzeltreffer.";
+      } else if (state.stepIndex === 4) {
+        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 4.";
+      } else {
+        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 4 ohne Fehlstart umgesetzt werden.";
+      }
+    }
+
+    function updateReadout() {
+      const mae = computeMAE();
+      document.getElementById("w-temp-value").textContent = state.wTemp.toFixed(1);
+      document.getElementById("w-size-value").textContent = state.wSize.toFixed(1);
+      document.getElementById("b-value").textContent = `${state.b.toFixed(1)} €`;
+
+      document.getElementById("chip-w-temp").textContent = state.wTemp.toFixed(1);
+      document.getElementById("chip-w-size").textContent = state.wSize.toFixed(1);
+      document.getElementById("chip-b").textContent = state.b.toFixed(1);
+      document.getElementById("chip-mae").textContent = mae.toFixed(1);
+    }
+
+    function updateShapeBridge() {
+      const showFactorColumn = state.stepIndex >= 1;
+      const xShape = showFactorColumn ? "6x2" : "6x1";
+      const wShape = showFactorColumn ? "2x1" : "1x1";
+      const yHatShape = "6x1";
+      document.getElementById("shape-x").textContent = xShape;
+      document.getElementById("shape-w").textContent = wShape;
+      document.getElementById("shape-b").textContent = "1x1";
+      document.getElementById("shape-yhat").textContent = yHatShape;
+
+      const hintEl = document.getElementById("shape-hint");
+      if (!showFactorColumn) {
+        hintEl.textContent = "Startzustand: nur ein Merkmal sichtbar. Mit zusätzlicher Spalte wächst X von 6x1 auf 6x2.";
+        return;
+      }
+      if (state.stepIndex < 5) {
+        hintEl.textContent = "Regel: Innen-Dimensionen müssen passen (2 = 2). Ergebnisform stammt von außen: 6x1.";
+      } else {
+        hintEl.textContent = "Typischer Fehler: X als 6x2 mit w als 6x1 ist ungültig. Korrekt wäre w als 2x1.";
+      }
+    }
+
+    function updateStepContent() {
+      if (state.stepIndex === steps.length - 1) {
+        state.quizReady = true;
+      }
+      const step = steps[state.stepIndex];
+      document.getElementById("step-title").textContent = step.title;
+      document.getElementById("step-text").textContent = step.text;
+      document.getElementById("chat-question").textContent = step.chat;
+      const template = stepTemplate[state.stepIndex];
+      document.getElementById("step-why").textContent = template.why;
+      document.getElementById("step-consequence").textContent = template.consequence;
+      document.getElementById("step-reflection").textContent = template.reflection;
+      updateMatrixQuizAvailability();
+      updateStepAnswer();
+      syncControlsToStep();
+      updateReadout();
+      updateShapeBridge();
+      renderTables();
+      renderTimeline();
+    }
+
+    function updateMatrixQuizAvailability() {
+      const ready = state.quizReady;
+      openMatrixQuizBtn.hidden = !ready;
+      replayMatrixBtn.hidden = !ready;
+      matrixPathBox.classList.toggle("collapsed", !ready);
+      matrixPathTeaser.textContent = ready
+        ? "Geöffnet: Quiz, Weiterlink und Replay sind jetzt verfügbar."
+        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+
+      if (!ready) {
+        matrixQuizStatusEl.textContent = `Zwischen-Quiz wird nach Schritt ${steps.length} freigeschaltet.`;
+        matrixQuizStatusEl.style.borderColor = "#cbd4e4";
+        matrixQuizStatusEl.style.background = "#fff";
+        matrixQuizStatusEl.style.color = "#5f6d84";
+        return;
+      }
+
+      if (toMatmulLink.classList.contains("disabled")) {
+        matrixQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Zwischen-Quiz starten (3 von 4 richtig).";
+        matrixQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
+        matrixQuizStatusEl.style.background = "#fff7fa";
+        matrixQuizStatusEl.style.color = "#6f2d45";
+      }
+    }
+
+    function nextStep() {
+      state.hasAdvanced = true;
+      state.stepIndex = (state.stepIndex + 1) % steps.length;
+      updateStepContent();
+    }
+
+    function openQuiz() {
+      if (!state.quizReady) return;
+      document.body.classList.add("quiz-active");
+      document.getElementById("quiz-overlay").setAttribute("aria-hidden", "false");
+    }
+
+    function closeQuiz() {
+      document.body.classList.remove("quiz-active");
+      document.getElementById("quiz-overlay").setAttribute("aria-hidden", "true");
+    }
+
+    function openCodePopup(url) {
+      codePopupFrame.src = url;
+      codePopupOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeCodePopup() {
+      codePopupOverlay.setAttribute("aria-hidden", "true");
+      codePopupFrame.src = "about:blank";
+    }
+
+    function unlockNextTopic() {
+      const status = document.getElementById("matrix-quiz-status");
+      const link = document.getElementById("to-matmul-link");
+      link.classList.remove("disabled");
+      link.setAttribute("aria-disabled", "false");
+      status.textContent = "Zwischen-Quiz bestanden. Thema 4 ist freigeschaltet.";
+      status.style.borderColor = "rgba(31, 139, 76, 0.45)";
+      status.style.background = "#f3fbf6";
+      status.style.color = "#275b3f";
+    }
+
+    function gradeQuiz() {
+      const form = document.getElementById("matrix-quiz-form");
+      let score = 0;
+      Object.keys(quizAnswers).forEach((qid) => {
+        const checked = form.querySelector(`input[name="${qid}"]:checked`);
+        if (checked && checked.value === quizAnswers[qid]) score += 1;
+      });
+
+      const feedback = document.getElementById("quiz-feedback");
+      if (score >= 3) {
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 4 ist freigeschaltet.`;
+        feedback.style.color = "#1f8b4c";
+        unlockNextTopic();
+      } else {
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
+        feedback.style.color = "#9a324d";
+      }
+    }
+
+    wTempInput.addEventListener("input", (e) => {
+      state.wTemp = Number(e.target.value);
+      updateReadout();
+      renderTables();
+    });
+
+    wSizeInput.addEventListener("input", (e) => {
+      state.wSize = Number(e.target.value);
+      updateReadout();
+      renderTables();
+    });
+
+    biasInput.addEventListener("input", (e) => {
+      state.b = Number(e.target.value);
+      updateReadout();
+      renderTables();
+    });
+
+    document.getElementById("next-step").addEventListener("click", nextStep);
+    document.getElementById("reset-session").addEventListener("click", () => {
+      state.wTemp = defaults.wTemp;
+      state.wSize = defaults.wSize;
+      state.b = defaults.b;
+      state.stepIndex = 0;
+      state.hasAdvanced = false;
+      state.quizReady = false;
+      wTempInput.value = state.wTemp;
+      wSizeInput.value = state.wSize;
+      biasInput.value = state.b;
+      toMatmulLink.classList.add("disabled");
+      toMatmulLink.setAttribute("aria-disabled", "true");
+      document.getElementById("quiz-feedback").textContent = "";
+      updateStepContent();
+    });
+
+    replayMatrixBtn.addEventListener("click", () => {
+      document.getElementById("reset-session").click();
+    });
+
+    openMatrixQuizBtn.addEventListener("click", openQuiz);
+    document.getElementById("close-matrix-quiz").addEventListener("click", closeQuiz);
+    document.getElementById("grade-matrix-quiz").addEventListener("click", (e) => {
+      e.preventDefault();
+      gradeQuiz();
+    });
+    document.getElementById("quiz-backdrop").addEventListener("click", closeQuiz);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && document.body.classList.contains("quiz-active")) {
+        closeQuiz();
+      }
+      if (e.key === "Escape" && codePopupOverlay.getAttribute("aria-hidden") === "false") {
+        closeCodePopup();
+      }
+    });
+
+    codePopupTriggers.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        openCodePopup(link.getAttribute("href"));
+      });
+    });
+    document.getElementById("close-code-popup").addEventListener("click", closeCodePopup);
+    document.getElementById("code-popup-backdrop").addEventListener("click", closeCodePopup);
+
+    updateStepContent();
+  </script>
+</body>
+</html>
