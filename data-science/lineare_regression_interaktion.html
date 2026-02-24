@@ -255,6 +255,35 @@
       color: #344153;
     }
 
+    .step-template {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-template-item {
+      background: #fff;
+      border: 1px dashed #cfd8e8;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    .step-template-item strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.76rem;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: #2f5b96;
+    }
+
+    .step-template-item p {
+      margin: 0;
+      font-size: 0.83rem;
+      line-height: 1.38;
+      color: #3f4e66;
+    }
+
     .timeline {
       display: grid;
       gap: 7px;
@@ -1088,6 +1117,20 @@
       <div class="step-box" id="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
+        <div class="step-template" aria-label="Lern-Template">
+          <div class="step-template-item">
+            <strong>Warum</strong>
+            <p id="step-why"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Wenn-dann-Konsequenz</strong>
+            <p id="step-consequence"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Mini-Reflexion</strong>
+            <p id="step-reflection"></p>
+          </div>
+        </div>
       </div>
 
       <div class="chat-box">
@@ -1111,10 +1154,10 @@
         <strong>Lernpfad danach</strong>
         <p id="linear-path-teaser">Lernpfad bleibt bis Schritt 5 eingeklappt.</p>
         <div class="path-content">
-          <p>Für diese Veröffentlichung endet der Lernpfad bei linearer Regression. Nach dem Quiz kannst du direkt in die Code-Praxis wechseln.</p>
-          <div class="path-status" id="linear-quiz-status">Zwischen-Quiz wird nach Schritt 5 freigeschaltet.</div>
+          <p>Nach den linearen Grundlagen folgt im Lernpfad direkt das Optimieren der Modellparameter mit Gradient Descent.</p>
+          <div class="path-status" id="linear-quiz-status">Zwischen-Quiz wird nach Schritt 5 angeboten (Navigation ist bereits aktiv).</div>
           <button id="open-linear-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
-          <a id="to-matrix-link" class="path-link disabled" href="lineare_regression_code_praxis.html" aria-disabled="true">Weiter: Lineare Regression Code-Praxis</a>
+          <a id="to-matrix-link" class="path-link" href="gradient_descent_interaktion.html" aria-disabled="false">Weiter zu Thema 2: Gradient Descent</a>
           <button id="replay-linear" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -1140,14 +1183,14 @@
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <div class="codepath-step is-disabled" aria-disabled="true">
+          <a class="codepath-step" href="gradient_descent_code_praxis.html">
             <span class="codepath-index">2</span>
-            <span>Block 2 folgt</span>
-          </div>
-          <div class="codepath-step is-disabled" aria-disabled="true">
+            <span>Gradient Descent</span>
+          </a>
+          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
             <span class="codepath-index">3</span>
-            <span>Block 3 folgt</span>
-          </div>
+            <span>Predictive Modeling</span>
+          </a>
         </div>
       </section>
 
@@ -1330,6 +1373,34 @@
         text: "Jetzt der ML-Transfer: Was ihr bisher manuell gemacht habt (Gerade kippen/verschieben), lernt ein ML-Verfahren automatisch aus vielen Daten. Mit nur einer x-Achse stoßt ihr aber an Grenzen, sobald mehrere Einflussfaktoren wichtig werden. Genau deshalb geht es als Nächstes mit Matrizen weiter. Bei ChatGPT bleibt das Grundprinzip ähnlich, nur mit sehr viel mehr Parametern und anderer Zielgröße.",
         chat: "Diskussion: Was macht die Maschine hier automatisch, was wir vorher per Regler von Hand gemacht haben?",
         answer: "Sie passt die Parameter automatisch an (bei uns m und b), indem sie den Fehler über viele Beispiele minimiert. Bei ChatGPT ist die Idee gleich, nur in viel größerem Maßstab."
+      }
+    ];
+
+    const stepTemplate = [
+      {
+        why: "Bevor wir rechnen, muessen wir die Richtung im Datensatz sicher erkennen.",
+        consequence: "Wenn die Punkte mit steigender Temperatur fallen, dann ist eine negative Steigung fachlich sinnvoll.",
+        reflection: "Wo in deinem Arbeitskontext reicht bereits die Trendrichtung fuer eine erste Entscheidung?"
+      },
+      {
+        why: "Mit m und b uebersetzt du Beobachtungen in ein explizites Modell.",
+        consequence: "Wenn m und b unausgewogen sind, dann steigt der mittlere Fehler trotz einzelner Treffer.",
+        reflection: "Welche der beiden Stellschrauben war fuer dich zuerst wirksamer: m oder b?"
+      },
+      {
+        why: "Nur sichtbare Fehler machen Modellqualitaet nachvollziehbar.",
+        consequence: "Wenn die Residuen insgesamt kuerzer werden, dann sinkt der MAE und das Modell wird belastbarer.",
+        reflection: "Gab es bei dir einen Punkt, an dem kleine Anpassungen grosse Residuen deutlich reduziert haben?"
+      },
+      {
+        why: "Ein Modell ist erst nuetzlich, wenn es fuer neue x-Werte Vorhersagen liefert.",
+        consequence: "Wenn du Temperaturwerte variierst, dann siehst du unmittelbar die operative Wirkung der aktuellen Linie.",
+        reflection: "Bei welchem Temperaturwert waere eine Fehlprognose in deinem Alltag besonders teuer?"
+      },
+      {
+        why: "Der Transfer zeigt, wie aus Handsteuerung ein trainierbares ML-Verfahren wird.",
+        consequence: "Wenn mehr Einflussfaktoren wichtig werden, dann reicht eine einzelne x-Achse nicht mehr aus.",
+        reflection: "Welcher zusaetzliche Faktor waere dein naechster Kandidat fuer ein realistischeres Modell?"
       }
     ];
 
@@ -1788,6 +1859,10 @@
       document.getElementById("step-title").textContent = step.title;
       document.getElementById("step-text").textContent = step.text;
       document.getElementById("chat-question").textContent = step.chat;
+      const template = stepTemplate[state.stepIndex];
+      document.getElementById("step-why").textContent = template.why;
+      document.getElementById("step-consequence").textContent = template.consequence;
+      document.getElementById("step-reflection").textContent = template.reflection;
       updateLinearQuizAvailability();
       updateStepAnswer();
       syncControlsToStep();
@@ -2012,7 +2087,7 @@
     function unlockMatrixNavigation() {
       toMatrixLink.classList.remove("disabled");
       toMatrixLink.setAttribute("aria-disabled", "false");
-      linearQuizStatusEl.textContent = "Zwischen-Quiz bestanden. Die Code-Praxis ist freigeschaltet.";
+      linearQuizStatusEl.textContent = "Zwischen-Quiz bestanden. Thema 2 (Gradient Descent) ist freigeschaltet.";
       linearQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
       linearQuizStatusEl.style.background = "#f3fbf6";
       linearQuizStatusEl.style.color = "#275b3f";
@@ -2047,7 +2122,7 @@
       });
 
       if (score >= 2) {
-        linearQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Stark - Code-Praxis ist freigeschaltet.`;
+        linearQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Stark - Thema 2 ist freigeschaltet.`;
         linearQuizFeedbackEl.style.color = "#1f8b4c";
         unlockMatrixNavigation();
       } else {

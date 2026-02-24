@@ -446,9 +446,9 @@
 
       <div class="info-box">
         <strong>Navigation</strong>
-        <a class="path-link" href="lineare_regression_interaktion.html">Zurück zu Thema 1</a>
-        <a class="path-link disabled" href="#" aria-disabled="true">Block 2 folgt</a>
-        <a class="path-link disabled" href="#" aria-disabled="true">Block 3 folgt</a>
+        <a class="path-link" href="lineare_regression_interaktion.html">Zurueck zu Thema 1: Lineare Regression</a>
+        <a class="path-link" href="gradient_descent_interaktion.html">Weiter zu Thema 2: Gradient Descent</a>
+        <a class="path-link" href="matrix_interaktion.html">Weiter zu Thema 3: Matrix verstehen</a>
       </div>
     </aside>
 
@@ -465,14 +465,14 @@
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <div class="codepath-step is-disabled" aria-disabled="true">
+          <a class="codepath-step" href="gradient_descent_code_praxis.html">
             <span class="codepath-index">2</span>
-            <span>Block 2 folgt</span>
-          </div>
-          <div class="codepath-step is-disabled" aria-disabled="true">
+            <span>Gradient Descent</span>
+          </a>
+          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
             <span class="codepath-index">3</span>
-            <span>Block 3 folgt</span>
-          </div>
+            <span>Predictive Modeling</span>
+          </a>
         </div>
       </section>
 
@@ -628,13 +628,26 @@ print(result.predict(exog={"temp_c": [6], "building_factor": [1.00]}))</code></p
 
       <section class="module" id="grenzen">
         <h3>5) Modellgüte prüfen und Grenzen benennen</h3>
-        <p>Ein gutes Ergebnis ist nicht nur ein niedriger Fehler. Du prüfst auch, ob Annahmen und Einsatzkontext zusammenpassen. Dieser Block setzt voraus, dass Schritt 2 schon ausgeführt wurde.</p>
+        <p>Ein gutes Ergebnis ist nicht nur ein niedriger Fehler. Du prüfst auch, ob Annahmen und Einsatzkontext zusammenpassen. Der Code läuft auch separat, falls vorherige Zellen nicht ausgeführt wurden.</p>
 
         <div class="code-title">Code</div>
         <pre><code>import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
 
-# Beispiel: Residuencheck auf dem univariaten Modell
+# Standalone-Block: lauffähig ohne vorherige Schritte
+df_uni = pd.DataFrame({
+    "temp_c": [-2, 0, 3, 6, 10, 14, 16],
+    "heating_cost_eur": [152, 144, 129, 116, 96, 79, 72]
+})
+X = df_uni[["temp_c"]]
+y = df_uni["heating_cost_eur"]
+
+model_uni = LinearRegression()
+model_uni.fit(X, y)
+
+# Wichtig: komplette Zelle ausführen, nicht nur die letzten 2 Zeilen.
 y_hat_all = model_uni.predict(X)
 residuals = y - y_hat_all
 

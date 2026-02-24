@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Praxis | Predictive Modeling</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+    :root {
+      --brand-main: #631832;
+      --brand-accent: #173262;
+      --text-main: #231a24;
+      --text-light: #5b6a82;
+      --bg-body: #edf1f7;
+      --surface: #ffffff;
+      --soft-border: #dbe3ef;
+      --panel-shadow: 0 12px 28px rgba(23, 50, 98, 0.09);
+      --code-bg: #101827;
+      --code-border: #2b3a54;
+      --ok: #1f8b4c;
+      --warn: #d17b1f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 82% 0%, #f7f9fd 0%, var(--bg-body) 46%, #e8edf6 100%);
+      min-height: 100vh;
+    }
+
+    #app-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--soft-border);
+      box-shadow: 2px 0 18px rgba(18, 40, 76, 0.07);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .brandline {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.58rem;
+      line-height: 1.24;
+      color: var(--brand-main);
+    }
+
+    .lead {
+      margin: 0;
+      font-size: 0.93rem;
+      line-height: 1.54;
+      color: #46536a;
+    }
+
+    .highlight-box {
+      background: linear-gradient(155deg, #fff2f3 0%, #f4f8ff 56%, #eef4ff 100%);
+      border: 1px solid rgba(99, 24, 50, 0.28);
+      border-radius: 14px;
+      padding: 12px 13px;
+      box-shadow: 0 10px 20px rgba(37, 62, 107, 0.14);
+    }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #631832;
+      color: #fff;
+    }
+
+    .highlight-box strong {
+      color: #2f1a40;
+      font-size: 0.92rem;
+    }
+
+    .highlight-box p,
+    .info-box p {
+      margin: 7px 0 0;
+      font-size: 0.83rem;
+      line-height: 1.42;
+      color: #42506a;
+    }
+
+    .info-box {
+      background: #f8fafe;
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      padding: 11px 13px;
+    }
+
+    .info-box strong {
+      color: var(--brand-accent);
+      font-size: 0.9rem;
+    }
+
+    .info-list {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 5px;
+      color: #39485f;
+      font-size: 0.83rem;
+      line-height: 1.38;
+    }
+
+    .path-link {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid var(--soft-border);
+      background: #eaf1fc;
+      color: #1f3f77;
+      box-shadow: 0 6px 14px rgba(23, 50, 98, 0.12);
+      margin-top: 8px;
+    }
+
+    .path-link:hover {
+      filter: brightness(1.05);
+    }
+
+    .bridge-box {
+      background: linear-gradient(155deg, #fff3e8 0%, #fff8f0 55%, #fff2e6 100%);
+      border: 1px solid rgba(209, 123, 31, 0.36);
+      border-radius: 12px;
+      padding: 11px 13px;
+      box-shadow: 0 9px 18px rgba(122, 75, 17, 0.14);
+    }
+
+    .bridge-kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #8a4f10;
+      color: #fff;
+    }
+
+    .bridge-box strong {
+      color: #583919;
+      font-size: 0.9rem;
+    }
+
+    .bridge-box p {
+      margin: 7px 0 9px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      color: #5e4124;
+    }
+
+    .bridge-link {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(92deg, #7c4a12 0%, #b26a1a 100%);
+      box-shadow: 0 8px 16px rgba(122, 75, 17, 0.22);
+      transition: filter 0.15s ease;
+    }
+
+    .bridge-link:hover {
+      filter: brightness(1.05);
+    }
+
+    #stage {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+    }
+
+    .hero {
+      background: linear-gradient(160deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid var(--soft-border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--panel-shadow);
+    }
+
+    .hero h2 {
+      margin: 0 0 8px;
+      color: var(--brand-accent);
+      font-size: 1.12rem;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #44526a;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .codepath-bar {
+      background: linear-gradient(160deg, #ffffff 0%, #f1f6ff 100%);
+      border: 1px solid #cbd8ed;
+      border-radius: 14px;
+      padding: 11px 12px;
+      box-shadow: 0 7px 16px rgba(17, 37, 72, 0.09);
+    }
+
+    .codepath-title {
+      margin: 0 0 8px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #4d6080;
+      text-transform: uppercase;
+    }
+
+    .codepath-steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .codepath-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      text-decoration: none;
+      border-radius: 10px;
+      border: 1px solid #d3dff2;
+      background: rgba(255, 255, 255, 0.88);
+      color: #344763;
+      padding: 9px 10px;
+      font-size: 0.81rem;
+      font-weight: 700;
+      min-height: 40px;
+    }
+
+    .codepath-step:hover {
+      border-color: #b9cae7;
+      background: #ffffff;
+    }
+
+    .codepath-step.active {
+      border-color: #3e659a;
+      background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
+      color: #fff;
+      box-shadow: 0 7px 15px rgba(30, 56, 95, 0.3);
+    }
+
+    .codepath-index {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      border: 1px solid #aebfde;
+      background: #edf3ff;
+      color: #2f4f7a;
+    }
+
+    .codepath-step.active .codepath-index {
+      border-color: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--soft-border);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      color: #334257;
+      box-shadow: 0 4px 10px rgba(17, 37, 72, 0.07);
+    }
+
+    .chip strong { color: var(--brand-main); }
+
+    .module {
+      background: #fff;
+      border: 1px solid var(--soft-border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--panel-shadow);
+    }
+
+    .module h3 {
+      margin: 0 0 6px;
+      color: var(--brand-main);
+      font-size: 1.02rem;
+    }
+
+    .module p {
+      margin: 0;
+      color: #3e4c63;
+      font-size: 0.9rem;
+      line-height: 1.48;
+    }
+
+    .theory-box {
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #cfd8e8;
+      background: #f7faff;
+      padding: 10px;
+      font-size: 0.86rem;
+      color: #2f405c;
+      line-height: 1.45;
+    }
+
+    .code-title {
+      margin-top: 10px;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #4f5f78;
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      background: var(--code-bg);
+      color: #e8eefc;
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      tab-size: 2;
+    }
+
+    .note {
+      margin-top: 9px;
+      border-radius: 9px;
+      background: #f2f8f5;
+      border: 1px solid rgba(31, 139, 76, 0.22);
+      color: #234f39;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      line-height: 1.42;
+    }
+
+    .warn-note {
+      margin-top: 9px;
+      border-radius: 9px;
+      background: #fff9f1;
+      border: 1px solid rgba(209, 123, 31, 0.28);
+      color: #69481d;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      line-height: 1.42;
+    }
+
+    .check {
+      margin-top: 10px;
+      border: 1px solid #d6dff0;
+      border-radius: 10px;
+      background: #fafcff;
+      padding: 9px;
+    }
+
+    .check summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--brand-accent);
+      font-size: 0.84rem;
+    }
+
+    .check p {
+      margin: 8px 0 0;
+      font-size: 0.84rem;
+      line-height: 1.44;
+      color: #3c4b61;
+    }
+
+    .next-steps {
+      background: #fff;
+      border: 1px solid var(--soft-border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--panel-shadow);
+    }
+
+    .next-steps h3 {
+      margin: 0 0 7px;
+      color: var(--brand-accent);
+      font-size: 1rem;
+    }
+
+    .next-steps ol {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+      color: #3b4a61;
+      font-size: 0.87rem;
+      line-height: 1.42;
+    }
+
+    @media (max-width: 1100px) {
+      #app-layout {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--soft-border);
+        box-shadow: none;
+      }
+
+      .codepath-steps {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app-layout">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Code-Praxis<br>Predictive Modeling</h1>
+      <p class="lead">Vom Verstehen zum Anwenden: so verbindet ihr Bias-Variance, Regularisierung und Evaluation in einem sauberen Workflow.</p>
+
+      <div class="highlight-box">
+        <div class="kicker">Lehrplan-Fokus</div>
+        <strong>Fehlende Punkte jetzt praktisch abdecken</strong>
+        <p>Train/Test-Split, Ridge vs Lasso (L2/L1), Residuenmuster, Ausreisser mit z-Score sowie `fit`, `transform`, `fit_transform` in einem roten Faden.</p>
+      </div>
+
+      <div class="info-box">
+        <strong>Roter Faden</strong>
+        <ul class="info-list">
+          <li>Linear Regression war der Start: einfach und erklaerbar.</li>
+          <li>Gradient Descent zeigte, wie Parameter automatisch gelernt werden.</li>
+          <li>Bias-Variance erklaerte, warum mehr Komplexitaet auch schaden kann.</li>
+          <li>Regularisierung fuegt eine kontrollierte Bremse hinzu.</li>
+          <li>Predictive Modeling verbindet alles zu einem reproduzierbaren Projektablauf.</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <strong>Navigation</strong>
+        <a class="path-link" href="gradient_descent_interaktion.html">Zu Thema 2: Gradient Descent</a>
+        <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zu Thema 5: Bias-Variance Tradeoff</a>
+        <a class="path-link" href="regularization_interaktion.html">Zu Thema 6: Regularization</a>
+      </div>
+
+      <div class="bridge-box">
+        <div class="bridge-kicker">Direktlink</div>
+        <strong>Zurueck in die GD-Codepraxis</strong>
+        <p>Wenn Batch/Mini-Batch/SGD oder Momentum noch unsicher sind, spring direkt zur reinen Gradient-Descent-Implementierung zurueck.</p>
+        <a class="bridge-link" href="gradient_descent_code_praxis.html">Direkt zu: Code-Praxis Gradient Descent</a>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="hero">
+        <h2>Warum dieser Schritt jetzt kommt</h2>
+        <p>Nach der Theorie braucht ihr eine vernuenftige Projekt-Routine. Ein Modell ist erst dann hilfreich, wenn es auf neuen Daten stabil ist, transparent bewertet wird und ihr die Grenzen benennen koennt.</p>
+      </section>
+
+      <section class="codepath-bar" aria-label="Codepfad Navigation">
+        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-steps">
+          <a class="codepath-step" href="lineare_regression_code_praxis.html">
+            <span class="codepath-index">1</span>
+            <span>Linear Regression</span>
+          </a>
+          <a class="codepath-step" href="gradient_descent_code_praxis.html">
+            <span class="codepath-index">2</span>
+            <span>Gradient Descent</span>
+          </a>
+          <a class="codepath-step active" href="predictive_modeling_code_praxis.html">
+            <span class="codepath-index">3</span>
+            <span>Predictive Modeling</span>
+          </a>
+        </div>
+      </section>
+
+      <div class="chip-row">
+        <div class="chip"><strong>Dauer:</strong> 60-120 Minuten</div>
+        <div class="chip"><strong>Python:</strong> 3.11.3</div>
+        <div class="chip"><strong>Libraries:</strong> pandas, scikit-learn, matplotlib</div>
+        <div class="chip"><strong>Ziel:</strong> robuste Vorhersage statt Demo-Effekt</div>
+      </div>
+
+      <section class="module" id="split">
+        <h3>1) Train/Test-Split: warum wir fast nie "alle Wahrheit" sehen</h3>
+        <p>In der Praxis arbeiten wir mit Stichproben. Darum sind Metriken immer Schaetzungen. Mit Train/Test trennt ihr Lernen und Pruefen sauber.</p>
+
+        <div class="code-title">Code</div>
+        <pre><code>import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+def make_demo_df(seed=42, n_samples=320):
+    rng = np.random.default_rng(seed)
+    df = pd.DataFrame({
+        "marketing_spend": rng.normal(120, 25, size=n_samples).clip(40, 220),
+        "price_index": rng.normal(1.0, 0.12, size=n_samples).clip(0.7, 1.3),
+        "season_index": rng.integers(0, 4, size=n_samples),
+        "web_traffic": rng.normal(3200, 700, size=n_samples).clip(1200, 6000)
+    })
+    noise = rng.normal(0, 9, size=n_samples)
+    df["target_demand"] = (
+        55
+        + 0.22 * df["marketing_spend"]
+        - 28 * df["price_index"]
+        + 5.5 * df["season_index"]
+        + 0.012 * df["web_traffic"]
+        + noise
+    )
+    return df
+
+# Standalone-Block
+df = make_demo_df()
+X = df.drop(columns=["target_demand"])
+y = df["target_demand"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,
+    random_state=42,
+    shuffle=True
+)
+
+print("Train shape:", X_train.shape)
+print("Test shape:", X_test.shape)</code></pre>
+
+        <div class="theory-box">
+          <strong>Kernbotschaft:</strong><br>
+          Der Trainingsfehler allein ist keine Aussage ueber echte Prognosefaehigkeit. Wir brauchen den Fehler auf bisher ungesehenen Daten.
+        </div>
+
+        <details class="check">
+          <summary>Mini-Check: Warum reicht ein einziger Split manchmal nicht?</summary>
+          <p>Ein einzelner Split kann zufaellig guenstig oder unguenstig sein. Fuer stabilere Aussagen nutzt man oft Cross-Validation oder mehrere Splits.</p>
+        </details>
+      </section>
+
+      <section class="module" id="baseline">
+        <h3>2) Baseline und Metriken: MSE vor R² fuer Modellvergleich</h3>
+        <p>Beim Vergleich von Vorhersagemodellen ist MSE/MAE oft robuster interpretierbar. R² kann negativ werden und in der Kommunikation missverstanden werden.</p>
+
+        <div class="code-title">Code</div>
+        <pre><code>import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+def make_demo_df(seed=42, n_samples=320):
+    rng = np.random.default_rng(seed)
+    df = pd.DataFrame({
+        "marketing_spend": rng.normal(120, 25, size=n_samples).clip(40, 220),
+        "price_index": rng.normal(1.0, 0.12, size=n_samples).clip(0.7, 1.3),
+        "season_index": rng.integers(0, 4, size=n_samples),
+        "web_traffic": rng.normal(3200, 700, size=n_samples).clip(1200, 6000)
+    })
+    noise = rng.normal(0, 9, size=n_samples)
+    df["target_demand"] = (
+        55
+        + 0.22 * df["marketing_spend"]
+        - 28 * df["price_index"]
+        + 5.5 * df["season_index"]
+        + 0.012 * df["web_traffic"]
+        + noise
+    )
+    return df
+
+# Standalone-Block
+df = make_demo_df()
+X = df.drop(columns=["target_demand"])
+y = df["target_demand"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, shuffle=True
+)
+
+baseline = LinearRegression()
+baseline.fit(X_train, y_train)
+
+pred_train = baseline.predict(X_train)
+pred_test = baseline.predict(X_test)
+
+print("Train MSE:", round(mean_squared_error(y_train, pred_train), 3))
+print("Test  MSE:", round(mean_squared_error(y_test, pred_test), 3))
+print("Test  MAE:", round(mean_absolute_error(y_test, pred_test), 3))
+print("Test  R2 :", round(r2_score(y_test, pred_test), 3))</code></pre>
+
+        <div class="warn-note">Hinweis: Ein negatives R² bedeutet, dass das Modell schlechter als eine sehr einfache Mittelwert-Baseline ist.</div>
+
+        <details class="check">
+          <summary>Mini-Check: Warum nicht nur den kleinsten Trainingsfehler nehmen?</summary>
+          <p>Weil ein Modell Trainingsdaten auswendig lernen kann. Entscheidend ist der Testfehler als Naeherung fuer Generalisierung.</p>
+        </details>
+      </section>
+
+      <section class="module" id="ridge-lasso">
+        <h3>3) L1/L2 in Praxis: Lasso vs Ridge mit Parameter-Tuning</h3>
+        <p>Jetzt wird die Modellkomplexitaet bewusst gesteuert: Ridge (L2) schrumpft Gewichte weich, Lasso (L1) kann Features auf 0 setzen.</p>
+
+        <div class="code-title">Code</div>
+        <pre><code>import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.metrics import mean_squared_error
+
+def make_demo_df(seed=42, n_samples=320):
+    rng = np.random.default_rng(seed)
+    df = pd.DataFrame({
+        "marketing_spend": rng.normal(120, 25, size=n_samples).clip(40, 220),
+        "price_index": rng.normal(1.0, 0.12, size=n_samples).clip(0.7, 1.3),
+        "season_index": rng.integers(0, 4, size=n_samples),
+        "web_traffic": rng.normal(3200, 700, size=n_samples).clip(1200, 6000)
+    })
+    noise = rng.normal(0, 9, size=n_samples)
+    df["target_demand"] = (
+        55
+        + 0.22 * df["marketing_spend"]
+        - 28 * df["price_index"]
+        + 5.5 * df["season_index"]
+        + 0.012 * df["web_traffic"]
+        + noise
+    )
+    return df
+
+# Standalone-Block
+df = make_demo_df()
+X = df.drop(columns=["target_demand"])
+y = df["target_demand"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, shuffle=True
+)
+
+ridge_pipe = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", Ridge())
+])
+
+lasso_pipe = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", Lasso(max_iter=10000))
+])
+
+param_grid = {"model__alpha": [0.01, 0.1, 1.0, 3.0, 10.0]}
+
+ridge_cv = GridSearchCV(ridge_pipe, param_grid=param_grid, scoring="neg_mean_squared_error", cv=5)
+lasso_cv = GridSearchCV(lasso_pipe, param_grid=param_grid, scoring="neg_mean_squared_error", cv=5)
+
+ridge_cv.fit(X_train, y_train)
+lasso_cv.fit(X_train, y_train)
+
+print("Best Ridge alpha:", ridge_cv.best_params_["model__alpha"])
+print("Best Lasso alpha:", lasso_cv.best_params_["model__alpha"])
+print("Ridge Test MSE:", round(mean_squared_error(y_test, ridge_cv.predict(X_test)), 3))
+print("Lasso Test MSE:", round(mean_squared_error(y_test, lasso_cv.predict(X_test)), 3))</code></pre>
+
+        <div class="theory-box">
+          <strong>Wann eher was?</strong><br>
+          Ridge, wenn viele schwache Signale gemeinsam nuetzlich sind. Lasso, wenn ihr Feature-Selektion und ein kompakteres Modell wollt.
+        </div>
+
+        <details class="check">
+          <summary>Mini-Check: Warum braucht Lasso oft Standardisierung?</summary>
+          <p>L1-Strafe haengt von der Koeffizientengroesse ab. Ohne vergleichbare Feature-Skalen wird die Strafe ungleich verteilt.</p>
+        </details>
+      </section>
+
+      <section class="module" id="residuals">
+        <h3>4) Residuen-Check: Muster erkennen statt nur Score lesen</h3>
+        <p>Ein guter MSE ist wichtig, aber nicht genug. Residuen zeigen euch, ob systematische Fehler uebrig bleiben (z. B. gekruemmte Muster, heterogene Varianz).</p>
+
+        <div class="code-title">Code</div>
+        <pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge
+
+def make_demo_df(seed=42, n_samples=320):
+    rng = np.random.default_rng(seed)
+    df = pd.DataFrame({
+        "marketing_spend": rng.normal(120, 25, size=n_samples).clip(40, 220),
+        "price_index": rng.normal(1.0, 0.12, size=n_samples).clip(0.7, 1.3),
+        "season_index": rng.integers(0, 4, size=n_samples),
+        "web_traffic": rng.normal(3200, 700, size=n_samples).clip(1200, 6000)
+    })
+    noise = rng.normal(0, 9, size=n_samples)
+    df["target_demand"] = (
+        55
+        + 0.22 * df["marketing_spend"]
+        - 28 * df["price_index"]
+        + 5.5 * df["season_index"]
+        + 0.012 * df["web_traffic"]
+        + noise
+    )
+    return df
+
+# Standalone-Block
+df = make_demo_df()
+X = df.drop(columns=["target_demand"])
+y = df["target_demand"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, shuffle=True
+)
+
+ridge_pipe = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", Ridge())
+])
+param_grid = {"model__alpha": [0.01, 0.1, 1.0, 3.0, 10.0]}
+ridge_cv = GridSearchCV(ridge_pipe, param_grid=param_grid, scoring="neg_mean_squared_error", cv=5)
+ridge_cv.fit(X_train, y_train)
+
+best_model = ridge_cv.best_estimator_
+y_pred = best_model.predict(X_test)
+residuals = y_test - y_pred
+
+plt.figure(figsize=(7, 4))
+plt.axhline(0, color="black", linewidth=1)
+plt.scatter(y_pred, residuals, alpha=0.7)
+plt.xlabel("Vorhersage y-hat")
+plt.ylabel("Residuum (y - y-hat)")
+plt.title("Residualplot")
+plt.show()
+
+print("Residual-Mittelwert:", round(float(np.mean(residuals)), 4))</code></pre>
+
+        <div class="note">Interpretation: Ein zufaelliges Wolkenbild um 0 ist besser als ein klares Muster. Muster deuten oft auf fehlende Features oder falsche Modellform.</div>
+
+        <details class="check">
+          <summary>Mini-Check: Was bedeutet ein U-foermiges Residuenmuster?</summary>
+          <p>Das lineare Modell erfasst den Zusammenhang nicht vollstaendig. Es fehlt oft eine nichtlineare Komponente oder ein wichtiges Feature.</p>
+        </details>
+      </section>
+
+      <section class="module" id="outlier-zscore">
+        <h3>5) Ausreisser mit z-Score erkennen (erste einfache Stufe)</h3>
+        <p>Outlier-Kontrolle gehoert in jeden Predictive-Workflow. Als Einstieg hilft der z-Score pro numerischem Feature.</p>
+
+        <div class="code-title">Code</div>
+        <pre><code>import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+def make_demo_df(seed=42, n_samples=320):
+    rng = np.random.default_rng(seed)
+    df = pd.DataFrame({
+        "marketing_spend": rng.normal(120, 25, size=n_samples).clip(40, 220),
+        "price_index": rng.normal(1.0, 0.12, size=n_samples).clip(0.7, 1.3),
+        "season_index": rng.integers(0, 4, size=n_samples),
+        "web_traffic": rng.normal(3200, 700, size=n_samples).clip(1200, 6000)
+    })
+    noise = rng.normal(0, 9, size=n_samples)
+    df["target_demand"] = (
+        55
+        + 0.22 * df["marketing_spend"]
+        - 28 * df["price_index"]
+        + 5.5 * df["season_index"]
+        + 0.012 * df["web_traffic"]
+        + noise
+    )
+    return df
+
+# Standalone-Block
+df = make_demo_df()
+X = df.drop(columns=["target_demand"])
+y = df["target_demand"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, shuffle=True
+)
+
+numeric_cols = X_train.select_dtypes(include=["number"]).columns
+z = (X_train[numeric_cols] - X_train[numeric_cols].mean()) / X_train[numeric_cols].std(ddof=0)
+
+# einfache Regel: |z| > 3 als potenzieller Ausreisser
+outlier_mask = (np.abs(z) > 3).any(axis=1)
+outlier_count = int(outlier_mask.sum())
+
+print("Potenziell auffaellige Zeilen im Train-Set:", outlier_count)</code></pre>
+
+        <div class="warn-note">z-Score ist nur ein Einstieg. Kontext und Domainenwissen entscheiden, ob ein Punkt Fehler, Sonderfall oder wertvoller Extremfall ist.</div>
+
+        <details class="check">
+          <summary>Mini-Check: Welche Outlier-Typen solltet ihr unterscheiden?</summary>
+          <p>Messfehler, seltene aber reale Ereignisse und Datenpunkte ausserhalb des gueltigen Einsatzbereichs. Die Behandlung ist je Typ unterschiedlich.</p>
+        </details>
+      </section>
+
+      <section class="module" id="fit-transform">
+        <h3>6) `fit`, `transform`, `fit_transform` richtig einsetzen</h3>
+        <p>Viele Fehler in Einsteigerprojekten entstehen beim Preprocessing. Die goldene Regel: auf Train fitten, auf Test nur transformieren.</p>
+
+        <div class="code-title">Code</div>
+        <pre><code>import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+def make_demo_df(seed=42, n_samples=320):
+    rng = np.random.default_rng(seed)
+    df = pd.DataFrame({
+        "marketing_spend": rng.normal(120, 25, size=n_samples).clip(40, 220),
+        "price_index": rng.normal(1.0, 0.12, size=n_samples).clip(0.7, 1.3),
+        "season_index": rng.integers(0, 4, size=n_samples),
+        "web_traffic": rng.normal(3200, 700, size=n_samples).clip(1200, 6000)
+    })
+    noise = rng.normal(0, 9, size=n_samples)
+    df["target_demand"] = (
+        55
+        + 0.22 * df["marketing_spend"]
+        - 28 * df["price_index"]
+        + 5.5 * df["season_index"]
+        + 0.012 * df["web_traffic"]
+        + noise
+    )
+    return df
+
+# Standalone-Block
+df = make_demo_df()
+X = df.drop(columns=["target_demand"])
+y = df["target_demand"]
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, shuffle=True
+)
+
+scaler = StandardScaler()
+
+# richtig:
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("Scaled train shape:", X_train_scaled.shape)
+print("Scaled test shape:", X_test_scaled.shape)
+
+# fit: lernt Parameter (z. B. Mittelwert/Std)
+# transform: wendet gelernte Parameter an
+# fit_transform: beides in einem Schritt</code></pre>
+
+        <div class="theory-box">
+          <strong>Warum so streng?</strong><br>
+          Wenn ihr auf Testdaten fitten wuerdet, fliesst Testinformation ins Training (Data Leakage). Dann wirken Metriken besser als sie real sind.
+        </div>
+
+        <details class="check">
+          <summary>Mini-Check: Warum helfen Pipelines?</summary>
+          <p>Sie erzwingen die richtige Reihenfolge von Preprocessing und Modell und reduzieren Leakage-Risiko in Training und Cross-Validation.</p>
+        </details>
+      </section>
+
+      <section class="next-steps">
+        <h3>Nächste Schritte fuer den Kurs</h3>
+        <ol>
+          <li>Vergleiche Baseline, Ridge und Lasso auf derselben Testmenge mit MSE und MAE.</li>
+          <li>Erstelle einen Residualplot und schreibe 3 fachliche Beobachtungen dazu.</li>
+          <li>Dokumentiere fuer ein Mini-Reporting: Split, bestes alpha, Metriken, Grenzen und naechste Iteration.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
