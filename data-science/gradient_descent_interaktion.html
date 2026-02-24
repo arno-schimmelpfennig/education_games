@@ -760,6 +760,15 @@
       font-size: 0.81rem;
     }
 
+    .btn-row-single {
+      margin-bottom: 8px;
+    }
+
+    .btn-row-single button {
+      padding: 9px;
+      font-size: 0.79rem;
+    }
+
     .btn-row-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -1540,6 +1549,10 @@
             <button id="step-once">1 Schritt</button>
             <button id="step-ten">10 Schritte</button>
           </div>
+          <div class="btn-row-single">
+            <button id="clear-jumps" class="secondary" type="button">Sprünge löschen und Lauf neu starten</button>
+          </div>
+          <div id="run-reset-note" class="control-lock-note" hidden>Regler geändert: Nächster Schritt startet mit leerer Spur ab dem gesetzten Startpunkt.</div>
 
           <div class="btn-row-3">
             <button id="preset-slow">Zu klein</button>
@@ -1740,7 +1753,8 @@
       lastGrad: 0,
       overshootShownInStep5: false,
       pathUnlocked: false,
-      quizReady: false
+      quizReady: false,
+      pendingReplay: false
     };
 
     const chart = document.getElementById("loss-chart");
@@ -1778,6 +1792,8 @@
     const optimizerBatchBtn = document.getElementById("optimizer-batch");
     const optimizerMiniBtn = document.getElementById("optimizer-mini");
     const optimizerSgdBtn = document.getElementById("optimizer-sgd");
+    const clearJumpsBtn = document.getElementById("clear-jumps");
+    const runResetNoteEl = document.getElementById("run-reset-note");
 
     const xRange = { min: -3, max: 9 };
     const yRange = { min: 2, max: 34 };
@@ -2174,17 +2190,33 @@
         diagnosis.push("Einstellung wirkt aktuell plausibel: weiter prüfen, ob Loss stabil sinkt.");
       }
       diagnosisBoxEl.innerHTML = `<strong>Fehlerdiagnose</strong><ul>${diagnosis.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+      runResetNoteEl.hidden = !state.pendingReplay;
     }
 
-    function setManualW(value) {
-      state.w = clamp(value, Number(wInput.min), Number(wInput.max));
-      state.startW = state.w;
+    function resetRunTrail(toStartPoint = true) {
+      state.w = toStartPoint ? state.startW : clamp(state.w, Number(wInput.min), Number(wInput.max));
+      if (!toStartPoint) {
+        state.startW = state.w;
+      }
       state.path = [state.w];
       state.iterations = 0;
       state.velocity = 0;
       state.lastGrad = gradient(state.w);
       state.overshootShownInStep5 = false;
+      state.pendingReplay = false;
       hideOvershootBanner();
+    }
+
+    function markReplayPending() {
+      if (state.iterations > 0 || state.path.length > 1) {
+        state.pendingReplay = true;
+      }
+    }
+
+    function setManualW(value) {
+      state.w = clamp(value, Number(wInput.min), Number(wInput.max));
+      state.startW = state.w;
+      resetRunTrail(false);
       updateReadout();
       renderChart();
     }
@@ -2237,6 +2269,9 @@
     }
 
     function doStep() {
+      if (state.pendingReplay) {
+        resetRunTrail(true);
+      }
       const prevW = state.w;
       const prevLoss = loss(prevW);
       const grad = gradientEstimate(state.w);
@@ -2252,6 +2287,7 @@
         state.iterations = 0;
         state.velocity = 0;
         state.lastGrad = 0;
+        state.pendingReplay = false;
       } else {
         const wMin = Number(wInput.min);
         const wMax = Number(wInput.max);
@@ -2340,8 +2376,13 @@
     }
 
     function setLearningRate(value) {
-      state.learningRate = Math.max(0.02, Math.min(1.0, value));
+      const nextValue = Math.max(0.02, Math.min(1.0, value));
+      const changed = Math.abs(nextValue - state.learningRate) > 1e-9;
+      state.learningRate = nextValue;
       lrInput.value = state.learningRate;
+      if (changed) {
+        markReplayPending();
+      }
       updateReadout();
     }
 
@@ -2352,18 +2393,28 @@
         updateReadout();
         return;
       }
-      state.momentumBeta = Math.max(0, Math.min(0.95, value));
+      const nextValue = Math.max(0, Math.min(0.95, value));
+      const changed = Math.abs(nextValue - state.momentumBeta) > 1e-9;
+      state.momentumBeta = nextValue;
       momentumInput.value = state.momentumBeta;
+      if (changed) {
+        markReplayPending();
+      }
       updateReadout();
     }
 
     function setOptimizer(type) {
       const advancedUnlocked = state.stepIndex >= 2;
-      state.optimizer = !advancedUnlocked && type !== "batch" ? "batch" : type;
+      const nextOptimizer = !advancedUnlocked && type !== "batch" ? "batch" : type;
+      const changed = nextOptimizer !== state.optimizer;
+      state.optimizer = nextOptimizer;
       optimizerBatchBtn.classList.toggle("active", state.optimizer === "batch");
       optimizerMiniBtn.classList.toggle("active", state.optimizer === "mini");
       optimizerSgdBtn.classList.toggle("active", state.optimizer === "sgd");
       state.velocity = 0;
+      if (changed) {
+        markReplayPending();
+      }
       updateReadout();
     }
 
@@ -2430,6 +2481,11 @@
 
     document.getElementById("step-once").addEventListener("click", () => doStep());
     document.getElementById("step-ten").addEventListener("click", () => doMultiStep(10));
+    clearJumpsBtn.addEventListener("click", () => {
+      resetRunTrail(true);
+      updateReadout();
+      renderChart();
+    });
 
     document.getElementById("preset-slow").addEventListener("click", () => setLearningRate(0.06));
     document.getElementById("preset-good").addEventListener("click", () => setLearningRate(0.25));
@@ -2440,6 +2496,7 @@
 
     document.getElementById("next-step").addEventListener("click", () => {
       state.stepIndex = (state.stepIndex + 1) % steps.length;
+      resetRunTrail(true);
       updateStepContent();
     });
 
@@ -2457,6 +2514,7 @@
       state.overshootShownInStep5 = false;
       state.pathUnlocked = false;
       state.quizReady = false;
+      state.pendingReplay = false;
       lrInput.value = state.learningRate;
       momentumInput.value = state.momentumBeta;
       wInput.value = state.w.toFixed(2);
