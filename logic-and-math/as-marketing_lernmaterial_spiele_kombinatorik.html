@@ -266,9 +266,9 @@
                 <div id="step-0" class="step-content active">
                     <h2>1. Der Mythos KI</h2>
                     <p>Viele denken, eine KI "versteht" uns wie ein Mensch. Das ist falsch.</p>
-                    <p>Im Kern ist KI reine <strong>Mathematik und Statistik</strong>. Sie würfelt die Antwort – aber sie würfelt sehr schlau.</p>
+                    <p>Im Kern ist KI <strong>Mathematik und Statistik</strong>. In diesem Spiel nutzen wir Würfel als Metapher für Wahrscheinlichkeiten.</p>
                     <div class="highlight-box">
-                        <strong>Dein Ziel:</strong> Wir bauen jetzt das Gehirn einer KI nach. Unsere Hardware: Zwei einfache Würfel.
+                        <strong>Dein Ziel:</strong> Wir bauen den ML-Ablauf nach: Daten sammeln, Muster lernen, neue Fälle vorhersagen.
                     </div>
                     <p style="font-size:0.9rem; color:#666;">Klicke auf "Würfeln", um den ersten Datensatz zu erzeugen.</p>
                 </div>
@@ -290,16 +290,16 @@
                     <p>Beobachte genau, was passiert, wenn wir die Datenmenge drastisch erhöhen.</p>
                     
                     <div class="highlight-box">
-                        <strong>Wichtig:</strong> Klicke jetzt auf <strong>"Auto-Modus"</strong>! Das ist der Moment, in dem aus Zufall ein verlässliches Muster (Wissen) wird.
+                        <strong>Wichtig:</strong> Klicke jetzt auf <strong>"Auto-Modus"</strong>! Das entspricht Training mit vielen Beispielen.
                     </div>
 
                     <!-- KI Brücke -->
                     <div class="ai-context-box">
-                        <div style="font-weight:700; margin-bottom:5px;">💡 Das nennt man "Überwachtes Lernen"</div>
-                        Wir zeigen der KI viele Beispiele, und sie lernt: "Die 7 ist normal, die 2 ist die Ausnahme."
+                        <div style="font-weight:700; margin-bottom:5px;">💡 Das ist datenbasiertes Lernen</div>
+                        Wir zeigen viele Beispiele. Das Modell lernt: Manche Muster sind häufig, andere selten.
                         <div class="tooltip-trigger" onclick="document.getElementById('ai-tooltip').style.display = 'block';">Mehr erfahren ▾</div>
                         <div id="ai-tooltip" class="tooltip-content">
-                            Genauso lernt ein Spam-Filter: Tausende E-Mails mit "Gewinn" = Hohe Wahrscheinlichkeit für Spam.
+                            Genauso lernt ein Spam-Filter: Häufige Wortmuster führen zu höheren Spam-Wahrscheinlichkeiten.
                         </div>
                     </div>
                 </div>
@@ -313,17 +313,18 @@
                         "Das Wetter ist <span class="missing-word">_______</span>"
                     </div>
 
-                    <p>Statt einer Zahl gibt die KI jetzt ein Wort aus, das der Summe entspricht:</p>
+                    <p>Statt einer Zahl gibt die KI jetzt eine Klasse aus (ähnlich Klassifikation):</p>
                     <ul style="font-size:0.9rem; margin-bottom:15px; color:#555;">
-                        <li><strong>Summe 7 (Sehr oft):</strong> Wort "schön"</li>
-                        <li><strong>Summe 2 (Fast nie):</strong> Wort "lila"</li>
+                        <li><strong>"schön":</strong> häufige Summen (6, 7, 8)</li>
+                        <li><strong>"wechselhaft":</strong> mittlere Summen (4, 5, 9, 10)</li>
+                        <li><strong>"lila":</strong> seltene Summen (2, 3, 11, 12)</li>
                     </ul>
 
                     <div class="highlight-box">
-                        Siehst du unten bei den Wörtern? Die KI wählt "schön", weil ihre interne Statistik (die Balken) sagt: "Das gewinnt fast immer."
+                        Siehst du unten bei den Wörtern? Das Modell wählt die Klasse mit der höchsten gelernten Wahrscheinlichkeit.
                     </div>
 
-                    <p style="font-size:0.85rem; color:#888;">Und wenn sie doch mal die 2 würfelt? Dann sagt sie "Das Wetter ist lila". Das nennt man Halluzination.</p>
+                    <p style="font-size:0.85rem; color:#888;">Seltene Muster können trotzdem auftreten. Das zeigt: Vorhersage ist Wahrscheinlichkeit, keine absolute Sicherheit.</p>
                 </div>
 
                 <!-- STEP 4 (Conclusion) -->
@@ -452,7 +453,7 @@
             };
 
             if (!window.THREE) {
-                showError('Three.js konnte nicht geladen werden. Bitte pruefe den Pfad zu ./libs/three.min.js.');
+                showError('Three.js konnte nicht geladen werden. Bitte prüfe den Pfad zu ./libs/three.min.js.');
                 return;
             }
 
@@ -460,7 +461,7 @@
             const canvas = document.querySelector('#c');
             const stage = document.querySelector('#stage');
             if (!canvas || !stage) {
-                showError('Canvas oder Stage-Element fehlt. Bitte pruefe die HTML-Struktur.');
+                showError('Canvas oder Stage-Element fehlt. Bitte prüfe die HTML-Struktur.');
                 return;
             }
 
@@ -468,7 +469,7 @@
             try {
                 renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true});
             } catch (err) {
-                showError('WebGL konnte nicht initialisiert werden. Bitte pruefe Browser-Unterstuetzung.');
+                showError('WebGL konnte nicht initialisiert werden. Bitte prüfe Browser-Unterstützung.');
                 return;
             }
             renderer.shadowMap.enabled = true;
@@ -537,23 +538,30 @@
         let stats = new Array(13).fill(0);
         let maxC = 0; let isRolling = false; let step = 0;
         let totalRolls = 0;
-        let infoClicked = false; 
+        let autoIntervalId = null;
+        let rollAnimIntervalId = null;
 
         // Info Button Logic
         const infoBtn = document.getElementById('info-btn');
         const infoOverlay = document.getElementById('info-overlay');
         const infoText = document.getElementById('info-text');
+        const autoBtn = document.getElementById('auto-btn');
+        const autoHint = document.getElementById('auto-hint');
 
         infoBtn.onclick = () => {
             infoOverlay.classList.toggle('show');
-            infoClicked = true;
         };
+        document.addEventListener('click', (e) => {
+            if (!infoOverlay.contains(e.target) && e.target !== infoBtn) {
+                infoOverlay.classList.remove('show');
+            }
+        });
 
         function updateInfoText() {
             if(step === 0) infoText.innerText = "Setup: Wir bauen einen Datensatz auf. Jeder Wurf ist ein neuer Datenpunkt.";
             else if(step === 1) infoText.innerText = "Feature Engineering: Wir rechnen 'Weiß + Rot', um die Summe als Merkmal zu erhalten.";
-            else if(step === 2) infoText.innerText = "Supervised Learning: Wir nutzen die bekannte Verteilung, um die KI zu trainieren.";
-            else infoText.innerText = "Inference: Die KI nutzt das gelernte Muster für Vorhersagen.";
+            else if(step === 2) infoText.innerText = "Training: Viele Würfe ergeben eine stabile Häufigkeitsverteilung.";
+            else infoText.innerText = "Inference: Ein neuer Testfall wird anhand gelernter Wahrscheinlichkeiten einer Klasse zugeordnet.";
             
             if(step > 2) infoOverlay.classList.remove('show');
         }
@@ -586,9 +594,10 @@
         function updateWordViz() {
             const sumTotal = Math.max(1, totalRolls);
             
-            const pLila = Math.round((stats[2]/sumTotal)*100);
-            const pWechsel = Math.round((stats[6]/sumTotal)*100);
-            const pSchoen = Math.round((stats[7]/sumTotal)*100);
+            // Klassenbildung statt Einzelwerten: stabiler und didaktisch näher an Klassifikation.
+            const pLila = Math.round(((stats[2] + stats[3] + stats[11] + stats[12]) / sumTotal) * 100);
+            const pWechsel = Math.round(((stats[4] + stats[5] + stats[9] + stats[10]) / sumTotal) * 100);
+            const pSchoen = Math.round(((stats[6] + stats[7] + stats[8]) / sumTotal) * 100);
 
             document.getElementById('word-2').querySelector('.w-val').innerText = pLila + '%';
             document.getElementById('word-6').querySelector('.w-val').innerText = pWechsel + '%';
@@ -609,14 +618,32 @@
         }
 
         function roll(fast=false) {
-            if(isRolling && !fast) return; isRolling = true;
+            if(isRolling) return;
+            isRolling = true;
             const w = Math.floor(Math.random()*6)+1; const r = Math.floor(Math.random()*6)+1;
             if(fast) { setRot(whiteDie, w); setRot(redDie, r); updateUI(w,r); isRolling = false; return; }
-            let f = 0; const iv = setInterval(() => {
+            if (rollAnimIntervalId) {
+                clearInterval(rollAnimIntervalId);
+                rollAnimIntervalId = null;
+            }
+            let f = 0; rollAnimIntervalId = setInterval(() => {
                 f++; whiteDie.rotation.x+=0.4; whiteDie.rotation.z+=0.2; redDie.rotation.x+=0.3; redDie.rotation.z-=0.3;
                 whiteDie.position.y = 1 + Math.abs(Math.sin(f*0.3)*2); redDie.position.y = 1 + Math.abs(Math.sin(f*0.3+1)*2);
-                if(f>20) { clearInterval(iv); whiteDie.position.y=1; redDie.position.y=1; setRot(whiteDie, w); setRot(redDie, r); updateUI(w,r); isRolling = false; }
+                if(f>20) {
+                    clearInterval(rollAnimIntervalId);
+                    rollAnimIntervalId = null;
+                    whiteDie.position.y=1; redDie.position.y=1; setRot(whiteDie, w); setRot(redDie, r); updateUI(w,r); isRolling = false;
+                }
             }, 20);
+        }
+
+        function stopAutoMode() {
+            if (autoIntervalId) {
+                clearInterval(autoIntervalId);
+                autoIntervalId = null;
+            }
+            autoBtn.innerText = "⚡ Auto-Modus (Schnell)";
+            autoBtn.classList.remove('cta-btn');
         }
 
         // Restart Function
@@ -626,13 +653,20 @@
             maxC = 0;
             totalRolls = 0;
             step = 0;
+            isRolling = false;
+            stopAutoMode();
+            autoHint.style.display = 'none';
+            if (rollAnimIntervalId) {
+                clearInterval(rollAnimIntervalId);
+                rollAnimIntervalId = null;
+            }
 
             // Reset UI Viz
             document.getElementById('val-w').innerText = "-";
             document.getElementById('val-r').innerText = "-";
             document.getElementById('val-sum').innerText = "-";
             document.querySelectorAll('.bar').forEach(b => b.style.height = '2px');
-            document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.cell').forEach(c => { c.classList.remove('active'); c.classList.remove('hl-line'); });
             updateWordViz();
 
             // Reset Steps
@@ -643,7 +677,6 @@
             document.getElementById('roll-btn').style.display = 'block';
             document.getElementById('auto-btn').style.display = 'block';
             document.getElementById('restart-btn').style.display = 'none';
-            document.getElementById('auto-hint').style.display = 'none';
             
             const nextBtn = document.getElementById('next-btn');
             nextBtn.innerText = "Weiter zur Erklärung →";
@@ -662,7 +695,6 @@
             updateInfoText();
             const btn = document.getElementById('next-btn');
             const rollBtn = document.getElementById('roll-btn');
-            const autoBtn = document.getElementById('auto-btn');
             const hint = document.getElementById('auto-hint');
             const restartBtn = document.getElementById('restart-btn');
 
@@ -680,6 +712,7 @@
 
             // End Step 4
             if(step === 4) {
+                stopAutoMode();
                 btn.innerText = "Beispiele aus der Praxis anzeigen";
                 btn.classList.add('cta-btn');
                 btn.onclick = () => document.getElementById('final-modal').style.display = 'flex';
@@ -696,10 +729,29 @@
             }
         };
 
-        document.getElementById('roll-btn').onclick = () => roll();
-        document.getElementById('auto-btn').onclick = () => { 
-            document.getElementById('auto-hint').style.display = 'none';
-            let c=0; const t=setInterval(() => { roll(true); c++; if(c>30) clearInterval(t); }, 50); 
+        document.getElementById('roll-btn').onclick = () => {
+            stopAutoMode();
+            roll();
+        };
+        document.getElementById('auto-btn').onclick = () => {
+            if (autoIntervalId) {
+                stopAutoMode();
+                return;
+            }
+            autoHint.style.display = 'none';
+            autoBtn.innerText = "⏹ Auto-Modus stoppen";
+            autoBtn.classList.add('cta-btn');
+
+            let c = 0;
+            autoIntervalId = setInterval(() => {
+                if (!isRolling) {
+                    roll(true);
+                    c++;
+                }
+                if (c >= 30) {
+                    stopAutoMode();
+                }
+            }, 50);
         };
         document.getElementById('next-btn').onclick = handleNextStep;
 
