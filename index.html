@@ -206,6 +206,19 @@
       grid-column: span 12;
     }
 
+    .links .section-label{
+      grid-column: span 12;
+      margin: 2px 0 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(107,30,58,.06);
+      color: #5c1932;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
     .game-link{
       display:flex;
       align-items:center;
@@ -287,7 +300,7 @@
   <div class="page">
     <header class="top">
       <div class="logo-wrap">
-        <img class="logo" src="https://as-digitalmarketing.de/img/ASS-2024-03_Logo2000x2000_black.png" alt="A.S. – Arno Schimmelpfennig" />
+        <img class="logo" src="https://ki-lernarchitekt.de/img/ASS-2024-03_Logo2000x2000_black.png" alt="A.S. – Arno Schimmelpfennig" />
         <div class="brandline">Arno Schimmelpfennig · Marketinglösungen, die bewegen</div>
       </div>
     </header>
@@ -368,16 +381,17 @@
         </article>
 
         <!-- DATA SCIENCE -->
-        <article class="folder" data-cat="data-science">
-          <div class="folder-header" role="button" tabindex="0" aria-expanded="false">
+        <article class="folder open" data-cat="data-science">
+          <div class="folder-header" role="button" tabindex="0" aria-expanded="true">
             <div class="folder-title">
               <span class="badge"></span>
               <span class="folder-name">Data Science Basics</span>
             </div>
-            <div class="folder-meta">Ordner: <code>data-science/</code></div>
+            <div class="folder-meta">Ordner: <code>data-science/</code> · 9 Lernseiten + README</div>
           </div>
           <div class="folder-body">
             <ul class="links">
+              <li class="section-label">Interaktive Lernstrecke</li>
               <li>
                 <a class="game-link" href="data-science/lineare_regression_interaktion.html">
                   <span class="game-left">
@@ -397,9 +411,18 @@
                 </a>
               </li>
               <li>
+                <a class="game-link" href="data-science/bias_variance_tradeoff_interaktion.html">
+                  <span class="game-left">
+                    <span class="game-title">Thema 3: Bias-Variance &amp; Polynomiale Regression (Interaktion)</span>
+                    <span class="game-path">data-science/bias_variance_tradeoff_interaktion.html</span>
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+              <li>
                 <a class="game-link" href="data-science/matrix_interaktion.html">
                   <span class="game-left">
-                    <span class="game-title">Thema 3: Matrix-Verständnis (Interaktion)</span>
+                    <span class="game-title">Thema 4: Matrix-Verständnis (Interaktion)</span>
                     <span class="game-path">data-science/matrix_interaktion.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
@@ -408,17 +431,8 @@
               <li>
                 <a class="game-link" href="data-science/matrizenmultiplikation_interaktion.html">
                   <span class="game-left">
-                    <span class="game-title">Thema 4: Matrizenmultiplikation (Interaktion)</span>
+                    <span class="game-title">Thema 5: Matrizenmultiplikation (Interaktion)</span>
                     <span class="game-path">data-science/matrizenmultiplikation_interaktion.html</span>
-                  </span>
-                  <span aria-hidden="true">→</span>
-                </a>
-              </li>
-              <li>
-                <a class="game-link" href="data-science/bias_variance_tradeoff_interaktion.html">
-                  <span class="game-left">
-                    <span class="game-title">Thema 5: Bias-Variance Tradeoff (Interaktion)</span>
-                    <span class="game-path">data-science/bias_variance_tradeoff_interaktion.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
                 </a>
@@ -426,16 +440,17 @@
               <li>
                 <a class="game-link" href="data-science/regularization_interaktion.html">
                   <span class="game-left">
-                    <span class="game-title">Thema 6: Regularization L1/L2 (Interaktion)</span>
+                    <span class="game-title">Thema 6: Regularisierung L1/L2 (Interaktion)</span>
                     <span class="game-path">data-science/regularization_interaktion.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
                 </a>
               </li>
+              <li class="section-label">Code-Praxis (Popup in den Themen)</li>
               <li>
                 <a class="game-link" href="data-science/lineare_regression_code_praxis.html">
                   <span class="game-left">
-                    <span class="game-title">Lineare Regression (Code-Praxis)</span>
+                    <span class="game-title">Code 1: Lineare Regression</span>
                     <span class="game-path">data-science/lineare_regression_code_praxis.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
@@ -444,7 +459,7 @@
               <li>
                 <a class="game-link" href="data-science/gradient_descent_code_praxis.html">
                   <span class="game-left">
-                    <span class="game-title">Gradient Descent (Code-Praxis)</span>
+                    <span class="game-title">Code 2: Gradient Descent</span>
                     <span class="game-path">data-science/gradient_descent_code_praxis.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
@@ -453,7 +468,7 @@
               <li>
                 <a class="game-link" href="data-science/predictive_modeling_code_praxis.html">
                   <span class="game-left">
-                    <span class="game-title">Predictive Modeling (Code-Praxis)</span>
+                    <span class="game-title">Code 3: Predictive Modeling</span>
                     <span class="game-path">data-science/predictive_modeling_code_praxis.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
