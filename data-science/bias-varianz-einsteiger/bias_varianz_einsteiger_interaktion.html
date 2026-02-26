@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bias und Varianz einfach erklärt | Einsteiger-Spiel</title>
+  <style>
+    :root {
+      --brand-main: #631832;
+      --brand-accent: #173262;
+      --bg: #eef2f6;
+      --panel: #ffffff;
+      --muted: #5e6f89;
+      --soft-border: #d8e1ef;
+      --good: #1f8b4c;
+      --warn: #d17b1f;
+      --bad: #be3b33;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(160deg, #f5f8fd 0%, #ecf1f8 55%, #e8edf5 100%);
+      color: #1f2940;
+      min-height: 100vh;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      background: rgba(255, 255, 255, 0.96);
+      border-right: 1px solid var(--soft-border);
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .brandline {
+      font-size: 0.74rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    #sidebar h1 {
+      margin: 6px 0 0;
+      font-size: 1.26rem;
+      line-height: 1.25;
+      color: var(--brand-main);
+    }
+
+    .step-box {
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .step-kicker {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--brand-accent);
+      font-weight: 800;
+    }
+
+    #step-title {
+      margin: 0;
+      font-size: 1rem;
+      color: #1f2f4b;
+    }
+
+    #step-text {
+      margin: 0;
+      line-height: 1.45;
+      font-size: 0.92rem;
+      color: #334563;
+    }
+
+    .task-box {
+      border: 1px dashed #c8d4e6;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 10px;
+      font-size: 0.86rem;
+      color: #415775;
+      line-height: 1.4;
+    }
+
+    #step-points {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.85rem;
+      color: #3e4f67;
+      line-height: 1.35;
+    }
+
+    .dict-box {
+      border: 1px solid var(--soft-border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .dict-box h3 {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--brand-accent);
+    }
+
+    .dict-item {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: #3f5068;
+    }
+
+    .dict-item strong {
+      color: #7a2f4c;
+    }
+
+    .controls {
+      display: grid;
+      gap: 8px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--brand-accent);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(23, 50, 98, 0.2);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #334665;
+      border: 1px solid #cad5e6;
+    }
+
+    #stage {
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .header-card,
+    .viz-card,
+    .control-card {
+      border: 1px solid var(--soft-border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 20px rgba(17, 37, 72, 0.08);
+    }
+
+    .header-card {
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-title {
+      margin: 0;
+      font-size: 0.96rem;
+      color: #253a5d;
+    }
+
+    .header-sub {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid #d0dbeb;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.79rem;
+      color: #2e4569;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    .chip strong {
+      color: #173262;
+    }
+
+    .viz-card {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(250px, 340px);
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .board-wrap {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .board-title {
+      font-size: 0.86rem;
+      color: #425670;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    #target-board {
+      width: min(520px, 100%);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      margin: 0 auto;
+      border: 2px solid #d7dfeb;
+      background:
+        radial-gradient(circle at center, rgba(31, 139, 76, 0.11) 0 16%, transparent 16% 28%, rgba(23, 50, 98, 0.07) 28% 41%, transparent 41% 58%, rgba(99, 24, 50, 0.06) 58% 74%, transparent 74% 100%),
+        #f8fbff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .board-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: #0f8a43;
+      box-shadow: 0 0 0 5px rgba(15, 138, 67, 0.2);
+      z-index: 4;
+    }
+
+    .board-cross-h,
+    .board-cross-v {
+      position: absolute;
+      background: rgba(58, 74, 99, 0.18);
+      z-index: 2;
+    }
+
+    .board-cross-h {
+      left: 5%;
+      right: 5%;
+      top: 50%;
+      height: 1px;
+      transform: translateY(-50%);
+    }
+
+    .board-cross-v {
+      top: 5%;
+      bottom: 5%;
+      left: 50%;
+      width: 1px;
+      transform: translateX(-50%);
+    }
+
+    #points-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .point {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+    }
+
+    #mean-marker {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #111;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      left: 50%;
+      top: 50%;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.79rem;
+      color: #445a74;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .metrics {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .metrics h3 {
+      margin: 0;
+      color: var(--brand-accent);
+      font-size: 0.95rem;
+    }
+
+    .metric {
+      border: 1px solid #d4deee;
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px 9px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.81rem;
+      color: #3f5068;
+    }
+
+    .metric-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #eaf0f8;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      transition: width 0.22s ease;
+    }
+
+    .bar-bias { background: #be3b33; }
+    .bar-var { background: #d17b1f; }
+    .bar-hit { background: #1f8b4c; }
+
+    #status-box {
+      border: 1px solid #d2dced;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 10px;
+      font-size: 0.83rem;
+      color: #3d4f68;
+      line-height: 1.4;
+    }
+
+    #status-box strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .control-card {
+      padding: 12px 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .control-title {
+      font-size: 0.86rem;
+      color: #3f5575;
+      margin: 0;
+    }
+
+    .mode-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mode-btn {
+      background: #fff;
+      border: 1px solid #cfd8e8;
+      color: #334665;
+      font-size: 0.79rem;
+      padding: 9px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mode-btn.active {
+      border-color: #335b8f;
+      box-shadow: inset 0 0 0 1px rgba(23, 50, 98, 0.13);
+      background: #edf4ff;
+      color: #173262;
+    }
+
+    .sliders {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .slider-box {
+      display: grid;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: #445a74;
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand-accent);
+      cursor: pointer;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mini-note {
+      font-size: 0.79rem;
+      color: #546a85;
+      background: #f8fbff;
+      border: 1px dashed #cad7e8;
+      border-radius: 8px;
+      padding: 8px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 1050px) {
+      #app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      #sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--soft-border);
+        max-height: 52vh;
+      }
+
+      .viz-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      #stage {
+        padding: 12px;
+      }
+
+      .mode-row,
+      .sliders,
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+
+      .header-card {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div>
+        <div class="brandline">AS Digital Marketing | Einsteiger-Lab</div>
+        <h1>Bias und Varianz<br>ohne Mathe erklären</h1>
+      </div>
+
+      <div class="step-box">
+        <div class="step-kicker">Lernschritt</div>
+        <h2 id="step-title"></h2>
+        <p id="step-text"></p>
+        <div class="task-box"><strong>Deine Aufgabe jetzt:</strong> <span id="step-task"></span></div>
+        <ul id="step-points"></ul>
+      </div>
+
+      <div class="dict-box">
+        <h3>Mini-Wörterbuch</h3>
+        <div class="dict-item"><strong>Bias:</strong> Das Modell liegt systematisch in eine Richtung daneben.</div>
+        <div class="dict-item"><strong>Varianz:</strong> Das Modell springt stark von Fall zu Fall.</div>
+        <div class="dict-item"><strong>Guter Bereich:</strong> Kleine Abweichung und stabile Vorhersagen.</div>
+        <div class="dict-item"><strong>ML in einem Satz:</strong> Aus Beispielen Muster lernen und für neue Fälle nutzen.</div>
+      </div>
+
+      <div class="controls">
+        <button id="next-step" class="btn-primary">Nächster Schritt</button>
+        <button id="reset-session" class="btn-secondary">Neu starten</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="header-card">
+        <div>
+          <p class="header-title"><strong>Alltagsfall:</strong> Wir sagen die tägliche Pendelzeit voraus.</p>
+          <div class="header-sub">Grüner Mittelpunkt = echte Zeit. Punkte = Modell-Vorhersagen.</div>
+        </div>
+        <div class="chips">
+          <div class="chip"><strong>Aktuelles Modell:</strong> <span id="chip-mode">-</span></div>
+          <div class="chip"><strong>Beispiele:</strong> <span id="chip-count">0</span></div>
+          <div class="chip"><strong>Schritt:</strong> <span id="chip-step">1/5</span></div>
+        </div>
+      </section>
+
+      <section class="viz-card">
+        <div class="board-wrap">
+          <p class="board-title">Je näher die Punkte am grünen Zentrum und je dichter sie zusammenliegen, desto besser ist das Modell.</p>
+          <div id="target-board" aria-label="Zielscheibe mit Modellvorhersagen" role="img">
+            <div class="board-cross-h"></div>
+            <div class="board-cross-v"></div>
+            <div class="board-center" title="Realität"></div>
+            <div id="points-layer"></div>
+            <div id="mean-marker" title="Durchschnitt der Vorhersagen"></div>
+          </div>
+          <div class="legend">
+            <span><i class="dot" style="background:#1f8b4c"></i> Realität</span>
+            <span><i class="dot" style="background:#6b1e3a"></i> Vorhersage</span>
+            <span><i class="dot" style="border:2px solid #111;background:#fff"></i> Mittelwert</span>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <h3>Was zeigt das Modell?</h3>
+
+          <div class="metric">
+            <div class="metric-head"><span>Bias-Index</span><span id="bias-value">0</span></div>
+            <div class="bar-track"><div class="bar-fill bar-bias" id="bias-bar"></div></div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-head"><span>Varianz-Index</span><span id="var-value">0</span></div>
+            <div class="bar-track"><div class="bar-fill bar-var" id="var-bar"></div></div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-head"><span>Treffer im grünen Bereich</span><span id="hit-value">0%</span></div>
+            <div class="bar-track"><div class="bar-fill bar-hit" id="hit-bar"></div></div>
+          </div>
+
+          <div id="status-box"></div>
+        </div>
+      </section>
+
+      <section class="control-card">
+        <p class="control-title">Interaktive Steuerung</p>
+
+        <div class="mode-row" role="group" aria-label="Modellmodus">
+          <button class="mode-btn" data-mode="bias" type="button">Sturkopf (Bias)</button>
+          <button class="mode-btn" data-mode="balance" type="button">Ausgewogen</button>
+          <button class="mode-btn" data-mode="variance" type="button">Nervös (Varianz)</button>
+        </div>
+
+        <div class="sliders">
+          <label class="slider-box">
+            <span class="slider-head"><span>Anzahl Beispiele</span><strong id="count-value">30</strong></span>
+            <input id="sample-count" type="range" min="8" max="80" step="2" value="30" />
+          </label>
+
+          <label class="slider-box">
+            <span class="slider-head"><span>Alltagsrauschen</span><strong id="noise-value">1</strong></span>
+            <input id="noise-level" type="range" min="0" max="3" step="1" value="1" />
+          </label>
+        </div>
+
+        <div class="btn-row">
+          <button id="generate" class="btn-primary" type="button">Neue Beispiele</button>
+          <button id="auto-run" class="btn-secondary" type="button">Auto (25 Läufe)</button>
+        </div>
+
+        <div class="mini-note" id="inline-note"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const stepContent = [
+      {
+        title: "Schritt 1: Worum geht es?",
+        text: "Du brauchst keine Formeln. Hier reicht ein Bild: Das Zentrum ist die Realität, die Punkte sind Vorhersagen.",
+        task: "Klicke auf \"Neue Beispiele\" und beobachte, wie Punkte um das Zentrum verteilt sind.",
+        bullets: [
+          "ML bedeutet: aus Beispielen Muster lernen.",
+          "Wir bewerten Modelle mit 2 Fragen: systematisch daneben? oder zu instabil?"
+        ],
+        mode: "balance",
+        note: "Starte mit dem ausgewogenen Modell als Referenz."
+      },
+      {
+        title: "Schritt 2: Bias verstehen",
+        text: "Bias heißt: Das Modell liegt oft in dieselbe Richtung daneben. Es hat eine feste Schieflage.",
+        task: "Wähle \"Sturkopf (Bias)\" und generiere neue Beispiele.",
+        bullets: [
+          "Die Punkte liegen dicht beieinander, aber nicht im Zentrum.",
+          "Merksatz: stabil falsch ist auch falsch."
+        ],
+        mode: "bias",
+        note: "Hoher Bias = Unteranpassung: Das Modell ist zu starr."
+      },
+      {
+        title: "Schritt 3: Varianz verstehen",
+        text: "Varianz heißt: Das Modell reagiert zu nervös auf kleine Unterschiede. Die Vorhersagen springen stark.",
+        task: "Wähle \"Nervös (Varianz)\" und lass mehrere Läufe über \"Auto\" laufen.",
+        bullets: [
+          "Der Mittelwert kann nah am Zentrum liegen.",
+          "Trotzdem sind viele Einzelvorhersagen weit gestreut."
+        ],
+        mode: "variance",
+        note: "Hohe Varianz = Überanpassung: Das Modell ist zu empfindlich."
+      },
+      {
+        title: "Schritt 4: Der gute Bereich",
+        text: "Ein gutes Modell ist weder stur noch nervös. Es trifft die Mitte und bleibt stabil.",
+        task: "Schalte auf \"Ausgewogen\" und teste verschiedene Beispielmengen und Rauschstufen.",
+        bullets: [
+          "Mehr Daten helfen oft gegen hohe Varianz.",
+          "Klare Merkmale helfen oft gegen hohen Bias."
+        ],
+        mode: "balance",
+        note: "Ziel in Projekten: kleine Bias- und Varianz-Werte gleichzeitig."
+      },
+      {
+        title: "Schritt 5: Transfer in den Alltag",
+        text: "Jetzt kannst du Modelle einschätzen, auch ohne Mathe. Prüfe immer Schieflage und Streuung.",
+        task: "Vergleiche alle 3 Modi noch einmal. Was würdest du im Alltag einem Team empfehlen?",
+        bullets: [
+          "Bei Bias: Modell vereinfachte Realität zu stark.",
+          "Bei Varianz: Modell merkt sich Zufall statt Muster."
+        ],
+        mode: "balance",
+        note: "Wenn du das erklären kannst, hast du Bias und Varianz verstanden."
+      }
+    ];
+
+    const modeConfig = {
+      bias: {
+        label: "Sturkopf (Bias hoch)",
+        color: "#9e2e4f",
+        shift: 0.42,
+        spread: 0.1
+      },
+      balance: {
+        label: "Ausgewogen",
+        color: "#1f8b4c",
+        shift: 0.05,
+        spread: 0.13
+      },
+      variance: {
+        label: "Nervös (Varianz hoch)",
+        color: "#d17b1f",
+        shift: 0,
+        spread: 0.32
+      }
+    };
+
+    const state = {
+      step: 0,
+      mode: "balance",
+      sampleCount: 30,
+      noise: 1,
+      points: [],
+      autoTimer: null,
+      autoRuns: 0
+    };
+
+    const refs = {
+      stepTitle: document.getElementById("step-title"),
+      stepText: document.getElementById("step-text"),
+      stepTask: document.getElementById("step-task"),
+      stepPoints: document.getElementById("step-points"),
+      chipMode: document.getElementById("chip-mode"),
+      chipCount: document.getElementById("chip-count"),
+      chipStep: document.getElementById("chip-step"),
+      pointsLayer: document.getElementById("points-layer"),
+      meanMarker: document.getElementById("mean-marker"),
+      biasValue: document.getElementById("bias-value"),
+      varValue: document.getElementById("var-value"),
+      hitValue: document.getElementById("hit-value"),
+      biasBar: document.getElementById("bias-bar"),
+      varBar: document.getElementById("var-bar"),
+      hitBar: document.getElementById("hit-bar"),
+      statusBox: document.getElementById("status-box"),
+      countInput: document.getElementById("sample-count"),
+      noiseInput: document.getElementById("noise-level"),
+      countValue: document.getElementById("count-value"),
+      noiseValue: document.getElementById("noise-value"),
+      nextStepBtn: document.getElementById("next-step"),
+      resetBtn: document.getElementById("reset-session"),
+      generateBtn: document.getElementById("generate"),
+      autoBtn: document.getElementById("auto-run"),
+      inlineNote: document.getElementById("inline-note"),
+      modeButtons: Array.from(document.querySelectorAll(".mode-btn"))
+    };
+
+    function randomNormal() {
+      const u1 = Math.random() || 1e-8;
+      const u2 = Math.random() || 1e-8;
+      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    }
+
+    function clampPoint(x, y, maxRadius = 0.47) {
+      const distance = Math.hypot(x, y);
+      if (distance <= maxRadius) return { x, y };
+      const scale = maxRadius / distance;
+      return { x: x * scale, y: y * scale };
+    }
+
+    function stopAutoRun() {
+      if (!state.autoTimer) return;
+      clearInterval(state.autoTimer);
+      state.autoTimer = null;
+      state.autoRuns = 0;
+      refs.autoBtn.textContent = "Auto (25 Läufe)";
+      refs.autoBtn.classList.remove("btn-primary");
+      refs.autoBtn.classList.add("btn-secondary");
+    }
+
+    function setMode(mode, fromStep = false) {
+      if (!modeConfig[mode]) return;
+      state.mode = mode;
+      refs.modeButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+      });
+      refs.chipMode.textContent = modeConfig[mode].label;
+      if (!fromStep) {
+        refs.inlineNote.textContent = "Modus geändert. Erzeuge jetzt neue Beispiele und vergleiche Bias und Varianz.";
+      }
+      generatePoints();
+    }
+
+    function generatePoints() {
+      const cfg = modeConfig[state.mode];
+      const extraNoise = state.noise * 0.03;
+      const points = [];
+
+      for (let i = 0; i < state.sampleCount; i += 1) {
+        const x = cfg.shift + randomNormal() * (cfg.spread + extraNoise * 0.9);
+        const y = randomNormal() * (cfg.spread * 0.85 + extraNoise * 0.8);
+        points.push(clampPoint(x, y));
+      }
+
+      state.points = points;
+      refs.chipCount.textContent = String(state.sampleCount);
+      renderPoints();
+      updateMetrics();
+    }
+
+    function renderPoints() {
+      refs.pointsLayer.innerHTML = "";
+      const color = modeConfig[state.mode].color;
+      state.points.forEach((p) => {
+        const el = document.createElement("div");
+        el.className = "point";
+        el.style.left = `${50 + p.x * 100}%`;
+        el.style.top = `${50 - p.y * 100}%`;
+        el.style.background = color;
+        refs.pointsLayer.appendChild(el);
+      });
+    }
+
+    function updateMetrics() {
+      if (!state.points.length) return;
+
+      const n = state.points.length;
+      let sumX = 0;
+      let sumY = 0;
+
+      state.points.forEach((p) => {
+        sumX += p.x;
+        sumY += p.y;
+      });
+
+      const meanX = sumX / n;
+      const meanY = sumY / n;
+      const biasDistance = Math.hypot(meanX, meanY);
+      const biasIndex = Math.min(100, Math.round((biasDistance / 0.47) * 100));
+
+      let spreadSum = 0;
+      let hitCount = 0;
+
+      state.points.forEach((p) => {
+        const fromMean = Math.hypot(p.x - meanX, p.y - meanY);
+        spreadSum += fromMean * fromMean;
+
+        const fromCenter = Math.hypot(p.x, p.y);
+        if (fromCenter <= 0.16) hitCount += 1;
+      });
+
+      const spread = Math.sqrt(spreadSum / n);
+      const varianceIndex = Math.min(100, Math.round((spread / 0.4) * 100));
+      const hitRate = Math.round((hitCount / n) * 100);
+
+      refs.meanMarker.style.left = `${50 + meanX * 100}%`;
+      refs.meanMarker.style.top = `${50 - meanY * 100}%`;
+
+      refs.biasValue.textContent = String(biasIndex);
+      refs.varValue.textContent = String(varianceIndex);
+      refs.hitValue.textContent = `${hitRate}%`;
+
+      refs.biasBar.style.width = `${biasIndex}%`;
+      refs.varBar.style.width = `${varianceIndex}%`;
+      refs.hitBar.style.width = `${hitRate}%`;
+
+      let headline = "Ausgewogen";
+      let text = "Das Modell liegt insgesamt nah am Ziel und bleibt stabil.";
+      let color = "#1f8b4c";
+
+      if (biasIndex > 45 && varianceIndex <= 50) {
+        headline = "Bias dominiert";
+        text = "Die Vorhersagen liegen oft in dieselbe Richtung daneben. Das Modell hat eine Schieflage.";
+        color = "#be3b33";
+      } else if (varianceIndex > 55 && biasIndex <= 35) {
+        headline = "Varianz dominiert";
+        text = "Die Vorhersagen springen stark. Das Modell reagiert zu nervös auf Unterschiede.";
+        color = "#d17b1f";
+      } else if (varianceIndex > 55 && biasIndex > 45) {
+        headline = "Beides zu hoch";
+        text = "Schieflage und starke Streuung zusammen: So ist das Modell kaum verlässlich.";
+        color = "#8a2d49";
+      }
+
+      refs.statusBox.innerHTML = `<strong style="color:${color}">${headline}</strong>${text}`;
+    }
+
+    function updateStepView() {
+      const data = stepContent[state.step];
+      refs.stepTitle.textContent = data.title;
+      refs.stepText.textContent = data.text;
+      refs.stepTask.textContent = data.task;
+      refs.inlineNote.textContent = data.note;
+      refs.stepPoints.innerHTML = "";
+      data.bullets.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        refs.stepPoints.appendChild(li);
+      });
+      refs.chipStep.textContent = `${state.step + 1}/${stepContent.length}`;
+      setMode(data.mode, true);
+    }
+
+    refs.modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        stopAutoRun();
+        setMode(btn.dataset.mode);
+      });
+    });
+
+    refs.countInput.addEventListener("input", (e) => {
+      state.sampleCount = Number(e.target.value);
+      refs.countValue.textContent = String(state.sampleCount);
+      generatePoints();
+    });
+
+    refs.noiseInput.addEventListener("input", (e) => {
+      state.noise = Number(e.target.value);
+      refs.noiseValue.textContent = String(state.noise);
+      generatePoints();
+    });
+
+    refs.generateBtn.addEventListener("click", () => {
+      stopAutoRun();
+      generatePoints();
+    });
+
+    refs.autoBtn.addEventListener("click", () => {
+      if (state.autoTimer) {
+        stopAutoRun();
+        return;
+      }
+
+      state.autoRuns = 0;
+      refs.autoBtn.textContent = "Auto läuft ... stoppen";
+      refs.autoBtn.classList.remove("btn-secondary");
+      refs.autoBtn.classList.add("btn-primary");
+
+      state.autoTimer = setInterval(() => {
+        generatePoints();
+        state.autoRuns += 1;
+        if (state.autoRuns >= 25) {
+          stopAutoRun();
+        }
+      }, 130);
+    });
+
+    refs.nextStepBtn.addEventListener("click", () => {
+      stopAutoRun();
+      state.step = (state.step + 1) % stepContent.length;
+      updateStepView();
+    });
+
+    refs.resetBtn.addEventListener("click", () => {
+      stopAutoRun();
+      state.step = 0;
+      state.mode = "balance";
+      state.sampleCount = 30;
+      state.noise = 1;
+      refs.countInput.value = "30";
+      refs.noiseInput.value = "1";
+      refs.countValue.textContent = "30";
+      refs.noiseValue.textContent = "1";
+      updateStepView();
+    });
+
+    updateStepView();
+  </script>
+</body>
+</html>

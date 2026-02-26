@@ -40,12 +40,13 @@ http://localhost:8000/
 
 ### Interaktive Lernseiten
 
-1. `data-science/lineare_regression_interaktion.html`
-2. `data-science/gradient_descent_interaktion.html`
-3. `data-science/bias_variance_tradeoff_interaktion.html`
-4. `data-science/matrix_interaktion.html`
-5. `data-science/matrizenmultiplikation_interaktion.html`
-6. `data-science/regularization_interaktion.html`
+1. `data-science/bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html`
+2. `data-science/lineare_regression_interaktion.html`
+3. `data-science/gradient_descent_interaktion.html`
+4. `data-science/bias_variance_tradeoff_interaktion.html`
+5. `data-science/matrix_interaktion.html`
+6. `data-science/matrizenmultiplikation_interaktion.html`
+7. `data-science/regularization_interaktion.html`
 
 ### Code-Praxis
 

@@ -17,6 +17,9 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 - Sprache: einfach, konkret, fachlich korrekt.
 
 ## Lernpfad-Reihenfolge
+### Einsteiger-Start (optional vor dem Kernpfad)
+0. `bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html` (ohne Mathe, Fokus auf Bias/Varianz-Grundintuition)
+
 ### Kernpfad (an Sitzung 1 + Folgetermin ausgerichtet)
 1. `lineare_regression_interaktion.html`
 2. `gradient_descent_interaktion.html`
@@ -33,6 +36,8 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 Hinweis: Erweiterungsseiten werden in den Interaktionsseiten als Popup geoeffnet.
 
 ## Roter Faden (Pfadlogik)
+0. Bias-Varianz-Einsteiger:
+Niedrigschwelliger Einstieg ueber Punktwolken: Bias = Schieflage, Varianz = Streuung.
 1. Lineare Regression:
 Ein Zusammenhang mit einem Einflussfaktor wird sichtbar und interpretierbar (`m`, `b`, Residuen).
 2. Gradient Descent:
