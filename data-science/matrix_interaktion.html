@@ -103,6 +103,33 @@
       color: #344153;
     }
 
+    .step-action-box {
+      margin-top: 8px;
+      border: 1px solid rgba(190, 59, 51, 0.34);
+      border-left: 4px solid #be3b33;
+      border-radius: 10px;
+      background: #fff6f5;
+      padding: 7px 9px;
+      box-shadow: 0 3px 10px rgba(99, 24, 50, 0.08);
+    }
+
+    .step-action-box strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #8f1f1f;
+    }
+
+    #step-action {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.38;
+      color: #5b2231;
+      font-weight: 700;
+    }
+
     .step-template {
       margin-top: 9px;
       display: grid;
@@ -157,6 +184,15 @@
       border-color: rgba(31, 139, 76, 0.25);
       background: #f2fbf6;
       color: #256441;
+    }
+
+    .timeline-item.clickable {
+      cursor: pointer;
+    }
+
+    .timeline-item.clickable:hover {
+      border-color: rgba(23, 50, 98, 0.35);
+      background: #f5f9ff;
     }
 
     .path-box p {
@@ -372,7 +408,7 @@
       gap: 12px;
       min-width: 0;
       min-height: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       padding-bottom: 18px;
       scrollbar-gutter: stable;
     }
@@ -444,6 +480,14 @@
       background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
       color: #fff;
       box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
     }
 
     .codepath-index {
@@ -574,6 +618,7 @@
       display: grid;
       grid-template-columns: minmax(300px, 1fr) minmax(300px, 420px);
       gap: 12px;
+      margin-top: 14px;
       min-width: 0;
     }
 
@@ -585,6 +630,13 @@
       box-shadow: var(--panel-shadow);
       padding: 12px;
       min-width: 0;
+    }
+
+    .knowledge-card {
+      max-height: min(52vh, 560px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
 
     .control-card h3,
@@ -941,13 +993,17 @@
       <p class="lead">Jetzt erweitern wir das Heizkosten-Beispiel: von einer x-Achse auf mehrere Einflussfaktoren gleichzeitig.</p>
 
       <div class="story-box">
-        <strong>Brücke aus Thema 1 und Thema 2:</strong>
-        Aus dem linearen Grundmodell (Thema 1) und dem Trainingsblick (Thema 2) geht es jetzt zu mehreren Merkmalen gleichzeitig.
+        <strong>Brücke aus Thema 2 und Thema 3:</strong>
+        Nach Training (Thema 2) und Generalisierungs-Check (Thema 3) organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix.
       </div>
 
       <div class="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
+        <div class="step-action-box" aria-live="polite">
+          <strong>Konkrete Aufgabe jetzt</strong>
+          <p id="step-action"></p>
+        </div>
         <div class="step-template" aria-label="Lern-Template">
           <div class="step-template-item">
             <strong>Warum</strong>
@@ -982,14 +1038,14 @@
       </div>
 
       <div class="path-box collapsed" id="matrix-path-box">
-        <strong>Lernpfad danach</strong>
-        <p id="matrix-path-teaser">Lernpfad bleibt bis Schritt 6 eingeklappt.</p>
+        <strong>Nächste Schritte</strong>
+        <p id="matrix-path-teaser" hidden></p>
         <div class="path-content">
-          <p>Nächstes Thema 4: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
+          <p>Nächstes Thema 5: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
           <div class="path-status" id="matrix-quiz-status">Zwischen-Quiz wird nach Schritt 6 angeboten. Danach wird die Navigation freigeschaltet.</div>
           <button id="open-matrix-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
-          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 4: Matrizenmultiplikation</a>
-          <a class="path-link" href="gradient_descent_interaktion.html">Zurück zu Thema 2: Gradient Descent</a>
+          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 5: Matrizenmultiplikation</a>
+          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurück zu Thema 3: Bias-Variance</a>
           <button id="replay-matrix" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -1002,6 +1058,7 @@
       </div>
 
       <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Lern-Schritt</button>
         <button id="next-step">Nächster Lern-Schritt</button>
         <button id="reset-session" class="secondary">Session zurücksetzen</button>
       </div>
@@ -1009,17 +1066,25 @@
 
     <main id="stage">
       <section class="codepath-bar" aria-label="Codepfad Navigation">
-        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-title">
+          <span class="label-with-tip">
+            Codepfad
+            <span class="tip-wrap">
+              <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
+              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier lernt ihr, wie Merkmale als Matrix strukturiert und als gewichtete Summe interpretiert werden.</span>
+            </span>
+          </span>
+        </div>
         <div class="codepath-steps">
           <a class="codepath-step active" href="lineare_regression_code_praxis.html">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step" href="gradient_descent_code_praxis.html">
+          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+          <a class="codepath-step is-disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">3</span>
             <span>Predictive Modeling</span>
           </a>
@@ -1116,7 +1181,7 @@
             <li><strong>Grenze von 1 x-Achse:</strong> Ein Einflussfaktor reicht oft nicht aus.</li>
             <li><strong>Matrix-Idee:</strong> Mehrere Merkmale werden als Spalten nebeneinander organisiert.</li>
             <li><strong>Modell:</strong> y-hat = b + w_temp*temp + w_faktor*faktor.</li>
-            <li><strong>Brücke zu Thema 4:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
+            <li><strong>Brücke zu Thema 5:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
           </ul>
           <div class="shape-bridge">
             <strong>Shape-Brücke</strong>
@@ -1180,7 +1245,7 @@
       {
         title: "Schritt 5: Transfer",
         text: "Im nächsten Thema rechnen wir das Gleiche als Matrizenmultiplikation: X * w erzeugt y-hat für alle Zeilen auf einmal.",
-        chat: "Diskussion: Was wird in Thema 4 mathematisch automatisiert, was ihr hier per Regler macht?",
+        chat: "Diskussion: Was wird in Thema 5 mathematisch automatisiert, was ihr hier per Regler macht?",
         answer: "Die gleiche Logik wird algebraisch gebündelt: statt pro Zeile einzeln zu rechnen, berechnet Matrixmultiplikation alles in einem Schritt."
       },
       {
@@ -1224,13 +1289,23 @@
       }
     ];
 
+    const matrixStepNavStorageKey = "ds-matrix-step-nav-unlocked";
+    const matrixStepNavUnlocked = (() => {
+      try {
+        return localStorage.getItem(matrixStepNavStorageKey) === "1";
+      } catch (err) {
+        return false;
+      }
+    })();
+
     const state = {
       wTemp: -4.4,
       wSize: 26,
       b: 136,
       stepIndex: 0,
       hasAdvanced: false,
-      quizReady: false
+      quizReady: false,
+      stepJumpUnlocked: matrixStepNavUnlocked
     };
 
     const defaults = { wTemp: -4.4, wSize: 26, b: 136 };
@@ -1242,19 +1317,22 @@
     const wSizeInput = document.getElementById("w-size");
     const biasInput = document.getElementById("bias");
     const timelineEl = document.getElementById("timeline");
+    const sidebarEl = document.getElementById("sidebar");
+    const prevStepBtn = document.getElementById("prev-step");
     const matrixBodyEl = document.getElementById("matrix-body");
     const matrixHeadRowEl = document.getElementById("matrix-head-row");
     const matrixMetaEl = document.getElementById("matrix-meta");
     const predictionBodyEl = document.getElementById("prediction-body");
     const codePopupOverlay = document.getElementById("code-popup-overlay");
     const codePopupFrame = document.getElementById("code-popup-frame");
-    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const codePopupTriggers = document.querySelectorAll('a[href$="_code_praxis.html"]:not([aria-disabled="true"])');
     const openMatrixQuizBtn = document.getElementById("open-matrix-quiz");
     const replayMatrixBtn = document.getElementById("replay-matrix");
     const matrixQuizStatusEl = document.getElementById("matrix-quiz-status");
     const toMatmulLink = document.getElementById("to-matmul-link");
     const matrixPathBox = document.getElementById("matrix-path-box");
     const matrixPathTeaser = document.getElementById("matrix-path-teaser");
+    const matrixStepPopupSeen = new Set();
 
     function yHat(row) {
       return state.b + state.wTemp * row.temp + state.wSize * row.factor;
@@ -1338,6 +1416,34 @@
       }
     }
 
+    function persistMatrixStepUnlock() {
+      try {
+        localStorage.setItem(matrixStepNavStorageKey, "1");
+      } catch (err) {
+        // Ignore storage errors (e.g., private mode).
+      }
+    }
+
+    function jumpToMatrixStep(idx) {
+      if (!state.stepJumpUnlocked) return;
+      if (idx === state.stepIndex) return;
+      state.hasAdvanced = true;
+      state.stepIndex = idx;
+      updateStepContent();
+    }
+
+    function maybeShowMatrixStepPopup() {
+      if (state.stepJumpUnlocked) return;
+      if (state.stepIndex === 0) return;
+      if (matrixStepPopupSeen.has(state.stepIndex)) return;
+      const step = steps[state.stepIndex];
+      const template = stepTemplate[state.stepIndex];
+      matrixStepPopupSeen.add(state.stepIndex);
+      window.alert(
+        `${step.title}\n\nWarum jetzt wichtig:\n${template.why}\n\nWenn-dann:\n${template.consequence}`
+      );
+    }
+
     function renderTimeline() {
       timelineEl.innerHTML = "";
       steps.forEach((step, idx) => {
@@ -1346,6 +1452,18 @@
         if (idx < state.stepIndex) item.classList.add("done");
         if (idx === state.stepIndex) item.classList.add("active");
         item.textContent = `${idx + 1}. ${step.title.replace(`Schritt ${idx + 1}: `, "")}`;
+        if (state.stepJumpUnlocked) {
+          item.classList.add("clickable");
+          item.setAttribute("role", "button");
+          item.tabIndex = 0;
+          item.addEventListener("click", () => jumpToMatrixStep(idx));
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              jumpToMatrixStep(idx);
+            }
+          });
+        }
         timelineEl.appendChild(item);
       });
     }
@@ -1377,9 +1495,9 @@
       } else if (state.stepIndex === 3) {
         hint.textContent = "Jetzt auf MAE und Fehler-Spalte achten: Balance statt Einzeltreffer.";
       } else if (state.stepIndex === 4) {
-        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 4.";
+        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 5.";
       } else {
-        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 4 ohne Fehlstart umgesetzt werden.";
+        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 5 ohne Fehlstart umgesetzt werden.";
       }
     }
 
@@ -1417,13 +1535,37 @@
       }
     }
 
+    function updatePrevStepButton() {
+      const canGoPrev = state.stepIndex > 0;
+      prevStepBtn.hidden = !canGoPrev;
+      prevStepBtn.disabled = !canGoPrev;
+    }
+
+    function scrollSidebarTop() {
+      if (!sidebarEl) return;
+      sidebarEl.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function getStepActionText(step) {
+      if (!step || !step.text) return "";
+      const firstSentence = step.text.match(/^.*?[.!?](?:\s|$)/);
+      return (firstSentence ? firstSentence[0] : step.text).trim();
+    }
+
     function updateStepContent() {
       if (state.stepIndex === steps.length - 1) {
         state.quizReady = true;
+        if (!state.stepJumpUnlocked) {
+          state.stepJumpUnlocked = true;
+          persistMatrixStepUnlock();
+        }
       }
       const step = steps[state.stepIndex];
+      updatePrevStepButton();
+      scrollSidebarTop();
       document.getElementById("step-title").textContent = step.title;
       document.getElementById("step-text").textContent = step.text;
+      document.getElementById("step-action").textContent = getStepActionText(step);
       document.getElementById("chat-question").textContent = step.chat;
       const template = stepTemplate[state.stepIndex];
       document.getElementById("step-why").textContent = template.why;
@@ -1436,6 +1578,7 @@
       updateShapeBridge();
       renderTables();
       renderTimeline();
+      maybeShowMatrixStepPopup();
     }
 
     function updateMatrixQuizAvailability() {
@@ -1443,9 +1586,7 @@
       openMatrixQuizBtn.hidden = !ready;
       replayMatrixBtn.hidden = !ready;
       matrixPathBox.classList.toggle("collapsed", !ready);
-      matrixPathTeaser.textContent = ready
-        ? "Geöffnet: Quiz, Weiterlink und Replay sind jetzt verfügbar."
-        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+      matrixPathTeaser.textContent = "";
 
       if (!ready) {
         matrixQuizStatusEl.textContent = `Zwischen-Quiz wird nach Schritt ${steps.length} freigeschaltet.`;
@@ -1495,7 +1636,7 @@
       const link = document.getElementById("to-matmul-link");
       link.classList.remove("disabled");
       link.setAttribute("aria-disabled", "false");
-      status.textContent = "Zwischen-Quiz bestanden. Thema 4 ist freigeschaltet.";
+      status.textContent = "Zwischen-Quiz bestanden. Thema 5 ist freigeschaltet.";
       status.style.borderColor = "rgba(31, 139, 76, 0.45)";
       status.style.background = "#f3fbf6";
       status.style.color = "#275b3f";
@@ -1511,7 +1652,7 @@
 
       const feedback = document.getElementById("quiz-feedback");
       if (score >= 3) {
-        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 4 ist freigeschaltet.`;
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 5 ist freigeschaltet.`;
         feedback.style.color = "#1f8b4c";
         unlockNextTopic();
       } else {
@@ -1536,6 +1677,12 @@
       state.b = Number(e.target.value);
       updateReadout();
       renderTables();
+    });
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex === 0) return;
+      state.stepIndex -= 1;
+      updateStepContent();
     });
 
     document.getElementById("next-step").addEventListener("click", nextStep);

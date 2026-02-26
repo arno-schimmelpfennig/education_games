@@ -205,6 +205,33 @@
       color: #344153;
     }
 
+    .step-action-box {
+      margin-top: 9px;
+      border: 1px solid rgba(190, 59, 51, 0.34);
+      border-left: 4px solid #be3b33;
+      border-radius: 10px;
+      background: #fff6f5;
+      padding: 8px 10px;
+      box-shadow: 0 3px 10px rgba(99, 24, 50, 0.08);
+    }
+
+    .step-action-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #8f1f1f;
+    }
+
+    #step-action {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.42;
+      color: #5b2231;
+      font-weight: 700;
+    }
+
     .step-template {
       margin-top: 10px;
       display: grid;
@@ -262,6 +289,15 @@
       color: #256441;
     }
 
+    .timeline-item.clickable {
+      cursor: pointer;
+    }
+
+    .timeline-item.clickable:hover {
+      border-color: rgba(23, 50, 98, 0.35);
+      background: #f5f9ff;
+    }
+
     .ctrl-group {
       margin-top: auto;
       display: grid;
@@ -299,7 +335,7 @@
       gap: 12px;
       min-width: 0;
       min-height: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       padding-bottom: 18px;
       scrollbar-gutter: stable;
     }
@@ -371,6 +407,14 @@
       background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
       color: #fff;
       box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
     }
 
     .codepath-index {
@@ -555,6 +599,7 @@
       display: grid;
       grid-template-columns: minmax(300px, 1fr) minmax(320px, 430px);
       gap: 12px;
+      margin-top: 14px;
       min-width: 0;
     }
 
@@ -566,6 +611,13 @@
       box-shadow: var(--panel-shadow);
       padding: 12px;
       min-width: 0;
+    }
+
+    .knowledge-card {
+      max-height: min(52vh, 560px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
 
     .control-card h3,
@@ -930,10 +982,10 @@
           <label class="quiz-option"><input type="radio" name="q1" value="c"> Es ignoriert den Trainingsfehler komplett.</label>
         </div>
         <div class="quiz-question">
-          <strong>2) Wofuer wird Lasso (L1) oft genutzt?</strong>
-          <label class="quiz-option"><input type="radio" name="q2" value="a"> Fuer implizite Feature-Selektion durch Koeffizienten = 0.</label>
-          <label class="quiz-option"><input type="radio" name="q2" value="b"> Nur fuer Klassifikation, nicht fuer Regression.</label>
-          <label class="quiz-option"><input type="radio" name="q2" value="c"> Um die Lernrate in GD zu erhoehen.</label>
+          <strong>2) Wofür wird Lasso (L1) oft genutzt?</strong>
+          <label class="quiz-option"><input type="radio" name="q2" value="a"> Für implizite Feature-Selektion durch Koeffizienten = 0.</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b"> Nur für Klassifikation, nicht für Regression.</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c"> Um die Lernrate in GD zu erhöhen.</label>
         </div>
         <div class="quiz-question">
           <strong>3) Warum darf Lambda/alpha nicht beliebig hoch sein?</strong>
@@ -943,7 +995,7 @@
         </div>
         <div class="quiz-actions">
           <button id="grade-regularization-quiz" type="submit">Quiz auswerten</button>
-          <button id="close-regularization-quiz" type="button" class="secondary">Schliessen</button>
+          <button id="close-regularization-quiz" type="button" class="secondary">Schließen</button>
         </div>
       </form>
       <div id="regularization-quiz-feedback" class="quiz-feedback"></div>
@@ -954,9 +1006,9 @@
     <section id="code-popup-modal" role="dialog" aria-modal="true" aria-labelledby="code-popup-title">
       <div id="code-popup-head">
         <h3 id="code-popup-title">Code-Praxis (Python)</h3>
-        <button id="close-code-popup" class="secondary" type="button">Schliessen</button>
+        <button id="close-code-popup" class="secondary" type="button">Schließen</button>
       </div>
-      <p id="code-popup-subtitle">Vertiefung fuer Einsteiger: von Ridge/Lasso-Intuition in den Predictive-Modeling-Workflow.</p>
+      <p id="code-popup-subtitle">Vertiefung für Einsteiger: von Ridge/Lasso-Intuition in den Predictive-Modeling-Workflow.</p>
       <iframe id="code-popup-frame" src="about:blank" title="Code-Praxis Popup" loading="lazy"></iframe>
     </section>
   </div>
@@ -965,9 +1017,8 @@
       <div class="brandline">AS Digital Marketing | Webinar Studio</div>
       <h1>Regularization<br>gegen Überanpassung</h1>
       <p class="lead">
-        Gemeinsame Lernansicht: Ihr vergleicht Ridge (L2) und Lasso (L1) live und seht, wie sich Koeffizienten, Fehler und Robustheit veraendern.
+        Gemeinsame Lernansicht: Ihr vergleicht Ridge (L2) und Lasso (L1) live und seht, wie sich Koeffizienten, Fehler und Robustheit verändern.
       </p>
-      <span class="badge-webinar">Eine Ansicht für alle im Webinar</span>
 
       <div class="story-box">
         <strong>Alltagsszenario:</strong>
@@ -977,6 +1028,10 @@
       <div class="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
+        <div class="step-action-box" aria-live="polite">
+          <strong>Konkrete Aufgabe jetzt</strong>
+          <p id="step-action"></p>
+        </div>
         <div class="step-template" aria-label="Lern-Template">
           <div class="step-template-item">
             <strong>Warum</strong>
@@ -1002,18 +1057,18 @@
 
       <div class="usage-box">
         <strong>Praxis-Übertrag:</strong><br>
-        Regularization hilft, wenn viele Features verfügbar sind und wir ein robusteres Modell für neue Daten brauchen.
+        Regularisierung hilft, Overfitting zu senken und den Übergang zwischen Underfitting und guter Generalisierung steuerbar zu machen - besonders nach bewusstem Feature Engineering.
       </div>
 
       <div class="path-box collapsed" id="regularization-path-box">
-        <strong>Lernpfad danach</strong>
-        <p id="regularization-path-teaser">Lernpfad bleibt bis Schritt 5 eingeklappt.</p>
+        <strong>Nächste Schritte</strong>
+        <p id="regularization-path-teaser" hidden></p>
         <div class="path-content">
           <div class="path-status" id="regularization-quiz-status">Mini-Quiz wird nach Schritt 5 angeboten (Navigation ist bereits aktiv).</div>
           <button id="open-regularization-quiz" class="secondary" hidden>Mini-Quiz starten</button>
           <a id="to-predictive-link" class="path-link" href="predictive_modeling_code_praxis.html" aria-disabled="false">Weiter: Predictive Modeling Code-Praxis (nach Thema 6)</a>
-          <a class="path-link" href="gradient_descent_interaktion.html">Zurueck zu Thema 2: Gradient Descent</a>
-          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurueck zu Thema 5: Bias-Variance Tradeoff</a>
+          <a class="path-link" href="matrizenmultiplikation_interaktion.html">Zurück zu Thema 5: Matrizenmultiplikation</a>
+          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurück zu Thema 3: Bias-Variance Tradeoff</a>
           <button id="replay-regularization" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -1026,6 +1081,7 @@
       </div>
 
       <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Lern-Schritt</button>
         <button id="next-step">Nächster Lern-Schritt</button>
         <button id="reset-session" class="secondary">Session zurücksetzen</button>
       </div>
@@ -1033,17 +1089,25 @@
 
     <main id="stage">
       <section class="codepath-bar" aria-label="Codepfad Navigation">
-        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-title">
+          <span class="label-with-tip">
+            Codepfad
+            <span class="tip-wrap">
+              <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
+              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier lernt ihr, wie Ridge/Lasso und Lambda Overfitting reduzieren und die Generalisierung verbessern.</span>
+            </span>
+          </span>
+        </div>
         <div class="codepath-steps">
-          <a class="codepath-step" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step is-disabled" href="lineare_regression_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step active" href="gradient_descent_code_praxis.html">
+          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+          <a class="codepath-step active" href="predictive_modeling_code_praxis.html">
             <span class="codepath-index">3</span>
             <span>Predictive Modeling</span>
           </a>
@@ -1090,7 +1154,7 @@
                 Modus (Ridge/Lasso)
                 <span class="tip-wrap">
                   <button type="button" class="tip-icon" aria-label="Hilfe zu Ridge und Lasso">i</button>
-                  <span class="tip-text">Was? Ridge nutzt L2 und schrumpft Gewichte weich. Lasso nutzt L1 und kann Gewichte exakt auf 0 setzen. Warum? Damit ihr je nach Datenlage Stabilitaet oder Feature-Selektion priorisieren koennt.</span>
+                  <span class="tip-text">Was? Ridge nutzt L2 und schrumpft Gewichte weich. Lasso nutzt L1 und kann Gewichte exakt auf 0 setzen. Warum? Damit ihr je nach Datenlage Stabilität oder Feature-Selektion priorisieren könnt.</span>
                 </span>
               </span>
               <span id="mode-value">Ridge (L2)</span>
@@ -1120,7 +1184,7 @@
           </div>
 
           <div class="mini-note">
-            Merksatz: Ridge haelt alle Features im Spiel, Lasso kann Features ausschalten. Beide reduzieren Overfitting, wenn Lambda passend gewaehlt ist.
+            Merksatz: Ridge hält alle Features im Spiel, Lasso kann Features ausschalten. Beide reduzieren Overfitting, wenn Lambda passend gewählt ist.
           </div>
         </div>
 
@@ -1130,7 +1194,8 @@
             <li><strong>Ridge/L2:</strong> Schiebt Koeffizienten Richtung 0, aber selten exakt auf 0.</li>
             <li><strong>Lasso/L1:</strong> Kann Koeffizienten auf 0 setzen und wirkt als Feature-Selektion.</li>
             <li><strong>Trade-off:</strong> Zu wenig Strafe = Overfitting, zu viel Strafe = Underfitting.</li>
-            <li><strong>Praxis:</strong> Alpha/Lambda immer ueber Validierung oder CV tunen.</li>
+            <li><strong>Feature Engineering zuerst:</strong> Saubere, fachlich sinnvolle Features reduzieren Rauschen, bevor L1/L2 als Bremse wirkt.</li>
+            <li><strong>Praxis:</strong> Alpha/Lambda immer über Validierung oder CV tunen.</li>
             <li><strong>Ziel:</strong> Bessere Generalisierung auf neuen Daten, nicht perfekte Trainingswerte.</li>
           </ul>
         </div>
@@ -1140,25 +1205,25 @@
 
   <script>
     const features = [
-      { name: "Wohnflaeche (m²)", coef: 82, scale: 1.0 },
+      { name: "Wohnfläche (m²)", coef: 82, scale: 1.0 },
       { name: "Distanz Zentrum", coef: -54, scale: 1.1 },
       { name: "Energieklasse", coef: 36, scale: 0.8 },
       { name: "Balkon", coef: 29, scale: 0.7 },
       { name: "OePNV nahe", coef: 23, scale: 0.75 },
       { name: "Aufzug", coef: 18, scale: 0.8 },
-      { name: "Laermpegel", coef: -26, scale: 0.9 },
+      { name: "Lärmpegel", coef: -26, scale: 0.9 },
       { name: "Baujahr modern", coef: 21, scale: 0.85 },
       { name: "Haustier erlaubt", coef: 11, scale: 0.95 }
     ];
 
     const apartmentVector = {
-      "Wohnflaeche (m²)": 0.9,
+      "Wohnfläche (m²)": 0.9,
       "Distanz Zentrum": 0.4,
       "Energieklasse": 0.8,
       "Balkon": 1,
       "OePNV nahe": 0.9,
       "Aufzug": 0,
-      "Laermpegel": 0.3,
+      "Lärmpegel": 0.3,
       "Baujahr modern": 0.7,
       "Haustier erlaubt": 1
     };
@@ -1168,13 +1233,13 @@
     const steps = [
       {
         title: "Schritt 1: Ohne Strafe starten",
-        text: "Lambda auf 0: Alle Gewichte sind frei. Das Modell reagiert stark auf jedes Detail und kann Zufall uebernehmen.",
+        text: "Lambda auf 0: Alle Gewichte sind frei. Das Modell reagiert stark auf jedes Detail und kann Zufall übernehmen.",
         chat: "Chat: Glaubt ihr, dass alle Merkmale gleich verlässlich sind?"
       },
       {
         title: "Schritt 2: Ridge (L2) einstellen",
         text: "Bleibt im Ridge-Modus und setzt Lambda auf etwa 1 bis 3. Alle Gewichte schrumpfen, wichtige Signale bleiben aber erhalten.",
-        chat: "Chat: Wann wirkt diese weiche Schrumpfung fuer euch robust genug?"
+        chat: "Chat: Wann wirkt diese weiche Schrumpfung für euch robust genug?"
       },
       {
         title: "Schritt 3: Lasso (L1) vergleichen",
@@ -1183,12 +1248,12 @@
       },
       {
         title: "Schritt 4: Fehlerkurven lesen",
-        text: "Vergleicht Train/Test fuer beide Modi. Trainingsfehler steigt oft mit Lambda, Testfehler hat ein Minimum: dort liegt der nutzbare Bereich.",
+        text: "Vergleicht Train/Test für beide Modi. Trainingsfehler steigt oft mit Lambda, Testfehler hat ein Minimum: dort liegt der nutzbare Bereich.",
         chat: "Chat: Warum optimieren wir trotz allem auf Test/CV und nicht auf Train?"
       },
       {
         title: "Schritt 5: Transfer zu Predictive Modeling",
-        text: "In Realprojekten kombiniert ihr jetzt alles: Split, Tuning, Ridge/Lasso-Vergleich, Residuen-Check und Outlier-Pruefung. Danach geht es in die Code-Praxis.",
+        text: "In Realprojekten kombiniert ihr jetzt alles: Split, Tuning, Ridge/Lasso-Vergleich, Residuen-Check und Outlier-Prüfung. Danach geht es in die Code-Praxis.",
         chat: "Chat: Welche Projektentscheidung trefft ihr jetzt datenbasiert statt aus Bauchgefuehl?"
       }
     ];
@@ -1197,44 +1262,56 @@
       {
         why: "Der Start ohne Strafe zeigt, wie schnell freie Modelle Rauschen aufnehmen.",
         consequence: "Wenn Lambda bei 0 bleibt, dann steigt das Overfitting-Risiko trotz scheinbar guter Trainingswerte.",
-        reflection: "Welche Features in deinem Umfeld wirken verdachtig instabil oder zufaellig?"
+        reflection: "Welche Features in deinem Umfeld wirken verdachtig instabil oder zufällig?"
       },
       {
-        why: "Ridge erklaert, wie kontrollierte Schrumpfung Stabilitaet schafft ohne harte Selektion.",
-        consequence: "Wenn L2 moderat erhoeht wird, dann bleiben alle Features erhalten, aber extreme Gewichte werden gebremst.",
-        reflection: "In welchem Fall waere dir Stabilitaet wichtiger als maximale Detailtreue?"
+        why: "Ridge erklärt, wie kontrollierte Schrumpfung Stabilität schafft ohne harte Selektion.",
+        consequence: "Wenn L2 moderat erhöht wird, dann bleiben alle Features erhalten, aber extreme Gewichte werden gebremst.",
+        reflection: "In welchem Fall wäre dir Stabilität wichtiger als maximale Detailtreue?"
       },
       {
         why: "Lasso zeigt den Unterschied zwischen reiner Daempfung und echter Feature-Auswahl.",
-        consequence: "Wenn L1 steigt, dann koennen irrelevante Koeffizienten exakt 0 werden und das Modell wird schlanker.",
-        reflection: "Welche Art von Merkmalen wuerdest du in einem Projekt gern automatisch entfernen lassen?"
+        consequence: "Wenn L1 steigt, dann können irrelevante Koeffizienten exakt 0 werden und das Modell wird schlanker.",
+        reflection: "Welche Art von Merkmalen würdest du in einem Projekt gern automatisch entfernen lassen?"
       },
       {
-        why: "Die Fehlerkurven liefern die Entscheidungsbasis fuer brauchbare Lambda-Bereiche.",
+        why: "Die Fehlerkurven liefern die Entscheidungsbasis für brauchbare Lambda-Bereiche.",
         consequence: "Wenn nur Train sinkt, aber Test steigt, dann ist die Regularisierungseinstellung operativ unbrauchbar.",
-        reflection: "Wie wuerdest du den akzeptablen Fehlerbereich mit Stakeholdern abstimmen?"
+        reflection: "Wie würdest du den akzeptablen Fehlerbereich mit Stakeholdern abstimmen?"
       },
       {
-        why: "Der Transfer buendelt das Vorgehen fuer reale Predictive-Workflows.",
+        why: "Der Transfer bündelt das Vorgehen für reale Predictive-Workflows.",
         consequence: "Wenn Split, Tuning und Diagnostik kombiniert werden, dann entstehen robustere Modellentscheidungen.",
-        reflection: "Welcher Teil dieses Workflows wuerde in deinem Team den groessten Qualitaetssprung bringen?"
+        reflection: "Welcher Teil dieses Workflows würde in deinem Team den größten Qualitätssprung bringen?"
       }
     ];
+
+    const regularizationStepNavStorageKey = "ds-regularization-step-nav-unlocked";
+    const regularizationStepNavUnlocked = (() => {
+      try {
+        return localStorage.getItem(regularizationStepNavStorageKey) === "1";
+      } catch (err) {
+        return false;
+      }
+    })();
 
     const state = {
       lambda: 0,
       regType: "l2",
       stepIndex: 0,
       pathUnlocked: false,
-      quizReady: false
+      quizReady: false,
+      stepJumpUnlocked: regularizationStepNavUnlocked
     };
 
     const coefListEl = document.getElementById("coef-list");
     const lambdaInput = document.getElementById("lambda");
     const timelineEl = document.getElementById("timeline");
+    const sidebarEl = document.getElementById("sidebar");
+    const prevStepBtn = document.getElementById("prev-step");
     const codePopupOverlay = document.getElementById("code-popup-overlay");
     const codePopupFrame = document.getElementById("code-popup-frame");
-    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const codePopupTriggers = document.querySelectorAll('a[href$="_code_praxis.html"]:not([aria-disabled="true"])');
     const modeL2Btn = document.getElementById("mode-l2");
     const modeL1Btn = document.getElementById("mode-l1");
     const regularizationPathBox = document.getElementById("regularization-path-box");
@@ -1246,6 +1323,7 @@
     const regularizationQuizOverlay = document.getElementById("quiz-overlay");
     const regularizationQuizForm = document.getElementById("regularization-quiz-form");
     const regularizationQuizFeedbackEl = document.getElementById("regularization-quiz-feedback");
+    const regularizationStepPopupSeen = new Set();
     const regularizationQuizAnswers = { q1: "b", q2: "a", q3: "c" };
 
     function shrinkCoef(baseCoef, scale) {
@@ -1287,7 +1365,7 @@
       }
       return {
         title: "Risiko: Underfitting",
-        text: "Zu starke Bremse. Relevante Informationen werden mit weggedrueckt.",
+        text: "Zu starke Bremse. Relevante Informationen werden mit weggedrückt.",
         color: "#d17b1f"
       };
     }
@@ -1361,8 +1439,35 @@
       document.getElementById("predict-box").innerHTML = `
         <strong>Beispiel-Prognose Wohnung A</strong>
         Vorhersage: <span style="color: var(--brand-main); font-weight:800;">${rent.toFixed(0)} €</span><br>
-        Modus: <strong>${modeLabel}</strong> - beobachte, wie Lambda Stabilitaet gegen Detailtreue abwaegt.
+        Modus: <strong>${modeLabel}</strong> - beobachte, wie Lambda Stabilität gegen Detailtreue abwägt.
       `;
+    }
+
+    function persistRegularizationStepUnlock() {
+      try {
+        localStorage.setItem(regularizationStepNavStorageKey, "1");
+      } catch (err) {
+        // Ignore storage errors (e.g., private mode).
+      }
+    }
+
+    function jumpToRegularizationStep(idx) {
+      if (!state.stepJumpUnlocked) return;
+      if (idx === state.stepIndex) return;
+      state.stepIndex = idx;
+      updateStepContent();
+    }
+
+    function maybeShowRegularizationStepPopup() {
+      if (state.stepJumpUnlocked) return;
+      if (state.stepIndex === 0) return;
+      if (regularizationStepPopupSeen.has(state.stepIndex)) return;
+      const step = steps[state.stepIndex];
+      const template = stepTemplate[state.stepIndex];
+      regularizationStepPopupSeen.add(state.stepIndex);
+      window.alert(
+        `${step.title}\n\nWarum jetzt wichtig:\n${template.why}\n\nWenn-dann:\n${template.consequence}`
+      );
     }
 
     function renderTimeline() {
@@ -1373,18 +1478,54 @@
         if (idx < state.stepIndex) item.classList.add("done");
         if (idx === state.stepIndex) item.classList.add("active");
         item.textContent = `${idx + 1}. ${step.title.replace("Schritt " + (idx + 1) + ": ", "")}`;
+        if (state.stepJumpUnlocked) {
+          item.classList.add("clickable");
+          item.setAttribute("role", "button");
+          item.tabIndex = 0;
+          item.addEventListener("click", () => jumpToRegularizationStep(idx));
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              jumpToRegularizationStep(idx);
+            }
+          });
+        }
         timelineEl.appendChild(item);
       });
+    }
+
+    function updatePrevStepButton() {
+      const canGoPrev = state.stepIndex > 0;
+      prevStepBtn.hidden = !canGoPrev;
+      prevStepBtn.disabled = !canGoPrev;
+    }
+
+    function scrollSidebarTop() {
+      if (!sidebarEl) return;
+      sidebarEl.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function getStepActionText(step) {
+      if (!step || !step.text) return "";
+      const firstSentence = step.text.match(/^.*?[.!?](?:\s|$)/);
+      return (firstSentence ? firstSentence[0] : step.text).trim();
     }
 
     function updateStepContent() {
       if (state.stepIndex === steps.length - 1) {
         state.pathUnlocked = true;
         state.quizReady = true;
+        if (!state.stepJumpUnlocked) {
+          state.stepJumpUnlocked = true;
+          persistRegularizationStepUnlock();
+        }
       }
       const step = steps[state.stepIndex];
+      updatePrevStepButton();
+      scrollSidebarTop();
       document.getElementById("step-title").textContent = step.title;
       document.getElementById("step-text").textContent = step.text;
+      document.getElementById("step-action").textContent = getStepActionText(step);
       document.getElementById("chat-question").textContent = step.chat;
       const template = stepTemplate[state.stepIndex];
       document.getElementById("step-why").textContent = template.why;
@@ -1392,6 +1533,7 @@
       document.getElementById("step-reflection").textContent = template.reflection;
       updatePathAndQuiz();
       renderTimeline();
+      maybeShowRegularizationStepPopup();
     }
 
     function updatePathAndQuiz() {
@@ -1399,9 +1541,7 @@
       regularizationPathBox.classList.toggle("collapsed", !ready);
       openRegularizationQuizBtn.hidden = !ready;
       replayRegularizationBtn.hidden = !ready;
-      regularizationPathTeaser.textContent = ready
-        ? "Geoeffnet: Quiz, Weiterlink und Replay sind jetzt verfuegbar."
-        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+      regularizationPathTeaser.textContent = "";
 
       if (!ready) {
         regularizationQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} freigeschaltet.`;
@@ -1483,6 +1623,12 @@
     }
 
     lambdaInput.addEventListener("input", (e) => setLambda(Number(e.target.value)));
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex === 0) return;
+      state.stepIndex -= 1;
+      updateStepContent();
+    });
 
     document.getElementById("next-step").addEventListener("click", () => {
       state.stepIndex = (state.stepIndex + 1) % steps.length;

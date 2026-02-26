@@ -204,7 +204,7 @@
       display: grid;
       gap: 12px;
       min-width: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       scrollbar-gutter: stable;
     }
 
@@ -278,6 +278,14 @@
       background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
       color: #fff;
       box-shadow: 0 7px 15px rgba(30, 56, 95, 0.3);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
     }
 
     .codepath-index {
@@ -475,10 +483,10 @@
       <div class="info-box">
         <strong>Roter Faden</strong>
         <ul class="info-list">
-          <li>Linear Regression war der Start: einfach und erklaerbar.</li>
+          <li>Linear Regression war der Start: einfach und erklärbar.</li>
           <li>Gradient Descent zeigte, wie Parameter automatisch gelernt werden.</li>
-          <li>Bias-Variance erklaerte, warum mehr Komplexitaet auch schaden kann.</li>
-          <li>Regularisierung fuegt eine kontrollierte Bremse hinzu.</li>
+          <li>Bias-Variance erklärte, warum mehr Komplexität auch schaden kann.</li>
+          <li>Regularisierung fügt eine kontrollierte Bremse hinzu.</li>
           <li>Predictive Modeling verbindet alles zu einem reproduzierbaren Projektablauf.</li>
         </ul>
       </div>
@@ -486,14 +494,14 @@
       <div class="info-box">
         <strong>Navigation</strong>
         <a class="path-link" href="gradient_descent_interaktion.html">Zu Thema 2: Gradient Descent</a>
-        <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zu Thema 5: Bias-Variance Tradeoff</a>
+        <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zu Thema 3: Bias-Variance Tradeoff</a>
         <a class="path-link" href="regularization_interaktion.html">Zu Thema 6: Regularization</a>
       </div>
 
       <div class="bridge-box">
         <div class="bridge-kicker">Direktlink</div>
-        <strong>Zurueck in die GD-Codepraxis</strong>
-        <p>Wenn Batch/Mini-Batch/SGD oder Momentum noch unsicher sind, spring direkt zur reinen Gradient-Descent-Implementierung zurueck.</p>
+        <strong>Zurück in die GD-Codepraxis</strong>
+        <p>Wenn Batch/Mini-Batch/SGD oder Momentum noch unsicher sind, spring direkt zur reinen Gradient-Descent-Implementierung zurück.</p>
         <a class="bridge-link" href="gradient_descent_code_praxis.html">Direkt zu: Code-Praxis Gradient Descent</a>
       </div>
     </aside>
@@ -501,17 +509,17 @@
     <main id="stage">
       <section class="hero">
         <h2>Warum dieser Schritt jetzt kommt</h2>
-        <p>Nach der Theorie braucht ihr eine vernuenftige Projekt-Routine. Ein Modell ist erst dann hilfreich, wenn es auf neuen Daten stabil ist, transparent bewertet wird und ihr die Grenzen benennen koennt.</p>
+        <p>Nach der Theorie braucht ihr eine vernünftige Projekt-Routine. Ein Modell ist erst dann hilfreich, wenn es auf neuen Daten stabil ist, transparent bewertet wird und ihr die Grenzen benennen könnt.</p>
       </section>
 
       <section class="codepath-bar" aria-label="Codepfad Navigation">
         <div class="codepath-title">Codepfad</div>
         <div class="codepath-steps">
-          <a class="codepath-step" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step is-disabled" href="lineare_regression_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step" href="gradient_descent_code_praxis.html">
+          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
@@ -531,7 +539,7 @@
 
       <section class="module" id="split">
         <h3>1) Train/Test-Split: warum wir fast nie "alle Wahrheit" sehen</h3>
-        <p>In der Praxis arbeiten wir mit Stichproben. Darum sind Metriken immer Schaetzungen. Mit Train/Test trennt ihr Lernen und Pruefen sauber.</p>
+        <p>In der Praxis arbeiten wir mit Stichproben. Darum sind Metriken immer Schätzungen. Mit Train/Test trennt ihr Lernen und Prüfen sauber.</p>
 
         <div class="code-title">Code</div>
         <pre><code>import numpy as np
@@ -574,17 +582,17 @@ print("Test shape:", X_test.shape)</code></pre>
 
         <div class="theory-box">
           <strong>Kernbotschaft:</strong><br>
-          Der Trainingsfehler allein ist keine Aussage ueber echte Prognosefaehigkeit. Wir brauchen den Fehler auf bisher ungesehenen Daten.
+          Der Trainingsfehler allein ist keine Aussage über echte Prognosefaehigkeit. Wir brauchen den Fehler auf bisher ungesehenen Daten.
         </div>
 
         <details class="check">
           <summary>Mini-Check: Warum reicht ein einziger Split manchmal nicht?</summary>
-          <p>Ein einzelner Split kann zufaellig guenstig oder unguenstig sein. Fuer stabilere Aussagen nutzt man oft Cross-Validation oder mehrere Splits.</p>
+          <p>Ein einzelner Split kann zufällig günstig oder ungünstig sein. Für stabilere Aussagen nutzt man oft Cross-Validation oder mehrere Splits.</p>
         </details>
       </section>
 
       <section class="module" id="baseline">
-        <h3>2) Baseline und Metriken: MSE vor R² fuer Modellvergleich</h3>
+        <h3>2) Baseline und Metriken: MSE vor R² für Modellvergleich</h3>
         <p>Beim Vergleich von Vorhersagemodellen ist MSE/MAE oft robuster interpretierbar. R² kann negativ werden und in der Kommunikation missverstanden werden.</p>
 
         <div class="code-title">Code</div>
@@ -636,13 +644,13 @@ print("Test  R2 :", round(r2_score(y_test, pred_test), 3))</code></pre>
 
         <details class="check">
           <summary>Mini-Check: Warum nicht nur den kleinsten Trainingsfehler nehmen?</summary>
-          <p>Weil ein Modell Trainingsdaten auswendig lernen kann. Entscheidend ist der Testfehler als Naeherung fuer Generalisierung.</p>
+          <p>Weil ein Modell Trainingsdaten auswendig lernen kann. Entscheidend ist der Testfehler als Näherung für Generalisierung.</p>
         </details>
       </section>
 
       <section class="module" id="ridge-lasso">
         <h3>3) L1/L2 in Praxis: Lasso vs Ridge mit Parameter-Tuning</h3>
-        <p>Jetzt wird die Modellkomplexitaet bewusst gesteuert: Ridge (L2) schrumpft Gewichte weich, Lasso (L1) kann Features auf 0 setzen.</p>
+        <p>Jetzt wird die Modellkomplexität bewusst gesteuert: Ridge (L2) schrumpft Gewichte weich, Lasso (L1) kann Features auf 0 setzen.</p>
 
         <div class="code-title">Code</div>
         <pre><code>import numpy as np
@@ -705,18 +713,18 @@ print("Lasso Test MSE:", round(mean_squared_error(y_test, lasso_cv.predict(X_tes
 
         <div class="theory-box">
           <strong>Wann eher was?</strong><br>
-          Ridge, wenn viele schwache Signale gemeinsam nuetzlich sind. Lasso, wenn ihr Feature-Selektion und ein kompakteres Modell wollt.
+          Ridge, wenn viele schwache Signale gemeinsam nützlich sind. Lasso, wenn ihr Feature-Selektion und ein kompakteres Modell wollt.
         </div>
 
         <details class="check">
           <summary>Mini-Check: Warum braucht Lasso oft Standardisierung?</summary>
-          <p>L1-Strafe haengt von der Koeffizientengroesse ab. Ohne vergleichbare Feature-Skalen wird die Strafe ungleich verteilt.</p>
+          <p>L1-Strafe hängt von der Koeffizientengröße ab. Ohne vergleichbare Feature-Skalen wird die Strafe ungleich verteilt.</p>
         </details>
       </section>
 
       <section class="module" id="residuals">
         <h3>4) Residuen-Check: Muster erkennen statt nur Score lesen</h3>
-        <p>Ein guter MSE ist wichtig, aber nicht genug. Residuen zeigen euch, ob systematische Fehler uebrig bleiben (z. B. gekruemmte Muster, heterogene Varianz).</p>
+        <p>Ein guter MSE ist wichtig, aber nicht genug. Residuen zeigen euch, ob systematische Fehler übrig bleiben (z. B. gekrümmte Muster, heterogene Varianz).</p>
 
         <div class="code-title">Code</div>
         <pre><code>import numpy as np
@@ -776,17 +784,17 @@ plt.show()
 
 print("Residual-Mittelwert:", round(float(np.mean(residuals)), 4))</code></pre>
 
-        <div class="note">Interpretation: Ein zufaelliges Wolkenbild um 0 ist besser als ein klares Muster. Muster deuten oft auf fehlende Features oder falsche Modellform.</div>
+        <div class="note">Interpretation: Ein zufälliges Wolkenbild um 0 ist besser als ein klares Muster. Muster deuten oft auf fehlende Features oder falsche Modellform.</div>
 
         <details class="check">
-          <summary>Mini-Check: Was bedeutet ein U-foermiges Residuenmuster?</summary>
-          <p>Das lineare Modell erfasst den Zusammenhang nicht vollstaendig. Es fehlt oft eine nichtlineare Komponente oder ein wichtiges Feature.</p>
+          <summary>Mini-Check: Was bedeutet ein U-förmiges Residuenmuster?</summary>
+          <p>Das lineare Modell erfasst den Zusammenhang nicht vollständig. Es fehlt oft eine nichtlineare Komponente oder ein wichtiges Feature.</p>
         </details>
       </section>
 
       <section class="module" id="outlier-zscore">
         <h3>5) Ausreisser mit z-Score erkennen (erste einfache Stufe)</h3>
-        <p>Outlier-Kontrolle gehoert in jeden Predictive-Workflow. Als Einstieg hilft der z-Score pro numerischem Feature.</p>
+        <p>Outlier-Kontrolle gehört in jeden Predictive-Workflow. Als Einstieg hilft der z-Score pro numerischem Feature.</p>
 
         <div class="code-title">Code</div>
         <pre><code>import numpy as np
@@ -827,13 +835,13 @@ z = (X_train[numeric_cols] - X_train[numeric_cols].mean()) / X_train[numeric_col
 outlier_mask = (np.abs(z) > 3).any(axis=1)
 outlier_count = int(outlier_mask.sum())
 
-print("Potenziell auffaellige Zeilen im Train-Set:", outlier_count)</code></pre>
+print("Potenziell auffällige Zeilen im Train-Set:", outlier_count)</code></pre>
 
         <div class="warn-note">z-Score ist nur ein Einstieg. Kontext und Domainenwissen entscheiden, ob ein Punkt Fehler, Sonderfall oder wertvoller Extremfall ist.</div>
 
         <details class="check">
           <summary>Mini-Check: Welche Outlier-Typen solltet ihr unterscheiden?</summary>
-          <p>Messfehler, seltene aber reale Ereignisse und Datenpunkte ausserhalb des gueltigen Einsatzbereichs. Die Behandlung ist je Typ unterschiedlich.</p>
+          <p>Messfehler, seltene aber reale Ereignisse und Datenpunkte ausserhalb des gültigen Einsatzbereichs. Die Behandlung ist je Typ unterschiedlich.</p>
         </details>
       </section>
 
@@ -889,7 +897,7 @@ print("Scaled test shape:", X_test_scaled.shape)
 
         <div class="theory-box">
           <strong>Warum so streng?</strong><br>
-          Wenn ihr auf Testdaten fitten wuerdet, fliesst Testinformation ins Training (Data Leakage). Dann wirken Metriken besser als sie real sind.
+          Wenn ihr auf Testdaten fitten würdet, fliesst Testinformation ins Training (Data Leakage). Dann wirken Metriken besser als sie real sind.
         </div>
 
         <details class="check">
@@ -899,11 +907,11 @@ print("Scaled test shape:", X_test_scaled.shape)
       </section>
 
       <section class="next-steps">
-        <h3>Nächste Schritte fuer den Kurs</h3>
+        <h3>Nächste Schritte für den Kurs</h3>
         <ol>
           <li>Vergleiche Baseline, Ridge und Lasso auf derselben Testmenge mit MSE und MAE.</li>
           <li>Erstelle einen Residualplot und schreibe 3 fachliche Beobachtungen dazu.</li>
-          <li>Dokumentiere fuer ein Mini-Reporting: Split, bestes alpha, Metriken, Grenzen und naechste Iteration.</li>
+          <li>Dokumentiere für ein Mini-Reporting: Split, bestes alpha, Metriken, Grenzen und nächste Iteration.</li>
         </ol>
       </section>
     </main>

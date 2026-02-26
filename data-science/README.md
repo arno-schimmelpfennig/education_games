@@ -20,9 +20,9 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 ### Kernpfad (an Sitzung 1 + Folgetermin ausgerichtet)
 1. `lineare_regression_interaktion.html`
 2. `gradient_descent_interaktion.html`
-3. `matrix_interaktion.html`
-4. `matrizenmultiplikation_interaktion.html`
-5. `bias_variance_tradeoff_interaktion.html`
+3. `bias_variance_tradeoff_interaktion.html`
+4. `matrix_interaktion.html`
+5. `matrizenmultiplikation_interaktion.html`
 6. `regularization_interaktion.html`
 
 ### Code-Praxis-Erweiterungen (modulweise oder gesammelt)
@@ -37,12 +37,12 @@ Hinweis: Erweiterungsseiten werden in den Interaktionsseiten als Popup geoeffnet
 Ein Zusammenhang mit einem Einflussfaktor wird sichtbar und interpretierbar (`m`, `b`, Residuen).
 2. Gradient Descent:
 Was vorher manuell justiert wurde, wird als Optimierungsschritt automatisiert gelernt.
-3. Matrix:
+3. Bias-Variance:
+Mehr Flexibilitaet ist nicht automatisch besser; Generalisierung, Signal und Rauschen muessen gegeneinander abgewogen werden.
+4. Matrix:
 Mehrere Einflussfaktoren werden als Eingabestruktur fuer Modelle organisiert.
-4. Matrizenmultiplikation:
+5. Matrizenmultiplikation:
 Die gleiche Logik wird als skalierbare Rechenform `X*w+b` gebuendelt.
-5. Bias-Variance:
-Mehr Flexibilitaet ist nicht automatisch besser; Generalisierung muss geprueft werden.
 6. Regularization:
 Ridge/Lasso steuern die Komplexitaet gezielt (Stabilitaet vs. Detailtreue/Selektion).
 7. Predictive Modeling Praxis:
@@ -73,7 +73,7 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
 - Loss-Verstaendnis: Modellfitting ueber Minimierung einer MSE-nahen Loss-Funktion `J(w)`.
 - Vergleich Batch, Mini-Batch und Stochastic Gradient Descent (Stabilitaet vs. Geschwindigkeit).
 - Momentum als zusaetzliches Optimierungskonzept zur Glattung/Beschleunigung.
-- End-of-topic Mini-Quiz mit Freischaltung des Matrix-Themas.
+- End-of-topic Mini-Quiz mit Freischaltung des Bias-Variance-Themas.
 - Separate Code-Praxis-Seite mit reiner Python-Implementierung und Visualisierung (`gradient_descent_code_praxis.html`).
 
 ### Bias-Variance + Regularization + Predictive Modeling

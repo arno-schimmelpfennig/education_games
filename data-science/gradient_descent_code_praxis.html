@@ -152,7 +152,7 @@
       display: grid;
       gap: 12px;
       min-width: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       scrollbar-gutter: stable;
     }
 
@@ -226,6 +226,14 @@
       background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
       color: #fff;
       box-shadow: 0 7px 15px rgba(30, 56, 95, 0.3);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
     }
 
     .codepath-index {
@@ -434,7 +442,7 @@
       <div class="info-box">
         <strong>Navigation</strong>
         <a class="path-link" href="gradient_descent_interaktion.html">Zurück zu Thema 2: Gradient Descent</a>
-        <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Weiter zu Thema 5: Bias-Variance</a>
+        <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Weiter zu Thema 3: Bias-Variance</a>
         <a class="path-link" href="predictive_modeling_code_praxis.html">Weiter: Predictive Modeling Code-Praxis</a>
       </div>
     </aside>
@@ -448,7 +456,7 @@
       <section class="codepath-bar" aria-label="Codepfad Navigation">
         <div class="codepath-title">Codepfad</div>
         <div class="codepath-steps">
-          <a class="codepath-step" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step is-disabled" href="lineare_regression_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
@@ -456,7 +464,7 @@
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+          <a class="codepath-step is-disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">3</span>
             <span>Predictive Modeling</span>
           </a>

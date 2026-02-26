@@ -103,6 +103,33 @@
       color: #344153;
     }
 
+    .step-action-box {
+      margin-top: 8px;
+      border: 1px solid rgba(190, 59, 51, 0.34);
+      border-left: 4px solid #be3b33;
+      border-radius: 10px;
+      background: #fff6f5;
+      padding: 7px 9px;
+      box-shadow: 0 3px 10px rgba(99, 24, 50, 0.08);
+    }
+
+    .step-action-box strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #8f1f1f;
+    }
+
+    #step-action {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.38;
+      color: #5b2231;
+      font-weight: 700;
+    }
+
     .step-template {
       margin-top: 10px;
       display: grid;
@@ -157,6 +184,15 @@
       border-color: rgba(31, 139, 76, 0.25);
       background: #f2fbf6;
       color: #256441;
+    }
+
+    .timeline-item.clickable {
+      cursor: pointer;
+    }
+
+    .timeline-item.clickable:hover {
+      border-color: rgba(23, 50, 98, 0.35);
+      background: #f5f9ff;
     }
 
     .path-box p {
@@ -364,7 +400,7 @@
       gap: 12px;
       min-width: 0;
       min-height: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       padding-bottom: 18px;
       scrollbar-gutter: stable;
     }
@@ -436,6 +472,88 @@
       background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
       color: #fff;
       box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
+    }
+
+    .label-with-tip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .tip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .tip-icon {
+      all: unset;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1px solid #b7c3d7;
+      background: #fff;
+      color: #425066;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: help;
+      user-select: none;
+    }
+
+    .tip-icon:focus-visible {
+      outline: 2px solid #173262;
+      outline-offset: 1px;
+    }
+
+    .tip-text {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: min(290px, 58vw);
+      background: #1f2f47;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      box-shadow: 0 10px 20px rgba(17, 37, 72, 0.35);
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      z-index: 9;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: 400;
+    }
+
+    .tip-text::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 9px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid #1f2f47;
+    }
+
+    .tip-wrap:hover .tip-text,
+    .tip-wrap:focus-within .tip-text {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .codepath-index {
@@ -538,6 +656,7 @@
       display: grid;
       grid-template-columns: minmax(300px, 1fr) minmax(300px, 420px);
       gap: 12px;
+      margin-top: 14px;
       min-width: 0;
     }
 
@@ -549,6 +668,13 @@
       box-shadow: var(--panel-shadow);
       padding: 12px;
       min-width: 0;
+    }
+
+    .knowledge-card {
+      max-height: min(52vh, 560px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
 
     .control-card h3,
@@ -943,7 +1069,7 @@
     <section id="code-popup-modal" role="dialog" aria-modal="true" aria-labelledby="code-popup-title">
       <div id="code-popup-head">
         <h3 id="code-popup-title">Code-Praxis (Python)</h3>
-        <button id="close-code-popup" class="secondary" type="button">Schliessen</button>
+        <button id="close-code-popup" class="secondary" type="button">Schließen</button>
       </div>
       <p id="code-popup-subtitle">Vertiefung für Einsteiger: von Theorie zu `scikit-learn` und `statsmodels`.</p>
       <iframe id="code-popup-frame" src="about:blank" title="Code-Praxis Popup" loading="lazy"></iframe>
@@ -954,16 +1080,20 @@
     <aside id="sidebar">
       <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
       <h1>Matrizenmultiplikation<br>praktisch lesen</h1>
-      <p class="lead">Jetzt rechnen wir die Matrix-Idee aus Thema 3 als klare Algebra: Zeile mal Gewichtsvektor.</p>
+      <p class="lead">Jetzt rechnen wir die Matrix-Idee aus Thema 4 als klare Algebra: Zeile mal Gewichtsvektor.</p>
 
       <div class="story-box">
-        <strong>Brücke aus Thema 3:</strong>
+        <strong>Brücke aus Thema 4:</strong>
         Daten liegen als Matrix X vor. Gewichte liegen im Vektor w. Daraus entsteht der Vorhersagevektor y-hat.
       </div>
 
       <div class="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
+        <div class="step-action-box" aria-live="polite">
+          <strong>Konkrete Aufgabe jetzt</strong>
+          <p id="step-action"></p>
+        </div>
         <div class="step-template" aria-label="Lern-Template">
           <div class="step-template-item">
             <strong>Warum</strong>
@@ -998,15 +1128,15 @@
       </div>
 
       <div class="path-box collapsed" id="final-path-box">
-        <strong>Lernpfad danach</strong>
-        <p id="final-path-teaser">Lernpfad bleibt bis Schritt 6 eingeklappt.</p>
+        <strong>Nächste Schritte</strong>
+        <p id="final-path-teaser" hidden></p>
         <div class="path-content">
-          <p>Wenn etwas unklar ist, spring zu Thema 2 oder 3 zurueck. Wenn klar: gehe weiter zu Thema 5 (Bias-Variance).</p>
+          <p>Wenn etwas unklar ist, spring zu Thema 3 oder 4 zurück. Wenn klar: gehe weiter zu Thema 6 (Regularization).</p>
           <div class="path-status" id="final-quiz-status">Abschluss-Quiz wird nach Schritt 6 angeboten.</div>
           <button id="open-final-quiz" class="secondary" hidden>Abschluss-Quiz starten</button>
-          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Weiter zu Thema 5: Bias-Variance Tradeoff</a>
-          <a class="path-link" href="gradient_descent_interaktion.html">Zu Thema 2: Gradient Descent</a>
-          <a class="path-link" href="matrix_interaktion.html">Zu Thema 3: Matrizen verstehen</a>
+          <a class="path-link" href="regularization_interaktion.html">Weiter zu Thema 6: Regularization (L1/L2)</a>
+          <a class="path-link" href="matrix_interaktion.html">Zu Thema 4: Matrizen verstehen</a>
+          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zu Thema 3: Bias-Variance Tradeoff</a>
           <button id="replay-topic" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -1019,6 +1149,7 @@
       </div>
 
       <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Lern-Schritt</button>
         <button id="next-step">Nächster Lern-Schritt</button>
         <button id="reset-session" class="secondary">Session zurücksetzen</button>
       </div>
@@ -1026,17 +1157,25 @@
 
     <main id="stage">
       <section class="codepath-bar" aria-label="Codepfad Navigation">
-        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-title">
+          <span class="label-with-tip">
+            Codepfad
+            <span class="tip-wrap">
+              <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
+              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier lernt ihr, wie aus Zeilen und Gewichten die Rechenregel X * w + b für viele Vorhersagen entsteht.</span>
+            </span>
+          </span>
+        </div>
         <div class="codepath-steps">
           <a class="codepath-step active" href="lineare_regression_code_praxis.html">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step" href="gradient_descent_code_praxis.html">
+          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+          <a class="codepath-step is-disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">3</span>
             <span>Predictive Modeling</span>
           </a>
@@ -1170,7 +1309,7 @@
       {
         title: "Schritt 1: Erinnerung",
         text: "Wir starten mit X (Datenmatrix) und w (Gewichte). Ziel ist y-hat - Vorhersagen für alle Zeilen.",
-        chat: "Diskussion: Was war in Thema 3 eine Zeile und was eine Spalte?",
+        chat: "Diskussion: Was war in Thema 4 eine Zeile und was eine Spalte?",
         answer: "Zeile = ein Fall/Monat, Spalte = ein Merkmal wie Temperatur oder Gebäudefaktor."
       },
       {
@@ -1209,27 +1348,27 @@
       {
         why: "Wir brauchen zuerst ein klares Bild der Rollen von X, w und y-hat.",
         consequence: "Wenn Zeilen und Spalten vertauscht verstanden werden, dann scheitert die Multiplikation fachlich sofort.",
-        reflection: "Welche Tabelle aus deinem Alltag koenntest du direkt als Matrix X lesen?"
+        reflection: "Welche Tabelle aus deinem Alltag könntest du direkt als Matrix X lesen?"
       },
       {
         why: "Der Einzelfall macht die abstrakte Matrixregel konkret nachvollziehbar.",
-        consequence: "Wenn du Dot-Product und Bias sauber trennst, dann kannst du jede Vorhersage transparent erklaeren.",
-        reflection: "Welcher Rechenschritt war fuer dich entscheidend: Gewichtung oder Bias?"
+        consequence: "Wenn du Dot-Product und Bias sauber trennst, dann kannst du jede Vorhersage transparent erklären.",
+        reflection: "Welcher Rechenschritt war für dich entscheidend: Gewichtung oder Bias?"
       },
       {
         why: "Erst der Batch zeigt, warum Matrixmultiplikation in der Praxis skaliert.",
         consequence: "Wenn X*w auf alle Zeilen gleichzeitig angewendet wird, dann steigt Effizienz ohne Logikbruch.",
-        reflection: "An welcher Stelle in deinem Kontext waeren gleichzeitige Vorhersagen besonders wertvoll?"
+        reflection: "An welcher Stelle in deinem Kontext wären gleichzeitige Vorhersagen besonders wertvoll?"
       },
       {
-        why: "ML-Verstaendnis entsteht, wenn man Handregler und Training direkt verbindet.",
+        why: "ML-Verständnis entsteht, wenn man Handregler und Training direkt verbindet.",
         consequence: "Wenn Gewichte iterativ am Fehler ausgerichtet werden, dann ersetzt Optimierung das manuelle Nachjustieren.",
-        reflection: "Welche Kennzahl wuerdest du in einem echten Projekt zuerst beobachten?"
+        reflection: "Welche Kennzahl würdest du in einem echten Projekt zuerst beobachten?"
       },
       {
-        why: "Der Transfer verankert das Grundprinzip von kleinen bis zu grossen Modellen.",
-        consequence: "Wenn dieselbe Rechenidee in hoher Dimension laeuft, dann bleibt das Prinzip gleich, aber der Massstab explodiert.",
-        reflection: "Was hilft dir, trotz grosser Modelle die Kernlogik nicht aus dem Blick zu verlieren?"
+        why: "Der Transfer verankert das Grundprinzip von kleinen bis zu großen Modellen.",
+        consequence: "Wenn dieselbe Rechenidee in hoher Dimension läuft, dann bleibt das Prinzip gleich, aber der Massstab explodiert.",
+        reflection: "Was hilft dir, trotz größer Modelle die Kernlogik nicht aus dem Blick zu verlieren?"
       },
       {
         why: "Viele Praxisfehler entstehen nicht bei der Formel, sondern schon bei den Shapes.",
@@ -1237,6 +1376,15 @@
         reflection: "Welche kurze Regel nutzt du künftig zuerst: Innen-Dimensionen oder gleiche Form?"
       }
     ];
+
+    const matmulStepNavStorageKey = "ds-matmul-step-nav-unlocked";
+    const matmulStepNavUnlocked = (() => {
+      try {
+        return localStorage.getItem(matmulStepNavStorageKey) === "1";
+      } catch (err) {
+        return false;
+      }
+    })();
 
     const state = {
       wTemp: -4.4,
@@ -1247,13 +1395,16 @@
       stepIndex: 0,
       hasAdvanced: false,
       quizReady: false,
-      finalQuizPassed: false
+      finalQuizPassed: false,
+      stepJumpUnlocked: matmulStepNavUnlocked
     };
 
     const defaults = { wTemp: -4.4, wSize: 26, b: 136, rowIndex: 0 };
     const quizAnswers = { q1: "b", q2: "b", q3: "a", q4: "a" };
 
     const timelineEl = document.getElementById("timeline");
+    const sidebarEl = document.getElementById("sidebar");
+    const prevStepBtn = document.getElementById("prev-step");
     const batchBodyEl = document.getElementById("batch-body");
     const wTempInput = document.getElementById("w-temp");
     const wSizeInput = document.getElementById("w-size");
@@ -1271,12 +1422,13 @@
     const errorLogEl = document.getElementById("error-log");
     const codePopupOverlay = document.getElementById("code-popup-overlay");
     const codePopupFrame = document.getElementById("code-popup-frame");
-    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const codePopupTriggers = document.querySelectorAll('a[href$="_code_praxis.html"]:not([aria-disabled="true"])');
     const openFinalQuizBtn = document.getElementById("open-final-quiz");
     const replayTopicBtn = document.getElementById("replay-topic");
     const finalQuizStatusEl = document.getElementById("final-quiz-status");
     const finalPathBox = document.getElementById("final-path-box");
     const finalPathTeaser = document.getElementById("final-path-teaser");
+    const matmulStepPopupSeen = new Set();
 
     function yHat(row) {
       return state.b + state.wTemp * row.temp + state.wSize * row.factor;
@@ -1328,6 +1480,34 @@ x_row .* w_row (elementweise)
       document.getElementById("chip-row-pred").textContent = "n/a";
     }
 
+    function persistMatmulStepUnlock() {
+      try {
+        localStorage.setItem(matmulStepNavStorageKey, "1");
+      } catch (err) {
+        // Ignore storage errors (e.g., private mode).
+      }
+    }
+
+    function jumpToMatmulStep(idx) {
+      if (!state.stepJumpUnlocked) return;
+      if (idx === state.stepIndex) return;
+      state.hasAdvanced = true;
+      state.stepIndex = idx;
+      updateStepContent();
+    }
+
+    function maybeShowMatmulStepPopup() {
+      if (state.stepJumpUnlocked) return;
+      if (state.stepIndex === 0) return;
+      if (matmulStepPopupSeen.has(state.stepIndex)) return;
+      const step = steps[state.stepIndex];
+      const template = stepTemplate[state.stepIndex];
+      matmulStepPopupSeen.add(state.stepIndex);
+      window.alert(
+        `${step.title}\n\nWarum jetzt wichtig:\n${template.why}\n\nWenn-dann:\n${template.consequence}`
+      );
+    }
+
     function renderTimeline() {
       timelineEl.innerHTML = "";
       steps.forEach((step, idx) => {
@@ -1336,6 +1516,18 @@ x_row .* w_row (elementweise)
         if (idx < state.stepIndex) item.classList.add("done");
         if (idx === state.stepIndex) item.classList.add("active");
         item.textContent = `${idx + 1}. ${step.title.replace(`Schritt ${idx + 1}: `, "")}`;
+        if (state.stepJumpUnlocked) {
+          item.classList.add("clickable");
+          item.setAttribute("role", "button");
+          item.tabIndex = 0;
+          item.addEventListener("click", () => jumpToMatmulStep(idx));
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              jumpToMatmulStep(idx);
+            }
+          });
+        }
         timelineEl.appendChild(item);
       });
     }
@@ -1500,13 +1692,37 @@ x_row .* w_row (elementweise)
       document.getElementById("chip-b").textContent = state.b.toFixed(1);
     }
 
+    function updatePrevStepButton() {
+      const canGoPrev = state.stepIndex > 0;
+      prevStepBtn.hidden = !canGoPrev;
+      prevStepBtn.disabled = !canGoPrev;
+    }
+
+    function scrollSidebarTop() {
+      if (!sidebarEl) return;
+      sidebarEl.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function getStepActionText(step) {
+      if (!step || !step.text) return "";
+      const firstSentence = step.text.match(/^.*?[.!?](?:\s|$)/);
+      return (firstSentence ? firstSentence[0] : step.text).trim();
+    }
+
     function updateStepContent() {
       if (state.stepIndex === steps.length - 1) {
         state.quizReady = true;
+        if (!state.stepJumpUnlocked) {
+          state.stepJumpUnlocked = true;
+          persistMatmulStepUnlock();
+        }
       }
       const step = steps[state.stepIndex];
+      updatePrevStepButton();
+      scrollSidebarTop();
       document.getElementById("step-title").textContent = step.title;
       document.getElementById("step-text").textContent = step.text;
+      document.getElementById("step-action").textContent = getStepActionText(step);
       document.getElementById("chat-question").textContent = step.chat;
       const template = stepTemplate[state.stepIndex];
       document.getElementById("step-why").textContent = template.why;
@@ -1520,6 +1736,7 @@ x_row .* w_row (elementweise)
       renderSingleFormula();
       renderBatch();
       renderTimeline();
+      maybeShowMatmulStepPopup();
     }
 
     function updateFinalQuizAvailability() {
@@ -1527,9 +1744,7 @@ x_row .* w_row (elementweise)
       openFinalQuizBtn.hidden = !ready;
       replayTopicBtn.hidden = !ready;
       finalPathBox.classList.toggle("collapsed", !ready);
-      finalPathTeaser.textContent = ready
-        ? "Geoeffnet: Abschluss-Quiz, Weiterlink und Replay sind jetzt verfuegbar."
-        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+      finalPathTeaser.textContent = "";
 
       if (!ready) {
         finalQuizStatusEl.textContent = `Abschluss-Quiz wird nach Schritt ${steps.length} angeboten.`;
@@ -1651,6 +1866,12 @@ x_row .* w_row (elementweise)
     document.getElementById("sim-dim").addEventListener("click", simulateDimensionMismatch);
     document.getElementById("sim-broadcast").addEventListener("click", simulateBroadcastError);
     document.getElementById("close-error-dialog").addEventListener("click", closeErrorDialog);
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex === 0) return;
+      state.stepIndex -= 1;
+      updateStepContent();
+    });
 
     document.getElementById("next-step").addEventListener("click", nextStep);
 

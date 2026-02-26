@@ -258,6 +258,33 @@
       color: #344153;
     }
 
+    .step-action-box {
+      margin-top: 9px;
+      border: 1px solid rgba(190, 59, 51, 0.34);
+      border-left: 4px solid #be3b33;
+      border-radius: 10px;
+      background: #fff6f5;
+      padding: 8px 10px;
+      box-shadow: 0 3px 10px rgba(99, 24, 50, 0.08);
+    }
+
+    .step-action-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #8f1f1f;
+    }
+
+    #step-action {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.42;
+      color: #5b2231;
+      font-weight: 700;
+    }
+
     .step-template {
       margin-top: 10px;
       display: grid;
@@ -369,6 +396,12 @@
       color: #2f4f7a;
     }
 
+    .step-concept-btn {
+      margin-top: 9px;
+      padding: 9px 10px;
+      font-size: 0.82rem;
+    }
+
     .timeline {
       display: grid;
       gap: 7px;
@@ -395,6 +428,15 @@
       border-color: rgba(31, 139, 76, 0.25);
       background: #f2fbf6;
       color: #256441;
+    }
+
+    .timeline-item.clickable {
+      cursor: pointer;
+    }
+
+    .timeline-item.clickable:hover {
+      border-color: rgba(23, 50, 98, 0.35);
+      background: #f5f9ff;
     }
 
     .ctrl-group {
@@ -434,7 +476,7 @@
       gap: 12px;
       min-width: 0;
       min-height: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       padding-bottom: 18px;
       scrollbar-gutter: stable;
     }
@@ -506,6 +548,14 @@
       background: linear-gradient(135deg, #4b6e9f 0%, #335b8f 100%);
       color: #fff;
       box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
+    }
+
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
     }
 
     .codepath-index {
@@ -633,6 +683,7 @@
       display: grid;
       grid-template-columns: minmax(300px, 1fr) minmax(320px, 430px);
       gap: 12px;
+      margin-top: 14px;
       min-width: 0;
     }
 
@@ -644,6 +695,13 @@
       box-shadow: var(--panel-shadow);
       padding: 12px;
       min-width: 0;
+    }
+
+    .knowledge-card {
+      max-height: min(52vh, 560px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
 
     .control-card h3,
@@ -875,6 +933,69 @@
       gap: 4px;
     }
 
+    .loss-alltag-box {
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid #d8deeb;
+      background: linear-gradient(145deg, #fffef8, #f7faff);
+      padding: 9px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .loss-alltag-title {
+      color: #2f4f7a;
+      font-size: 0.8rem;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .loss-alltag-box p {
+      margin: 0;
+      font-size: 0.79rem;
+      line-height: 1.4;
+      color: #3f4e66;
+    }
+
+    .loss-alltag-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 6px;
+    }
+
+    .loss-alltag-metric {
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px 7px;
+      display: grid;
+      gap: 2px;
+    }
+
+    .loss-alltag-metric span {
+      font-size: 0.71rem;
+      color: #5c6b83;
+      line-height: 1.3;
+    }
+
+    .loss-alltag-metric b {
+      font-size: 0.85rem;
+      color: #27374f;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .loss-alltag-formula {
+      background: #ffffff;
+      border: 1px dashed #ccd6e8;
+      border-radius: 8px;
+      padding: 6px 7px;
+    }
+
+    .loss-alltag-note {
+      color: #4b5c74;
+    }
+
     .knowledge-card ul {
       margin: 0;
       padding-left: 16px;
@@ -998,8 +1119,12 @@
 
     #context-head h3 {
       margin: 0;
-      color: #173262;
-      font-size: 1.02rem;
+      color: #9f1d33;
+      font-size: 1.04rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
     #context-head button {
@@ -1013,6 +1138,103 @@
       font-size: 0.84rem;
       line-height: 1.42;
       color: #4d5c74;
+    }
+
+    .context-tip-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(153, 24, 51, 0.35);
+      background: #fff2f3;
+      color: #8b1d38;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .context-intro-panel {
+      background: #fff7f8;
+      border: 1px solid rgba(153, 24, 51, 0.2);
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .context-intro-title {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #8b1d38;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .context-intro-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+
+    .context-intro-card {
+      border: 1px solid #e3d9de;
+      background: #fff;
+      border-radius: 9px;
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .context-intro-card strong {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      color: #2f4f7a;
+      margin-bottom: 3px;
+    }
+
+    .context-intro-card p {
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3f4e66;
+    }
+
+    .context-dictionary {
+      border: 1px solid #dde5f2;
+      border-radius: 9px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .context-dictionary strong {
+      color: #173262;
+      font-size: 0.78rem;
+    }
+
+    .context-dictionary dl {
+      margin: 0;
+      display: grid;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: #3f4e66;
+    }
+
+    .context-dictionary dt {
+      font-weight: 800;
+      color: #7a2f4c;
+    }
+
+    .context-dictionary dd {
+      margin: 0;
+      line-height: 1.35;
     }
 
     #context-grid {
@@ -1050,6 +1272,101 @@
       font-size: 0.8rem;
       line-height: 1.35;
       color: #5f4728;
+    }
+
+    #concept-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2570;
+      display: none;
+    }
+
+    #concept-overlay[aria-hidden="false"] {
+      display: block;
+    }
+
+    #concept-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 28, 51, 0.58);
+      backdrop-filter: blur(2px);
+    }
+
+    #concept-modal {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(820px, 94vw);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #dbe3ef;
+      box-shadow: 0 24px 42px rgba(17, 37, 72, 0.36);
+      padding: 15px;
+    }
+
+    #concept-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    #concept-head h3 {
+      margin: 0;
+      color: #173262;
+      font-size: 1rem;
+    }
+
+    #concept-head button {
+      width: auto;
+      min-width: 110px;
+      padding: 8px 10px;
+    }
+
+    #concept-subtitle {
+      margin: 0 0 11px;
+      font-size: 0.84rem;
+      line-height: 1.42;
+      color: #4d5c74;
+    }
+
+    #concept-terms {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .concept-card {
+      border: 1px solid #d7deec;
+      border-radius: 11px;
+      background: #f9fbff;
+      padding: 10px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .concept-card strong {
+      color: #2f4f7a;
+      font-size: 0.84rem;
+    }
+
+    .concept-image {
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.36;
+      color: #7a2f4c;
+      font-weight: 700;
+    }
+
+    .concept-explain {
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      color: #3d4c64;
     }
 
     #code-popup-overlay {
@@ -1234,8 +1551,21 @@
       #context-grid {
         grid-template-columns: 1fr;
       }
+      #concept-modal {
+        width: min(640px, 96vw);
+        max-height: 92vh;
+      }
+      #concept-terms {
+        grid-template-columns: 1fr;
+      }
       #code-popup-modal {
         inset: 2vh 2vw;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .loss-alltag-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1245,7 +1575,7 @@
     <div id="quiz-backdrop"></div>
     <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <h3 id="quiz-title">Mini-Quiz: Gradient Descent</h3>
-      <p>4 Fragen, mindestens 3 richtig. Danach wird der Weiterlink zu Thema 3 (Matrix) freigeschaltet.</p>
+      <p>4 Fragen, mindestens 3 richtig. Danach wird der Weiterlink zu Thema 3 (Bias-Variance) freigeschaltet.</p>
       <form id="gradient-quiz-form">
         <div class="quiz-question">
           <strong>1) Was unterscheidet Batch von Stochastic Gradient Descent am klarsten?</strong>
@@ -1294,10 +1624,46 @@
     <div id="context-backdrop"></div>
     <section id="context-modal" role="dialog" aria-modal="true" aria-labelledby="context-title">
       <div id="context-head">
-        <h3 id="context-title">Theorie-Popup: Recap, Intuition, Grenzen</h3>
+        <h3 id="context-title"><span class="context-tip-icon" aria-hidden="true">i</span>Auf dieser Seite wird Folgendes angezeigt</h3>
         <button id="close-context-modal" class="secondary" type="button">Schließen</button>
       </div>
-      <p id="context-subtitle">Alle Vertiefungen bleiben erhalten, aber die Hauptansicht bleibt fokussiert auf Schrittführung und Regler.</p>
+      <p id="context-subtitle">Kurze Einleitung zum nächsten Schritt: orientiert euch zuerst hier, dann geht zurück zu Reglern und Schrittführung.</p>
+      <div class="context-intro-panel">
+        <p class="context-intro-title"><span class="context-tip-icon" aria-hidden="true">i</span>Einordnung vor dem nächsten Schritt</p>
+        <div class="context-intro-grid">
+          <div class="context-intro-card">
+            <strong>Was tun wir?</strong>
+            <p id="context-next-what"></p>
+          </div>
+          <div class="context-intro-card">
+            <strong>Warum tun wir das?</strong>
+            <p id="context-next-why"></p>
+          </div>
+          <div class="context-intro-card">
+            <strong>ML-Bezug</strong>
+            <p id="context-next-ml"></p>
+          </div>
+          <div class="context-intro-card">
+            <strong>Ziel</strong>
+            <p id="context-next-goal"></p>
+          </div>
+        </div>
+        <div class="context-dictionary">
+          <strong>Wichtigste Begriffe (Dictionary)</strong>
+          <dl>
+            <dt>MSE (Mean Squared Error)</dt>
+            <dd>Mittlerer quadratischer Fehler zwischen Ist und Vorhersage; die zentrale Loss-Metrik in diesem Schritt.</dd>
+            <dt>Gradient</dt>
+            <dd>Richtung der stärksten Fehlerzunahme; wir gehen in die Gegenrichtung, um den Fehler zu senken.</dd>
+            <dt>Bias</dt>
+            <dd>Unteranpassung: zu starre Modellannahmen vereinfachen die Zielfunktion, können aber systematisch danebenliegen.</dd>
+            <dt>Varianz</dt>
+            <dd>Wie stark sich die Schätzung bei neuen Stichproben ändert; zu hohe Varianz bedeutet instabiles Modellverhalten.</dd>
+            <dt>Irreduzierbarer Fehler</dt>
+            <dd>Rest-Rauschen in den Daten, das auch ein gutes Modell nicht vollständig entfernen kann.</dd>
+          </dl>
+        </div>
+      </div>
       <div id="context-grid">
         <div class="recap-box">
           <strong>Schnell-Recap vor Gradient Descent</strong>
@@ -1366,6 +1732,17 @@
       </div>
     </section>
   </div>
+  <div id="concept-overlay" aria-hidden="true">
+    <div id="concept-backdrop"></div>
+    <section id="concept-modal" role="dialog" aria-modal="true" aria-labelledby="concept-title">
+      <div id="concept-head">
+        <h3 id="concept-title">Begriffe im aktuellen Schritt</h3>
+        <button id="close-concept-modal" class="secondary" type="button">Schließen</button>
+      </div>
+      <p id="concept-subtitle">Begriffe und Bilder aus der Bergsteiger-Analogie, passend zum aktuellen Lernschritt.</p>
+      <div id="concept-terms"></div>
+    </section>
+  </div>
   <div id="app-layout">
     <aside id="sidebar">
       <div class="brandline">AS Digital Marketing | Webinar Studio</div>
@@ -1373,7 +1750,6 @@
       <p class="lead">
         Gemeinsame Lernansicht: Ihr variiert zusammen die Lernrate und beobachtet direkt, ob das Training stabil oder sprunghaft wird.
       </p>
-      <span class="badge-webinar">Eine Ansicht für alle im Webinar</span>
 
       <div class="story-box">
         <strong>Alltagsszenario:</strong>
@@ -1389,6 +1765,10 @@
       <div class="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
+        <div class="step-action-box" aria-live="polite">
+          <strong>Konkrete Aufgabe jetzt</strong>
+          <p id="step-action"></p>
+        </div>
         <div class="step-template" aria-label="Lern-Template">
           <div class="step-template-item">
             <strong>Warum</strong>
@@ -1405,10 +1785,11 @@
         </div>
         <div class="step-focus" aria-live="polite">
           <strong>Orientierung im Schritt</strong>
-          <div class="step-focus-item"><span>Wohin schauen:</span> <span id="step-focus-look"></span></div>
-          <div class="step-focus-item"><span>Nächste Aktion:</span> <span id="step-focus-action"></span></div>
-          <div class="step-focus-item"><span>Was ändert sich:</span> <span id="step-focus-result"></span></div>
+        <div class="step-focus-item"><span>Wohin schauen:</span> <span id="step-focus-look"></span></div>
+        <div class="step-focus-item"><span>Nächste Aktion:</span> <span id="step-focus-action"></span></div>
+        <div class="step-focus-item"><span>Was ändert sich:</span> <span id="step-focus-result"></span></div>
         </div>
+        <button id="open-concept-modal" class="secondary step-concept-btn" type="button">Begriffe als Bild-Metapher</button>
       </div>
 
       <div class="chat-box sidebar-extra">
@@ -1416,7 +1797,7 @@
         <p id="chat-question"></p>
       </div>
 
-      <div class="timeline sidebar-extra" id="timeline"></div>
+      <div class="timeline" id="timeline"></div>
 
       <div class="usage-box sidebar-extra">
         <strong>Praxis-Übertrag:</strong><br>
@@ -1424,12 +1805,12 @@
       </div>
 
       <div class="path-box collapsed" id="gradient-path-box">
-        <strong>Lernpfad danach</strong>
-        <p id="gradient-path-teaser">Lernpfad bleibt bis Schritt 6 eingeklappt.</p>
+        <strong>Nächste Schritte</strong>
+        <p id="gradient-path-teaser" hidden></p>
         <div class="path-content">
-          <div class="path-status" id="gradient-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Danach wird die Navigation freigeschaltet.</div>
+          <div class="path-status" id="gradient-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Thema 3 (Bias-Variance) ist dann direkt erreichbar.</div>
           <button id="open-gradient-quiz" class="secondary" hidden>Mini-Quiz starten</button>
-          <a id="to-bias-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 3: Matrix verstehen</a>
+          <a id="to-bias-link" class="path-link disabled" href="bias_variance_tradeoff_interaktion.html" aria-disabled="true">Weiter zu Thema 3: Bias-Variance Tradeoff</a>
           <a class="path-link" href="lineare_regression_interaktion.html">Zurück zu Thema 1: Lineare Regression</a>
           <button id="replay-gradient" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
@@ -1437,12 +1818,13 @@
 
       <div class="extension-box sidebar-extra">
         <div class="extension-kicker">Erweiterung</div>
-        <strong>Jetzt den Predictive-Workflow öffnen</strong>
-        <p>Direkter Übergang in die Praxis mit Train/Test-Split, Ridge/Lasso-Tuning und Residuen-Checks.</p>
+        <strong>Code-Praxis zu Gradient Descent</strong>
+        <p>Direkter Transfer in Python mit Batch/Mini-Batch/SGD und Momentum als Optimierer-Werkzeuge.</p>
         <a class="extension-link" href="gradient_descent_code_praxis.html">Code-Praxis (Python) im Popup öffnen</a>
       </div>
 
       <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Lern-Schritt</button>
         <button id="next-step">Nächster Lern-Schritt</button>
         <button id="reset-session" class="secondary">Session zurücksetzen</button>
       </div>
@@ -1450,9 +1832,17 @@
 
     <main id="stage">
       <section class="codepath-bar" aria-label="Codepfad Navigation">
-        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-title">
+          <span class="label-with-tip">
+            Codepfad
+            <span class="tip-wrap">
+              <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
+              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier übt ihr Gradient Descent mit Lernrate, Optimierer-Varianten und stabiler Konvergenz.</span>
+            </span>
+          </span>
+        </div>
         <div class="codepath-steps">
-          <a class="codepath-step" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step is-disabled" href="lineare_regression_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
@@ -1460,7 +1850,7 @@
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+          <a class="codepath-step is-disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">3</span>
             <span>Predictive Modeling</span>
           </a>
@@ -1563,6 +1953,31 @@
           <div class="status-box" id="status-box"></div>
           <div class="diagnosis-box" id="diagnosis-box"></div>
 
+          <div class="loss-alltag-box" aria-live="polite">
+            <strong class="loss-alltag-title">Loss im Alltag: Stromkosten-Prognose (EU-Haushalt)</strong>
+            <p>Beispiel: Das Modell schätzt die monatlichen Stromkosten. Die Verlustfunktion bewertet, wie stark Prognose und Ist-Wert auseinanderliegen.</p>
+            <div class="loss-alltag-grid">
+              <div class="loss-alltag-metric">
+                <span>Ist-Kosten (Monat)</span>
+                <b id="loss-alltag-actual"></b>
+              </div>
+              <div class="loss-alltag-metric">
+                <span>Modell-Prognose</span>
+                <b id="loss-alltag-pred"></b>
+              </div>
+              <div class="loss-alltag-metric">
+                <span>Abweichung |Ist - Prognose|</span>
+                <b id="loss-alltag-abs"></b>
+              </div>
+              <div class="loss-alltag-metric">
+                <span>Quadratischer Fehler (pro Monat)</span>
+                <b id="loss-alltag-squared"></b>
+              </div>
+            </div>
+            <p class="loss-alltag-formula"><strong>Loss-Idee:</strong> Je größer die Abweichung, desto überproportional höher der quadratische Fehler. Genau deshalb bestraft MSE große Fehlprognosen stärker.</p>
+            <p id="loss-alltag-note" class="loss-alltag-note"></p>
+          </div>
+
           <div class="mini-note">
             Merksatz: GD minimiert die Loss-Funktion J(w). Die Lernrate steuert die Schrittweite, das Verfahren die Gradienten-Qualität, Momentum die Trägheit.
           </div>
@@ -1641,34 +2056,34 @@
   <script>
     const steps = [
       {
-        title: "Schritt 1: Recap und Loss verstehen",
-        text: "Verbindung zur R-Regression: Ihr minimiert dieselbe Fehleridee (MSE), hier als vereinfachte Kurve über einen Parameter w. Bewege zuerst \"Parameter w (Live)\", dann klicke \"1 Schritt\" und prüfe, ob J(w) sinkt.",
-        chat: "Chat: Warum zeigt diese Kurve denselben Lernkern wie eure R-Regression, obwohl hier nur ein Parameter sichtbar ist?"
+        title: "Schritt 1: Berg, Nebel und Loss verstehen",
+        text: "Das Modell ist ein blinder Bergsteiger im Nebel. Die Berghöhe ist euer Fehler J(w). Bewege zuerst \"Parameter w (Live)\", dann klicke \"1 Schritt\" und prüfe, ob J(w) sinkt.",
+        chat: "Chat: Warum hilft das Bergbild oft mehr als eine reine Formel, wenn man Training erklärt?"
       },
       {
         title: "Schritt 2: Batch-Gradient Descent",
-        text: "Im Batch-Modus nutzt jeder Schritt den gesamten Datensatz. Klicke mehrfach auf \"10 Schritte\" und beobachte den ruhigen, stabilen Pfad.",
-        chat: "Chat: Warum ist Batch stabil, aber bei großen Datenmengen oft langsam?"
+        text: "Batch ist der vorsichtige Modus: Jeder Schritt nutzt den kompletten Datensatz. Klicke mehrfach auf \"10 Schritte\" und beobachte den ruhigen, stabilen Pfad ins Tal.",
+        chat: "Chat: Warum ist Batch oft präzise, aber in großen ML-Projekten trotzdem langsam?"
       },
       {
         title: "Schritt 3: Mini-Batch und Stochastic vergleichen",
-        text: "Kernpunkt dieses Schritts: Die Verfahren unterscheiden sich vor allem durch die Datenmenge pro Update. Vergleiche Batch, Mini-Batch und Stochastic direkt im Pfad.",
-        chat: "Chat: Welches Verfahren wäre bei euch der beste Kompromiss aus Geschwindigkeit und Stabilität?"
+        text: "Jetzt der Praxisvergleich: Mini-Batch arbeitet mit kleinen Paketen, Stochastic mit einem einzelnen Datenpunkt pro Schritt. Vergleiche die Spuren direkt im Plot.",
+        chat: "Chat: Wo wäre für euren Alltag der beste Kompromiss aus Tempo, Stabilität und Hardware-Kosten?"
       },
       {
         title: "Schritt 4: Lernrate bewusst tunen",
-        text: "Teste jetzt nur die Lernrate (zu klein, passend, zu groß). Momentum bleibt bis Schritt 5 gesperrt, damit der Effekt von alpha isoliert sichtbar ist.",
-        chat: "Chat: Wo liegt für euch der Sweet Spot zwischen langsamem Lernen und Überschießen?"
+        text: "Die Lernrate alpha ist eure Schrittgröße auf der Passstraße: zu klein = zentimeterweise, zu groß = aus der Kurve. Teste Presets \"zu klein\", \"passend\" und \"zu groß\".",
+        chat: "Chat: Welche Beobachtung zeigt euch am klarsten, dass alpha gerade zu aggressiv eingestellt ist?"
       },
       {
-        title: "Schritt 5: Momentum einführen",
-        text: "Jetzt wird Momentum freigeschaltet. Erhöhe beta schrittweise und beobachte Trägheit, schnellere Bewegung und mögliches Overshooting am Minimum.",
-        chat: "Chat: Wo würdet ihr Momentum erhöhen und wo bewusst begrenzen?"
+        title: "Schritt 5: Momentum und adaptive Intuition",
+        text: "Momentum wird jetzt freigeschaltet. Erhöhe beta schrittweise und beobachte, wie aus dem Wanderer eine Kugel mit Schwung wird: schneller, aber mit Overshooting-Risiko.",
+        chat: "Chat: In welchem Szenario wolltet ihr den extra Schwung nutzen und wo lieber bremsen?"
       },
       {
-        title: "Schritt 6: Lokale Minima, Plateau und Random Restart",
-        text: "Reale Loss-Landschaften sind oft nicht so glatt wie diese Demo. Öffne das Theorie-Popup und prüfe, warum lokale Minima, Plateaus und Startpunktwahl entscheidend sind. Teste dazu mehrere Startwerte mit dem w-Regler.",
-        chat: "Chat: Welche Strategie würdet ihr in der Praxis zuerst testen, wenn das Training im Plateau hängen bleibt?"
+        title: "Schritt 6: Fallen, Generalisierung, Transfer",
+        text: "Reale Loss-Landschaften sind zerklüftet: lokale Minima, Plateaus und Oszillation. Teste mehrere Startwerte und öffne danach die Begriffs- und Theorie-Modalfenster als Bruecke zu Thema 3 (Bias-Variance).",
+        chat: "Chat: Wenn ein Modell auf Trainingsdaten perfekt wirkt, woran erkennt ihr trotzdem Overfitting?"
       }
     ];
 
@@ -1738,7 +2153,138 @@
       }
     ];
 
+    const stepConcepts = [
+      {
+        subtitle: "Grundidee für Schritt 1: Warum Gradient Descent im ML nötig ist.",
+        cards: [
+          {
+            term: "Loss-Funktion J(w)",
+            image: "Bild: Berghöhe entspricht Fehlerhöhe.",
+            explain: "Hoher Bergpunkt = hoher Vorhersagefehler, Talboden = kleiner Fehler. Genau darum minimiert ihr J(w)."
+          },
+          {
+            term: "Gradient",
+            image: "Bild: Der Fuß tastet die steilste Richtung.",
+            explain: "Der Gradient zeigt bergauf. Für Lernen geht ihr in die Gegenrichtung, also den steilsten Abstieg."
+          },
+          {
+            term: "Iterativer Kreislauf",
+            image: "Bild: Tasten, Schritt, Hoehe prüfen, wiederholen.",
+            explain: "Statt exakter Loesung mit Millionen Parametern nutzt ML viele kleine Updates bis zur Konvergenz."
+          }
+        ]
+      },
+      {
+        subtitle: "Schritt 2 fokussiert den stabilen Referenzmodus für Training.",
+        cards: [
+          {
+            term: "Batch-Update",
+            image: "Bild: Ein Team vermisst den ganzen Berg vor jedem Schritt.",
+            explain: "Jeder Update-Schritt basiert auf allen Daten und ist daher richtungsstabil, aber teuer pro Iteration."
+          },
+          {
+            term: "Konvergenz",
+            image: "Bild: Ruhiger Pfad mit wenig Zickzack.",
+            explain: "Batch konvergiert oft gleichmäßig, braucht bei großen Datensaetzen aber viel Zeit und Speicher."
+          },
+          {
+            term: "ML-Bezug",
+            image: "Bild: Präziser Bürokrat statt Sprintläufer.",
+            explain: "Gut zum Erklären der Grundlogik, in der Praxis bei sehr großen Daten oft zu langsam."
+          }
+        ]
+      },
+      {
+        subtitle: "Schritt 3 zeigt die drei Wege ins Tal für echte Datensaetze.",
+        cards: [
+          {
+            term: "Stochastic GD",
+            image: "Bild: Torkelnder Bergsteiger mit viel Rauschen.",
+            explain: "Pro Schritt nur ein Datenpunkt: schnell und speicherschonend, aber unruhige, zittrige Spur."
+          },
+          {
+            term: "Mini-Batch GD",
+            image: "Bild: Handliche Pakete statt alles oder nur eins.",
+            explain: "Kleine Gruppen (z. B. 32/64/128) liefern einen robusten Mittelweg aus Stabilität und Tempo."
+          },
+          {
+            term: "Rauschen als Feature",
+            image: "Bild: Schütteln hilft aus kleinen Kratern heraus.",
+            explain: "Die Unruhe kann helfen, lokale Minima zu verlassen, statt dort festzustecken."
+          }
+        ]
+      },
+      {
+        subtitle: "Schritt 4 nutzt die Passstraßen-Analogie für alpha.",
+        cards: [
+          {
+            term: "Zu kleine Lernrate",
+            image: "Bild: Zentimeterfahren bergab.",
+            explain: "Sehr stabil, aber quälend langsam. Das Training braucht viele Schritte und viel Rechenzeit."
+          },
+          {
+            term: "Zu große Lernrate",
+            image: "Bild: Aus der Kurve geflogen.",
+            explain: "Das Modell schiesst über das Minimum hinweg und kann oszillieren oder sogar divergieren."
+          },
+          {
+            term: "Hyperparameter alpha",
+            image: "Bild: Mensch stellt die Schrittweite vorab ein.",
+            explain: "Alpha ist ein zentraler Regler vor Trainingsstart und entscheidet stark über Lerngeschwindigkeit und Stabilität."
+          }
+        ]
+      },
+      {
+        subtitle: "Schritt 5 ergänzt den Bewegungssinn über die Lernrate hinaus.",
+        cards: [
+          {
+            term: "Momentum",
+            image: "Bild: Bowlingkugel rollt über flache Stellen.",
+            explain: "Frühere Richtungen geben Schwung. Das kann Plateaus überwinden und Zickzack glätten."
+          },
+          {
+            term: "Overshooting",
+            image: "Bild: Kugel rauscht über den Talboden.",
+            explain: "Zu viel Schwung kann trotz guter Richtung am Ziel vorbeischiessen. Dann beta oder alpha senken."
+          },
+          {
+            term: "Adam-Idee",
+            image: "Bild: Magische Schuhe pro Fuß/Parameter.",
+            explain: "Adaptive Verfahren setzen je Parameter unterschiedliche Schrittweiten und beschleunigen große Modelle."
+          }
+        ]
+      },
+      {
+        subtitle: "Schritt 6 verknüpft Fallstricke mit Generalisierung und Transfer.",
+        cards: [
+          {
+            term: "Lokales Minimum",
+            image: "Bild: Krater statt echtes Haupttal.",
+            explain: "Der Algorithmus kann in einer Senke stoppen, obwohl global tiefere Loesungen existieren."
+          },
+          {
+            term: "Plateau und Vanishing Gradient",
+            image: "Bild: Flache Wiese ohne Neigung.",
+            explain: "Gradient fast null bedeutet kaum Bewegung. Dann helfen Startpunktwechsel, Lernraten-Tuning oder Momentum."
+          },
+          {
+            term: "Overfitting als Bruecke zu Bias-Variance",
+            image: "Bild: Perfektes Tal auf Trainingsdaten, aber instabil auf neuen Punkten.",
+            explain: "Null Trainingsfehler ist nicht automatisch gut. Genau hier startet als nächstes Thema der Bias-Variance-Tradeoff."
+          }
+        ]
+      }
+    ];
+
     const initialW = 6.0;
+    const gradientStepNavStorageKey = "ds-gradient-step-nav-unlocked";
+    const gradientStepNavUnlocked = (() => {
+      try {
+        return localStorage.getItem(gradientStepNavStorageKey) === "1";
+      } catch (err) {
+        return false;
+      }
+    })();
 
     const state = {
       w: initialW,
@@ -1754,7 +2300,8 @@
       overshootShownInStep5: false,
       pathUnlocked: false,
       quizReady: false,
-      pendingReplay: false
+      pendingReplay: false,
+      stepJumpUnlocked: gradientStepNavUnlocked
     };
 
     const chart = document.getElementById("loss-chart");
@@ -1766,9 +2313,11 @@
     const momentumSliderLabel = document.getElementById("momentum-slider-label");
     const momentumLockNote = document.getElementById("momentum-lock-note");
     const timelineEl = document.getElementById("timeline");
+    const sidebarEl = document.getElementById("sidebar");
+    const prevStepBtn = document.getElementById("prev-step");
     const codePopupOverlay = document.getElementById("code-popup-overlay");
     const codePopupFrame = document.getElementById("code-popup-frame");
-    const codePopupTriggers = document.querySelectorAll(".extension-link");
+    const codePopupTriggers = document.querySelectorAll('a[href$="_code_praxis.html"]:not([aria-disabled="true"])');
     const gradientPathBox = document.getElementById("gradient-path-box");
     const gradientPathTeaser = document.getElementById("gradient-path-teaser");
     const gradientQuizStatusEl = document.getElementById("gradient-quiz-status");
@@ -1779,10 +2328,19 @@
     const gradientQuizForm = document.getElementById("gradient-quiz-form");
     const gradientQuizFeedbackEl = document.getElementById("gradient-quiz-feedback");
     const diagnosisBoxEl = document.getElementById("diagnosis-box");
+    const lossAlltagActualEl = document.getElementById("loss-alltag-actual");
+    const lossAlltagPredEl = document.getElementById("loss-alltag-pred");
+    const lossAlltagAbsEl = document.getElementById("loss-alltag-abs");
+    const lossAlltagSquaredEl = document.getElementById("loss-alltag-squared");
+    const lossAlltagNoteEl = document.getElementById("loss-alltag-note");
     const contextOverlay = document.getElementById("context-overlay");
     const openContextModalBtn = document.getElementById("open-context-modal");
     const openContextModalInlineBtn = document.getElementById("open-context-modal-inline");
     const closeContextModalBtn = document.getElementById("close-context-modal");
+    const contextNextWhatEl = document.getElementById("context-next-what");
+    const contextNextWhyEl = document.getElementById("context-next-why");
+    const contextNextMlEl = document.getElementById("context-next-ml");
+    const contextNextGoalEl = document.getElementById("context-next-goal");
     const toggleSidebarExtrasBtn = document.getElementById("toggle-sidebar-extras");
     const knowledgeCoreBlock = document.getElementById("knowledge-core-block");
     const knowledgeMethodBlock = document.getElementById("knowledge-method-block");
@@ -1794,13 +2352,27 @@
     const optimizerSgdBtn = document.getElementById("optimizer-sgd");
     const clearJumpsBtn = document.getElementById("clear-jumps");
     const runResetNoteEl = document.getElementById("run-reset-note");
+    const conceptOverlay = document.getElementById("concept-overlay");
+    const openConceptModalBtn = document.getElementById("open-concept-modal");
+    const closeConceptModalBtn = document.getElementById("close-concept-modal");
+    const conceptTitleEl = document.getElementById("concept-title");
+    const conceptSubtitleEl = document.getElementById("concept-subtitle");
+    const conceptTermsEl = document.getElementById("concept-terms");
+    const gradientStepPopupSeen = new Set();
 
     const xRange = { min: -3, max: 9 };
     const yRange = { min: 2, max: 34 };
     const targetW = 2.5;
+    const euHouseholdActualCost = 96;
     const highMomentumThreshold = 0.65;
     const plateauGradThreshold = 0.08;
     const gradientQuizAnswers = { q1: "a", q2: "b", q3: "b", q4: "a" };
+    const euroFormatter = new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
     let overshootHideTimer = null;
 
     function loss(w) {
@@ -2132,12 +2704,48 @@
       toggleSidebarExtrasBtn.textContent = visible ? "Panels einklappen" : "Mehr Panels zeigen";
     }
 
+    function updateContextPreview() {
+      const nextIndex = Math.min(state.stepIndex + 1, steps.length - 1);
+      const nextStep = steps[nextIndex];
+      const nextTemplate = stepTemplate[nextIndex];
+      const nextLabel = nextStep.title.replace(/^Schritt \d+:\s*/, "");
+      contextNextWhatEl.textContent = `${nextLabel}: ${nextStep.text}`;
+      contextNextWhyEl.textContent = nextTemplate.why;
+      contextNextMlEl.textContent = "Maschinelles Lernen bedeutet hier: Parameter schrittweise so anpassen, dass MSE sinkt und Generalisierung vorbereitet wird.";
+      contextNextGoalEl.textContent = nextIndex === steps.length - 1
+        ? "Ziel: stabiles Training erklären und sauber in Thema 3 (Bias-Variance) überleiten."
+        : "Ziel: den nächsten Lernschritt mit klarer Ursache-Wirkung erfolgreich abschließen.";
+    }
+
     function openContextModal() {
+      updateContextPreview();
       contextOverlay.setAttribute("aria-hidden", "false");
     }
 
     function closeContextModal() {
       contextOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function renderConceptModal() {
+      const content = stepConcepts[state.stepIndex];
+      const stepLabel = steps[state.stepIndex].title.replace(/^Schritt \d+:\s*/, "");
+      conceptTitleEl.textContent = `Begriffe: ${stepLabel}`;
+      conceptSubtitleEl.textContent = content.subtitle;
+      conceptTermsEl.innerHTML = content.cards.map((card) => `
+        <article class="concept-card">
+          <strong>${card.term}</strong>
+          <p class="concept-image">${card.image}</p>
+          <p class="concept-explain">${card.explain}</p>
+        </article>
+      `).join("");
+    }
+
+    function openConceptModal() {
+      conceptOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeConceptModal() {
+      conceptOverlay.setAttribute("aria-hidden", "true");
     }
 
     function updateReadout() {
@@ -2190,6 +2798,28 @@
         diagnosis.push("Einstellung wirkt aktuell plausibel: weiter prüfen, ob Loss stabil sinkt.");
       }
       diagnosisBoxEl.innerHTML = `<strong>Fehlerdiagnose</strong><ul>${diagnosis.map((item) => `<li>${item}</li>`).join("")}</ul>`;
+
+      const baselineLoss = loss(targetW);
+      const lossGap = Math.max(0, currentLoss - baselineLoss);
+      const errorEuroAbs = Math.sqrt(lossGap) * 8;
+      const errorSign = state.w >= targetW ? 1 : -1;
+      const predictedCost = euHouseholdActualCost + errorSign * errorEuroAbs;
+      const squaredError = Math.pow(errorEuroAbs, 2);
+      let alltagNote = "Der Fehler ist hoch: Große Prognoseabweichungen treiben den Loss-Wert stark nach oben.";
+      if (errorEuroAbs < 1.5) {
+        alltagNote = "Sehr nah am Ziel: Die Prognose liegt fast auf dem Ist-Wert, der Loss-Beitrag ist minimal.";
+      } else if (errorEuroAbs < 5) {
+        alltagNote = "Kleiner Prognosefehler: In mehreren Monaten gemittelt bleibt die MSE meist gut kontrollierbar.";
+      } else if (errorEuroAbs < 10) {
+        alltagNote = "Spürbare Abweichung: Die Loss-Funktion reagiert klar und fordert bessere Parameter.";
+      }
+      if (lossAlltagActualEl && lossAlltagPredEl && lossAlltagAbsEl && lossAlltagSquaredEl && lossAlltagNoteEl) {
+        lossAlltagActualEl.textContent = euroFormatter.format(euHouseholdActualCost);
+        lossAlltagPredEl.textContent = euroFormatter.format(predictedCost);
+        lossAlltagAbsEl.textContent = euroFormatter.format(errorEuroAbs);
+        lossAlltagSquaredEl.textContent = `${squaredError.toFixed(2)} EUR^2`;
+        lossAlltagNoteEl.textContent = alltagNote;
+      }
       runResetNoteEl.hidden = !state.pendingReplay;
     }
 
@@ -2307,6 +2937,34 @@
       for (let i = 0; i < count; i++) doStep();
     }
 
+    function persistGradientStepUnlock() {
+      try {
+        localStorage.setItem(gradientStepNavStorageKey, "1");
+      } catch (err) {
+        // Ignore storage errors (e.g., private mode).
+      }
+    }
+
+    function jumpToGradientStep(idx) {
+      if (!state.stepJumpUnlocked) return;
+      if (idx === state.stepIndex) return;
+      state.stepIndex = idx;
+      resetRunTrail(true);
+      updateStepContent();
+    }
+
+    function maybeShowGradientStepPopup() {
+      if (state.stepJumpUnlocked) return;
+      if (state.stepIndex === 0) return;
+      if (gradientStepPopupSeen.has(state.stepIndex)) return;
+      const step = steps[state.stepIndex];
+      const focus = stepFocus[state.stepIndex];
+      gradientStepPopupSeen.add(state.stepIndex);
+      window.alert(
+        `${step.title}\n\nWohin schauen:\n${focus.look}\n\nNächste Aktion:\n${focus.action}`
+      );
+    }
+
     function renderTimeline() {
       timelineEl.innerHTML = "";
       steps.forEach((step, idx) => {
@@ -2315,16 +2973,45 @@
         if (idx < state.stepIndex) item.classList.add("done");
         if (idx === state.stepIndex) item.classList.add("active");
         item.textContent = `${idx + 1}. ${step.title.replace("Schritt " + (idx + 1) + ": ", "")}`;
+        if (state.stepJumpUnlocked) {
+          item.classList.add("clickable");
+          item.setAttribute("role", "button");
+          item.tabIndex = 0;
+          item.addEventListener("click", () => jumpToGradientStep(idx));
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              jumpToGradientStep(idx);
+            }
+          });
+        }
         timelineEl.appendChild(item);
       });
+    }
+
+    function updatePrevStepButton() {
+      const canGoPrev = state.stepIndex > 0;
+      prevStepBtn.hidden = !canGoPrev;
+      prevStepBtn.disabled = !canGoPrev;
+    }
+
+    function scrollSidebarTop() {
+      if (!sidebarEl) return;
+      sidebarEl.scrollTo({ top: 0, behavior: "auto" });
     }
 
     function updateStepContent() {
       if (state.stepIndex === steps.length - 1) {
         state.pathUnlocked = true;
         state.quizReady = true;
+        if (!state.stepJumpUnlocked) {
+          state.stepJumpUnlocked = true;
+          persistGradientStepUnlock();
+        }
       }
       const step = steps[state.stepIndex];
+      updatePrevStepButton();
+      scrollSidebarTop();
       document.getElementById("step-title").textContent = step.title;
       document.getElementById("step-text").textContent = step.text;
       document.getElementById("chat-question").textContent = step.chat;
@@ -2333,6 +3020,7 @@
       document.getElementById("step-consequence").textContent = template.consequence;
       document.getElementById("step-reflection").textContent = template.reflection;
       const focus = stepFocus[state.stepIndex];
+      document.getElementById("step-action").textContent = focus.action;
       document.getElementById("step-focus-look").textContent = focus.look;
       document.getElementById("step-focus-action").textContent = focus.action;
       document.getElementById("step-focus-result").textContent = focus.result;
@@ -2344,10 +3032,13 @@
       syncOptimizerAccessByStep();
       syncMomentumAccessByStep();
       syncKnowledgeCardByStep();
+      updateContextPreview();
+      renderConceptModal();
       updateReadout();
       renderChart();
       updatePathAndQuiz();
       renderTimeline();
+      maybeShowGradientStepPopup();
     }
 
     function updatePathAndQuiz() {
@@ -2355,24 +3046,22 @@
       gradientPathBox.classList.toggle("collapsed", !ready);
       openGradientQuizBtn.hidden = !ready;
       replayGradientBtn.hidden = !ready;
-      gradientPathTeaser.textContent = ready
-        ? "Geöffnet: Quiz, Weiterlink und Replay sind jetzt verfügbar."
-        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+      gradientPathTeaser.textContent = "";
 
       if (!ready) {
-        gradientQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} freigeschaltet.`;
+        gradientQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} angeboten. Dann ist Thema 3 (Bias-Variance) direkt erreichbar.`;
         gradientQuizStatusEl.style.borderColor = "#cbd4e4";
         gradientQuizStatusEl.style.background = "#fff";
         gradientQuizStatusEl.style.color = "#5f6d84";
         return;
       }
 
-      if (toBiasLink.classList.contains("disabled")) {
-        gradientQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Mini-Quiz starten (3 von 4 richtig).";
-        gradientQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
-        gradientQuizStatusEl.style.background = "#fff7fa";
-        gradientQuizStatusEl.style.color = "#6f2d45";
-      }
+      toBiasLink.classList.remove("disabled");
+      toBiasLink.setAttribute("aria-disabled", "false");
+      gradientQuizStatusEl.textContent = "Letzter Schritt erreicht: Thema 3 ist jetzt freigeschaltet. Das Mini-Quiz bleibt optional zur Selbstkontrolle.";
+      gradientQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
+      gradientQuizStatusEl.style.background = "#f3fbf6";
+      gradientQuizStatusEl.style.color = "#275b3f";
     }
 
     function setLearningRate(value) {
@@ -2421,7 +3110,7 @@
     function unlockBiasNavigation() {
       toBiasLink.classList.remove("disabled");
       toBiasLink.setAttribute("aria-disabled", "false");
-      gradientQuizStatusEl.textContent = "Mini-Quiz bestanden. Thema 3 (Matrix) ist freigeschaltet.";
+      gradientQuizStatusEl.textContent = "Mini-Quiz bestanden. Thema 3 (Bias-Variance) ist freigeschaltet.";
       gradientQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
       gradientQuizStatusEl.style.background = "#f3fbf6";
       gradientQuizStatusEl.style.color = "#275b3f";
@@ -2470,6 +3159,9 @@
     openContextModalInlineBtn.addEventListener("click", openContextModal);
     closeContextModalBtn.addEventListener("click", closeContextModal);
     document.getElementById("context-backdrop").addEventListener("click", closeContextModal);
+    openConceptModalBtn.addEventListener("click", openConceptModal);
+    closeConceptModalBtn.addEventListener("click", closeConceptModal);
+    document.getElementById("concept-backdrop").addEventListener("click", closeConceptModal);
     toggleSidebarExtrasBtn.addEventListener("click", () => {
       const visible = !document.body.classList.contains("show-sidebar-extras");
       setSidebarExtrasVisible(visible);
@@ -2493,6 +3185,13 @@
     optimizerBatchBtn.addEventListener("click", () => setOptimizer("batch"));
     optimizerMiniBtn.addEventListener("click", () => setOptimizer("mini"));
     optimizerSgdBtn.addEventListener("click", () => setOptimizer("sgd"));
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex === 0) return;
+      state.stepIndex -= 1;
+      resetRunTrail(true);
+      updateStepContent();
+    });
 
     document.getElementById("next-step").addEventListener("click", () => {
       state.stepIndex = (state.stepIndex + 1) % steps.length;
@@ -2523,6 +3222,7 @@
       gradientQuizFeedbackEl.textContent = "";
       hideOvershootBanner();
       closeContextModal();
+      closeConceptModal();
       setSidebarExtrasVisible(false);
       setOptimizer("batch");
       updateStepContent();
@@ -2558,11 +3258,15 @@
       if (e.key === "Escape" && contextOverlay.getAttribute("aria-hidden") === "false") {
         closeContextModal();
       }
+      if (e.key === "Escape" && conceptOverlay.getAttribute("aria-hidden") === "false") {
+        closeConceptModal();
+      }
     });
 
     window.addEventListener("resize", renderChart);
 
     closeContextModal();
+    closeConceptModal();
     setSidebarExtrasVisible(false);
     setOptimizer("batch");
     updateStepContent();

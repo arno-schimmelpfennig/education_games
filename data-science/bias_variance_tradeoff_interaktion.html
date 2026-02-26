@@ -72,6 +72,7 @@
     }
 
     .story-box,
+    .concept-box,
     .step-box,
     .chat-box,
     .usage-box,
@@ -83,10 +84,21 @@
     }
 
     .story-box strong,
+    .concept-box strong,
     .chat-box strong,
     .usage-box strong,
     .path-box strong {
       color: var(--brand-accent);
+    }
+
+    .concept-box ul {
+      margin: 7px 0 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: #3f4e66;
     }
 
     .path-box p {
@@ -205,6 +217,33 @@
       color: #344153;
     }
 
+    .step-action-box {
+      margin-top: 9px;
+      border: 1px solid rgba(190, 59, 51, 0.34);
+      border-left: 4px solid #be3b33;
+      border-radius: 10px;
+      background: #fff6f5;
+      padding: 8px 10px;
+      box-shadow: 0 3px 10px rgba(99, 24, 50, 0.08);
+    }
+
+    .step-action-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #8f1f1f;
+    }
+
+    #step-action {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.42;
+      color: #5b2231;
+      font-weight: 700;
+    }
+
     .step-template {
       margin-top: 10px;
       display: grid;
@@ -262,6 +301,15 @@
       color: #256441;
     }
 
+    .timeline-item.clickable {
+      cursor: pointer;
+    }
+
+    .timeline-item.clickable:hover {
+      border-color: rgba(23, 50, 98, 0.35);
+      background: #f5f9ff;
+    }
+
     .ctrl-group {
       margin-top: auto;
       display: grid;
@@ -284,6 +332,13 @@
 
     button:hover { filter: brightness(1.06); }
 
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      filter: none;
+      box-shadow: none;
+    }
+
     button.secondary {
       background: #fff;
       color: var(--text-main);
@@ -299,7 +354,7 @@
       gap: 12px;
       min-width: 0;
       min-height: 0;
-      overflow-y: auto;
+      overflow-y: scroll;
       padding-bottom: 18px;
       scrollbar-gutter: stable;
     }
@@ -373,6 +428,14 @@
       box-shadow: 0 6px 12px rgba(30, 56, 95, 0.25);
     }
 
+    .codepath-step.is-disabled {
+      border-color: #d5dfef;
+      background: #f4f7fc;
+      color: #71819b;
+      box-shadow: none;
+      pointer-events: none;
+    }
+
     .codepath-index {
       width: 18px;
       height: 18px;
@@ -413,8 +476,11 @@
       border-radius: 16px;
       box-shadow: var(--panel-shadow);
       position: relative;
-      overflow: hidden;
       min-width: 0;
+    }
+
+    .canvas-wrap {
+      overflow: hidden;
     }
 
     .canvas-caption {
@@ -456,6 +522,9 @@
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: 12px;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     .diag-title {
@@ -463,6 +532,9 @@
       font-size: 0.92rem;
       color: var(--brand-accent);
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .score-block {
@@ -499,6 +571,8 @@
 
     .bar-fill.train { background: #5d7cae; }
     .bar-fill.test { background: #d17b1f; }
+    .bar-fill.signal { background: #1f8b4c; }
+    .bar-fill.noise { background: #8a2d49; }
 
     .status-box {
       border-radius: 10px;
@@ -508,6 +582,8 @@
       font-size: 0.83rem;
       color: #3c4b61;
       line-height: 1.45;
+      overflow: auto;
+      min-height: 0;
     }
 
     .status-box strong {
@@ -515,10 +591,112 @@
       margin-bottom: 4px;
     }
 
+    .decomposition-panel {
+      border: 1px solid #d8e1ef;
+      border-radius: 11px;
+      background: #f9fbff;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: grid;
+      gap: 8px;
+      position: relative;
+      overflow: visible;
+    }
+
+    .decomposition-panel h4 {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #173262;
+    }
+
+    .decomposition-panel.is-locked {
+      opacity: 0.75;
+    }
+
+    .decomposition-panel.is-step4-focus {
+      border-color: rgba(190, 59, 51, 0.45);
+      box-shadow: 0 0 0 2px rgba(190, 59, 51, 0.12), 0 10px 20px rgba(99, 24, 50, 0.14);
+    }
+
+    .decomposition-panel.is-step4-focus::before {
+      content: ">>>";
+      position: absolute;
+      left: -32px;
+      top: 20px;
+      color: #be3b33;
+      font-weight: 800;
+      letter-spacing: 1px;
+      animation: panel-arrow-pulse 0.9s ease-in-out infinite;
+    }
+
+    @keyframes panel-arrow-pulse {
+      0% { transform: translateX(0); opacity: 0.45; }
+      50% { transform: translateX(10px); opacity: 1; }
+      100% { transform: translateX(0); opacity: 0.45; }
+    }
+
+    .decomposition-intro {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #53637b;
+      line-height: 1.4;
+    }
+
+    .formula-equation {
+      border: 1px solid #d4deed;
+      border-radius: 9px;
+      background: #fff;
+      padding: 8px 9px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.76rem;
+      color: #334964;
+      line-height: 1.38;
+    }
+
+    .formula-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 5px 10px;
+      font-size: 0.79rem;
+      color: #3b4a61;
+    }
+
+    .formula-grid strong {
+      color: #173262;
+      text-align: right;
+      min-width: 64px;
+    }
+
+    .formula-note {
+      margin: 0;
+      font-size: 0.77rem;
+      line-height: 1.38;
+      color: #5b6a82;
+    }
+
+    .formula-dictionary {
+      margin: 0;
+      display: grid;
+      gap: 5px;
+      font-size: 0.77rem;
+      color: #3f4f66;
+    }
+
+    .formula-dictionary dt {
+      font-weight: 800;
+      color: #7a2f4c;
+    }
+
+    .formula-dictionary dd {
+      margin: 0;
+      line-height: 1.38;
+    }
+
     .bottom-panel {
       display: grid;
       grid-template-columns: minmax(300px, 1fr) minmax(320px, 430px);
       gap: 12px;
+      margin-top: 14px;
       min-width: 0;
     }
 
@@ -530,6 +708,13 @@
       box-shadow: var(--panel-shadow);
       padding: 12px;
       min-width: 0;
+    }
+
+    .knowledge-card {
+      max-height: min(52vh, 560px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
 
     .control-card h3,
@@ -661,6 +846,133 @@
       border: 1px dashed #c9d3e3;
       border-radius: 9px;
       padding: 8px;
+    }
+
+    .mini-lab-card {
+      margin-top: 10px;
+      border: 1px solid #d7e1f0;
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 9px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-lab-card h4 {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #173262;
+    }
+
+    .mini-lab-text {
+      margin: 0;
+      font-size: 0.77rem;
+      line-height: 1.35;
+      color: #4a5871;
+    }
+
+    .dual-btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .dual-btn-row button {
+      padding: 8px 9px;
+      font-size: 0.77rem;
+    }
+
+    .dual-btn-row button.secondary.is-active {
+      border-color: #335b8f;
+      background: #eaf2ff;
+      color: #173262;
+      box-shadow: inset 0 0 0 1px rgba(23, 50, 98, 0.12);
+    }
+
+    .reg-btn-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .reg-btn-row button {
+      padding: 8px 9px;
+      font-size: 0.75rem;
+    }
+
+    .lab-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: #425066;
+    }
+
+    .lab-row input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: #173262;
+    }
+
+    .lab-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: #44526a;
+    }
+
+    .lab-metrics strong {
+      color: #173262;
+    }
+
+    .lab-note {
+      margin: 0;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      color: #5b6a82;
+      background: #f8fafe;
+      border: 1px dashed #c9d3e3;
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+
+    .elasticnet-mix-group[hidden] {
+      display: none;
+    }
+
+    .step-math-card {
+      margin-top: 10px;
+      border: 1px solid #d7e1f0;
+      border-radius: 10px;
+      background: #f7fbff;
+      padding: 9px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .step-math-card h4 {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #173262;
+    }
+
+    .step-math-explain {
+      margin: 0;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      color: #485871;
+    }
+
+    .step-math-list {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: #3f4f66;
+      line-height: 1.35;
     }
 
     .badge-webinar {
@@ -853,6 +1165,12 @@
       }
       .canvas-wrap { min-height: 350px; }
     }
+
+    @media (max-width: 650px) {
+      .reg-btn-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -860,7 +1178,7 @@
     <div id="quiz-backdrop"></div>
     <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <h3 id="quiz-title">Mini-Quiz: Bias-Variance</h3>
-      <p>3 Fragen, mindestens 2 richtig. Danach wird der Weiterlink zu Thema 6 (Regularization) freigeschaltet.</p>
+      <p>3 Fragen, mindestens 2 richtig. Danach wird der Weiterlink zu Thema 4 (Matrix) freigeschaltet.</p>
       <form id="bias-quiz-form">
         <div class="quiz-question">
           <strong>1) Woran erkennt man Overfitting am ehesten?</strong>
@@ -870,19 +1188,19 @@
         </div>
         <div class="quiz-question">
           <strong>2) Was beschreibt \"Bias\" in diesem Kontext am besten?</strong>
-          <label class="quiz-option"><input type="radio" name="q2" value="a"> Empfindlichkeit auf Rauschen durch zu hohe Komplexitaet.</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="a"> Empfindlichkeit auf Rauschen durch zu hohe Komplexität.</label>
           <label class="quiz-option"><input type="radio" name="q2" value="b"> Systematischer Fehler durch ein zu simples Modell.</label>
           <label class="quiz-option"><input type="radio" name="q2" value="c"> Anzahl der Merkmale im Datensatz.</label>
         </div>
         <div class="quiz-question">
-          <strong>3) Welche Kennzahl ist fuer Modellwahl wichtiger?</strong>
+          <strong>3) Welche Kennzahl ist für Modellwahl wichtiger?</strong>
           <label class="quiz-option"><input type="radio" name="q3" value="a"> Nur Trainingsfehler.</label>
           <label class="quiz-option"><input type="radio" name="q3" value="b"> Nur Anzahl der Features.</label>
           <label class="quiz-option"><input type="radio" name="q3" value="c"> Validierungs-/Testfehler auf ungesehenen Daten.</label>
         </div>
         <div class="quiz-actions">
           <button id="grade-bias-quiz" type="submit">Quiz auswerten</button>
-          <button id="close-bias-quiz" type="button" class="secondary">Schliessen</button>
+          <button id="close-bias-quiz" type="button" class="secondary">Schließen</button>
         </div>
       </form>
       <div id="bias-quiz-feedback" class="quiz-feedback"></div>
@@ -893,9 +1211,9 @@
     <section id="code-popup-modal" role="dialog" aria-modal="true" aria-labelledby="code-popup-title">
       <div id="code-popup-head">
         <h3 id="code-popup-title">Code-Praxis (Python)</h3>
-        <button id="close-code-popup" class="secondary" type="button">Schliessen</button>
+        <button id="close-code-popup" class="secondary" type="button">Schließen</button>
       </div>
-      <p id="code-popup-subtitle">Vertiefung fuer Einsteiger: vom Tradeoff-Verstaendnis in den Predictive-Modeling-Workflow.</p>
+      <p id="code-popup-subtitle">Vertiefung für Einsteiger: vom Tradeoff-Verständnis in den Predictive-Modeling-Workflow.</p>
       <iframe id="code-popup-frame" src="about:blank" title="Code-Praxis Popup" loading="lazy"></iframe>
     </section>
   </div>
@@ -904,19 +1222,34 @@
       <div class="brandline">AS Digital Marketing | Webinar Studio</div>
       <h1>Bias–Variance Tradeoff<br>verständlich machen</h1>
       <p class="lead">
-        Gemeinsame Lernansicht: Ihr vergleicht zusammen, wann ein Modell zu simpel, ausgewogen oder zu komplex wird.
+        Gemeinsame Lernansicht: Ihr vergleicht zusammen, wann ein Modell zu simpel, ausgewogen oder zu komplex wird - von linearer bis polynomialer Regression.
       </p>
-      <span class="badge-webinar">Eine Ansicht für alle im Webinar</span>
 
       <div class="story-box">
         <strong>Alltagsszenario:</strong>
-        Wir schätzen die Fahrzeit zur Arbeit anhand der Uhrzeit.
-        Das Muster ist nicht perfekt linear, aber auch kein reines Chaos.
+        Tatort Modellgüte: Wir schätzen die Größe einer Maus aus ihrem Gewicht.
+        Das Ziel ist nicht Trainingsdaten auswendig zu lernen, sondern neue Fälle robust zu treffen.
+      </div>
+
+      <div class="concept-box">
+        <strong>Roter Faden</strong>
+        <ul>
+          <li><strong>1) Tatort:</strong> Modell wirkt im Training perfekt, scheitert aber auf neuen Daten.</li>
+          <li><strong>2) Verdächtige:</strong> Bias (zu simpel) und Varianz (zu nervös).</li>
+          <li><strong>3) Beweis:</strong> Lineares vs. polynomiales Modell im direkten Vergleich auf Testpunkten.</li>
+          <li><strong>4) Urteil:</strong> Sweet Spot statt Perfektion, inkl. Rest-Rauschen als Grenze.</li>
+          <li><strong>5) Werkzeugkasten:</strong> Mehr Daten, Feature Engineering, Kreuzvalidierung und Regularisierung.</li>
+          <li><strong>6) Feinschliff:</strong> ElasticNet mischt Ridge und Lasso für robuste Modellwahl.</li>
+        </ul>
       </div>
 
       <div class="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
+        <div class="step-action-box" aria-live="polite">
+          <strong>Konkrete Aufgabe jetzt</strong>
+          <p id="step-action"></p>
+        </div>
         <div class="step-template" aria-label="Lern-Template">
           <div class="step-template-item">
             <strong>Warum</strong>
@@ -942,17 +1275,17 @@
 
       <div class="usage-box">
         <strong>Praxis-Übertrag:</strong><br>
-        Bias-Variance entscheidet, ob ein Modell robust auf neue Daten reagiert oder nur Trainingsdaten auswendig lernt.
+        Bias-Variance entscheidet, ob ein Modell Signal lernt oder Rauschen speichert - und damit, ob es generalisiert.
       </div>
 
-      <div class="path-box collapsed" id="bias-path-box">
-        <strong>Lernpfad danach</strong>
-        <p id="bias-path-teaser">Lernpfad bleibt bis Schritt 5 eingeklappt.</p>
+      <div class="path-box" id="bias-path-box">
+        <strong>Nächste Schritte</strong>
+        <p id="bias-path-teaser" hidden></p>
         <div class="path-content">
-          <div class="path-status" id="bias-quiz-status">Mini-Quiz wird nach Schritt 5 angeboten (Navigation ist bereits aktiv).</div>
-          <button id="open-bias-quiz" class="secondary" hidden>Mini-Quiz starten</button>
-          <a id="to-regularization-link" class="path-link" href="regularization_interaktion.html" aria-disabled="false">Weiter zu Thema 6: Regularization (L1/L2)</a>
-          <a class="path-link" href="matrizenmultiplikation_interaktion.html">Zurueck zu Thema 4: Matrizenmultiplikation</a>
+          <div class="path-status" id="bias-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Danach wird Thema 4 (Matrix) freigeschaltet.</div>
+          <button id="open-bias-quiz" class="secondary" type="button" disabled>Mini-Quiz starten</button>
+          <a id="to-matrix-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 4: Matrix verstehen</a>
+          <a class="path-link" href="gradient_descent_interaktion.html">Zurück zu Thema 2: Gradient Descent</a>
           <button id="replay-bias" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -965,6 +1298,7 @@
       </div>
 
       <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Lern-Schritt</button>
         <button id="next-step">Nächster Lern-Schritt</button>
         <button id="reset-session" class="secondary">Session zurücksetzen</button>
       </div>
@@ -972,17 +1306,25 @@
 
     <main id="stage">
       <section class="codepath-bar" aria-label="Codepfad Navigation">
-        <div class="codepath-title">Codepfad</div>
+        <div class="codepath-title">
+          <span class="label-with-tip">
+            Codepfad
+            <span class="tip-wrap">
+              <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
+              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier lernt ihr, wie Bias, Varianz und Modellkomplexität die Qualität auf neuen Daten steuern.</span>
+            </span>
+          </span>
+        </div>
         <div class="codepath-steps">
-          <a class="codepath-step" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step is-disabled" href="lineare_regression_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step active" href="gradient_descent_code_praxis.html">
+          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step" href="predictive_modeling_code_praxis.html">
+          <a class="codepath-step active" href="predictive_modeling_code_praxis.html">
             <span class="codepath-index">3</span>
             <span>Predictive Modeling</span>
           </a>
@@ -993,25 +1335,79 @@
         <div class="chip"><strong>Komplexität:</strong> <span id="chip-complexity">4</span> / 8</div>
         <div class="chip"><strong>Trainingsfehler:</strong> <span id="chip-train">0.0</span></div>
         <div class="chip"><strong>Testfehler:</strong> <span id="chip-test">0.0</span></div>
+        <div class="chip"><strong>Signal erfasst:</strong> <span id="chip-signal">0</span>%</div>
+        <div class="chip"><strong>Rauschen gelernt:</strong> <span id="chip-noise">0</span>%</div>
+        <div class="chip"><strong>Koeffizient |w|:</strong> <span id="chip-coef">0.0</span></div>
+        <div class="chip"><strong>Cost Function:</strong> <span id="chip-cost">0.0</span></div>
         <div class="chip"><strong>Interpretation:</strong> <span id="fit-label">Ausgewogen</span></div>
       </div>
 
       <section class="viz-grid">
         <div class="canvas-wrap">
-          <div class="canvas-caption"><strong>Kurvendiagramm:</strong> Punkte = Beobachtungen | Linie = Modell bei aktueller Komplexität</div>
-          <canvas id="curve-chart" role="img" aria-label="Kurvendiagramm zur Fahrzeit mit Uhrzeit-Index auf der x-Achse und Fahrzeit in Minuten auf der y-Achse."></canvas>
-          <div class="canvas-footnote">x-Achse: Uhrzeit-Index (0-8) | y-Achse: Fahrzeit (Minuten) | Datengrundlage: synthetische Beobachtungstage</div>
+          <div class="canvas-caption"><strong>Kurvendiagramm:</strong> Blau = Trainingspunkte | Grün = Testpunkte | Linie = Modell bei aktueller Komplexität</div>
+          <canvas id="curve-chart" role="img" aria-label="Kurvendiagramm mit Maus-Gewichtsindex auf der x-Achse und Maus-Größe in Zentimetern auf der y-Achse."></canvas>
+          <div class="canvas-footnote">x-Achse: Gewichtsindex (0-8) | y-Achse: Maus-Größe (cm) | Datengrundlage: synthetischer Trainings- und Testsplit</div>
         </div>
 
         <div class="diagnostics-wrap">
-          <p class="diag-title">Fehlervergleich</p>
+          <p class="diag-title">
+            <span class="label-with-tip">
+              Fehler- und Signalcheck
+              <span class="tip-wrap">
+                <button type="button" class="tip-icon" aria-label="Wozu brauche ich den Fehler- und Signalcheck?">i</button>
+                <span class="tip-text">Wozu brauche ich das? Der Check zeigt, ob dein Modell Muster lernt oder nur Zufall merkt. Für Machine Learning zählt die Qualität auf neuen Daten, nicht nur im Training.</span>
+              </span>
+            </span>
+          </p>
 
           <div class="score-block">
-            <div class="score-row"><span>Training</span><span id="train-value">0</span></div>
+            <div class="score-row">
+              <span class="label-with-tip">
+                Training
+                <span class="tip-wrap">
+                  <button type="button" class="tip-icon" aria-label="Training erklärt">i</button>
+                  <span class="tip-text">Training: Fehler auf den Daten, mit denen das Modell gelernt hat. Niedrig ist gut, aber allein nicht ausreichend für die Modellwahl.</span>
+                </span>
+              </span>
+              <span id="train-value">0</span>
+            </div>
             <div class="bar-track"><div class="bar-fill train" id="train-bar"></div></div>
 
-            <div class="score-row"><span>Test</span><span id="test-value">0</span></div>
+            <div class="score-row">
+              <span class="label-with-tip">
+                Test
+                <span class="tip-wrap">
+                  <button type="button" class="tip-icon" aria-label="Test erklärt">i</button>
+                  <span class="tip-text">Test: Fehler auf unbekannten Daten. Dieser Wert zeigt, wie gut das Modell generalisiert und welches Modell besser ist.</span>
+                </span>
+              </span>
+              <span id="test-value">0</span>
+            </div>
             <div class="bar-track"><div class="bar-fill test" id="test-bar"></div></div>
+
+            <div class="score-row">
+              <span class="label-with-tip">
+                Signal
+                <span class="tip-wrap">
+                  <button type="button" class="tip-icon" aria-label="Signal erklärt">i</button>
+                  <span class="tip-text">Signal: Der stabile, echte Zusammenhang in den Daten. Mehr Signal erfasst bedeutet, dass das Modell relevante Struktur statt Zufall lernt.</span>
+                </span>
+              </span>
+              <span id="signal-value">0%</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill signal" id="signal-bar"></div></div>
+
+            <div class="score-row">
+              <span class="label-with-tip">
+                Rauschen gelernt
+                <span class="tip-wrap">
+                  <button type="button" class="tip-icon" aria-label="Rauschen gelernt erklärt">i</button>
+                  <span class="tip-text">Rauschen gelernt: Anteil zufälliger Muster, die das Modell fälschlich mitlernt. Hohe Werte sind ein typisches Overfitting-Signal.</span>
+                </span>
+              </span>
+              <span id="noise-value">0%</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill noise" id="noise-bar"></div></div>
           </div>
 
           <div class="status-box" id="status-box"></div>
@@ -1023,7 +1419,15 @@
           <h3>Interaktive Steuerung: Modell-Komplexität</h3>
           <div class="slider-label">
             <span class="label-with-tip">
-              Komplexität (1 = sehr simpel, 8 = sehr flexibel)
+              Komplexität /
+              <span class="label-with-tip">
+                Polynomgrad
+                <span class="tip-wrap">
+                  <button type="button" class="tip-icon" aria-label="Erklärung Polynomgrad">i</button>
+                  <span class="tip-text">Polynomgrad = höchste Potenz von x im Modell. Grad 1 ist linear, höhere Grade machen die Kurve flexibler.</span>
+                </span>
+              </span>
+              (1 = sehr simpel, 8 = sehr flexibel)
               <span class="tip-wrap">
                 <button type="button" class="tip-icon" aria-label="Hilfe zur Modell-Komplexität">i</button>
                 <span class="tip-text">Was? Steuert, wie flexibel die Modellkurve auf Trainingspunkte reagiert. Warum? Damit ihr Underfitting, Sweet Spot und Overfitting sichtbar gegeneinander abwägen könnt.</span>
@@ -1042,16 +1446,124 @@
           <div class="mini-note">
             Merksatz: Mit mehr Komplexität sinkt oft der Trainingsfehler. Entscheidend ist aber der Fehler auf neuen Daten.
           </div>
+
+          <div class="mini-lab-card">
+            <h4>Mini-Panel: Wann linear, wann polynomial?</h4>
+            <p class="mini-lab-text">
+              Bei der
+              <span class="label-with-tip">
+                Polynomisierung
+                <span class="tip-wrap">
+                  <button type="button" class="tip-icon" aria-label="Erklärung Polynomisierung">i</button>
+                  <span class="tip-text">Polynomisierung = aus einem Merkmal x werden zusätzliche Merkmale wie x^2 oder x^3. So werden gekrümmte Muster lernbar.</span>
+                </span>
+              </span>
+              werden Merkmale erweitert; wechsle dann mit 2 Buttons zwischen einfacher und flexibler Modellform.
+            </p>
+            <div class="dual-btn-row">
+              <button id="choose-linear" class="secondary" type="button">Linear</button>
+              <button id="choose-polynomial" class="secondary is-active" type="button">Polynomial</button>
+            </div>
+            <p id="model-choice-feedback" class="lab-note">Aktuell aktiv: Polynomial. Nutze es für gekrümmte Muster, achte aber auf Overfitting.</p>
+          </div>
+
+          <div class="mini-lab-card">
+            <h4>Ausreißer, Constraints, Ridge/Lasso/ElasticNet</h4>
+            <div class="lab-row">
+              <span>Großen Ausreißer zuschalten</span>
+              <input id="toggle-outlier" type="checkbox" aria-label="Großen Ausreißer aktivieren">
+            </div>
+            <div class="slider-label">
+              <span>Gewicht (Koeffizient) vergrößern</span>
+              <span id="weight-scale-value">1.00x</span>
+            </div>
+            <input id="weight-scale" type="range" min="0.6" max="2.4" step="0.05" value="1.0" title="Skaliert den Koeffizienten und erhöht bei hohen Werten Overfitting-Risiko.">
+
+            <div class="slider-label">
+              <span>Harte Einschränkung: |w| <= Range</span>
+              <span id="hard-cap-value">2.60</span>
+            </div>
+            <input id="hard-cap" type="range" min="1.0" max="3.6" step="0.1" value="2.6" title="Begrenzt das Gewicht direkt per fester Obergrenze.">
+
+            <div class="slider-label">
+              <span>Weiche Einschränkung: lambda</span>
+              <span id="lambda-value">0.0</span>
+            </div>
+            <input id="lambda" type="range" min="0.0" max="6.0" step="0.1" value="0.0" title="Regularisierungsstärke in der Cost Function.">
+
+            <div class="reg-btn-row">
+              <button id="mode-ridge" class="secondary is-active" type="button">Ridge (L2)</button>
+              <button id="mode-lasso" class="secondary" type="button">Lasso (L1)</button>
+              <button id="mode-elastic" class="secondary" type="button">ElasticNet</button>
+            </div>
+
+            <div class="elasticnet-mix-group" id="elasticnet-mix-group" hidden>
+              <div class="slider-label">
+                <span class="label-with-tip">
+                  ElasticNet-Mix (l1_ratio)
+                  <span class="tip-wrap">
+                    <button type="button" class="tip-icon" aria-label="Erklärung ElasticNet-Mix">i</button>
+                    <span class="tip-text">l1_ratio = Anteil der L1-Strafe im ElasticNet. 1.0 entspricht Lasso, 0.0 entspricht Ridge.</span>
+                  </span>
+                </span>
+                <span id="l1-ratio-value">0.50</span>
+              </div>
+              <input id="l1-ratio" type="range" min="0.0" max="1.0" step="0.05" value="0.5" title="Mischung aus L1- und L2-Regularisierung.">
+            </div>
+
+            <div class="formula-equation" id="reg-cost-formula">J<sub>reg</sub> = MSE + λ · Σw<sub>i</sub><sup>2</sup> (Ridge)</div>
+            <div class="lab-metrics">
+              <div>Effektives |w|: <strong id="effective-weight">0.00</strong></div>
+              <div>J_reg (vereinfacht): <strong id="reg-cost-value">0.00</strong></div>
+            </div>
+            <p id="constraint-note" class="lab-note">Noch keine Begrenzung aktiv. Hohe Gewichte + Ausreißer erhöhen meist die Varianz.</p>
+          </div>
+
+          <div class="step-math-card" id="step-math-panel">
+            <h4 id="step-math-title">Mathematische Betrachtung zu diesem Schritt</h4>
+            <div class="formula-equation" id="step-math-equation"></div>
+            <p id="step-math-explain" class="step-math-explain"></p>
+            <ul id="step-math-list" class="step-math-list"></ul>
+          </div>
         </div>
 
         <div class="knowledge-card">
           <h3>Vorteile und Grenzen</h3>
+          <div class="decomposition-panel is-locked" id="decomposition-panel">
+            <h4>Theorie-Panel: Fehlerzerlegung (live)</h4>
+            <p class="decomposition-intro" id="decomposition-intro">Ab Schritt 4 aktiv: Dort zerlegen wir den Fehler sichtbar in Bias², Varianz und Rauschen.</p>
+            <div class="formula-equation">MSE = Bias² + Varianz + irreduzierbarer Fehler (Rauschen)</div>
+            <div class="formula-grid" aria-live="polite">
+              <span>MSE (Test)</span><strong id="formula-mse">0.0</strong>
+              <span>Bias²</span><strong id="formula-bias2">0.0</strong>
+              <span>Varianz</span><strong id="formula-variance">0.0</strong>
+              <span>Irreduzierbarer Fehler</span><strong id="formula-noise">0.0</strong>
+              <span>Gesamt: Bias² + Varianz + Rauschen = Fehlverzerrung</span><strong id="formula-total">0.0</strong>
+            </div>
+            <p class="formula-note" id="decomposition-note">Bewege den Komplexitäts-Regler: So „berührst“ du direkt, wie sich Bias² und Varianz gegeneinander verschieben.</p>
+            <dl class="formula-dictionary">
+              <dt>Bias (Unteranpassung)</dt>
+              <dd>Annahme eines Modells, um die Zielfunktion leichter lernbar zu machen; ist diese Annahme zu starr, entsteht systematische Abweichung.</dd>
+              <dt>Varianz</dt>
+              <dd>Menge, um die sich die Schätzung des Ziels bei neuen Stichproben ändern wird; hohe Varianz bedeutet instabile Vorhersagen.</dd>
+              <dt>Irreduzierbarer Fehler</dt>
+              <dd>Unvermeidbares Rauschen in den Daten, das auch mit einem guten Modell nicht auf null fällt.</dd>
+            </dl>
+          </div>
           <ul>
             <li><strong>Bias hoch (zu simpel):</strong> Modell verpasst wichtige Struktur.</li>
-            <li><strong>Variance hoch (zu komplex):</strong> Modell reagiert zu stark auf Zufallsrauschen.</li>
-            <li><strong>Ziel:</strong> Eine Komplexität wählen, die auf neuen Daten stabil bleibt.</li>
-            <li><strong>Praxis:</strong> Immer mit Validierung/Testset prüfen, nicht nur auf Training schauen.</li>
-            <li><strong>Didaktik:</strong> Teilnehmende lernen, warum "mehr KI" nicht automatisch besser ist.</li>
+            <li><strong>Varianz hoch (zu komplex):</strong> Modell reagiert zu stark auf Zufallsrauschen.</li>
+            <li><strong>Irreduzierbarer Fehler:</strong> Ein Rest-Rauschen bleibt immer und kann nicht wegoptimiert werden.</li>
+            <li><strong>Dartscheiben-Bild:</strong> Bias = systematisch daneben, Varianz = starke Streuung der Treffer.</li>
+            <li><strong>Ziel:</strong> Sweet Spot zwischen Bias und Varianz statt Perfektion im Training.</li>
+            <li><strong>Harte Einschränkung:</strong> Feste Gewichtsgrenze (Range), z. B. |w| <= c.</li>
+            <li><strong>Weiche Einschränkung:</strong> Strafterm in der Cost Function statt harter Kappung.</li>
+            <li><strong>Regularisierung:</strong> Bremst Modellflexibilität gezielt, damit Overfitting sinkt; zu starke Bremse kann Underfitting erzeugen.</li>
+            <li><strong>Ridge/Lasso/ElasticNet:</strong> Ridge schrumpft Gewichte kontinuierlich, Lasso kann Gewichte auf 0 setzen, ElasticNet mischt beides über l1_ratio.</li>
+            <li><strong>Feature Engineering:</strong> Bessere Merkmale erhöhen Signalqualität und reduzieren unnötige Varianz schon vor dem Training.</li>
+            <li><strong>Praxis-Werkzeuge:</strong> mehr Daten, Feature Engineering, Regularisierung und Kreuzvalidierung helfen beim Ausbalancieren.</li>
+            <li><strong>Ensemble-Idee:</strong> Bagging senkt Varianz, Boosting reduziert Bias durch sequenzielles Nachbessern.</li>
+            <li><strong>Didaktik:</strong> Teilnehmende lernen, warum Generalisierung wichtiger ist als Demo-Perfektion.</li>
           </ul>
         </div>
       </section>
@@ -1071,70 +1583,112 @@
       { x: 8, y: 44 }
     ];
 
+    const testPoints = [
+      { x: 0.6, y: 43 },
+      { x: 1.8, y: 37 },
+      { x: 3.2, y: 29 },
+      { x: 4.8, y: 24 },
+      { x: 6.4, y: 30 },
+      { x: 7.6, y: 39 }
+    ];
+
+    const outlierPoint = { x: 6.9, y: 18 };
+
     const trainError = [44, 36, 30, 24, 19, 14, 9, 6];
     const testError = [48, 39, 29, 21, 16, 18, 26, 36];
+    const signalShare = [32, 41, 52, 64, 76, 82, 85, 87];
+    const noiseShare = [6, 8, 11, 15, 20, 34, 49, 66];
+    const decompositionVariance = [2, 4, 6, 8, 10, 13, 20, 29];
+    const decompositionIrreducible = [5, 5, 5, 5, 5, 5, 5, 5];
 
     const steps = [
       {
-        title: "Schritt 1: Problem aufmachen",
-        text: "Starte bei Komplexität 1. Das Modell ist sehr starr und trifft die Kurve der Realität kaum.",
-        chat: "Chat: Wirkt dieses Modell eher zu simpel oder schon passend?"
+        title: "Schritt 1: Tatort öffnen",
+        text: "Starte bei Komplexität 1. Das Modell ist zu simpel und liegt systematisch daneben: hoher Bias (Unteranpassung durch zu starre Modellannahmen). Varianz bedeutet hier die Streuung der Schätzung auf neuen Stichproben.",
+        chat: "Chat: Welche Spur zeigt hier den systematischen Fehler am klarsten?"
       },
       {
-        title: "Schritt 2: Modell flexibler machen",
-        text: "Bewege den Regler langsam Richtung 5. Zeige, wie die Form sich anpasst und die Vorhersagen realistischer werden.",
-        chat: "Chat: Bei welcher Komplexität wirkt die Kurve für euch am plausibelsten?"
+        title: "Schritt 2: Einfach vs. komplex (Training)",
+        text: "Vergleiche Komplexität 1 gegen 5: Das einfache Modell ist stabil, aber grob. Das flexiblere Modell trifft den Trend deutlich besser. Denkbild: Mit höherer Komplexität steigt der Polynomgrad (z. B. von linear zu polynomialer Regression).",
+        chat: "Chat: Wo seht ihr den klarsten Vorteil des komplexeren Modells im Training?"
       },
       {
-        title: "Schritt 3: Überanpassung provozieren",
-        text: "Gehe auf 8 und zeige das Zickzack. Das Modell lernt einzelne Punkte auswendig statt das Grundmuster.",
-        chat: "Chat: Warum ist 'perfekt auf Training' nicht automatisch gut im echten Leben?"
+        title: "Schritt 3: Einfach vs. komplex (neue Daten)",
+        text: "Gehe auf 8 und prüfe die grünen Testpunkte. Das sehr komplexe Modell trifft Training perfekt, aber verliert auf neuen Daten an Stabilität. Teste jetzt im Mini-Panel: Button \"Polynomial\" und optional den großen Ausreißer.",
+        chat: "Chat: Welcher Nachteil zeigt sich bei neuen Daten zuerst, wenn das Modell zu komplex wird?"
       },
       {
-        title: "Schritt 4: Fehlervergleich erklären",
-        text: "Nutze die Balken: Trainingsfehler fällt fast immer, Testfehler hat aber ein Minimum. Dort liegt der Sweet Spot.",
-        chat: "Chat: Was würden wir in der Praxis optimieren: Training oder Test?"
+        title: "Schritt 4: Sweet Spot finden",
+        text: "Nutze die Balken: Trainingsfehler fällt, Testfehler hat ein Minimum. Dort liegt die beste Balance aus Bias und Varianz. Jetzt wird im Theorie-Panel die Fehlerzerlegung mit MSE, Bias², Varianz und Rauschen live sichtbar.",
+        chat: "Chat: Was priorisieren wir fachlich: minimale Trainingsfehler oder stabile Testleistung?"
       },
       {
-        title: "Schritt 5: Transfer",
-        text: "Verbinde das mit echten Projekten: Nach dem Tradeoff folgt Regularisierung als konkretes Werkzeug gegen Overfitting.",
-        chat: "Chat: Wo habt ihr schon erlebt, dass ein Modell im Test schlechter ist als in der Demo?"
+        title: "Schritt 5: Praxis-Werkzeuge klar einordnen",
+        text: "Nutze jetzt die vier Praxis-Werkzeuge bewusst: mehr Daten, Feature Engineering, Regularisierung und Kreuzvalidierung. Mehr Daten reduzieren Stichprobenrauschen und oft die Varianz. Feature Engineering baut bessere Merkmale (z. B. x²), damit Signal klarer lernbar wird. Regularisierung ergänzt die Cost Function um Strafterme für große Gewichte. Kreuzvalidierung prüft über mehrere Splits, ob das Modell auch außerhalb eines einzelnen Datensplits stabil bleibt.",
+        chat: "Chat: Welches dieser vier Werkzeuge würdet ihr zuerst einsetzen und warum?"
+      },
+      {
+        title: "Schritt 6: ElasticNet dosieren",
+        text: "Teste jetzt ElasticNet als Mischform aus Ridge (L2) und Lasso (L1) in einer Cost Function. Stelle im Regler l1_ratio den Mix ein: nahe 0 wirkt es wie Ridge (stabil), nahe 1 wie Lasso (sparsamer). Ziel: Overfitting dämpfen, ohne Signal zu verlieren.",
+        chat: "Chat: Welche Mischung würdet ihr bei Ausreißern und korrelierten Features testen?"
       }
     ];
 
     const stepTemplate = [
       {
-        why: "Der Einstieg macht sichtbar, warum zu einfache Modelle echte Muster verpassen.",
-        consequence: "Wenn die Komplexitaet zu niedrig bleibt, dann steigt Bias und systematische Abweichung bleibt hoch.",
+        why: "Der Einstieg zeigt, warum zu einfache Modelle trotz Stabilität systematisch falsch sein können.",
+        consequence: "Wenn die Komplexität zu niedrig bleibt, dann steigt Bias und systematische Abweichung bleibt hoch.",
         reflection: "Wo hast du schon erlebt, dass ein zu simples Modell wichtige Unterschiede ignoriert?"
       },
       {
-        why: "Kontrolliertes Erhoehen der Flexibilitaet zeigt den Weg zum nutzbaren Modellbereich.",
+        why: "Das mittlere Komplexitätsfenster trennt nützliches Signal von zufälligen Ausschlägen.",
         consequence: "Wenn die Kurve sich dem Signal anpasst ohne zu oszillieren, dann sinken Train- und Testfehler oft gemeinsam.",
-        reflection: "Ab welchem Punkt wirkte die Modellform fuer dich plausibel statt starr?"
+        reflection: "Ab welchem Punkt wirkte die Modellform für dich plausibel statt starr?"
       },
       {
-        why: "Overfitting muss man bewusst provozieren, damit es spaeter frueh erkannt wird.",
-        consequence: "Wenn das Modell Trainingspunkte auswendig lernt, dann steigt die Instabilitaet auf neuen Daten.",
+        why: "Overfitting muss man bewusst provozieren, damit es später früh erkannt wird.",
+        consequence: "Wenn das Modell Trainingspunkte auswendig lernt, dann steigt die Instabilität auf neuen Daten.",
         reflection: "Welches sichtbare Zeichen hat dir hier Overfitting am klarsten gezeigt?"
       },
       {
-        why: "Der Tradeoff wird erst mit getrennten Fehlerkurven objektiv messbar.",
+        why: "Der Tradeoff wird erst durch Vergleich von Trainings- und Testsicht objektiv messbar.",
         consequence: "Wenn nur Trainingsfehler optimiert wird, dann verfehlst du leicht den besten Generalisierungsbereich.",
-        reflection: "Welche Kennzahl wuerdest du im Projektmeeting priorisieren und warum?"
+        reflection: "Welche Kennzahl würdest du im Projektmeeting priorisieren und warum?"
       },
       {
-        why: "Der Transfer verbindet Diagnose mit dem naechsten Werkzeug gegen Overfitting.",
-        consequence: "Wenn der Sweet Spot nicht stabil bleibt, dann braucht es gezielte Regularisierung im Folgeschritt.",
-        reflection: "Welche Entscheidung in deinem Umfeld koennte vom Tradeoff-Verstaendnis direkt profitieren?"
+        why: "Praxiswerkzeuge reduzieren Risiko systematisch statt per Bauchgefühl.",
+        consequence: "Wenn der Sweet Spot instabil bleibt, dann helfen mehr Daten, bessere Features, Regularisierung und Kreuzvalidierung.",
+        reflection: "Welches Werkzeug hat bei euch den größten Hebel auf Testqualität?"
+      },
+      {
+        why: "ElasticNet verbindet Stabilität (Ridge) mit Merkmalsauswahl (Lasso) in einem Schritt.",
+        consequence: "Wenn einzelne Features instabil sind, dann hilft die richtige L1/L2-Mischung bei robuster Generalisierung.",
+        reflection: "Welche l1_ratio-Einstellung würdest du zuerst testen und warum?"
       }
     ];
+
+    const biasStepNavStorageKey = "ds-bias-step-nav-unlocked";
+    const biasStepNavUnlocked = (() => {
+      try {
+        return localStorage.getItem(biasStepNavStorageKey) === "1";
+      } catch (err) {
+        return false;
+      }
+    })();
 
     const state = {
       complexity: 4,
       stepIndex: 0,
       pathUnlocked: false,
-      quizReady: false
+      quizReady: false,
+      stepJumpUnlocked: biasStepNavUnlocked,
+      modelFamily: "polynomial",
+      outlierActive: false,
+      weightScale: 1.0,
+      hardCap: 2.6,
+      lambda: 0.0,
+      l1Ratio: 0.5,
+      regMode: "ridge"
     };
 
     const chart = document.getElementById("curve-chart");
@@ -1142,22 +1696,112 @@
     const complexityInput = document.getElementById("complexity");
 
     const timelineEl = document.getElementById("timeline");
+    const sidebarEl = document.getElementById("sidebar");
+    const prevStepBtn = document.getElementById("prev-step");
     const codePopupOverlay = document.getElementById("code-popup-overlay");
     const codePopupFrame = document.getElementById("code-popup-frame");
-    const codePopupTriggers = document.querySelectorAll(".extension-link");
-    const biasPathBox = document.getElementById("bias-path-box");
+    const codePopupTriggers = document.querySelectorAll('a[href$="_code_praxis.html"]:not([aria-disabled="true"])');
     const biasPathTeaser = document.getElementById("bias-path-teaser");
     const biasQuizStatusEl = document.getElementById("bias-quiz-status");
     const openBiasQuizBtn = document.getElementById("open-bias-quiz");
     const replayBiasBtn = document.getElementById("replay-bias");
-    const toRegularizationLink = document.getElementById("to-regularization-link");
+    const toMatrixLink = document.getElementById("to-matrix-link");
     const biasQuizOverlay = document.getElementById("quiz-overlay");
     const biasQuizForm = document.getElementById("bias-quiz-form");
     const biasQuizFeedbackEl = document.getElementById("bias-quiz-feedback");
+    const decompositionPanelEl = document.getElementById("decomposition-panel");
+    const decompositionIntroEl = document.getElementById("decomposition-intro");
+    const decompositionNoteEl = document.getElementById("decomposition-note");
+    const chooseLinearBtn = document.getElementById("choose-linear");
+    const choosePolynomialBtn = document.getElementById("choose-polynomial");
+    const modelChoiceFeedbackEl = document.getElementById("model-choice-feedback");
+    const outlierToggle = document.getElementById("toggle-outlier");
+    const weightScaleInput = document.getElementById("weight-scale");
+    const hardCapInput = document.getElementById("hard-cap");
+    const lambdaInput = document.getElementById("lambda");
+    const l1RatioInput = document.getElementById("l1-ratio");
+    const ridgeBtn = document.getElementById("mode-ridge");
+    const lassoBtn = document.getElementById("mode-lasso");
+    const elasticnetBtn = document.getElementById("mode-elastic");
+    const elasticnetMixGroup = document.getElementById("elasticnet-mix-group");
+    const weightScaleValueEl = document.getElementById("weight-scale-value");
+    const hardCapValueEl = document.getElementById("hard-cap-value");
+    const lambdaValueEl = document.getElementById("lambda-value");
+    const l1RatioValueEl = document.getElementById("l1-ratio-value");
+    const regCostFormulaEl = document.getElementById("reg-cost-formula");
+    const effectiveWeightEl = document.getElementById("effective-weight");
+    const regCostValueEl = document.getElementById("reg-cost-value");
+    const constraintNoteEl = document.getElementById("constraint-note");
+    const stepMathTitleEl = document.getElementById("step-math-title");
+    const stepMathEquationEl = document.getElementById("step-math-equation");
+    const stepMathExplainEl = document.getElementById("step-math-explain");
+    const stepMathListEl = document.getElementById("step-math-list");
+    const chipCoefEl = document.getElementById("chip-coef");
+    const chipCostEl = document.getElementById("chip-cost");
+    const biasStepPopupSeen = new Set();
     const biasQuizAnswers = { q1: "b", q2: "b", q3: "c" };
 
     const xRange = { min: 0, max: 8 };
     const yRange = { min: 14, max: 50 };
+    const stepMathContent = [
+      {
+        title: "Formelblick Schritt 1: Zu simples Modell",
+        equation: "ŷ = w<sub>0</sub> + w<sub>1</sub>x",
+        explanation: "Ein lineares Modell mit nur zwei Parametern ist stabil, kann aber gekrümmte Zusammenhänge nicht vollständig erfassen.",
+        terms: [
+          { term: "Bias²", desc: "E[(f̂(x) - f(x))²] misst den systematischen Fehler durch zu starre Annahmen." },
+          { term: "Varianz", desc: "E[(f̂(x) - E[f̂(x)])²] ist hier meist noch klein, weil das Modell wenig flexibel ist." }
+        ]
+      },
+      {
+        title: "Formelblick Schritt 2: Modellfamilie wählen",
+        equation: "ŷ = Σ<sub>j=0..p</sub> w<sub>j</sub>x<sup>j</sup>",
+        explanation: "Der Polynomgrad p steuert die Komplexität: p = 1 ist linear, höhere p erlauben gekrümmte Kurven.",
+        terms: [
+          { term: "Polynomgrad p", desc: "Je höher p, desto flexibler das Modell." },
+          { term: "Polynomisierung", desc: "Aus x werden zusätzliche Merkmale wie x², x³ und damit neue Modellfreiheitsgrade." }
+        ]
+      },
+      {
+        title: "Formelblick Schritt 3: Generalisierung messen",
+        equation: "MSE<sub>test</sub> - MSE<sub>train</sub> = Generalisierungslücke",
+        explanation: "Wenn die Lücke wächst, passt das Modell Trainingsdaten besser als neue Daten an: ein Overfitting-Signal.",
+        terms: [
+          { term: "MSE_train", desc: "(1/n) · Σ(y - ŷ)² auf Trainingsdaten." },
+          { term: "MSE_test", desc: "(1/m) · Σ(y - ŷ)² auf ungesehenen Daten; zentral für Modellvergleich." }
+        ]
+      },
+      {
+        title: "Formelblick Schritt 4: Fehlerzerlegung",
+        equation: "MSE = Bias² + Varianz + σ²<sub>Rauschen</sub>",
+        explanation: "Die Gesamtabweichung setzt sich aus systematischem Fehler, Streuung und irreduzierbarem Rauschen zusammen.",
+        terms: [
+          { term: "Bias²", desc: "Zu hohe Modellvereinfachung erzeugt Unteranpassung." },
+          { term: "Varianz", desc: "Zu hohe Empfindlichkeit gegenüber Datenfluktuationen erzeugt Überanpassung." },
+          { term: "σ²_Rauschen", desc: "Unvermeidbarer Datenanteil, der sich nicht wegoptimieren lässt." }
+        ]
+      },
+      {
+        title: "Formelblick Schritt 5: Praxis-Werkzeuge",
+        equation: "CV<sub>k</sub> = (1/k) · Σ<sub>i=1..k</sub> MSE<sub>val</sub><sup>(i)</sup>",
+        explanation: "Praxis bedeutet, Maßnahmen systematisch zu kombinieren, statt nur einen einzelnen Split zu optimieren.",
+        terms: [
+          { term: "Mehr Daten", desc: "Mehr Beobachtungen stabilisieren Schätzungen und senken häufig die Varianz." },
+          { term: "Feature Engineering", desc: "Neue Merkmalsfunktion φ(x) macht relevantes Signal besser lernbar." },
+          { term: "Regularisierung", desc: "J = MSE + λ·Ω(w) begrenzt große Gewichte und reduziert Overfitting-Risiko." },
+          { term: "Kreuzvalidierung", desc: "Mehrere Train/Validierungs-Splits liefern robuste Modellwahl statt Zufallstreffer." }
+        ]
+      },
+      {
+        title: "Formelblick Schritt 6: ElasticNet",
+        equation: "J<sub>EN</sub> = MSE + λ · [ r · Σ|w<sub>i</sub>| + (1-r) · Σw<sub>i</sub><sup>2</sup> ]",
+        explanation: "ElasticNet mischt L1- und L2-Strafen mit r = l1_ratio für sparsames und zugleich stabiles Lernen.",
+        terms: [
+          { term: "r = l1_ratio", desc: "r → 1 verhält sich wie Lasso, r → 0 wie Ridge." },
+          { term: "Nutzen", desc: "Hilft bei korrelierten Features und Ausreißern, ohne nur auf eine Strafart zu setzen." }
+        ]
+      }
+    ];
 
     function setCanvasSize() {
       const dpr = window.devicePixelRatio || 1;
@@ -1175,23 +1819,110 @@
       return height - pad.bottom - ((y - yRange.min) / (yRange.max - yRange.min)) * (height - pad.top - pad.bottom);
     }
 
+    function clampValue(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function getRegularizationFactors() {
+      if (state.regMode === "ridge") {
+        return { softGuard: 1.15, biasPenalty: 0.85, label: "Ridge" };
+      }
+      if (state.regMode === "lasso") {
+        return { softGuard: 0.95, biasPenalty: 1.25, label: "Lasso" };
+      }
+      return { softGuard: 1.05, biasPenalty: 1.0, label: "ElasticNet" };
+    }
+
+    function getRegularizationSnapshot() {
+      const baseWeight = 0.9 + state.complexity * 0.35;
+      const rawWeight = baseWeight * state.weightScale;
+      const boundedWeight = Math.min(rawWeight, state.hardCap);
+      const hardApplied = rawWeight > state.hardCap + 1e-6;
+      let effectiveWeight = boundedWeight;
+      let penalty = 0;
+
+      if (state.regMode === "ridge") {
+        effectiveWeight = boundedWeight / (1 + state.lambda * 0.22);
+        penalty = state.lambda * Math.pow(effectiveWeight, 2);
+      } else if (state.regMode === "lasso") {
+        effectiveWeight = Math.max(0, boundedWeight - state.lambda * 0.18);
+        penalty = state.lambda * Math.abs(effectiveWeight);
+      } else {
+        const ridgeWeight = boundedWeight / (1 + state.lambda * 0.18 * (1 - state.l1Ratio));
+        const lassoWeight = Math.max(0, boundedWeight - state.lambda * 0.16 * state.l1Ratio);
+        effectiveWeight = clampValue(
+          ridgeWeight * (1 - state.l1Ratio) + lassoWeight * state.l1Ratio,
+          0,
+          boundedWeight
+        );
+        penalty = state.lambda * (
+          state.l1Ratio * Math.abs(effectiveWeight)
+          + (1 - state.l1Ratio) * Math.pow(effectiveWeight, 2)
+        );
+      }
+      return { rawWeight, boundedWeight, effectiveWeight, hardApplied, penalty };
+    }
+
+    function updateModelChoiceFeedback() {
+      chooseLinearBtn.classList.toggle("is-active", state.modelFamily === "linear");
+      choosePolynomialBtn.classList.toggle("is-active", state.modelFamily === "polynomial");
+      if (state.modelFamily === "linear") {
+        modelChoiceFeedbackEl.textContent = "Aktuell aktiv: Linear. Stabiler bei wenig Daten, aber begrenzt bei gekrümmten Mustern.";
+      } else {
+        modelChoiceFeedbackEl.textContent = "Aktuell aktiv: Polynomial. Flexibler bei gekrümmten Mustern, aber overfitting-anfälliger.";
+      }
+    }
+
+    function updateRegFormula() {
+      if (state.regMode === "ridge") {
+        regCostFormulaEl.innerHTML = "J<sub>reg</sub> = MSE + λ · Σw<sub>i</sub><sup>2</sup> (Ridge)";
+      } else if (state.regMode === "lasso") {
+        regCostFormulaEl.innerHTML = "J<sub>reg</sub> = MSE + λ · Σ|w<sub>i</sub>| (Lasso)";
+      } else {
+        regCostFormulaEl.innerHTML = "J<sub>EN</sub> = MSE + λ · [ r · Σ|w<sub>i</sub>| + (1-r) · Σw<sub>i</sub><sup>2</sup> ]";
+      }
+      ridgeBtn.classList.toggle("is-active", state.regMode === "ridge");
+      lassoBtn.classList.toggle("is-active", state.regMode === "lasso");
+      elasticnetBtn.classList.toggle("is-active", state.regMode === "elasticnet");
+      elasticnetMixGroup.hidden = state.regMode !== "elasticnet";
+    }
+
+    function updateStepMathPanel() {
+      const content = stepMathContent[state.stepIndex] || stepMathContent[0];
+      stepMathTitleEl.textContent = content.title;
+      stepMathEquationEl.innerHTML = content.equation;
+      stepMathExplainEl.textContent = content.explanation;
+      stepMathListEl.innerHTML = "";
+      content.terms.forEach((item) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${item.term}:</strong> ${item.desc}`;
+        stepMathListEl.appendChild(li);
+      });
+    }
+
     function modelY(x) {
       const c = state.complexity;
+      const reg = getRegularizationSnapshot();
+      const weightFactor = clampValue(reg.effectiveWeight / 2.1, 0.35, 1.55);
+      const outlierPull = state.outlierActive
+        ? -4.8 * Math.exp(-Math.pow((x - outlierPoint.x) / 0.58, 2)) * (0.25 + weightFactor * 0.4)
+        : 0;
 
       if (c <= 2) {
-        const m = c === 1 ? -0.4 : 0.3;
-        return 41 + m * (x - 4);
+        const mBase = c === 1 ? -0.4 : 0.3;
+        const m = mBase * (0.8 + weightFactor * 0.45);
+        return clampValue(41 + m * (x - 4), yRange.min - 2, yRange.max + 2);
       }
 
       if (c <= 5) {
-        const a = 1.05 + (5 - c) * 0.12;
-        return 23 + a * Math.pow(x - 5, 2);
+        const a = (1.05 + (5 - c) * 0.12) * (0.78 + weightFactor * 0.28);
+        return clampValue(23 + a * Math.pow(x - 5, 2) + outlierPull * 0.4, yRange.min - 2, yRange.max + 2);
       }
 
       const base = 23 + 0.95 * Math.pow(x - 5, 2);
-      const wiggleStrength = (c - 5) * 2.6;
+      const wiggleStrength = (c - 5) * 2.6 * (0.8 + weightFactor * 0.38);
       const wiggle = Math.sin(x * 2.8) * wiggleStrength;
-      return base + wiggle;
+      return clampValue(base + wiggle + outlierPull, yRange.min - 2, yRange.max + 2);
     }
 
     function drawAxes(width, height, pad) {
@@ -1231,8 +1962,10 @@
       ctx.font = "11px Inter";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
+      const xTickLabelY = height - pad.bottom + 6;
+      const xAxisTitleY = xTickLabelY + 14;
       xTicks.forEach((tick) => {
-        ctx.fillText(`${tick}`, toCanvasX(tick, width, pad), height - pad.bottom + 6);
+        ctx.fillText(`${tick}`, toCanvasX(tick, width, pad), xTickLabelY);
       });
 
       ctx.textAlign = "right";
@@ -1245,13 +1978,13 @@
       ctx.font = "12px Inter";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillText("Uhrzeit-Index im Tagesverlauf", (pad.left + (width - pad.right)) / 2, height - pad.bottom + 24);
+      ctx.fillText("Maus-Gewichtsindex", (pad.left + (width - pad.right)) / 2, xAxisTitleY);
       ctx.save();
       ctx.translate(20, (pad.top + (height - pad.bottom)) / 2);
       ctx.rotate(-Math.PI / 2);
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillText("Fahrzeit zur Arbeit (Minuten)", 0, 0);
+      ctx.fillText("Maus-Größe (cm)", 0, 0);
       ctx.restore();
     }
 
@@ -1270,6 +2003,43 @@
         ctx.arc(x, y, 4.6, 0, Math.PI * 2);
         ctx.stroke();
       });
+
+      testPoints.forEach((p) => {
+        const x = toCanvasX(p.x, width, pad);
+        const y = toCanvasY(p.y, height, pad);
+        ctx.beginPath();
+        ctx.fillStyle = "#1f8b4c";
+        ctx.arc(x, y, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.arc(x, y, 4.2, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      if (state.outlierActive) {
+        const x = toCanvasX(outlierPoint.x, width, pad);
+        const y = toCanvasY(outlierPoint.y, height, pad);
+
+        ctx.beginPath();
+        ctx.fillStyle = "#be3b33";
+        ctx.arc(x, y, 5.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.8;
+        ctx.arc(x, y, 5.2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = "#8f1f1f";
+        ctx.font = "11px Inter";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Ausreißer", x + 8, y - 1);
+      }
     }
 
     function drawCurve(width, height, pad) {
@@ -1297,7 +2067,7 @@
       setCanvasSize();
       const width = chart.clientWidth;
       const height = chart.clientHeight;
-      const pad = { top: 24, right: 24, bottom: 66, left: 74 };
+      const pad = { top: 24, right: 24, bottom: 84, left: 74 };
 
       ctx.clearRect(0, 0, width, height);
       drawAxes(width, height, pad);
@@ -1305,55 +2075,191 @@
       drawPoints(width, height, pad);
     }
 
-    function fitLabel() {
-      if (state.complexity <= 2) return "Underfit (Bias hoch)";
-      if (state.complexity <= 5) return "Ausgewogen";
-      return "Overfit (Variance hoch)";
+    function fitLabel(metrics) {
+      if (metrics.noise > 52) return state.outlierActive ? "Overfit + Ausreißer" : "Overfit (Varianz hoch)";
+      if (metrics.biasSquared > metrics.variance + 6) return "Underfit (Bias hoch)";
+      return "Ausgewogen";
     }
 
-    function statusText() {
-      if (state.complexity <= 2) {
+    function statusText(metrics, reg) {
+      if (metrics.noise > 52) {
         return {
-          title: "Zu simpel",
-          text: "Das Modell ist stabil, aber blind für wichtige Struktur. Es macht systematische Fehler.",
+          title: "Tatort-Spur: Varianz dominiert",
+          text: state.outlierActive
+            ? "Ausreißer + hohes Gewicht treiben die Streuung. Nutze Range-Cap oder lambda, um zu stabilisieren."
+            : "Das Modell reagiert zu stark auf Zufall. Weiche oder harte Einschränkung senken dieses Risiko.",
+          color: "#be3b33"
+        };
+      }
+      if (metrics.biasSquared > metrics.variance + 6) {
+        return {
+          title: "Tatort-Spur: Bias dominiert",
+          text: "Zu starke Einschränkung kann Unteranpassung erzeugen. Prüfe, ob Range/lambda zu restriktiv ist.",
           color: "#d17b1f"
         };
       }
-      if (state.complexity <= 5) {
-        return {
-          title: "Guter Bereich",
-          text: "Hier balancieren wir Mustererkennung und Robustheit. Testfehler ist nahe am Minimum.",
-          color: "#1f8b4c"
-        };
-      }
       return {
-        title: "Zu komplex",
-        text: "Das Modell reagiert auf Zufall in den Trainingsdaten. Auf neuen Daten wird es unzuverlässig.",
-        color: "#be3b33"
+        title: "Sweet Spot",
+        text: reg.hardApplied || state.lambda > 0
+          ? "Signal bleibt stabil, während Einschränkungen Overfitting dämpfen."
+          : "Hier balancieren wir Signalaufnahme und Robustheit. Der Testfehler bleibt kontrolliert.",
+        color: "#1f8b4c"
       };
     }
 
     function updateDiagnostics() {
       const cIdx = state.complexity - 1;
-      const train = trainError[cIdx];
-      const test = testError[cIdx];
+      const baseTrain = trainError[cIdx];
+      const baseTest = testError[cIdx];
+      const baseSignal = signalShare[cIdx];
+      const baseNoise = noiseShare[cIdx];
+      const irreducible = decompositionIrreducible[cIdx];
+      const baseVariance = decompositionVariance[cIdx];
+      const reg = getRegularizationSnapshot();
+
+      const overfitPressure = Math.max(0, reg.effectiveWeight - 2.0) * 5.8;
+      const outlierPressure = state.outlierActive
+        ? (state.complexity >= 6 ? 6.5 : 3.2) + Math.max(0, reg.effectiveWeight - 1.2) * 2.3
+        : 0;
+      const modeFactors = getRegularizationFactors();
+      const hardGuardBonus = reg.hardApplied ? 2.4 : 0;
+      const softGuardBonus = state.lambda * modeFactors.softGuard;
+      const biasPenalty = state.lambda * modeFactors.biasPenalty;
+
+      let train = baseTrain
+        + Math.max(0, reg.effectiveWeight - 1.8) * 1.3
+        + (state.outlierActive ? 2.2 : 0)
+        + state.lambda * 0.35;
+
+      let testEstimate = baseTest
+        + overfitPressure
+        + outlierPressure
+        - hardGuardBonus
+        - softGuardBonus
+        + biasPenalty * 0.55;
+
+      let variancePart = baseVariance
+        + overfitPressure * 0.75
+        + outlierPressure * 0.45
+        - softGuardBonus * 0.5
+        - hardGuardBonus * 0.3;
+
+      if (state.modelFamily === "linear") {
+        variancePart *= 0.72;
+        testEstimate -= 1.4;
+      }
+
+      variancePart = clampValue(variancePart, 1, 42);
+      const biasSquared = clampValue(
+        Math.max(0, testEstimate - variancePart - irreducible) + (state.modelFamily === "linear" ? 1.2 : 0),
+        0,
+        45
+      );
+      const mse = biasSquared + variancePart + irreducible;
+      const decompositionTotal = mse;
+
+      const signal = clampValue(
+        baseSignal - overfitPressure * 1.1 - outlierPressure * 1.5 + softGuardBonus * 1.35 + hardGuardBonus * 0.9,
+        15,
+        95
+      );
+      const noise = clampValue(
+        baseNoise + overfitPressure * 1.5 + outlierPressure * 1.8 - softGuardBonus * 1.4 - hardGuardBonus * 1.2,
+        0,
+        92
+      );
+
+      train = clampValue(train, 3, 70);
+      const test = clampValue(mse, 3, 75);
+      const regCost = test + reg.penalty;
+
+      const metrics = { train, test, signal, noise, biasSquared, variance: variancePart };
 
       document.getElementById("chip-complexity").textContent = state.complexity;
       document.getElementById("chip-train").textContent = train.toFixed(1);
       document.getElementById("chip-test").textContent = test.toFixed(1);
-      document.getElementById("fit-label").textContent = fitLabel();
+      document.getElementById("chip-signal").textContent = signal.toFixed(0);
+      document.getElementById("chip-noise").textContent = noise.toFixed(0);
+      chipCoefEl.textContent = reg.effectiveWeight.toFixed(2);
+      chipCostEl.textContent = regCost.toFixed(2);
+      document.getElementById("fit-label").textContent = fitLabel(metrics);
 
       document.getElementById("complexity-value").textContent = state.complexity;
       document.getElementById("train-value").textContent = train.toFixed(1);
       document.getElementById("test-value").textContent = test.toFixed(1);
+      document.getElementById("signal-value").textContent = `${signal.toFixed(0)}%`;
+      document.getElementById("noise-value").textContent = `${noise.toFixed(0)}%`;
 
-      const maxErr = 50;
+      weightScaleValueEl.textContent = `${state.weightScale.toFixed(2)}x`;
+      hardCapValueEl.textContent = state.hardCap.toFixed(2);
+      lambdaValueEl.textContent = state.lambda.toFixed(1);
+      l1RatioValueEl.textContent = state.l1Ratio.toFixed(2);
+      effectiveWeightEl.textContent = reg.effectiveWeight.toFixed(2);
+      regCostValueEl.textContent = regCost.toFixed(2);
+
+      let constraintText = reg.hardApplied
+        ? `Harte Einschränkung aktiv: Rohgewicht ${reg.rawWeight.toFixed(2)} wurde auf ${reg.boundedWeight.toFixed(2)} begrenzt.`
+        : "Harte Einschränkung derzeit nicht bindend.";
+      if (state.lambda > 0) {
+        constraintText += ` Weiche Einschränkung aktiv (${modeFactors.label}), Strafterm = ${reg.penalty.toFixed(2)}.`;
+        if (state.regMode === "elasticnet") {
+          constraintText += ` Mix r = ${state.l1Ratio.toFixed(2)}.`;
+        }
+      } else {
+        constraintText += " Weiche Einschränkung aus (λ = 0).";
+      }
+      if (state.outlierActive) {
+        constraintText += " Ausreißer ist sichtbar aktiv.";
+      }
+      constraintNoteEl.textContent = constraintText;
+
+      const maxErr = 75;
       document.getElementById("train-bar").style.width = `${(train / maxErr) * 100}%`;
       document.getElementById("test-bar").style.width = `${(test / maxErr) * 100}%`;
+      document.getElementById("signal-bar").style.width = `${signal}%`;
+      document.getElementById("noise-bar").style.width = `${noise}%`;
 
-      const info = statusText();
+      document.getElementById("formula-mse").textContent = test.toFixed(1);
+      document.getElementById("formula-bias2").textContent = biasSquared.toFixed(1);
+      document.getElementById("formula-variance").textContent = variancePart.toFixed(1);
+      document.getElementById("formula-noise").textContent = irreducible.toFixed(1);
+      document.getElementById("formula-total").textContent = decompositionTotal.toFixed(1);
+
+      const info = statusText(metrics, reg);
       const statusBox = document.getElementById("status-box");
-      statusBox.innerHTML = `<strong style="color:${info.color}">${info.title}</strong>${info.text}`;
+      statusBox.innerHTML = `<strong style="color:${info.color}">${info.title}</strong>${info.text}<br><strong>Merker:</strong> Cost Function mit Ridge/Lasso/ElasticNet oder Range-Cap hilft, extreme Gewichte und Overfitting zu dämpfen.`;
+    }
+
+    function persistBiasStepUnlock() {
+      try {
+        localStorage.setItem(biasStepNavStorageKey, "1");
+      } catch (err) {
+        // Ignore storage errors (e.g., private mode).
+      }
+    }
+
+    function jumpToBiasStep(idx) {
+      if (!state.stepJumpUnlocked) return;
+      if (idx === state.stepIndex) return;
+      state.stepIndex = idx;
+      updateStepContent();
+    }
+
+    function maybeShowBiasStepPopup() {
+      if (state.stepJumpUnlocked) return;
+      if (biasStepPopupSeen.has(state.stepIndex)) return;
+      const step = steps[state.stepIndex];
+      const template = stepTemplate[state.stepIndex];
+      biasStepPopupSeen.add(state.stepIndex);
+      if (state.stepIndex === 0) {
+        window.alert(
+          `${step.title}\n\nErstbegriff Bias:\nUnteranpassung durch zu starre Modellannahmen.\n\nErstbegriff Varianz:\nWie stark sich die Schätzung des Ziels bei neuen Stichproben ändert.\n\nWarum wichtig:\n${template.why}`
+        );
+        return;
+      }
+      window.alert(
+        `${step.title}\n\nWarum jetzt wichtig:\n${template.why}\n\nWenn-dann:\n${template.consequence}`
+      );
     }
 
     function renderTimeline() {
@@ -1364,46 +2270,95 @@
         if (idx < state.stepIndex) item.classList.add("done");
         if (idx === state.stepIndex) item.classList.add("active");
         item.textContent = `${idx + 1}. ${step.title.replace("Schritt " + (idx + 1) + ": ", "")}`;
+        if (state.stepJumpUnlocked) {
+          item.classList.add("clickable");
+          item.setAttribute("role", "button");
+          item.tabIndex = 0;
+          item.addEventListener("click", () => jumpToBiasStep(idx));
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              jumpToBiasStep(idx);
+            }
+          });
+        }
         timelineEl.appendChild(item);
       });
+    }
+
+    function updatePrevStepButton() {
+      const canGoPrev = state.stepIndex > 0;
+      prevStepBtn.hidden = !canGoPrev;
+      prevStepBtn.disabled = !canGoPrev;
+    }
+
+    function scrollSidebarTop() {
+      if (!sidebarEl) return;
+      sidebarEl.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function getStepActionText(step) {
+      if (!step || !step.text) return "";
+      const sentences = step.text.match(/[^.!?]+[.!?]/g) || [step.text];
+      const actionSentence = sentences.find((sentence) => /^(Nutze|Teste|Gehe|Vergleiche|Starte)/i.test(sentence.trim()));
+      return (actionSentence || sentences[0] || step.text).trim();
     }
 
     function updateStepContent() {
       if (state.stepIndex === steps.length - 1) {
         state.pathUnlocked = true;
         state.quizReady = true;
+        if (!state.stepJumpUnlocked) {
+          state.stepJumpUnlocked = true;
+          persistBiasStepUnlock();
+        }
       }
       const step = steps[state.stepIndex];
+      updatePrevStepButton();
+      scrollSidebarTop();
       document.getElementById("step-title").textContent = step.title;
       document.getElementById("step-text").textContent = step.text;
+      document.getElementById("step-action").textContent = getStepActionText(step);
       document.getElementById("chat-question").textContent = step.chat;
       const template = stepTemplate[state.stepIndex];
       document.getElementById("step-why").textContent = template.why;
       document.getElementById("step-consequence").textContent = template.consequence;
       document.getElementById("step-reflection").textContent = template.reflection;
+
+      const decompositionUnlocked = state.stepIndex >= 3;
+      const decompositionStep4Focus = state.stepIndex === 3;
+      decompositionPanelEl.classList.toggle("is-locked", !decompositionUnlocked);
+      decompositionPanelEl.classList.toggle("is-step4-focus", decompositionStep4Focus);
+      if (decompositionUnlocked) {
+        decompositionIntroEl.textContent = "Jetzt aktiv: Zerlege den Testfehler live in Bias², Varianz und irreduzierbares Rauschen.";
+        decompositionNoteEl.textContent = "Bewege den Komplexitäts-Regler und beobachte: Bei hoher Komplexität sinkt Bias², aber die Varianz steigt sichtbar.";
+      } else {
+        decompositionIntroEl.textContent = "Ab Schritt 4 aktiv: Dort zerlegen wir den Fehler sichtbar in Bias², Varianz und Rauschen.";
+        decompositionNoteEl.textContent = "Vorbereitung: Nutze jetzt den Regler, um Underfit und Overfit im Kurvenbild zu fühlen.";
+      }
+
+      updateStepMathPanel();
       updatePathAndQuiz();
       renderTimeline();
+      maybeShowBiasStepPopup();
     }
 
     function updatePathAndQuiz() {
       const ready = state.quizReady;
-      biasPathBox.classList.toggle("collapsed", !ready);
-      openBiasQuizBtn.hidden = !ready;
+      openBiasQuizBtn.disabled = !ready;
       replayBiasBtn.hidden = !ready;
-      biasPathTeaser.textContent = ready
-        ? "Geoeffnet: Quiz, Weiterlink und Replay sind jetzt verfuegbar."
-        : `Lernpfad bleibt bis Schritt ${steps.length} eingeklappt.`;
+      biasPathTeaser.textContent = "";
 
       if (!ready) {
-        biasQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} freigeschaltet.`;
+        biasQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} freigeschaltet. Danach wird Thema 4 (Matrix) aktiviert.`;
         biasQuizStatusEl.style.borderColor = "#cbd4e4";
         biasQuizStatusEl.style.background = "#fff";
         biasQuizStatusEl.style.color = "#5f6d84";
         return;
       }
 
-      if (toRegularizationLink.classList.contains("disabled")) {
-        biasQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Mini-Quiz starten (2 von 3 richtig).";
+      if (toMatrixLink.classList.contains("disabled")) {
+        biasQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Mini-Quiz starten (2 von 3 richtig), dann Thema 4 freischalten.";
         biasQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
         biasQuizStatusEl.style.background = "#fff7fa";
         biasQuizStatusEl.style.color = "#6f2d45";
@@ -1413,6 +2368,32 @@
     function setComplexity(value) {
       state.complexity = Math.max(1, Math.min(8, value));
       complexityInput.value = state.complexity;
+      updateDiagnostics();
+      renderChart();
+    }
+
+    function setModelFamily(mode) {
+      state.modelFamily = mode === "linear" ? "linear" : "polynomial";
+      if (state.modelFamily === "linear" && state.complexity > 3) {
+        state.complexity = 3;
+        complexityInput.value = state.complexity;
+      }
+      if (state.modelFamily === "polynomial" && state.complexity < 6) {
+        state.complexity = 6;
+        complexityInput.value = state.complexity;
+      }
+      updateModelChoiceFeedback();
+      updateDiagnostics();
+      renderChart();
+    }
+
+    function setRegMode(mode) {
+      if (mode === "lasso" || mode === "ridge" || mode === "elasticnet") {
+        state.regMode = mode;
+      } else {
+        state.regMode = "ridge";
+      }
+      updateRegFormula();
       updateDiagnostics();
       renderChart();
     }
@@ -1427,10 +2408,10 @@
       codePopupFrame.src = "about:blank";
     }
 
-    function unlockRegularizationNavigation() {
-      toRegularizationLink.classList.remove("disabled");
-      toRegularizationLink.setAttribute("aria-disabled", "false");
-      biasQuizStatusEl.textContent = "Mini-Quiz bestanden. Thema 6 (Regularization) ist freigeschaltet.";
+    function unlockMatrixNavigation() {
+      toMatrixLink.classList.remove("disabled");
+      toMatrixLink.setAttribute("aria-disabled", "false");
+      biasQuizStatusEl.textContent = "Mini-Quiz bestanden. Thema 4 (Matrix) ist freigeschaltet.";
       biasQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
       biasQuizStatusEl.style.background = "#f3fbf6";
       biasQuizStatusEl.style.color = "#275b3f";
@@ -1456,9 +2437,9 @@
       });
 
       if (score >= 2) {
-        biasQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Thema 6 ist freigeschaltet.`;
+        biasQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Thema 4 ist freigeschaltet.`;
         biasQuizFeedbackEl.style.color = "#1f8b4c";
-        unlockRegularizationNavigation();
+        unlockMatrixNavigation();
       } else {
         biasQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
         biasQuizFeedbackEl.style.color = "#9a324d";
@@ -1467,6 +2448,49 @@
 
     complexityInput.addEventListener("input", (e) => {
       setComplexity(Number(e.target.value));
+    });
+
+    chooseLinearBtn.addEventListener("click", () => setModelFamily("linear"));
+    choosePolynomialBtn.addEventListener("click", () => setModelFamily("polynomial"));
+
+    outlierToggle.addEventListener("change", (e) => {
+      state.outlierActive = !!e.target.checked;
+      updateDiagnostics();
+      renderChart();
+    });
+
+    weightScaleInput.addEventListener("input", (e) => {
+      state.weightScale = clampValue(Number(e.target.value), 0.6, 2.4);
+      updateDiagnostics();
+      renderChart();
+    });
+
+    hardCapInput.addEventListener("input", (e) => {
+      state.hardCap = clampValue(Number(e.target.value), 1.0, 3.6);
+      updateDiagnostics();
+      renderChart();
+    });
+
+    lambdaInput.addEventListener("input", (e) => {
+      state.lambda = clampValue(Number(e.target.value), 0, 6);
+      updateDiagnostics();
+      renderChart();
+    });
+
+    l1RatioInput.addEventListener("input", (e) => {
+      state.l1Ratio = clampValue(Number(e.target.value), 0, 1);
+      updateDiagnostics();
+      renderChart();
+    });
+
+    ridgeBtn.addEventListener("click", () => setRegMode("ridge"));
+    lassoBtn.addEventListener("click", () => setRegMode("lasso"));
+    elasticnetBtn.addEventListener("click", () => setRegMode("elasticnet"));
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex === 0) return;
+      state.stepIndex -= 1;
+      updateStepContent();
     });
 
     document.getElementById("next-step").addEventListener("click", () => {
@@ -1482,9 +2506,23 @@
       state.stepIndex = 0;
       state.pathUnlocked = false;
       state.quizReady = false;
+      state.modelFamily = "polynomial";
+      state.outlierActive = false;
+      state.weightScale = 1.0;
+      state.hardCap = 2.6;
+      state.lambda = 0.0;
+      state.l1Ratio = 0.5;
+      state.regMode = "ridge";
+      outlierToggle.checked = false;
+      weightScaleInput.value = "1.0";
+      hardCapInput.value = "2.6";
+      lambdaInput.value = "0.0";
+      l1RatioInput.value = "0.5";
+      updateModelChoiceFeedback();
+      updateRegFormula();
       setComplexity(4);
-      toRegularizationLink.classList.add("disabled");
-      toRegularizationLink.setAttribute("aria-disabled", "true");
+      toMatrixLink.classList.add("disabled");
+      toMatrixLink.setAttribute("aria-disabled", "true");
       biasQuizFeedbackEl.textContent = "";
       updateStepContent();
     });
@@ -1518,6 +2556,8 @@
 
     window.addEventListener("resize", renderChart);
 
+    updateModelChoiceFeedback();
+    updateRegFormula();
     updateStepContent();
     updateDiagnostics();
     renderChart();
