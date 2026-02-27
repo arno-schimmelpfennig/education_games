@@ -551,8 +551,8 @@
     <main id="stage">
       <section class="header-card">
         <div>
-          <p class="header-title"><strong>Alltagsfall:</strong> Wir sagen die tägliche Pendelzeit voraus.</p>
-          <div class="header-sub">Grüner Mittelpunkt = echte Zeit. Punkte = Modell-Vorhersagen.</div>
+          <p class="header-title"><strong>Alltagsfall:</strong> Wir prüfen KI-Antworten auf Schieflage und Streuung.</p>
+          <div class="header-sub">Grüner Mittelpunkt = gute Antwortqualität. Punkte = einzelne KI-Antworten.</div>
         </div>
         <div class="chips">
           <div class="chip"><strong>Aktuelles Modell:</strong> <span id="chip-mode">-</span></div>
@@ -634,59 +634,75 @@
   <script>
     const stepContent = [
       {
-        title: "Schritt 1: Worum geht es?",
-        text: "Du brauchst keine Formeln. Hier reicht ein Bild: Das Zentrum ist die Realität, die Punkte sind Vorhersagen.",
-        task: "Klicke auf \"Neue Beispiele\" und beobachte, wie Punkte um das Zentrum verteilt sind.",
+        title: "Schritt 1: Was sind Bias und Varianz?",
+        text: "Bias heißt: Antworten haben eine feste Schieflage. Varianz heißt: Antworten springen stark je nach Formulierung. Beides siehst du im Alltag mit KI-Systemen wie ChatGPT.",
+        task: "Lies die Begriffe, dann klicke auf \"Nächster Schritt\". Danach starten wir mit dem Bildmodell.",
         bullets: [
-          "ML bedeutet: aus Beispielen Muster lernen.",
-          "Wir bewerten Modelle mit 2 Fragen: systematisch daneben? oder zu instabil?"
+          "ChatGPT-Bias im Alltag: Eine Sichtweise wird immer wieder bevorzugt.",
+          "ChatGPT-Varianz im Alltag: Ähnliche Fragen liefern deutlich verschiedene Antworten.",
+          "Warum problematisch: Entscheidungen werden entweder einseitig oder unzuverlässig."
         ],
         mode: "balance",
-        note: "Starte mit dem ausgewogenen Modell als Referenz."
+        note: "Merksatz: Gute KI-Antworten sind weder schief noch sprunghaft."
       },
       {
-        title: "Schritt 2: Bias verstehen",
-        text: "Bias heißt: Das Modell liegt oft in dieselbe Richtung daneben. Es hat eine feste Schieflage.",
+        title: "Schritt 2: Bild lesen lernen",
+        text: "Ohne Mathe: Das Zentrum steht für gute Antwortqualität. Jeder Punkt ist eine mögliche KI-Antwort.",
+        task: "Klicke auf \"Neue Beispiele\" und beobachte Lage und Streuung der Punkte.",
+        bullets: [
+          "ML bedeutet: aus Beispielen Muster lernen.",
+          "Wir prüfen zwei Fragen: liegen Antworten schief? springen Antworten stark?"
+        ],
+        mode: "balance",
+        note: "Das ist deine Referenz für die nächsten Schritte."
+      },
+      {
+        title: "Schritt 3: Bias verstehen",
+        text: "Bias heißt: Die Antworten liegen oft in dieselbe Richtung daneben. Das Modell hat eine feste Schieflage.",
         task: "Wähle \"Sturkopf (Bias)\" und generiere neue Beispiele.",
         bullets: [
           "Die Punkte liegen dicht beieinander, aber nicht im Zentrum.",
-          "Merksatz: stabil falsch ist auch falsch."
+          "Im Alltag: Die KI bleibt konstant bei derselben, aber falschen Tendenz."
         ],
         mode: "bias",
-        note: "Hoher Bias = Unteranpassung: Das Modell ist zu starr."
+        note: "Hoher Bias = stabil, aber systematisch daneben."
       },
       {
-        title: "Schritt 3: Varianz verstehen",
-        text: "Varianz heißt: Das Modell reagiert zu nervös auf kleine Unterschiede. Die Vorhersagen springen stark.",
-        task: "Wähle \"Nervös (Varianz)\" und lass mehrere Läufe über \"Auto\" laufen.",
+        title: "Schritt 4: Varianz verstehen",
+        text: "Varianz heißt: Antworten springen stark zwischen ähnlichen Anfragen. Das Modell ist zu nervös.",
+        task: "Wähle \"Nervös (Varianz)\" und nutze \"Auto (25 Läufe)\".",
         bullets: [
-          "Der Mittelwert kann nah am Zentrum liegen.",
-          "Trotzdem sind viele Einzelvorhersagen weit gestreut."
+          "Der Mittelwert kann okay sein, aber einzelne Punkte streuen stark.",
+          "Im Alltag: Kleine Prompt-Änderung erzeugt stark andere Antwort."
         ],
         mode: "variance",
-        note: "Hohe Varianz = Überanpassung: Das Modell ist zu empfindlich."
+        note: "Hohe Varianz = unzuverlässige Antworten trotz guter Einzeltreffer."
       },
       {
-        title: "Schritt 4: Der gute Bereich",
+        title: "Schritt 5: Der gute Bereich",
         text: "Ein gutes Modell ist weder stur noch nervös. Es trifft die Mitte und bleibt stabil.",
-        task: "Schalte auf \"Ausgewogen\" und teste verschiedene Beispielmengen und Rauschstufen.",
+        task: "Schalte auf \"Ausgewogen\" und teste Beispielmenge sowie Alltagsrauschen.",
         bullets: [
           "Mehr Daten helfen oft gegen hohe Varianz.",
-          "Klare Merkmale helfen oft gegen hohen Bias."
+          "Bessere, klarere Eingaben helfen oft gegen hohen Bias."
         ],
         mode: "balance",
-        note: "Ziel in Projekten: kleine Bias- und Varianz-Werte gleichzeitig."
+        note: "Ziel: kleine Bias- und Varianz-Werte gleichzeitig."
       },
       {
-        title: "Schritt 5: Transfer in den Alltag",
-        text: "Jetzt kannst du Modelle einschätzen, auch ohne Mathe. Prüfe immer Schieflage und Streuung.",
-        task: "Vergleiche alle 3 Modi noch einmal. Was würdest du im Alltag einem Team empfehlen?",
+        title: "Schritt 6: So vermeidest du beides als Nutzer",
+        text: "Auch ohne ML-Wissen kannst du Bias und Varianz bei ChatGPT aktiv reduzieren und im Alltag erkennen.",
+        task: "Nutze die Regeln unten bei deiner nächsten KI-Anfrage und prüfe besonders kulturelle Perspektiven.",
         bullets: [
-          "Bei Bias: Modell vereinfachte Realität zu stark.",
-          "Bei Varianz: Modell merkt sich Zufall statt Muster."
+          "Kultureller Bias im Alltag: Bei Impulsen aus anderen Kulturkreisen fällt die KI oft auf den dominanten Trainingskontext zurück.",
+          "Frage konkret: Rolle, Kontext, Ziel und gewünschtes Ausgabeformat angeben.",
+          "Bitte aktiv um Perspektiven: \"Bewerte das aus Sicht verschiedener Kulturkreise.\"",
+          "Lass Gegencheck machen: \"Nenne Gegenargumente und Unsicherheiten.\"",
+          "Stabilisieren: gleiche Frage mit fester Prompt-Vorlage stellen.",
+          "Verifizieren: wichtige Antworten mit einer zweiten Quelle prüfen."
         ],
         mode: "balance",
-        note: "Wenn du das erklären kannst, hast du Bias und Varianz verstanden."
+        note: "Wenn du diese Regeln nutzt, werden KI-Antworten meist robuster und verlässlicher."
       }
     ];
 

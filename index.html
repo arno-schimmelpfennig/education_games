@@ -319,10 +319,6 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12"></path><path d="M13 6l6 6-6 6"></path></svg>
         </a>
 
-        <p class="hint">
-          Tipp: Wenn du lokal hostest, nutze z.B. <code>python -m http.server 8000</code> und öffne dann <code>http://localhost:8000/</code>.
-        </p>
-
         <div class="tabs" aria-label="Filter">
           <button class="tab active" data-filter="all" type="button">Alle</button>
           <button class="tab" data-filter="ai-security" type="button">KI-Sicherheit</button>
@@ -339,8 +335,8 @@
 
       <section class="grid" id="kategorien" aria-label="Kategorien und Spiele">
         <!-- AI SECURITY -->
-        <article class="folder open" data-cat="ai-security">
-          <div class="folder-header" role="button" tabindex="0" aria-expanded="true">
+        <article class="folder" data-cat="ai-security">
+          <div class="folder-header" role="button" tabindex="0" aria-expanded="false">
             <div class="folder-title">
               <span class="badge"></span>
               <span class="folder-name">KI-Sicherheit</span>
@@ -381,26 +377,17 @@
         </article>
 
         <!-- DATA SCIENCE -->
-        <article class="folder open" data-cat="data-science">
-          <div class="folder-header" role="button" tabindex="0" aria-expanded="true">
+        <article class="folder" data-cat="data-science">
+          <div class="folder-header" role="button" tabindex="0" aria-expanded="false">
             <div class="folder-title">
               <span class="badge"></span>
               <span class="folder-name">Data Science Basics</span>
             </div>
-            <div class="folder-meta">Ordner: <code>data-science/</code> · 10 Lernseiten + README</div>
+            <div class="folder-meta">Ordner: <code>data-science/</code> · 9 Lernseiten + README</div>
           </div>
           <div class="folder-body">
             <ul class="links">
               <li class="section-label">Interaktive Lernstrecke</li>
-              <li>
-                <a class="game-link" href="data-science/bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html">
-                  <span class="game-left">
-                    <span class="game-title">Einsteiger-Lab: Bias &amp; Varianz ohne Mathe</span>
-                    <span class="game-path">data-science/bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html</span>
-                  </span>
-                  <span aria-hidden="true">→</span>
-                </a>
-              </li>
               <li>
                 <a class="game-link" href="data-science/lineare_regression_interaktion.html">
                   <span class="game-left">
@@ -754,6 +741,15 @@
           <div class="folder-body">
             <ul class="links">
               <li>
+                <a class="game-link" href="data-science/bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html">
+                  <span class="game-left">
+                    <span class="game-title">Bias &amp; Varianz ohne Mathe (Einsteiger)</span>
+                    <span class="game-path">data-science/bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html</span>
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+              <li>
                 <a class="game-link" href="logic-and-math/as-marketing_lernmaterial_spiele_kombinatorik.html">
                   <span class="game-left">
                     <span class="game-title">Kombinatorik</span>
@@ -802,13 +798,24 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // Accordion behavior for folders
+    function setFolderOpen(folder, open) {
+      folder.classList.toggle('open', open);
+      const header = folder.querySelector('.folder-header');
+      if (header) header.setAttribute('aria-expanded', String(open));
+    }
+
+    function closeAllFolders(exceptFolder = null) {
+      document.querySelectorAll('.folder').forEach(f => {
+        if (exceptFolder && f === exceptFolder) return;
+        setFolderOpen(f, false);
+      });
+    }
+
     function toggleFolder(folder, forceState) {
       const isOpen = folder.classList.contains('open');
       const next = (forceState !== undefined) ? forceState : !isOpen;
-      folder.classList.toggle('open', next);
-
-      const header = folder.querySelector('.folder-header');
-      if (header) header.setAttribute('aria-expanded', String(next));
+      if (next) closeAllFolders(folder);
+      setFolderOpen(folder, next);
     }
 
     document.querySelectorAll('.folder').forEach(folder => {
@@ -833,13 +840,11 @@
     }
 
     function applyFilter(filter){
+      closeAllFolders();
       folders.forEach(f => {
         const cat = f.getAttribute('data-cat');
         const show = (filter === 'all' || filter === cat);
         f.style.display = show ? '' : 'none';
-
-        // optional: auto-open visible folders
-        if (show) toggleFolder(f, true);
       });
       // scroll a bit nicely to results
       const target = document.getElementById('kategorien');
