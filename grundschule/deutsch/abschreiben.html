@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>✨ Feenwald – Das Abschreib-Abenteuer</title>
+<style>
+:root {
+  --primary: #631832;
+  --primary-light: #8f5262;
+  --accent: #173262;
+  --accent-light: #52628f;
+  --text: #231A24;
+  --gold: #ffd54f;
+  --green: #00c853;
+  --bg: linear-gradient(135deg, #f9f5f6 0%, #f5f6f9 100%);
+  --card: #fff;
+  --muted: #666;
+  --radius: 16px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  --primary-bg-hover: rgba(99, 24, 50, 0.1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); -webkit-user-select: none; user-select: none; overflow-x: hidden; }
+
+/* ===== NAV ===== */
+.topbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.topbar h1 { font-size: 1.15em; color: var(--primary); }
+.topbar h1 span { font-size: 1.2em; }
+.menu-btn { background: none; border: 2px solid var(--primary); color: var(--primary); border-radius: 10px; padding: 6px 14px; font-size: 0.85em; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.menu-btn:hover { background: var(--primary); color: #fff; }
+
+/* ===== SIDEBAR MENU ===== */
+.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 200; display: none; opacity: 0; transition: opacity 0.3s; }
+.sidebar-overlay.show { display: block; opacity: 1; }
+.sidebar { position: fixed; top: 0; right: -320px; width: 300px; max-width: 85vw; height: 100%; background: #fff; z-index: 201; transition: right 0.3s ease; padding: 20px; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
+.sidebar.show { right: 0; }
+.sidebar h2 { color: var(--primary); margin-bottom: 16px; font-size: 1.2em; }
+.sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; font-weight: 600; font-size: 0.95em; }
+.sidebar-item:hover, .sidebar-item.active { background: var(--primary-bg-hover); color: var(--primary); }
+.sidebar-item.locked { opacity: 0.55; cursor: not-allowed; }
+.sidebar-item.locked:hover { background: transparent; color: inherit; }
+.sidebar-item .icon { font-size: 1.3em; width: 28px; text-align: center; }
+.sidebar-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.5em; cursor: pointer; color: var(--muted); }
+.sidebar-divider { height: 1px; background: #eee; margin: 12px 0; }
+
+/* ===== CONTAINER ===== */
+.container { max-width: 800px; margin: 0 auto; padding: 12px; }
+
+/* ===== CARDS ===== */
+.card { background: var(--card); border-radius: var(--radius); padding: 20px; margin: 12px 0; box-shadow: var(--shadow); }
+
+/* ===== FEE DIALOG ===== */
+.fee-dialog { display: flex; gap: 12px; align-items: flex-start; background: linear-gradient(135deg, #f9f5f6, #f5f5f5); border-radius: var(--radius); padding: 16px; margin: 12px 0; border: 2px solid var(--primary-light); }
+.fee-avatar { font-size: 2.5em; flex-shrink: 0; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
+.fee-text { font-size: 0.95em; line-height: 1.6; color: var(--primary); }
+.fee-text strong { color: var(--accent); }
+.fee-text .fee-name { font-weight: 700; color: var(--primary); }
+
+/* ===== BUTTONS ===== */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 11px 22px; border: none; border-radius: 12px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; box-shadow: 0 4px 12px rgba(99, 24, 50, 0.3); }
+.btn-accent { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #fff; box-shadow: 0 4px 12px rgba(23, 50, 98, 0.3); }
+.btn-success { background: linear-gradient(135deg, var(--green), #69f0ae); color: #fff; }
+.btn-gold { background: linear-gradient(135deg, #ff9800, #ffcc80); color: #fff; }
+.btn-ghost { background: #f5f5f5; color: #555; }
+.btn-sm { padding: 7px 14px; font-size: 0.85em; }
+.btn-block { width: 100%; justify-content: center; }
+
+.action-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 14px 0; }
+
+/* ===== INFO BAR ===== */
+.info-bar { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 4px; background: var(--card); border-radius: var(--radius); padding: 10px; margin: 8px 0; box-shadow: var(--shadow); }
+.info-item { text-align: center; min-width: 55px; }
+.info-item .label { font-size: 0.65em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.info-item .value { font-size: 1.15em; font-weight: 700; color: var(--primary); }
+.stars { font-size: 1.2em; color: var(--gold); }
+
+/* ===== STEPS ===== */
+.steps { display: flex; justify-content: center; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.step-dot { padding: 5px 10px; border-radius: 20px; font-size: 0.65em; font-weight: 700; color: #aaa; background: #f0f0f0; transition: all 0.3s; white-space: nowrap; }
+.step-dot.active { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; transform: scale(1.05); }
+.step-dot.done { background: #c8e6c9; color: #2e7d32; }
+
+/* ===== VORLAGE ===== */
+.vorlage-box { background: linear-gradient(135deg, #fffde7, #fff9c4); border: 2px solid var(--gold); border-radius: 14px; padding: 16px; margin: 10px 0; position: relative; }
+.vorlage-box .tag { position: absolute; top: -11px; left: 14px; background: var(--gold); color: #5d4037; font-size: 0.7em; font-weight: 700; padding: 2px 10px; border-radius: 8px; }
+.vorlage-text { font-size: 1.35em; font-family: 'Comic Sans MS', 'Segoe UI', cursive; color: #333; line-height: 1.7; letter-spacing: 0.5px; }
+.stolper { background: #ffcdd2; border-radius: 3px; padding: 0 2px; border-bottom: 2px solid #e53935; }
+
+/* Silben-Farben */
+.sil-a { color: var(--accent); } .sil-b { color: var(--primary); }
+
+/* ===== TYPING ===== */
+.typing-area textarea, .typing-area input { width: 100%; padding: 14px; font-size: 1.25em; font-family: 'Comic Sans MS', 'Segoe UI', cursive; border: 3px solid #e0e0e0; border-radius: 14px; min-height: 60px; resize: vertical; line-height: 1.6; letter-spacing: 0.5px; transition: border-color 0.3s; -webkit-user-select: text; user-select: text; background: #fff; }
+.typing-area textarea:focus, .typing-area input:focus { border-color: var(--primary); outline: none; }
+.typing-area input { min-height: unset; text-align: center; }
+
+/* ===== FEEDBACK ===== */
+.feedback { padding: 14px; border-radius: 14px; margin: 10px 0; font-size: 0.95em; text-align: center; display: none; animation: fadeIn 0.4s; }
+.feedback.show { display: block; }
+.feedback.success { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: #2e7d32; border: 2px solid #66bb6a; }
+.feedback.error { background: linear-gradient(135deg, #ffebee, #ffcdd2); color: #c62828; border: 2px solid #ef5350; }
+.feedback.info { background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #1565c0; border: 2px solid #42a5f5; }
+
+/* ===== DIFF ===== */
+.diff-display { font-size: 1.2em; font-family: 'Comic Sans MS', cursive; line-height: 2; margin: 8px 0; letter-spacing: 0.5px; }
+.diff-correct { color: #2e7d32; }
+.diff-wrong { background: #ffcdd2; color: #c62828; text-decoration: underline wavy #e53935; border-radius: 3px; padding: 0 2px; }
+.diff-missing { background: #fff9c4; color: #f57f17; border-bottom: 2px dashed #f57f17; padding: 0 2px; }
+
+/* ===== CANVAS ===== */
+.canvas-wrap { text-align: center; margin: 10px 0; position: relative; touch-action: none; }
+.canvas-wrap canvas { border: 3px solid #e0e0e0; border-radius: 14px; background: #fafafa; max-width: 100%; touch-action: none; }
+
+/* ===== LETTER BUTTONS ===== */
+.letter-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
+.letter-btn { width: 50px; height: 50px; border-radius: 12px; border: 2px solid #e0e0e0; background: #fff; font-size: 1.5em; font-family: 'Comic Sans MS', cursive; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.letter-btn:hover { border-color: var(--primary); }
+.letter-btn.selected { border-color: var(--primary); background: var(--primary-bg-hover); box-shadow: 0 2px 8px rgba(99, 24, 50, 0.2); }
+
+/* ===== SILBE BOXES ===== */
+.silbe-container { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 14px 0; }
+.silbe-box { padding: 12px 20px; border-radius: 14px; font-size: 1.4em; font-family: 'Comic Sans MS', cursive; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 3px solid transparent; }
+.silbe-box:nth-child(odd) { background: #f5f6f9; color: var(--accent); border-color: #d8deeb; }
+.silbe-box:nth-child(even) { background: #f9f5f6; color: var(--primary); border-color: #ebdde2; }
+.silbe-box.clicked { transform: scale(0.9); opacity: 0.7; }
+.silbe-box.correct { border-color: var(--green); box-shadow: 0 0 12px rgba(0,200,83,0.4); }
+.silbe-box.wrong { border-color: #e53935; animation: shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ===== FEHLERSUCHE ===== */
+.fehler-text { font-size: 1.3em; font-family: 'Comic Sans MS', cursive; line-height: 2; }
+.fehler-word { cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: all 0.2s; }
+.fehler-word:hover { background: #fff9c4; }
+.fehler-word.marked { background: #ffcdd2; text-decoration: line-through; color: #c62828; }
+.fehler-word.correct-mark { background: #c8e6c9; color: #2e7d32; }
+.fehler-word.missed-mark { background: #fff3e0; border-bottom: 2px dashed #ff9800; }
+
+/* ===== DASHBOARD ===== */
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 12px 0; }
+.dash-card { background: linear-gradient(135deg, #f5f5f5, #fff); border-radius: 14px; padding: 16px; text-align: center; border: 2px solid #eee; }
+.dash-card .big { font-size: 2em; font-weight: 700; color: var(--primary); }
+.dash-card .label { font-size: 0.8em; color: var(--muted); margin-top: 4px; }
+.progress-bar { height: 10px; background: #e0e0e0; border-radius: 5px; margin: 8px 0; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.5s; }
+.badge-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 700; background: #f0f0f0; color: #bbb; transition: all 0.3s; }
+.badge.earned { background: linear-gradient(135deg, var(--gold), #ffb300); color: #5d4037; animation: pop 0.5s; }
+@keyframes pop { 0%{transform:scale(0.5)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.module-overview { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.module-card { border: 2px solid #eee; border-radius: 16px; padding: 14px; background: linear-gradient(135deg, #fff, #faf8fa); box-shadow: var(--shadow); }
+.module-card.locked { opacity: 0.7; border-style: dashed; }
+.module-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.module-title { font-weight: 800; color: var(--primary); }
+.module-kicker { font-size: 0.72em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.module-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; font-size: 0.72em; font-weight: 700; }
+.module-pill.open { background: #e8f5e9; color: #2e7d32; }
+.module-pill.locked { background: #f5f5f5; color: #777; }
+.module-meta { font-size: 0.85em; line-height: 1.5; color: #444; margin-bottom: 10px; }
+.module-meta strong { color: var(--accent); }
+.module-progress { font-size: 0.8em; color: var(--muted); margin-bottom: 10px; }
+.module-launch.is-locked { opacity: 0.55; cursor: pointer; box-shadow: none; }
+.module-launch.is-locked:active { transform: none; }
+
+/* ===== SETTINGS ===== */
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 0.8em; font-weight: 700; color: #555; margin-bottom: 4px; }
+.form-group select, .form-group textarea, .form-group input[type=text] { width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1em; font-family: inherit; -webkit-user-select: text; user-select: text; }
+.form-group select:focus, .form-group textarea:focus, .form-group input:focus { border-color: var(--primary); outline: none; }
+.form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-row > .form-group { flex: 1; min-width: 150px; }
+
+.hidden { display: none !important; }
+
+/* ===== STORY PROGRESS ===== */
+.story-bar { display: flex; gap: 2px; margin: 8px 0; border-radius: 20px; overflow: hidden; background: #e0e0e0; height: 6px; }
+.story-seg { flex: 1; height: 100%; transition: background 0.4s; background: #e0e0e0; }
+.story-seg.done { background: linear-gradient(90deg, var(--primary), var(--accent)); }
+.story-seg.current { background: var(--gold); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ===== ERROR LOG TABLE ===== */
+.error-table { width: 100%; border-collapse: collapse; font-size: 0.85em; margin: 10px 0; }
+.error-table th { background: var(--primary-bg-hover); color: var(--primary); padding: 8px 10px; text-align: left; border-radius: 8px 8px 0 0; }
+.error-table td { padding: 8px 10px; border-bottom: 1px solid #eee; }
+.error-table tr:last-child td { border-bottom: none; }
+
+@media(max-width:500px) {
+  .vorlage-text, .fehler-text { font-size: 1.1em; }
+  .typing-area textarea { font-size: 1.05em; }
+  h1 { font-size: 1em; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <h1><span>✨</span> Feenwald</h1>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="topScore" style="font-weight:700;color:var(--primary);font-size:0.9em">⭐ 0</span>
+    <button class="menu-btn" onclick="toggleSidebar()">☰ Menü</button>
+  </div>
+</div>
+
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  <h2>✨ Feenwald-Module</h2>
+  <div class="sidebar-item active" data-page="story" onclick="navigate('story')"><span class="icon">📖</span> Geschichte</div>
+  <div class="sidebar-item" data-page="abschreiben" data-open-page="abschreiben" onclick="openModule('abschreiben')"><span class="icon">📝</span> Abschreiben</div>
+  <div class="sidebar-item" data-page="silben" data-open-page="silben" onclick="openModule('silben')"><span class="icon">👏</span> Silbenklatscher</div>
+  <div class="sidebar-item" data-page="diktat" data-open-page="diktat" onclick="openModule('diktat')"><span class="icon">🔊</span> Diktat</div>
+  <div class="sidebar-item" data-page="schwung" data-open-page="schwung" onclick="openModule('schwung')"><span class="icon">〰️</span> Schwungrichtung</div>
+  <div class="sidebar-item" data-page="fehler" data-open-page="fehler" onclick="openModule('fehler')"><span class="icon">🔍</span> Fehlersuche</div>
+  <div class="sidebar-item" data-page="luecke" data-open-page="luecke" onclick="openModule('luecke')"><span class="icon">🧩</span> Lückendetektiv</div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-item" data-page="dashboard" onclick="navigate('dashboard')"><span class="icon">📊</span> Dashboard</div>
+  <div class="sidebar-item" data-page="settings" onclick="navigate('settings')"><span class="icon">⚙️</span> Einstellungen</div>
+</div>
+
+<div class="container">
+
+<!-- ===== INFO BAR ===== -->
+<div class="info-bar" id="infoBar">
+  <div class="info-item"><div class="label">Punkte</div><div class="value" id="score">0</div></div>
+  <div class="info-item"><div class="label">Streak</div><div class="value" id="streak">🔥0</div></div>
+  <div class="info-item"><div class="label">Kapitel</div><div class="value" id="chapter">1</div></div>
+  <div class="info-item"><div class="label">Level</div><div class="value" id="level">1</div></div>
+  <div class="info-item"><div class="stars" id="starsDisplay">☆☆☆☆☆</div></div>
+</div>
+
+<!-- ==================== STORY / HOME ==================== -->
+<div id="page-story">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text">
+      <span class="fee-name">Lumi die Waldfee</span> flattert aufgeregt mit ihren glitzernden Flügeln:<br><br>
+      „Hallo! Ich bin <strong>Lumi</strong>, die kleine Fee aus dem Feenwald. 🌿✨ Stell dir vor – ein böser Wirbelsturm hat alle Wörter aus unserem magischen Buch herausgerissen! Ohne Wörter verliert der Feenwald seinen Glanz. Kannst du mir helfen, die Wörter wiederzufinden und richtig aufzuschreiben?"
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--primary);margin-bottom:8px;">🗺️ Deine Abenteuer-Karte</h3>
+    <div class="story-bar" id="storyBar"></div>
+    <p style="font-size:0.85em;color:var(--muted);margin:6px 0;" id="storyProgress">Kapitel 1 von 7 – Der verlorene Anfang</p>
+
+    <div id="storyChapters" style="margin-top:14px;"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--primary);margin-bottom:12px;">🎯 Wähle deine Aufgabe</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+      <button class="btn btn-primary btn-block module-launch" data-open-page="abschreiben" onclick="openModule('abschreiben')">📝 Abschreiben</button>
+      <button class="btn btn-accent btn-block module-launch" data-open-page="silben" onclick="openModule('silben')">👏 Silbenklatscher</button>
+      <button class="btn btn-success btn-block module-launch" data-open-page="diktat" onclick="openModule('diktat')">🔊 Diktat</button>
+      <button class="btn btn-gold btn-block module-launch" data-open-page="schwung" onclick="openModule('schwung')">〰️ Schwungrichtung</button>
+      <button class="btn btn-ghost btn-block module-launch" data-open-page="fehler" onclick="openModule('fehler')">🔍 Fehlersuche</button>
+      <button class="btn btn-ghost btn-block module-launch" data-open-page="luecke" onclick="openModule('luecke')">🧩 Lückendetektiv</button>
+    </div>
+    <div class="feedback info hidden" id="storyHint" style="margin-top:12px;"></div>
+    <div class="module-overview" id="storyModuleCards"></div>
+  </div>
+</div>
+
+<!-- ==================== SETTINGS ==================== -->
+<div id="page-settings" class="hidden">
+  <div class="card">
+    <h2 style="color:var(--primary);margin-bottom:14px;">⚙️ Einstellungen</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Klassenstufe</label>
+        <select id="gradeSelect" onchange="updateWordList()">
+          <option value="1">Klasse 1</option>
+          <option value="2" selected>Klasse 2</option>
+          <option value="3">Klasse 3</option>
+          <option value="4">Klasse 4</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Schwierigkeit</label>
+        <select id="diffSelect" onchange="updateWordList()">
+          <option value="wort">Einzelne Wörter</option>
+          <option value="satz" selected>Ganze Sätze</option>
+          <option value="text">Kurze Texte</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Eigenen Text eingeben (optional)</label>
+      <textarea id="customText" rows="3" placeholder="Eigene Wörter oder Sätze hier eingeben..." style="-webkit-user-select:text;user-select:text;"></textarea>
+    </div>
+    <div class="form-group">
+      <label>TTS-Geschwindigkeit (Diktat)</label>
+      <input type="range" id="ttsSpeed" min="0.3" max="1" step="0.1" value="0.6" style="width:100%;">
+      <small style="color:var(--muted);">Langsam ← → Normal</small>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="navigate('story')">💾 Speichern & Zurück</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ABSCHREIBEN ==================== -->
+<div id="page-abschreiben" class="hidden">
+  <div class="fee-dialog" id="abFeeMsg">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text" id="abFeeText">
+      <span class="fee-name">Lumi</span> sagt: „Dieses Wort brauche ich für mein magisches Buch! Lies es genau, präge es dir ein, und schreibe es dann auf. Aber Vorsicht – achte auf die <strong>roten Stolperstellen</strong>!"
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="steps">
+      <div class="step-dot active" id="ab-step1">1. Lesen</div>
+      <div class="step-dot" id="ab-step2">2. Merken</div>
+      <div class="step-dot" id="ab-step3">3. Schreiben</div>
+      <div class="step-dot" id="ab-step4">4. Prüfen</div>
+    </div>
+
+    <div id="ab-lesen">
+      <div class="vorlage-box"><div class="tag">📖 Vorlage</div><div class="vorlage-text" id="abVorlage"></div></div>
+      <div class="feedback info show" style="display:block;">👀 Lies den Text genau. Sprich ihn leise mit. Achte auf die <span class="stolper">Stolperstellen</span>!</div>
+      <div class="action-row"><button class="btn btn-primary" onclick="abGoMerken()">Weiter zum Merken ➡️</button></div>
+    </div>
+
+    <div id="ab-merken" class="hidden">
+      <div class="vorlage-box" id="abMerkenBox"><div class="tag">🧠 Merken</div><div class="vorlage-text" id="abMerkenText"></div></div>
+      <div id="abCountdown" style="text-align:center;font-size:2.5em;font-weight:700;color:var(--primary);margin:8px 0;"></div>
+      <div class="action-row"><button class="btn btn-gold btn-sm" onclick="abSkipCountdown()">Ich bin bereit! ⏭️</button></div>
+    </div>
+
+    <div id="ab-schreiben" class="hidden">
+      <div class="typing-area"><textarea id="abInput" placeholder="Schreibe aus dem Gedächtnis..." oninput="abOnTyping()"></textarea></div>
+      <div class="action-row">
+        <button class="btn btn-gold btn-sm" onclick="abPeek()">👁️ Spicken (−2P)</button>
+        <button class="btn btn-primary" onclick="abCheck()">Fertig – Prüfen ✔️</button>
+      </div>
+      <div id="abPeekBox" class="hidden"><div class="vorlage-box"><div class="tag">👁️</div><div class="vorlage-text" id="abPeekText"></div></div></div>
+    </div>
+
+    <div id="ab-pruefen" class="hidden">
+      <div class="vorlage-box"><div class="tag">📖 Vorlage</div><div class="vorlage-text" id="abPruefVorlage"></div></div>
+      <div style="margin-top:10px;"><span style="background:#bbdefb;color:#1565c0;padding:2px 10px;border-radius:8px;font-size:0.7em;font-weight:700;">✍️ Dein Text</span><div class="diff-display" id="abDiff"></div></div>
+      <div class="feedback" id="abResult"></div>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="abNext()">Nächste Aufgabe ➡️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SILBENKLATSCHER ==================== -->
+<div id="page-silben" class="hidden">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text"><span class="fee-name">Lumi</span> klatscht begeistert: „Hör mal! Jedes Wort hat einen Rhythmus! Klatsche die Silben und ordne sie richtig. 👏 So lernst du, wie Wörter aufgebaut sind!"</div>
+  </div>
+  <div class="card">
+    <h3 style="text-align:center;color:var(--primary);margin-bottom:8px;">👏 Silbenklatscher</h3>
+    <div class="vorlage-box"><div class="tag">🔤 Wort</div><div class="vorlage-text" id="silWord" style="text-align:center;"></div></div>
+    <p style="text-align:center;color:var(--muted);font-size:0.85em;margin:8px 0;" id="silInstruction">Tippe die Silben in der richtigen Reihenfolge!</p>
+    <div class="silbe-container" id="silChoices"></div>
+    <div style="text-align:center;margin:8px 0;"><span id="silAnswer" style="font-size:1.3em;font-family:'Comic Sans MS',cursive;letter-spacing:2px;"></span></div>
+    <div class="feedback" id="silFeedback"></div>
+    <div class="action-row">
+      <button class="btn btn-gold btn-sm" onclick="silHearWord()">🔊 Anhören</button>
+      <button class="btn btn-primary" onclick="silNext()">Nächstes Wort ➡️</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIKTAT ==================== -->
+<div id="page-diktat" class="hidden">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text"><span class="fee-name">Lumi</span> flüstert: „Jetzt wird es magisch! Ich sage dir die Wörter, und du schreibst sie auf. Hör ganz genau hin! 🔊✍️"</div>
+  </div>
+  <div class="card">
+    <h3 style="text-align:center;color:var(--primary);margin-bottom:8px;">🔊 Diktat</h3>
+    <div id="diktatReady">
+      <p style="text-align:center;color:var(--muted);">Drücke auf „Vorlesen", höre genau hin, und schreibe den Text auf.</p>
+      <div class="action-row"><button class="btn btn-accent btn-block" onclick="diktatStart()">🔊 Vorlesen starten</button></div>
+    </div>
+    <div id="diktatActive" class="hidden">
+      <div style="text-align:center;margin:12px 0;">
+        <button class="btn btn-accent" onclick="diktatSpeak()">🔊 Nochmal hören</button>
+        <button class="btn btn-gold btn-sm" onclick="diktatSlow()">🐢 Langsamer</button>
+      </div>
+      <div class="typing-area"><textarea id="diktatInput" placeholder="Schreibe, was du hörst..." rows="3"></textarea></div>
+      <div class="action-row"><button class="btn btn-primary" onclick="diktatCheck()">Prüfen ✔️</button></div>
+    </div>
+    <div id="diktatResult" class="hidden">
+      <div class="vorlage-box"><div class="tag">📖 Lösung</div><div class="vorlage-text" id="diktatSolution"></div></div>
+      <div class="diff-display" id="diktatDiff" style="margin-top:10px;"></div>
+      <div class="feedback" id="diktatFeedback"></div>
+      <div class="action-row"><button class="btn btn-primary" onclick="diktatNext()">Nächstes Diktat ➡️</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCHWUNGRICHTUNG ==================== -->
+<div id="page-schwung" class="hidden">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text"><span class="fee-name">Lumi</span> zeigt auf einen leuchtenden Buchstaben: „Fahre mit dem Finger über den Buchstaben nach! Folge den Nummern – so lernst du die richtige Schwungrichtung! ✨"</div>
+  </div>
+  <div class="card">
+    <h3 style="text-align:center;color:var(--primary);margin-bottom:8px;">〰️ Schwungrichtung</h3>
+    <div class="letter-grid" id="schwungLetters"></div>
+    <div class="canvas-wrap">
+      <canvas id="schwungCanvas" width="380" height="320"></canvas>
+    </div>
+    <div class="feedback" id="schwungFeedback"></div>
+    <div class="action-row">
+      <button class="btn btn-ghost btn-sm" onclick="schwungReset()">🔄 Nochmal</button>
+      <button class="btn btn-primary btn-sm" onclick="schwungNext()">Nächster ➡️</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FEHLERSUCHE ==================== -->
+<div id="page-fehler" class="hidden">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text"><span class="fee-name">Lumi</span> schaut besorgt: „Oh nein! Der Wirbelwind hat Fehler in den Text geschmuggelt! 🌀 Findest du alle falschen Wörter? Tippe auf jedes Wort, das dir komisch vorkommt!"</div>
+  </div>
+  <div class="card">
+    <h3 style="text-align:center;color:var(--primary);margin-bottom:8px;">🔍 Fehlersuche</h3>
+    <p style="text-align:center;color:var(--muted);font-size:0.85em;margin-bottom:10px;" id="fehlerHint">Tippe auf die Wörter mit Fehlern!</p>
+    <div class="fehler-text" id="fehlerText"></div>
+    <div class="feedback" id="fehlerFeedback"></div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="fehlerCheck()">Antwort prüfen ✔️</button>
+      <button class="btn btn-ghost btn-sm" onclick="fehlerNext()">Nächster Text ➡️</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== LÜCKENDETEKTIV ==================== -->
+<div id="page-luecke" class="hidden">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text"><span class="fee-name">Lumi</span> hält eine Lupe hoch: „Manche Buchstaben sind verschwunden! 🔍 Schau dir das Wort kurz an, dann merke es dir. Kannst du die fehlenden Buchstaben einsetzen?"</div>
+  </div>
+  <div class="card">
+    <h3 style="text-align:center;color:var(--primary);margin-bottom:8px;">🧩 Lückendetektiv</h3>
+    <div class="vorlage-box" id="lueckeVorlageBox"><div class="tag">👀 Merken!</div><div class="vorlage-text" id="lueckeVorlage" style="text-align:center;"></div></div>
+    <div style="text-align:center;margin:14px 0;font-size:2em;font-family:'Comic Sans MS',cursive;letter-spacing:6px;" id="lueckeDisplay"></div>
+    <div class="typing-area"><input type="text" id="lueckeInput" placeholder="Fehlende Buchstaben..." oninput="lueckeCheck()"></div>
+    <div class="feedback" id="lueckeFeedback"></div>
+    <div class="action-row"><button class="btn btn-primary" onclick="lueckeNext()">Nächstes Wort ➡️</button></div>
+  </div>
+</div>
+
+<!-- ==================== DASHBOARD ==================== -->
+<div id="page-dashboard" class="hidden">
+  <div class="fee-dialog">
+    <div class="fee-avatar">🧚‍♀️</div>
+    <div class="fee-text"><span class="fee-name">Lumi</span> blättert in ihrem magischen Buch: „Schau mal, wie weit du schon gekommen bist! 📊 Jeder Stern bringt den Feenwald zum Leuchten!"</div>
+  </div>
+  <div class="card">
+    <h2 style="color:var(--primary);margin-bottom:14px;">📊 Lern-Dashboard</h2>
+    <div class="dash-grid" id="dashGrid"></div>
+
+    <h3 style="color:var(--primary);margin:16px 0 8px;">🏅 Abzeichen</h3>
+    <div class="badge-grid" id="dashBadges"></div>
+
+    <h3 style="color:var(--primary);margin:16px 0 8px;">⚠️ Häufige Stolperstellen</h3>
+    <div id="dashErrors"></div>
+
+    <h3 style="color:var(--primary);margin:16px 0 8px;">📈 Fortschritt pro Modul</h3>
+    <div id="dashModules"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+// =====================================================================
+//  GAME STATE
+// =====================================================================
+const S = {
+  score: 0, streak: 0, level: 1, chapter: 1,
+  totalWords: 0, perfectRounds: 0,
+  moduleStats: { abschreiben:0, silben:0, diktat:0, schwung:0, fehler:0, luecke:0 },
+  errorLog: {}, // {word: count}
+  badges: new Set(),
+  currentPage: 'story',
+  storyHint: '',
+  storyHintKind: 'info',
+  abText: '', abPeekCount: 0, abTimer: null,
+  dikText: '',
+};
+
+// =====================================================================
+//  WORD LISTS
+// =====================================================================
+const WL = {
+  1: {
+    w:["Oma","Opa","Mama","Papa","Hund","Katze","Haus","Baum","Sonne","Mond","Apfel","Auto","Ball","Buch","Tisch","Stuhl","Schule","Kind","Fisch","Vogel","Freund","Blume","Spielen","Lachen"],
+    s:["Die Katze sitzt auf dem Dach.","Der Hund läuft im Garten.","Mama liest ein Buch.","Die Sonne scheint hell.","Ich male ein Bild.","Der Ball ist rot.","Das Haus ist groß.","Opa hat einen Hut.","Ich spiele mit dem Hund.","Eine Blume ist schön."],
+    t:["Die Katze Mimi sitzt gern auf dem Dach. Von dort kann sie alles sehen."]
+  },
+  2: {
+    w:["Fahrrad","Schmetterling","Geburtstag","Freundschaft","Abenteuer","Geschenk","Frühstück","Spielplatz","Blume","Brücke","Drache","Fenster","Garten","Himmel","Kirche","Wolke","Straße","Treppe","Wasser","Schule","Bibliothek","Feuerwehr","Krankenhaus","Turnhalle"],
+    s:["Der Schmetterling fliegt über die Blumen.","Am Spielplatz treffen sich viele Kinder.","Die Vögel singen im Garten.","Wir fahren mit dem Fahrrad zur Schule.","Im Frühling blühen die Blumen.","Der Drache fliegt hoch am Himmel.","Über der Brücke fließt ein Bach.","Das Geschenk ist wunderschön verpackt.","In der Bibliothek gibt es viele Bücher.","Die Feuerwehr kommt schnell."],
+    t:["Am Morgen scheint die Sonne. Die Vögel singen in den Bäumen. Lena packt ihre Schultasche und läuft los."]
+  },
+  3: {
+    w:["Entschuldigung","Verkäuferin","Fahrradhelm","Regenschirm","Geschwister","Mittagessen","Wohnzimmer","Schlittschuh","Kühlschrank","Briefträger","Handschuhe","Donnerstag","Nachmittag","Geheimnis","Schokolade","Überraschung","Abenteuer","Bibliothek","Rucksack","Wettbewerb","Diskussion","Experiment","Interessant","Kompliziert"],
+    s:["Die Verkäuferin im Laden war sehr freundlich.","Am Donnerstag haben wir Schwimmunterricht.","Die Überraschung zum Geburtstag war ein Geheimnis.","Nach dem Mittagessen gehen wir in den Garten.","Im Winter brauche ich Handschuhe und einen Schal.","Der Briefträger bringt jeden Tag die Post.","In der Bibliothek kann man viele Bücher finden.","Der Rucksack ist schwer gepackt.","Das Experiment im Labor war interessant.","Wir haben eine lange Diskussion."],
+    t:["Franziskus stand vor dem großen Schrank seines Vaters. Die bunten Kleider hingen ordentlich nebeneinander. Er nahm den roten Mantel und zog ihn an."]
+  },
+  4: {
+    w:["Verantwortung","Klassensprecherin","Naturwissenschaft","Sehenswürdigkeit","Mannschaftskapitän","Sommerferien","Gedichtsammlung","Unabhängigkeit","Umweltverschmutzung","Geschwindigkeit","Globalisierung","Charaktereigenschaft","Kommunikation","Technologie"],
+    s:["Die Klassensprecherin übernimmt viel Verantwortung.","Die Sehenswürdigkeiten der Stadt sind beeindruckend.","Umweltverschmutzung ist ein ernstes Thema.","In den Sommerferien fahren wir ans Meer.","Der Mannschaftskapitän führt das Team an.","Die Gedichtsammlung enthält schöne Verse.","In der Bibliothek findet man alle Bücher.","Naturwissenschaft erklärt die Welt um uns.","Kommunikation ist der Schlüssel zum Erfolg.","Die Globalisierung verändert die Welt."],
+    t:['Der Vater ist außer sich vor Wut. Er ruft: "Gib mir mein Geld zurück und komm nach Hause!" Franziskus steht da und sagt kein Wort.']
+  }
+};
+
+// Silben-Datenbank
+const SILBEN = {
+  "Oma":["O","ma"],"Opa":["O","pa"],"Mama":["Ma","ma"],"Papa":["Pa","pa"],"Katze":["Kat","ze"],"Sonne":["Son","ne"],
+  "Apfel":["Ap","fel"],"Schule":["Schu","le"],"Vogel":["Vo","gel"],"Fahrrad":["Fahr","rad"],"Schmetterling":["Schmet","ter","ling"],
+  "Geburtstag":["Ge","burts","tag"],"Freundschaft":["Freund","schaft"],"Abenteuer":["A","ben","teu","er"],
+  "Geschenk":["Ge","schenk"],"Frühstück":["Früh","stück"],"Spielplatz":["Spiel","platz"],"Blume":["Blu","me"],
+  "Brücke":["Brü","cke"],"Drache":["Dra","che"],"Fenster":["Fens","ter"],"Garten":["Gar","ten"],"Himmel":["Him","mel"],
+  "Kirche":["Kir","che"],"Wolke":["Wol","ke"],"Straße":["Stra","ße"],"Treppe":["Trep","pe"],"Wasser":["Was","ser"],
+  "Entschuldigung":["Ent","schul","di","gung"],"Verkäuferin":["Ver","käu","fe","rin"],"Regenschirm":["Re","gen","schirm"],
+  "Geschwister":["Ge","schwis","ter"],"Mittagessen":["Mit","tag","es","sen"],"Wohnzimmer":["Wohn","zim","mer"],
+  "Kühlschrank":["Kühl","schrank"],"Briefträger":["Brief","trä","ger"],"Handschuhe":["Hand","schu","he"],
+  "Donnerstag":["Don","ners","tag"],"Nachmittag":["Nach","mit","tag"],"Geheimnis":["Ge","heim","nis"],
+  "Schokolade":["Scho","ko","la","de"],"Überraschung":["Ü","ber","ra","schung"],"Bibliothek":["Bi","bli","o","thek"],
+  "Rucksack":["Ruck","sack"],"Wettbewerb":["Wett","be","werb"],
+  "Verantwortung":["Ver","ant","wor","tung"],"Sommerferien":["Som","mer","fe","ri","en"],
+  "Hund":["Hund"],"Haus":["Haus"],"Baum":["Baum"],"Auto":["Au","to"],"Ball":["Ball"],"Buch":["Buch"],
+  "Tisch":["Tisch"],"Stuhl":["Stuhl"],"Kind":["Kind"],"Fisch":["Fisch"],"Mond":["Mond"],
+};
+
+// Fehlersuche: Texte mit eingebauten Fehlern
+const FEHLERTEXTE = [
+  {original:"Die Katze sitzt auf dem Dach und schaut nach unten.",fehler:"Die Katze sizt auf dem Dach und schaut nach unden.",errorWords:{2:"sitzt",8:"unten"}},
+  {original:"Der Schmetterling fliegt über die bunten Blumen im Garten.",fehler:"Der Schmetering fligt über die bunten Bluhmen im Garten.",errorWords:{1:"Schmetterling",2:"fliegt",6:"Blumen"}},
+  {original:"Am Donnerstag gehen wir zum Schwimmunterricht in die Halle.",fehler:"Am Donerstag gehen wir zum Schwimunterricht in die Halle.",errorWords:{1:"Donnerstag",5:"Schwimmunterricht"}},
+  {original:"Die Verkäuferin gibt dem Kind ein Geschenk zum Geburtstag.",fehler:"Die Verkäuferin gibt dem Kind ein Geschenk zum Gebursttag.",errorWords:{8:"Geburtstag"}},
+  {original:"Meine Geschwister und ich spielen nachmittags im Wohnzimmer.",fehler:"Meine Geschwister und ich spiehlen nachmitags im Wonzimmer.",errorWords:{4:"spielen",5:"nachmittags",7:"Wohnzimmer"}},
+  {original:"Der Briefträger bringt jeden Morgen die Post zur Tür.",fehler:"Der Brifträger bringt jeden Morgen die Post zur Tühr.",errorWords:{1:"Briefträger",8:"Tür"}},
+  {original:"Im Frühling blühen die Blumen und die Vögel singen.",fehler:"Im Frühling blüen die Blumen und die Fögel singen.",errorWords:{2:"blühen",7:"Vögel"}},
+  {original:"Die Kinder fahren mit dem Fahrrad über die große Brücke.",fehler:"Die Kinder faren mit dem Fahrrad über die große Brüke.",errorWords:{2:"fahren",9:"Brücke"}},
+];
+
+// Story chapters
+const CHAPTERS = [
+  {title:"Der verlorene Anfang", desc:"Hilf Lumi, die ersten Wörter wiederzufinden!", module:"abschreiben", icon:"📖", goal:3},
+  {title:"Der Rhythmus des Waldes", desc:"Lerne den Takt der Silben – der Wald erwacht!", module:"silben", icon:"👏", goal:3},
+  {title:"Die flüsternde Quelle", desc:"Höre genau hin, was die Quelle dir zuflüstert!", module:"diktat", icon:"🔊", goal:3},
+  {title:"Der Buchstabenpfad", desc:"Fahre die magischen Zeichen nach – Finger bereit!", module:"schwung", icon:"〰️", goal:5},
+  {title:"Der Wirbelwind-Trick", desc:"Finde die Fehler, die der Wirbelwind versteckt hat!", module:"fehler", icon:"🔍", goal:3},
+  {title:"Das verschwundene Rätsel", desc:"Setze die fehlenden Buchstaben ein!", module:"luecke", icon:"🧩", goal:3},
+  {title:"Das leuchtende Buch", desc:"Meistere alle Module – der Feenwald erstrahlt! ✨", module:"all", icon:"✨", goal:10},
+];
+
+const STORAGE_KEY = 'feenwald-abschreib-abenteuer-v2';
+const ALWAYS_OPEN = new Set(['story', 'dashboard', 'settings']);
+const MODULE_META = {
+  abschreiben: {
+    icon: '📝',
+    title: 'Abschreiben',
+    goal: 'Visuelles Wortbildgedächtnis, Rechtschreibsicherheit, Selbstkontrolle',
+    pedagogy: 'Retrieval Practice + Scaffolding',
+    summary: '4 Schritte: lesen, merken, aus dem Kopf schreiben, buchstabengenau vergleichen.',
+    chapterGoal: 3,
+  },
+  silben: {
+    icon: '👏',
+    title: 'Silbenklatscher',
+    goal: 'Silbenstruktur, phonologische Bewusstheit, Wortgliederung',
+    pedagogy: 'Silbenmethode + multisensorisches Lernen',
+    summary: 'Silben hören, sehen und in der richtigen Reihenfolge antippen.',
+    chapterGoal: 3,
+  },
+  diktat: {
+    icon: '🔊',
+    title: 'Diktat',
+    goal: 'Phonem-Graphem-Zuordnung, auditives Unterscheiden, Schreibflüssigkeit',
+    pedagogy: 'Multisensorisches Lernen mit Browser-Stimme',
+    summary: 'Deutschsprachige TTS liest vor, danach folgt der farbige Vergleich.',
+    chapterGoal: 3,
+  },
+  schwung: {
+    icon: '〰️',
+    title: 'Schwungrichtung',
+    goal: 'Graphomotorik, Stiftführung, Buchstabenaufbau',
+    pedagogy: 'Visuell-motorisches Nachfahren auf Touch-Canvas',
+    summary: 'Nummerierte Striche und Pfeile geben die Reihenfolge vor.',
+    chapterGoal: 5,
+  },
+  fehler: {
+    icon: '🔍',
+    title: 'Fehlersuche',
+    goal: 'Korrekturkompetenz, Fehlersensibilität, Regelwissen',
+    pedagogy: 'Eigenständige Textkorrektur + Graceful Failure',
+    summary: 'Fehler werden erkannt, übersehene Stellen sanft sichtbar gemacht.',
+    chapterGoal: 3,
+  },
+  luecke: {
+    icon: '🧩',
+    title: 'Lückendetektiv',
+    goal: 'Wortbildgedächtnis und Detailaufmerksamkeit',
+    pedagogy: 'Retrieval Practice mit kurzen Merkphasen',
+    summary: 'Wort kurz merken, ausgeblendet sehen, fehlende Buchstaben ergänzen.',
+    chapterGoal: 3,
+  },
+};
+
+// =====================================================================
+//  NAVIGATION
+// =====================================================================
+function getRequiredChapterForPage(page) {
+  const idx = CHAPTERS.findIndex(ch => ch.module === page);
+  return idx >= 0 ? idx + 1 : 1;
+}
+
+function getModuleRuns(module) {
+  if (module === 'all') return Object.values(S.moduleStats).reduce((sum, value) => sum + value, 0);
+  return S.moduleStats[module] || 0;
+}
+
+function syncChapterProgress() {
+  const before = S.chapter;
+  let nextChapter = 1;
+  for (let i = 0; i < CHAPTERS.length - 1; i++) {
+    if (getModuleRuns(CHAPTERS[i].module) >= CHAPTERS[i].goal) nextChapter = i + 2;
+    else break;
+  }
+  S.chapter = Math.min(nextChapter, CHAPTERS.length);
+
+  if (S.chapter > before) {
+    const unlocked = CHAPTERS[S.chapter - 1];
+    if (unlocked) {
+      setStoryHint('✨ Neues Kapitel freigeschaltet: <strong>' + unlocked.title + '</strong>.');
+    }
+  }
+}
+
+function isPageUnlocked(page) {
+  if (ALWAYS_OPEN.has(page)) return true;
+  return S.chapter >= getRequiredChapterForPage(page);
+}
+
+function renderNavState() {
+  document.querySelectorAll('[data-open-page]').forEach(el => {
+    const page = el.dataset.openPage;
+    const unlocked = isPageUnlocked(page);
+    const requiredChapter = getRequiredChapterForPage(page);
+
+    if (el.classList.contains('sidebar-item')) el.classList.toggle('locked', !unlocked);
+    if (el.classList.contains('module-launch')) el.classList.toggle('is-locked', !unlocked);
+    if ('disabled' in el) el.disabled = false;
+    el.setAttribute('aria-disabled', String(!unlocked));
+    if (!unlocked) el.title = 'Wird ab Kapitel ' + requiredChapter + ' freigeschaltet.';
+    else el.removeAttribute('title');
+  });
+}
+
+function setStoryHint(message, kind) {
+  S.storyHint = message || '';
+  S.storyHintKind = kind || 'info';
+  const hint = document.getElementById('storyHint');
+  if (!hint) return;
+
+  if (!S.storyHint) {
+    hint.className = 'feedback info hidden';
+    hint.innerHTML = '';
+    return;
+  }
+
+  hint.className = 'feedback show ' + S.storyHintKind;
+  hint.innerHTML = S.storyHint;
+}
+
+window.navigate = function(page) {
+  if (!isPageUnlocked(page)) {
+    page = 'story';
+    setStoryHint('🔒 Dieses Modul ist noch gesperrt. Spiele zuerst das aktuelle Kapitel fertig.');
+  } else if (page !== 'story') {
+    setStoryHint('');
+  }
+
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  S.currentPage = page;
+  toggleSidebar(true);
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  const activeItem = document.querySelector('.sidebar-item[data-page="' + page + '"]');
+  if (activeItem) activeItem.classList.add('active');
+
+  // Init modules
+  if (page === 'abschreiben') abInit();
+  if (page === 'silben') silInit();
+  if (page === 'diktat') dikInit();
+  if (page === 'schwung') schwungInit();
+  if (page === 'fehler') fehlerInit();
+  if (page === 'luecke') lueckeInit();
+  if (page === 'dashboard') dashInit();
+  if (page === 'story') storyInit();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  saveState();
+}
+
+window.openModule = function(page) {
+  if (!isPageUnlocked(page)) {
+    const requiredChapter = getRequiredChapterForPage(page);
+    const chapter = CHAPTERS[requiredChapter - 1];
+    setStoryHint('🔒 <strong>' + MODULE_META[page].title + '</strong> wird in Kapitel ' + requiredChapter + ' freigeschaltet: <strong>' + chapter.title + '</strong>.');
+    navigate('story');
+    return;
+  }
+  navigate(page);
+}
+
+window.toggleSidebar = function(forceClose) {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  if (forceClose === true || sb.classList.contains('show')) {
+    sb.classList.remove('show'); ov.classList.remove('show');
+  } else {
+    sb.classList.add('show'); ov.classList.add('show');
+  }
+}
+
+// =====================================================================
+//  HELPERS
+// =====================================================================
+function getGrade() { return document.getElementById('gradeSelect').value; }
+function getDiff() { return document.getElementById('diffSelect').value; }
+function getCustom() { return document.getElementById('customText').value.trim(); }
+function readSettingsFromDom() {
+  return {
+    grade: document.getElementById('gradeSelect').value,
+    difficulty: document.getElementById('diffSelect').value,
+    customText: document.getElementById('customText').value,
+    ttsSpeed: document.getElementById('ttsSpeed').value,
+  };
+}
+
+function writeSettingsToDom(settings) {
+  if (!settings) return;
+  if (settings.grade) document.getElementById('gradeSelect').value = settings.grade;
+  if (settings.difficulty) document.getElementById('diffSelect').value = settings.difficulty;
+  if (settings.customText !== undefined) document.getElementById('customText').value = settings.customText;
+  if (settings.ttsSpeed) document.getElementById('ttsSpeed').value = settings.ttsSpeed;
+}
+
+function getText() {
+  const g = getGrade(), d = getDiff(), c = getCustom();
+  if (c) {
+    if (d==='wort') { const ws=c.split(/\s+/); return ws[Math.floor(Math.random()*ws.length)]; }
+    if (d==='satz') { const ss=c.split(/[.!?]+/).map(s=>s.trim()).filter(s=>s); return (ss[Math.floor(Math.random()*ss.length)]||c)+'.'; }
+    return c;
+  }
+  const l = WL[g];
+  if (d==='wort') return l.w[Math.floor(Math.random()*l.w.length)];
+  if (d==='satz') return l.s[Math.floor(Math.random()*l.s.length)];
+  return l.t[Math.floor(Math.random()*l.t.length)];
+}
+
+function getWord() {
+  const c = getCustom();
+  if (c) { const ws=c.split(/\s+/); return ws[Math.floor(Math.random()*ws.length)]; }
+  return WL[getGrade()].w[Math.floor(Math.random()*WL[getGrade()].w.length)];
+}
+
+function highlightStolper(text) {
+  const pats = [/ie/g,/ei/g,/sch/g,/ch/g,/ck/g,/tz/g,/ss/g,/ß/g,/[äöü]/g,/[A-ZÄÖÜ]/g,/mm|nn|ll|tt|ff|pp|bb|dd|gg|rr/g,/[,.!?;:]/g];
+  const marks = [];
+  for (const p of pats) { let m; const r=new RegExp(p.source,p.flags); while((m=r.exec(text))!==null) marks.push({s:m.index,e:m.index+m[0].length,t:m[0]}); }
+  marks.sort((a,b)=>a.s-b.s||b.e-a.e);
+  const f=[]; let le=-1;
+  for (const m of marks) { if(m.s>=le){f.push(m);le=m.e;} }
+  let r=text;
+  for(let i=f.length-1;i>=0;i--) r=r.slice(0,f[i].s)+'<span class="stolper">'+f[i].t+'</span>'+r.slice(f[i].e);
+  return r;
+}
+
+function esc(c) { return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildDiff(orig, user) {
+  let h=''; const mx=Math.max(orig.length,user.length);
+  for(let i=0;i<mx;i++){
+    if(i<user.length&&i<orig.length){ h+=user[i]===orig[i]?'<span class="diff-correct">'+esc(user[i])+'</span>':'<span class="diff-wrong" title="Erwartet: '+esc(orig[i])+'">'+esc(user[i])+'</span>'; }
+    else if(i>=user.length) h+='<span class="diff-missing">'+esc(orig[i])+'</span>';
+    else h+='<span class="diff-wrong">'+esc(user[i])+'</span>';
+  }
+  return h;
+}
+
+function similarity(a,b) { if(a===b)return 1; if(!a||!b)return 0; let m=0,mx=Math.max(a.length,b.length); for(let i=0;i<Math.min(a.length,b.length);i++) if(a[i]===b[i])m++; return m/mx; }
+
+function addScore(pts) {
+  S.score += pts;
+  S.level = Math.floor(S.score / 30) + 1;
+  updateUI();
+}
+
+function logErrors(orig, user) {
+  const origW = orig.split(/\s+/), userW = user.split(/\s+/);
+  for (let i = 0; i < origW.length; i++) {
+    if (i < userW.length && origW[i] !== userW[i]) {
+      S.errorLog[origW[i]] = (S.errorLog[origW[i]] || 0) + 1;
+    }
+  }
+}
+
+function saveState() {
+  if (!window.localStorage) return;
+  const snapshot = {
+    score: S.score,
+    streak: S.streak,
+    level: S.level,
+    chapter: S.chapter,
+    totalWords: S.totalWords,
+    perfectRounds: S.perfectRounds,
+    moduleStats: S.moduleStats,
+    errorLog: S.errorLog,
+    badges: Array.from(S.badges),
+    currentPage: S.currentPage,
+    storyHint: S.storyHint,
+    storyHintKind: S.storyHintKind,
+    settings: readSettingsFromDom(),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+}
+
+function loadState() {
+  if (!window.localStorage) return;
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  try {
+    const data = JSON.parse(raw);
+    S.score = Number(data.score || 0);
+    S.streak = Number(data.streak || 0);
+    S.level = Number(data.level || 1);
+    S.chapter = Number(data.chapter || 1);
+    S.totalWords = Number(data.totalWords || 0);
+    S.perfectRounds = Number(data.perfectRounds || 0);
+    S.moduleStats = { ...S.moduleStats, ...(data.moduleStats || {}) };
+    S.errorLog = data.errorLog || {};
+    S.badges = new Set(Array.isArray(data.badges) ? data.badges : []);
+    S.storyHint = data.storyHint || '';
+    S.storyHintKind = data.storyHintKind || 'info';
+    writeSettingsToDom(data.settings);
+    syncChapterProgress();
+  } catch (err) {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function updateUI() {
+  syncChapterProgress();
+  document.getElementById('score').textContent = S.score;
+  document.getElementById('streak').textContent = '🔥' + S.streak;
+  document.getElementById('chapter').textContent = S.chapter;
+  document.getElementById('level').textContent = S.level;
+  document.getElementById('topScore').textContent = '⭐ ' + S.score;
+  const sc = Math.min(5, Math.floor(S.score / 20));
+  document.getElementById('starsDisplay').textContent = '★'.repeat(sc) + '☆'.repeat(5-sc);
+  checkBadges();
+  renderNavState();
+  if (S.currentPage === 'story') storyInit();
+  if (S.currentPage === 'dashboard') dashInit();
+  saveState();
+}
+
+window.updateWordList = function() {
+  saveState();
+  if (S.currentPage === 'abschreiben') abInit();
+  else if (S.currentPage === 'silben') silInit();
+  else if (S.currentPage === 'diktat') dikInit();
+  else if (S.currentPage === 'luecke') lueckeInit();
+  else if (S.currentPage === 'story') storyInit();
+}
+
+// TTS
+function speak(text, rate) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'de-DE';
+  u.rate = rate || parseFloat(document.getElementById('ttsSpeed').value) || 0.6;
+  u.pitch = 1.1;
+  const voices = window.speechSynthesis.getVoices();
+  const deVoice = voices.find(v => v.lang.startsWith('de'));
+  if (deVoice) u.voice = deVoice;
+  window.speechSynthesis.speak(u);
+}
+
+// Ensure voices loaded
+if ('speechSynthesis' in window) { speechSynthesis.onvoiceschanged = () => {}; speechSynthesis.getVoices(); }
+
+// =====================================================================
+//  BADGES
+// =====================================================================
+const BADGES = [
+  {id:'first',label:'🏅 Erster Schritt',check:()=>S.totalWords>0},
+  {id:'streak3',label:'🔥 3er Streak',check:()=>S.streak>=3},
+  {id:'streak5',label:'🔥🔥 5er Streak',check:()=>S.streak>=5},
+  {id:'p50',label:'⭐ 50 Punkte',check:()=>S.score>=50},
+  {id:'p100',label:'🌟 100 Punkte',check:()=>S.score>=100},
+  {id:'p200',label:'💫 200 Punkte',check:()=>S.score>=200},
+  {id:'w50',label:'📝 50 Wörter',check:()=>S.totalWords>=50},
+  {id:'perf5',label:'🎯 5x Perfekt',check:()=>S.perfectRounds>=5},
+  {id:'allmod',label:'🌈 Alle Module',check:()=>Object.values(S.moduleStats).every(v=>v>0)},
+];
+function checkBadges() { for(const b of BADGES) if(b.check()) S.badges.add(b.id); }
+
+// =====================================================================
+//  STORY
+// =====================================================================
+function storyInit() {
+  syncChapterProgress();
+  if (!S.storyHint) {
+    setStoryHint('👉 Starte mit <strong>Abschreiben</strong>. Nach genug Runden schaltet Lumi das nächste Kapitel frei.');
+  }
+  const bar = document.getElementById('storyBar');
+  bar.innerHTML = CHAPTERS.map((_,i) => {
+    let cls = 'story-seg';
+    if (i < S.chapter - 1) cls += ' done';
+    else if (i === S.chapter - 1) cls += ' current';
+    return '<div class="'+cls+'"></div>';
+  }).join('');
+  const ch = CHAPTERS[Math.min(S.chapter-1, CHAPTERS.length-1)];
+  const currentProgress = Math.min(getModuleRuns(ch.module), ch.goal);
+  document.getElementById('storyProgress').textContent = 'Kapitel '+S.chapter+' von '+CHAPTERS.length+' – '+ch.title+' ('+currentProgress+'/'+ch.goal+')';
+
+  const cont = document.getElementById('storyChapters');
+  cont.innerHTML = CHAPTERS.map((c,i) => {
+    const done = i < S.chapter - 1;
+    const current = i === S.chapter - 1;
+    const progress = Math.min(getModuleRuns(c.module), c.goal);
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;opacity:'+(i<=S.chapter-1?1:0.4)+';">' +
+      '<span style="font-size:1.5em;">'+(done?'✅':c.icon)+'</span>' +
+      '<div><strong style="color:'+(current?'var(--primary)':'#333')+';">'+c.title+'</strong>' +
+      '<br><small style="color:var(--muted);">'+c.desc+'</small>' +
+      '<br><small style="color:'+(current?'var(--accent)':'var(--muted)')+';">Fortschritt: '+progress+' / '+c.goal+'</small></div></div>';
+  }).join('');
+
+  const overview = document.getElementById('storyModuleCards');
+  overview.innerHTML = Object.entries(MODULE_META).map(([key, meta]) => {
+    const unlocked = isPageUnlocked(key);
+    const progress = Math.min(getModuleRuns(key), meta.chapterGoal);
+    return `
+      <div class="module-card ${unlocked ? '' : 'locked'}">
+        <div class="module-card-head">
+          <div>
+            <div class="module-kicker">Kapitel ${getRequiredChapterForPage(key)}</div>
+            <div class="module-title">${meta.icon} ${meta.title}</div>
+          </div>
+          <span class="module-pill ${unlocked ? 'open' : 'locked'}">${unlocked ? 'frei' : 'gesperrt'}</span>
+        </div>
+        <div class="module-meta"><strong>Lernziel:</strong> ${meta.goal}</div>
+        <div class="module-meta"><strong>Didaktik:</strong> ${meta.pedagogy}</div>
+        <div class="module-meta">${meta.summary}</div>
+        <div class="module-progress">Kapitelziel: ${progress} / ${meta.chapterGoal}</div>
+        <button class="btn btn-primary btn-sm btn-block module-launch ${unlocked ? '' : 'is-locked'}" onclick="openModule('${key}')">${unlocked ? 'Starten' : 'Gesperrt: klicken für Hinweis'}</button>
+      </div>
+    `;
+  }).join('');
+
+  setStoryHint(S.storyHint, S.storyHintKind);
+  renderNavState();
+}
+
+// =====================================================================
+//  ABSCHREIBEN – Retrieval Practice + Scaffolding
+// =====================================================================
+function abInit() {
+  S.abText = getText(); S.abPeekCount = 0;
+  abShowPhase('lesen');
+  document.getElementById('abVorlage').innerHTML = highlightStolper(S.abText);
+}
+
+function abShowPhase(phase) {
+  ['ab-lesen','ab-merken','ab-schreiben','ab-pruefen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('ab-'+phase).classList.remove('hidden');
+  const steps=['lesen','merken','schreiben','pruefen'];
+  steps.forEach((s,i)=>{
+    const el=document.getElementById('ab-step'+(i+1));
+    el.classList.remove('active','done');
+    if(s===phase)el.classList.add('active');
+    else if(steps.indexOf(s)<steps.indexOf(phase))el.classList.add('done');
+  });
+}
+
+window.abGoMerken = function() {
+  abShowPhase('merken');
+  document.getElementById('abMerkenText').innerHTML = highlightStolper(S.abText);
+  let sec = Math.min(3 + Math.ceil(S.abText.length / 8), 15);
+  const cd = document.getElementById('abCountdown');
+  function tick() { if(sec<=0){abGoSchreiben();return;} cd.textContent=sec+'s'; sec--; S.abTimer=setTimeout(tick,1000); }
+  tick();
+}
+window.abSkipCountdown = function() { clearTimeout(S.abTimer); abGoSchreiben(); }
+
+function abGoSchreiben() {
+  clearTimeout(S.abTimer);
+  abShowPhase('schreiben');
+  document.getElementById('abInput').value = '';
+  document.getElementById('abInput').focus();
+  document.getElementById('abPeekBox').classList.add('hidden');
+  document.getElementById('abPeekText').innerHTML = highlightStolper(S.abText);
+}
+
+window.abPeek = function() {
+  S.abPeekCount++; addScore(-2);
+  const box = document.getElementById('abPeekBox');
+  box.classList.remove('hidden');
+  setTimeout(()=>box.classList.add('hidden'), 2500);
+}
+
+window.abOnTyping = function() {}
+
+window.abCheck = function() {
+  abShowPhase('pruefen');
+  const user = document.getElementById('abInput').value.trim();
+  document.getElementById('abPruefVorlage').innerHTML = highlightStolper(S.abText);
+  document.getElementById('abDiff').innerHTML = buildDiff(S.abText, user);
+  logErrors(S.abText, user);
+
+  const sim = similarity(S.abText, user);
+  const fb = document.getElementById('abResult');
+  fb.classList.remove('success','error','info'); fb.classList.add('show');
+
+  let pts=0, msg='';
+  if (sim >= 1.0) {
+    pts = 10 + (S.abPeekCount===0 ? 5 : 0); S.streak++; S.perfectRounds++;
+    if (S.streak>=3) pts += S.streak;
+    msg = '🎉 Perfekt!'; if(S.abPeekCount===0) msg+=' 🌟 Ohne Spicken!';
+    fb.className = 'feedback show success';
+  } else if (sim >= 0.85) {
+    pts = 5; S.streak = 0;
+    msg = '👍 Fast perfekt! Schau dir die markierten Stellen an.';
+    fb.className = 'feedback show info';
+  } else {
+    pts = 1; S.streak = 0;
+    msg = '💪 Übe weiter! Vergleiche Buchstabe für Buchstabe.';
+    fb.className = 'feedback show error';
+  }
+  S.totalWords += S.abText.split(/\s+/).length;
+  S.moduleStats.abschreiben++;
+  addScore(pts);
+  fb.innerHTML = msg + '<br><small>+' + pts + ' Punkte</small>';
+}
+
+window.abNext = function() { abInit(); }
+
+// =====================================================================
+//  SILBENKLATSCHER – Silbenmethode + Multisensorisch
+// =====================================================================
+let silWord='', silSilben=[], silOrder=[], silIdx=0;
+
+function silInit() {
+  const w = getWord();
+  silWord = w;
+  silSilben = SILBEN[w] || autoSilben(w);
+  silOrder = [...silSilben].sort(() => Math.random() - 0.5);
+  silIdx = 0;
+
+  document.getElementById('silWord').innerHTML = silbenColor(silSilben);
+  document.getElementById('silAnswer').textContent = '';
+  document.getElementById('silFeedback').classList.remove('show');
+  document.getElementById('silInstruction').textContent = 'Tippe die Silben in der richtigen Reihenfolge! (' + silSilben.length + ' Silben)';
+
+  const cont = document.getElementById('silChoices');
+  cont.innerHTML = silOrder.map((s,i) =>
+    '<div class="silbe-box" onclick="silTap(this,'+i+')" data-sil="'+s+'">'+s+'</div>'
+  ).join('');
+}
+
+function autoSilben(word) {
+  // Simple auto-syllabification for German
+  const vowels = 'aeiouyäöü';
+  let silben = [], cur = '';
+  for (let i = 0; i < word.length; i++) {
+    cur += word[i];
+    if (vowels.includes(word[i].toLowerCase()) && i < word.length - 1) {
+      // Check next char
+      if (!vowels.includes(word[i+1].toLowerCase()) && i + 2 < word.length && vowels.includes(word[i+2].toLowerCase())) {
+        silben.push(cur); cur = '';
+      }
+    }
+  }
+  if (cur) silben.push(cur);
+  return silben.length > 0 ? silben : [word];
+}
+
+function silbenColor(silben) {
+  return silben.map((s,i) => '<span class="'+(i%2===0?'sil-a':'sil-b')+'">'+s+'</span>').join('·');
+}
+
+window.silTap = function(el, idx) {
+  const sil = silOrder[idx];
+  if (sil === silSilben[silIdx]) {
+    el.classList.add('correct','clicked');
+    el.style.pointerEvents = 'none';
+    silIdx++;
+    // Play clap sound effect or TTS
+    speak(sil, 0.8);
+    document.getElementById('silAnswer').textContent += sil;
+
+    if (silIdx >= silSilben.length) {
+      const fb = document.getElementById('silFeedback');
+      fb.className = 'feedback show success';
+      fb.innerHTML = '🎉 Super! <strong>'+silWord+'</strong> = '+silSilben.join(' · ')+' ('+silSilben.length+' Silben)';
+      S.moduleStats.silben++; S.totalWords++; S.streak++; addScore(5 + silSilben.length);
+    }
+  } else {
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'), 500);
+    S.streak = 0; updateUI();
+  }
+}
+
+window.silHearWord = function() { speak(silWord, 0.5); }
+window.silNext = function() { silInit(); }
+
+// =====================================================================
+//  DIKTAT – Web Speech API TTS + Multisensorisch
+// =====================================================================
+function dikInit() {
+  S.dikText = getText();
+  document.getElementById('diktatReady').classList.remove('hidden');
+  document.getElementById('diktatActive').classList.add('hidden');
+  document.getElementById('diktatResult').classList.add('hidden');
+}
+
+window.diktatStart = function() {
+  document.getElementById('diktatReady').classList.add('hidden');
+  document.getElementById('diktatActive').classList.remove('hidden');
+  document.getElementById('diktatInput').value = '';
+  diktatSpeak();
+}
+
+window.diktatSpeak = function() { speak(S.dikText); }
+window.diktatSlow = function() { speak(S.dikText, 0.3); }
+
+window.diktatCheck = function() {
+  const user = document.getElementById('diktatInput').value.trim();
+  document.getElementById('diktatActive').classList.add('hidden');
+  document.getElementById('diktatResult').classList.remove('hidden');
+  document.getElementById('diktatSolution').innerHTML = highlightStolper(S.dikText);
+  document.getElementById('diktatDiff').innerHTML = buildDiff(S.dikText, user);
+  logErrors(S.dikText, user);
+
+  const sim = similarity(S.dikText, user);
+  const fb = document.getElementById('diktatFeedback');
+  fb.classList.add('show');
+  let pts = 0;
+  if (sim >= 1.0) { pts=12; S.streak++; S.perfectRounds++; fb.className='feedback show success'; fb.innerHTML='🎉 Perfekt gehört und geschrieben!'; }
+  else if (sim >= 0.85) { pts=6; S.streak=0; fb.className='feedback show info'; fb.innerHTML='👍 Fast! Vergleiche genau.'; }
+  else { pts=2; S.streak=0; fb.className='feedback show error'; fb.innerHTML='💪 Hör nochmal genau hin beim nächsten Mal!'; }
+
+  S.totalWords += S.dikText.split(/\s+/).length;
+  S.moduleStats.diktat++;
+  addScore(pts);
+  fb.innerHTML += '<br><small>+'+pts+' Punkte</small>';
+}
+
+window.diktatNext = function() { dikInit(); }
+
+// =====================================================================
+//  SCHWUNGRICHTUNG – Touch Canvas + Graphomotorik
+// =====================================================================
+const LETTER_PATHS = {
+  'A':[{type:'L',p:[[20,90],[50,10]]},{type:'L',p:[[50,10],[80,90]]},{type:'L',p:[[32,55],[68,55]]}],
+  'B':[{type:'L',p:[[25,10],[25,90]]},{type:'A',c:[25,32],r:18,s:-90,e:90},{type:'A',c:[25,68],r:22,s:-90,e:90}],
+  'D':[{type:'L',p:[[25,10],[25,90]]},{type:'A',c:[25,50],r:38,s:-90,e:90}],
+  'E':[{type:'L',p:[[65,10],[25,10]]},{type:'L',p:[[25,10],[25,90]]},{type:'L',p:[[25,50],[55,50]]},{type:'L',p:[[25,90],[65,90]]}],
+  'F':[{type:'L',p:[[65,10],[25,10]]},{type:'L',p:[[25,10],[25,90]]},{type:'L',p:[[25,50],[55,50]]}],
+  'L':[{type:'L',p:[[25,10],[25,90]]},{type:'L',p:[[25,90],[65,90]]}],
+  'M':[{type:'L',p:[[10,90],[10,10]]},{type:'L',p:[[10,10],[45,55]]},{type:'L',p:[[45,55],[80,10]]},{type:'L',p:[[80,10],[80,90]]}],
+  'O':[{type:'E',c:[50,50],rx:28,ry:38}],
+  'S':[{type:'A',c:[50,32],r:18,s:-180,e:0},{type:'A',c:[50,68],r:18,s:0,e:180}],
+  'a':[{type:'E',c:[50,62],rx:22,ry:22},{type:'L',p:[[72,40],[72,88]]}],
+  'b':[{type:'L',p:[[28,10],[28,88]]},{type:'E',c:[50,65],rx:22,ry:22}],
+  'd':[{type:'E',c:[45,65],rx:22,ry:22},{type:'L',p:[[67,10],[67,88]]}],
+  'e':[{type:'L',p:[[28,62],[72,62]]},{type:'A',c:[50,62],r:22,s:0,e:-270}],
+  'f':[{type:'A',c:[55,22],r:16,s:-180,e:-90},{type:'L',p:[[55,22],[55,88]]},{type:'L',p:[[40,40],[70,40]]}],
+  'g':[{type:'E',c:[45,52],rx:22,ry:22},{type:'L',p:[[67,30],[67,92]]}],
+  'o':[{type:'E',c:[50,62],rx:22,ry:22}],
+  's':[{type:'A',c:[50,48],r:14,s:-180,e:0},{type:'A',c:[50,76],r:14,s:0,e:180}],
+};
+const SCHWUNG_KEYS = Object.keys(LETTER_PATHS);
+let schwungIdx = 0, schwungDrawing = false, schwungLastPt = null, schwungPoints = [];
+
+function schwungInit() {
+  const cont = document.getElementById('schwungLetters');
+  cont.innerHTML = SCHWUNG_KEYS.map((l,i) =>
+    '<div class="letter-btn'+(i===schwungIdx?' selected':'')+'" onclick="schwungSelect('+i+')">'+l+'</div>'
+  ).join('');
+  schwungDraw();
+  schwungSetupTouch();
+}
+
+window.schwungSelect = function(i) {
+  schwungIdx = i;
+  document.querySelectorAll('#schwungLetters .letter-btn').forEach((b,j) => b.classList.toggle('selected', i===j));
+  schwungDraw();
+}
+
+function schwungDraw() {
+  const canvas = document.getElementById('schwungCanvas');
+  const ctx = canvas.getContext('2d');
+  const sc = 3.2, ox = 30, oy = 20;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Grid
+  ctx.strokeStyle='#e8e8e8'; ctx.lineWidth=1; ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  [0.33,0.66].forEach(f=>{ctx.moveTo(0,canvas.height*f);ctx.lineTo(canvas.width,canvas.height*f);});
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Ghost letter
+  const letter = SCHWUNG_KEYS[schwungIdx];
+  ctx.globalAlpha=0.1; ctx.fillStyle='#9e9e9e';
+  ctx.font='bold 220px "Comic Sans MS",cursive'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(letter, canvas.width/2, canvas.height/2+10);
+  ctx.globalAlpha=1;
+
+  const strokes = LETTER_PATHS[letter];
+  const colors = ['#7c4dff','#00bcd4','#ff9800','#e91e63','#4caf50'];
+
+  strokes.forEach((stroke,idx) => {
+    ctx.strokeStyle = colors[idx%colors.length];
+    ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+
+    if (stroke.type === 'L') {
+      ctx.moveTo(stroke.p[0][0]*sc+ox, stroke.p[0][1]*sc+oy);
+      ctx.lineTo(stroke.p[1][0]*sc+ox, stroke.p[1][1]*sc+oy);
+    } else if (stroke.type === 'A') {
+      ctx.arc(stroke.c[0]*sc+ox, stroke.c[1]*sc+oy, stroke.r*sc, stroke.s*Math.PI/180, stroke.e*Math.PI/180);
+    } else if (stroke.type === 'E') {
+      ctx.ellipse(stroke.c[0]*sc+ox, stroke.c[1]*sc+oy, stroke.rx*sc, stroke.ry*sc, 0, 0, Math.PI*2);
+    }
+    ctx.stroke();
+
+    // Number
+    let nx, ny;
+    if (stroke.type==='L') { nx=stroke.p[0][0]*sc+ox-14; ny=stroke.p[0][1]*sc+oy-8; }
+    else { nx=stroke.c[0]*sc+ox-14; ny=stroke.c[1]*sc+oy-(stroke.r||stroke.ry||20)*sc-8; }
+    ctx.fillStyle=colors[idx%colors.length];
+    ctx.beginPath(); ctx.arc(nx,ny,11,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(''+(idx+1),nx,ny);
+
+    // Arrow
+    if (stroke.type==='L') {
+      const [x1,y1]=[stroke.p[0][0]*sc+ox,stroke.p[0][1]*sc+oy];
+      const [x2,y2]=[stroke.p[1][0]*sc+ox,stroke.p[1][1]*sc+oy];
+      const mx=(x1+x2)/2, my=(y1+y2)/2, ang=Math.atan2(y2-y1,x2-x1);
+      ctx.save(); ctx.translate(mx,my); ctx.rotate(ang);
+      ctx.fillStyle=colors[idx%colors.length];
+      ctx.beginPath(); ctx.moveTo(10,0); ctx.lineTo(-5,-6); ctx.lineTo(-5,6); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+  });
+
+  // Redraw user strokes
+  if (schwungPoints.length > 1) {
+    ctx.strokeStyle = 'rgba(124,77,255,0.5)';
+    ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(schwungPoints[0].x, schwungPoints[0].y);
+    for (let i=1;i<schwungPoints.length;i++) {
+      if (schwungPoints[i].lift) { ctx.moveTo(schwungPoints[i].x, schwungPoints[i].y); }
+      else { ctx.lineTo(schwungPoints[i].x, schwungPoints[i].y); }
+    }
+    ctx.stroke();
+  }
+}
+
+function schwungSetupTouch() {
+  const canvas = document.getElementById('schwungCanvas');
+  canvas.removeEventListener('touchstart', schwungTouchStart);
+  canvas.removeEventListener('touchmove', schwungTouchMove);
+  canvas.removeEventListener('touchend', schwungTouchEnd);
+  canvas.removeEventListener('mousedown', schwungMouseDown);
+  canvas.removeEventListener('mousemove', schwungMouseMove);
+  canvas.removeEventListener('mouseup', schwungMouseUp);
+
+  canvas.addEventListener('touchstart', schwungTouchStart, {passive:false});
+  canvas.addEventListener('touchmove', schwungTouchMove, {passive:false});
+  canvas.addEventListener('touchend', schwungTouchEnd, {passive:false});
+  canvas.addEventListener('mousedown', schwungMouseDown);
+  canvas.addEventListener('mousemove', schwungMouseMove);
+  canvas.addEventListener('mouseup', schwungMouseUp);
+}
+
+function schwungGetTouchPos(e) {
+  const canvas = document.getElementById('schwungCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  return {x: touch.clientX - rect.left, y: touch.clientY - rect.top};
+}
+function schwungGetMousePos(e) {
+  const canvas = document.getElementById('schwungCanvas');
+  const rect = canvas.getBoundingClientRect();
+  return {x: e.clientX - rect.left, y: e.clientY - rect.top};
+}
+
+function schwungTouchStart(e) { e.preventDefault(); schwungDrawing=true; const p=schwungGetTouchPos(e); p.lift=true; schwungPoints.push(p); schwungDrawUser(p); }
+function schwungTouchMove(e) { e.preventDefault(); if(!schwungDrawing)return; const p=schwungGetTouchPos(e); schwungPoints.push(p); schwungDrawUser(p); }
+function schwungTouchEnd(e) { e.preventDefault(); schwungDrawing=false; }
+
+function schwungMouseDown(e) { schwungDrawing=true; const p=schwungGetMousePos(e); p.lift=true; schwungPoints.push(p); schwungDrawUser(p); }
+function schwungMouseMove(e) { if(!schwungDrawing)return; const p=schwungGetMousePos(e); schwungPoints.push(p); schwungDrawUser(p); }
+function schwungMouseUp(e) { schwungDrawing=false; }
+
+function schwungDrawUser(p) {
+  const canvas = document.getElementById('schwungCanvas');
+  const ctx = canvas.getContext('2d');
+  if (schwungPoints.length < 2) return;
+  ctx.strokeStyle = 'rgba(124,77,255,0.5)';
+  ctx.lineWidth = 8; ctx.lineCap = 'round';
+  const prev = schwungPoints[schwungPoints.length-2];
+  if (!p.lift) {
+    ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+  }
+}
+
+window.schwungReset = function() { schwungPoints = []; schwungDraw(); }
+window.schwungNext = function() {
+  schwungPoints = [];
+  schwungIdx = (schwungIdx+1) % SCHWUNG_KEYS.length;
+  document.querySelectorAll('#schwungLetters .letter-btn').forEach((b,j) => b.classList.toggle('selected', schwungIdx===j));
+  schwungDraw();
+  S.moduleStats.schwung++; S.totalWords++; addScore(3);
+}
+
+// =====================================================================
+//  FEHLERSUCHE – Eigenständige Textkorrektur + Graceful Failure
+// =====================================================================
+let fehlerData = null, fehlerMarked = new Set();
+
+function fehlerInit() {
+  fehlerData = FEHLERTEXTE[Math.floor(Math.random()*FEHLERTEXTE.length)];
+  fehlerMarked = new Set();
+  const words = fehlerData.fehler.split(/\s+/);
+  document.getElementById('fehlerText').innerHTML = words.map((w,i) =>
+    '<span class="fehler-word" onclick="fehlerTap(this,'+i+')" data-idx="'+i+'">'+w+' </span>'
+  ).join('');
+  document.getElementById('fehlerFeedback').classList.remove('show');
+  document.getElementById('fehlerHint').textContent = 'Tippe auf die Wörter mit Fehlern! ('+Object.keys(fehlerData.errorWords).length+' Fehler versteckt)';
+}
+
+window.fehlerTap = function(el, idx) {
+  if (fehlerMarked.has(idx)) { fehlerMarked.delete(idx); el.classList.remove('marked'); }
+  else { fehlerMarked.add(idx); el.classList.add('marked'); }
+}
+
+window.fehlerCheck = function() {
+  const errorIdxs = new Set(Object.keys(fehlerData.errorWords).map(Number));
+  let correct = 0, wrong = 0, missed = 0;
+
+  document.querySelectorAll('.fehler-word').forEach(el => {
+    const idx = parseInt(el.dataset.idx);
+    if (errorIdxs.has(idx) && fehlerMarked.has(idx)) { el.classList.add('correct-mark'); el.classList.remove('marked'); correct++; }
+    else if (errorIdxs.has(idx) && !fehlerMarked.has(idx)) { el.classList.add('missed-mark'); missed++; }
+    else if (!errorIdxs.has(idx) && fehlerMarked.has(idx)) { el.classList.remove('marked'); el.style.background='#fff3e0'; wrong++; }
+  });
+
+  const fb = document.getElementById('fehlerFeedback');
+  fb.classList.add('show');
+  const total = errorIdxs.size;
+
+  if (correct === total && wrong === 0) {
+    fb.className = 'feedback show success';
+    fb.innerHTML = '🎉 Alle '+total+' Fehler gefunden! Perfekt!';
+    S.streak++; S.perfectRounds++; addScore(10);
+  } else if (correct > 0) {
+    fb.className = 'feedback show info';
+    fb.innerHTML = '👍 '+correct+' von '+total+' Fehlern gefunden.'+(missed>0?' <span style="color:#ff9800;">'+missed+' übersehen.</span>':'')+(wrong>0?' <span style="color:#e53935;">'+wrong+' falsch markiert.</span>':'');
+    S.streak = 0; addScore(correct * 2);
+  } else {
+    fb.className = 'feedback show error';
+    fb.innerHTML = '💪 Schau nochmal genau hin! Die orangenen Wörter sind die echten Fehler.';
+    S.streak = 0; addScore(1);
+  }
+
+  // Show corrections
+  let corr = '<br><small>Richtige Schreibweisen: ';
+  for (const [idx, word] of Object.entries(fehlerData.errorWords)) {
+    corr += '<strong>'+word+'</strong>, ';
+  }
+  fb.innerHTML += corr.slice(0,-2) + '</small>';
+
+  S.totalWords += fehlerData.fehler.split(/\s+/).length;
+  S.moduleStats.fehler++;
+  updateUI();
+}
+
+window.fehlerNext = function() { fehlerInit(); }
+
+// =====================================================================
+//  LÜCKENDETEKTIV – Retrieval Practice
+// =====================================================================
+let lueckeWord='', lueckeAnswer='', lueckeMissing=[];
+
+function lueckeInit() {
+  const w = getWord();
+  lueckeWord = w;
+  const num = Math.min(3, Math.max(1, Math.floor(w.length / 3)));
+  const idxs = [];
+  while (idxs.length < num) { const i=Math.floor(Math.random()*w.length); if(!idxs.includes(i))idxs.push(i); }
+  idxs.sort((a,b)=>a-b);
+  lueckeMissing = idxs;
+  lueckeAnswer = idxs.map(i=>w[i]).join('');
+
+  let display = '';
+  for (let i=0;i<w.length;i++) {
+    if(idxs.includes(i)) display+='<span style="border-bottom:3px solid var(--primary);padding:0 3px;color:var(--primary);font-weight:bold;">_</span>';
+    else display+=w[i];
+  }
+
+  const vBox = document.getElementById('lueckeVorlageBox');
+  document.getElementById('lueckeVorlage').textContent = w;
+  vBox.style.opacity = '1'; vBox.style.transition = 'opacity 1s';
+  setTimeout(()=>{ vBox.style.opacity = '0'; }, 3000);
+
+  document.getElementById('lueckeDisplay').innerHTML = display;
+  document.getElementById('lueckeInput').value = '';
+  document.getElementById('lueckeFeedback').classList.remove('show');
+}
+
+window.lueckeCheck = function() {
+  const input = document.getElementById('lueckeInput').value;
+  if (input.length < lueckeAnswer.length) return;
+  const fb = document.getElementById('lueckeFeedback');
+  fb.classList.add('show');
+  if (input === lueckeAnswer) {
+    fb.className='feedback show success';
+    fb.innerHTML='🎉 Richtig! <strong>'+lueckeWord+'</strong>';
+    S.streak++; addScore(5);
+  } else {
+    fb.className='feedback show error';
+    fb.innerHTML='❌ Richtig wäre: <strong>'+lueckeAnswer+'</strong> → <strong>'+lueckeWord+'</strong>';
+    S.streak=0; addScore(1);
+  }
+  S.totalWords++; S.moduleStats.luecke++; updateUI();
+}
+
+window.lueckeNext = function() { lueckeInit(); }
+
+// =====================================================================
+//  DASHBOARD – Formative Assessment
+// =====================================================================
+function dashInit() {
+  // Stats
+  document.getElementById('dashGrid').innerHTML = `
+    <div class="dash-card"><div class="big">${S.score}</div><div class="label">Gesamtpunkte</div></div>
+    <div class="dash-card"><div class="big">${S.totalWords}</div><div class="label">Wörter geübt</div></div>
+    <div class="dash-card"><div class="big">${S.perfectRounds}</div><div class="label">Perfekte Runden</div></div>
+    <div class="dash-card"><div class="big">${S.level}</div><div class="label">Level</div></div>
+  `;
+
+  // Badges
+  checkBadges();
+  document.getElementById('dashBadges').innerHTML = BADGES.map(b =>
+    '<div class="badge '+(S.badges.has(b.id)?'earned':'')+'">'+b.label+'</div>'
+  ).join('');
+
+  // Error log
+  const errors = Object.entries(S.errorLog).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if (errors.length > 0) {
+    document.getElementById('dashErrors').innerHTML = '<table class="error-table"><tr><th>Wort</th><th>Fehler</th><th>Üben</th></tr>' +
+      errors.map(([w,c]) => '<tr><td>'+w+'</td><td>'+c+'×</td><td><button class="btn btn-sm btn-ghost" onclick="practiceWord(\''+w+'\')">📝</button></td></tr>').join('') +
+      '</table>';
+  } else {
+    document.getElementById('dashErrors').innerHTML = '<p style="color:var(--muted);font-size:0.9em;">Noch keine Fehler – super! 🎉</p>';
+  }
+
+  // Module stats
+  const mods = [
+    {name:'📝 Abschreiben',val:S.moduleStats.abschreiben},
+    {name:'👏 Silbenklatscher',val:S.moduleStats.silben},
+    {name:'🔊 Diktat',val:S.moduleStats.diktat},
+    {name:'〰️ Schwung',val:S.moduleStats.schwung},
+    {name:'🔍 Fehlersuche',val:S.moduleStats.fehler},
+    {name:'🧩 Lücken',val:S.moduleStats.luecke},
+  ];
+  const maxMod = Math.max(1, ...mods.map(m=>m.val));
+  document.getElementById('dashModules').innerHTML = mods.map(m =>
+    '<div style="margin:6px 0;"><div style="display:flex;justify-content:space-between;font-size:0.85em;"><span>'+m.name+'</span><span style="font-weight:700;">'+m.val+'</span></div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:'+Math.round(m.val/maxMod*100)+'%"></div></div></div>'
+  ).join('');
+}
+
+window.practiceWord = function(word) {
+  document.getElementById('customText').value = word;
+  document.getElementById('diffSelect').value = 'wort';
+  saveState();
+  openModule('abschreiben');
+}
+
+// =====================================================================
+//  INIT
+// =====================================================================
+['diffSelect', 'ttsSpeed'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('change', saveState);
+  el.addEventListener('input', saveState);
+});
+
+const customInput = document.getElementById('customText');
+if (customInput) {
+  customInput.addEventListener('input', saveState);
+  customInput.addEventListener('change', saveState);
+}
+
+loadState();
+updateUI();
+storyInit();
+
+});
+</script>
+</body>
+</html>
