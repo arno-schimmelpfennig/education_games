@@ -130,6 +130,17 @@
       box-shadow: 0 10px 20px rgba(107,30,58,.12);
       color: var(--brand);
     }
+    .tab.subtle-tab{
+      color: var(--muted);
+      font-weight:500;
+      opacity:.85;
+    }
+    .tab.subtle-tab.active{
+      border-color: rgba(27,27,31,.10);
+      box-shadow: 0 8px 16px rgba(0,0,0,.04);
+      color: #3b3b42;
+      background: #fafafc;
+    }
 
     .grid{
       display:grid;
@@ -192,6 +203,21 @@
       padding: 10px 12px 14px;
     }
     .folder.open .folder-body{display:block;}
+    .folder.subtle-folder .folder-header{
+      background: rgba(27,27,31,.02);
+    }
+    .folder.subtle-folder .badge{
+      background: #b7bcc6;
+      box-shadow: 0 0 0 3px rgba(183,188,198,.16);
+    }
+    .folder.subtle-folder .links .section-label{
+      background: rgba(27,27,31,.04);
+      color: #616775;
+    }
+    .folder.subtle-folder .game-link:hover{
+      box-shadow: 0 8px 16px rgba(0,0,0,.04);
+      border-color: rgba(27,27,31,.12);
+    }
 
     .links{
       list-style:none;
@@ -330,6 +356,7 @@
           <button class="tab" data-filter="python" type="button">Python</button>
           <button class="tab" data-filter="logic-and-math" type="button">Logik/Mathe</button>
           <button class="tab" data-filter="media-literacy" type="button">Medienkompetenz</button>
+          <button class="tab subtle-tab" data-filter="grundschule" type="button">Grundschule</button>
         </div>
       </div>
 
@@ -778,6 +805,31 @@
                   <span class="game-left">
                     <span class="game-title">Mona Lisa</span>
                     <span class="game-path">media-literacy/…_monalisa.html</span>
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- GRUNDSCHULE -->
+        <article class="folder subtle-folder" data-cat="grundschule">
+          <div class="folder-header" role="button" tabindex="0" aria-expanded="false">
+            <div class="folder-title">
+              <span class="badge"></span>
+              <span class="folder-name">Grundschule</span>
+            </div>
+            <div class="folder-meta">Ordner: <code>grundschule/mathematik/</code></div>
+          </div>
+          <div class="folder-body">
+            <ul class="links">
+              <li class="section-label">Mathematik</li>
+              <li>
+                <a class="game-link" href="grundschule/mathematik/magischer_zaubergarten.html">
+                  <span class="game-left">
+                    <span class="game-title">Magischer Zaubergarten</span>
+                    <span class="game-path">grundschule/mathematik/magischer_zaubergarten.html</span>
                   </span>
                   <span aria-hidden="true">→</span>
                 </a>
