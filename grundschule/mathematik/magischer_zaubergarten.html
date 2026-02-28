@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magischer Zaubergarten - Mathe 2. Klasse</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        @keyframes pointBounce { 0%, 100% { transform: translateY(0) translateX(-50%); } 50% { transform: translateY(-15px) translateX(-50%); } }
+        
+        .animate-point { animation: pointBounce 1.2s infinite; }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fcf8f2; }
+        ::-webkit-scrollbar-thumb { background: #d4b78c; border-radius: 4px; }
+
+        /* Montessori 3D Cube Style */
+        .cube-1 {
+            background-color: #4ade80;
+            border-bottom: 3px solid #16a34a;
+            border-right: 2px solid #22c55e;
+            border-radius: 2px;
+        }
+        .cube-10 {
+            background-color: #3b82f6;
+            border-bottom: 3px solid #1d4ed8;
+            border-right: 2px solid #2563eb;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-[#fcf8f2] text-[#4a5568] font-sans min-h-screen selection:bg-amber-100 flex flex-col overflow-x-hidden">
+    <div id="root" class="flex-1 flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Icons & SVGs ---
+        const IconSun = ({ className, size=24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        );
+        const IconFlower = ({ className, size=24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3"/><path d="m12 16.5-1.5 1.5-.5-1.5-1.5-.5 1.5-1.5"/><path d="m16.5 12 1.5-1.5-1.5-.5-.5-1.5-1.5 1.5"/><path d="m12 7.5 1.5-1.5.5 1.5 1.5.5-1.5 1.5"/><path d="m7.5 12-1.5 1.5 1.5.5.5 1.5 1.5-1.5"/><path d="M12 22v-3"/></svg>
+        );
+
+        const FairyLenia = ({ className, size=80, isSpeaking=false }) => (
+            <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+                {isSpeaking && <circle cx="50" cy="50" r="48" fill="#fef3c7" className="animate-pulse-slow" opacity="0.6"/>}
+                <path d="M50 45 C 0 -10, -20 50, 20 70 C -10 90, 20 105, 50 65" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="2" opacity="0.9" />
+                <path d="M50 45 C 100 -10, 120 50, 80 70 C 110 90, 80 105, 50 65" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="2" opacity="0.9" />
+                <circle cx="50" cy="30" r="22" fill="#d97706" />
+                <path d="M50 45 Q 30 75 25 95 L 75 95 Q 70 75 50 45 Z" fill="#bfdbfe" />
+                <path d="M50 45 Q 35 70 30 90 L 70 90 Q 65 70 50 45 Z" fill="#93c5fd" />
+                <rect x="46" y="40" width="8" height="10" fill="#fde68a" />
+                <circle cx="50" cy="32" r="16" fill="#fef3c7" />
+                <circle cx="41" cy="34" r="3" fill="#fca5a5" opacity="0.5" />
+                <circle cx="59" cy="34" r="3" fill="#fca5a5" opacity="0.5" />
+                <circle cx="44" cy="30" r="3" fill="#4b5563" />
+                <circle cx="56" cy="30" r="3" fill="#4b5563" />
+                {isSpeaking ? (
+                    <circle cx="50" cy="38" r="3" fill="#ea580c" />
+                ) : (
+                    <path d="M46 38 Q 50 42 54 38" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" />
+                )}
+                <path d="M34 26 Q 50 12 66 26 Q 50 18 34 26 Z" fill="#f59e0b" />
+                <line x1="60" y1="65" x2="90" y2="20" stroke="#fcd34d" strokeWidth="4" strokeLinecap="round" />
+                <circle cx="90" cy="20" r="7" fill="#fbbf24" />
+                <path d="M90 5 L 94 14 L 103 18 L 94 22 L 90 31 L 86 22 L 77 18 L 86 14 Z" fill="#fef08a" />
+            </svg>
+        );
+
+        const GrowingPlant = ({ level }) => {
+            return (
+                <div className="absolute -left-12 -bottom-2 md:-left-16 md:-bottom-4 w-20 h-28 md:w-28 md:h-36 pointer-events-none z-10">
+                    <svg viewBox="0 0 100 150" className="w-full h-full drop-shadow-md">
+                        <path d="M20 130 L 80 130 L 70 150 L 30 150 Z" fill="#78350f"/>
+                        {level >= 1 && <path d="M50 130 Q 40 100 50 90" stroke="#16a34a" strokeWidth="4" fill="none" className="animate-fade-in"/>}
+                        {level >= 1 && <path d="M50 110 Q 30 115 40 95 Q 50 100 50 110" fill="#22c55e" className="animate-fade-in"/>}
+                        {level >= 2 && <path d="M50 90 Q 60 70 50 50" stroke="#16a34a" strokeWidth="4" fill="none" className="animate-fade-in"/>}
+                        {level >= 2 && <path d="M50 70 Q 70 75 60 55 Q 50 60 50 70" fill="#22c55e" className="animate-fade-in"/>}
+                        {level >= 3 && <circle cx="50" cy="50" r="8" fill="#fb7185" className="animate-fade-in"/>}
+                        {level >= 4 && (
+                            <g transform="translate(50, 50)" className="animate-fade-in">
+                                <circle cx="0" cy="-12" r="8" fill="#f43f5e"/>
+                                <circle cx="12" cy="-5" r="8" fill="#f43f5e"/>
+                                <circle cx="7" cy="10" r="8" fill="#f43f5e"/>
+                                <circle cx="-7" cy="10" r="8" fill="#f43f5e"/>
+                                <circle cx="-12" cy="-5" r="8" fill="#f43f5e"/>
+                                <circle cx="0" cy="0" r="6" fill="#fbbf24"/>
+                            </g>
+                        )}
+                    </svg>
+                </div>
+            )
+        };
+
+        const Pointer = ({ direction="down", className="" }) => (
+            <div className={`absolute animate-point z-50 pointer-events-none drop-shadow-lg text-4xl md:text-5xl ${className}`}>
+                {direction === "down" ? "👇" : direction === "right" ? "👉" : "👈"}
+            </div>
+        );
+
+        const MiniMap = ({ lineIndices, activeIdx }) => (
+            <div className="grid grid-cols-3 gap-[2px] p-1 bg-[#8a6844] rounded-md w-14 h-14 md:w-16 md:h-16 shadow-inner border-2 border-[#6b4c2a] shrink-0">
+                {[0,1,2,3,4,5,6,7,8].map(i => {
+                    const isActive = i === activeIdx;
+                    const inLine = lineIndices && lineIndices.includes(i);
+                    return <div key={i} className={`w-full h-full rounded-sm transition-colors ${isActive ? 'bg-yellow-300 ring-1 ring-yellow-500 animate-pulse' : inLine ? 'bg-[#c7a47e]' : 'bg-[#6b4c2a]'}`} />
+                })}
+            </div>
+        );
+
+        const MontessoriZahlenstrahl = ({ target, current }) => {
+            const maxVal = Math.max(target, current, 15);
+            const renderTrack = (amount, isTarget) => {
+                const tens = Math.floor(amount / 10);
+                const ones = amount % 10;
+                const isOver = !isTarget && amount > target;
+                const isMatch = !isTarget && amount === target;
+                return (
+                    <div className="flex items-end h-8 w-full">
+                        {Array.from({length: tens}).map((_, i) => (
+                            <div key={`ten-${i}`} style={{ flex: 10 }}
+                                 className={`h-6 rounded-[2px] flex overflow-hidden mr-[1px] ${
+                                     isTarget ? 'border-2 border-blue-300/50 bg-blue-50/30 border-dashed box-border' : 
+                                     (isMatch ? 'cube-10 border-blue-700' : isOver ? 'bg-red-500 border-b-2 border-r-2 border-red-700 shadow-sm' : 'cube-10')
+                                 }`}>
+                                 {!isTarget && Array.from({length: 9}).map((_, j) => (
+                                     <div key={j} className={`flex-1 border-r ${isOver ? 'border-red-400/50' : 'border-blue-400/50'}`}></div>
+                                 ))}
+                            </div>
+                        ))}
+                        {Array.from({length: ones}).map((_, i) => (
+                            <div key={`one-${i}`} style={{ flex: 1 }}
+                                 className={`h-3 rounded-[2px] mr-[1px] ${
+                                     isTarget ? 'border-2 border-green-400/50 bg-green-50/30 border-dashed box-border' : 
+                                     (isMatch ? 'cube-1 border-green-600' : isOver ? 'bg-red-500 border-b-2 border-r-2 border-red-700 shadow-sm' : 'cube-1')
+                                 }`}>
+                            </div>
+                        ))}
+                        <div style={{ flex: maxVal - amount }}></div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="w-full flex flex-col items-start relative bg-white/60 p-3 rounded-xl border border-amber-900/10 shadow-inner mt-2 mb-4">
+                    <div className="flex justify-between w-full text-[10px] md:text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                        <span>Zahlenstrahl</span>
+                        <span>Ziel: {target}</span>
+                    </div>
+                    <div className="w-full relative h-10 px-2">
+                        <div className="absolute inset-0 left-2 right-2 z-0">{renderTrack(target, true)}</div>
+                        <div className="absolute inset-0 left-2 right-2 z-10 opacity-95 transition-all duration-300 ease-out">{renderTrack(current, false)}</div>
+                        <div className="absolute top-0 bottom-0 border-r-2 border-amber-500 border-dashed z-20 transition-all duration-300" style={{ left: `calc(${(target / maxVal) * 100}% + 8px)` }}>
+                             <div className="absolute -top-4 -translate-x-1/2 bg-amber-100 text-amber-900 text-[10px] px-1 rounded-sm border border-amber-400 font-bold shadow-sm">{target}</div>
+                        </div>
+                    </div>
+                    {current > target && <div className="text-red-500 font-bold text-xs w-full text-center mt-1 animate-pulse">Zu viele Würfel! Nimm etwas weg.</div>}
+                </div>
+            );
+        };
+
+        const VisualQuantity = ({ amount, targetSum, isTut }) => {
+            if (amount === null || amount === undefined || isNaN(amount)) return null;
+            if (targetSum > 20 || (isTut && targetSum > 20)) {
+                const tens = Math.max(0, Math.floor(amount / 10));
+                const ones = Math.max(0, amount % 10);
+                return (
+                    <div className="flex flex-col items-center justify-center gap-1 mt-1">
+                        <div className="flex flex-wrap justify-center gap-1 max-w-[100px]">
+                            {Array.from({length: tens}).map((_,i) => (
+                                <div key={`ten-${i}`} className="w-2.5 h-7 md:w-3.5 md:h-9 cube-10 flex flex-col justify-between overflow-hidden shadow-sm">
+                                    {Array.from({length:9}).map((_,j) => <div key={j} className="w-full border-b border-blue-300 opacity-60 flex-1"></div>)}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-1 max-w-[90px]">
+                            {Array.from({length: ones}).map((_,i) => (
+                                <div key={`one-${i}`} className="w-2.5 h-2.5 md:w-3 md:h-3 cube-1 shadow-sm"></div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
+            return (
+                <div className="flex flex-col gap-0.5 mt-1 bg-amber-900/5 p-1 rounded">
+                    <div className="flex gap-0.5">
+                        {Array.from({length: 5}).map((_,i) => (
+                            <div key={`top-${i}`} className={`w-2.5 h-2.5 md:w-3 md:h-3 ${i < Math.min(amount, 5) ? 'cube-1 shadow-sm' : 'bg-transparent border border-amber-900/10 rounded-sm'}`}></div>
+                        ))}
+                    </div>
+                    <div className="flex gap-0.5">
+                        {Array.from({length: 5}).map((_,i) => (
+                            <div key={`mid-${i}`} className={`w-2.5 h-2.5 md:w-3 md:h-3 ${i + 5 < Math.min(amount, 10) ? 'cube-1 shadow-sm' : 'bg-transparent border border-amber-900/10 rounded-sm'}`}></div>
+                        ))}
+                    </div>
+                    {amount > 10 && (
+                        <>
+                        <div className="flex gap-0.5 mt-0.5">
+                            {Array.from({length: 5}).map((_,i) => (
+                                <div key={`bot1-${i}`} className={`w-2.5 h-2.5 md:w-3 md:h-3 ${i + 10 < Math.min(amount, 15) ? 'cube-1 shadow-sm' : 'bg-transparent border border-amber-900/10 rounded-sm'}`}></div>
+                            ))}
+                        </div>
+                        <div className="flex gap-0.5">
+                            {Array.from({length: 5}).map((_,i) => (
+                                <div key={`bot2-${i}`} className={`w-2.5 h-2.5 md:w-3 md:h-3 ${i + 15 < amount ? 'cube-1 shadow-sm' : 'bg-transparent border border-amber-900/10 rounded-sm'}`}></div>
+                            ))}
+                        </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        const getAllLines = () => [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+
+        const generateSolvableGrid = (targetSum, missingCount) => {
+            const c = targetSum / 3;
+            const fullGrid = [ c+3, c-4, c+1, c-2, c, c+2, c-1, c+4, c-3 ];
+            const isSolvable = (gridState) => {
+                let temp = [...gridState];
+                const lines = getAllLines();
+                let changed = true;
+                while(changed) {
+                    changed = false;
+                    for(let line of lines) {
+                        if(line.filter(i => temp[i] !== null).length === 2) {
+                            temp[line.find(i => temp[i] === null)] = 1; 
+                            changed = true;
+                        }
+                    }
+                }
+                return !temp.includes(null);
+            };
+            for (let attempt = 0; attempt < 100; attempt++) {
+                let currentGrid = [...fullGrid];
+                let indices = [0,1,2,3,4,5,6,7,8].sort(() => Math.random() - 0.5);
+                let removed = 0;
+                for (let idx of indices) {
+                    if (removed >= missingCount) break;
+                    let tempGrid = [...currentGrid];
+                    tempGrid[idx] = null;
+                    if (isSolvable(tempGrid)) { currentGrid = tempGrid; removed++; }
+                }
+                if (removed === missingCount) return currentGrid;
+            }
+            return fullGrid; 
+        };
+
+        const getBestLine = (idx, currentGrid) => {
+            const lines = getAllLines().filter(line => line.includes(idx));
+            for (let line of lines) {
+                if (line.filter(i => currentGrid[i] !== null && i !== idx).length === 2) return line;
+            }
+            return null;
+        };
+
+        const getFullLine = (currentGrid) => {
+            const lines = getAllLines();
+            for (let line of lines) {
+                if (line.filter(i => currentGrid[i] !== null).length === 3) return line;
+            }
+            return null;
+        };
+
+        const getDirectionalHint = (currentGrid) => {
+            const lines = [
+                { indices: [0,1,2], dir: "waagerechte Linie oben" }, { indices: [3,4,5], dir: "waagerechte Linie in der Mitte" }, { indices: [6,7,8], dir: "waagerechte Linie unten" },
+                { indices: [0,3,6], dir: "senkrechte Linie links" }, { indices: [1,4,7], dir: "senkrechte Linie in der Mitte" }, { indices: [2,5,8], dir: "senkrechte Linie rechts" },
+                { indices: [0,4,8], dir: "schräge Linie" }, { indices: [2,4,6], dir: "schräge Linie" }
+            ];
+            const shuffled = lines.sort(() => Math.random() - 0.5);
+            for (let line of shuffled) {
+                if (line.indices.filter(i => currentGrid[i] !== null).length === 2) return line.dir;
+            }
+            return null;
+        };
+
+        // --- NUMPAD MODAL (Erweitert um magische Zahl-Berechnung) ---
+        const NumpadModal = ({ isOpen, onClose, onSave, title, equation, expectedSum, speakFunc }) => {
+            const [val, setVal] = useState("");
+            if (!isOpen) return null;
+            
+            const handleDigit = (d) => setVal(prev => (prev.length < 3 ? prev + d : prev));
+            const handleDel = () => setVal(prev => prev.slice(0, -1));
+            const handleSubmit = () => { 
+                const num = val === "" ? null : parseInt(val, 10);
+                if (expectedSum !== null && expectedSum !== undefined && num !== expectedSum) {
+                    if (speakFunc) speakFunc("Das stimmt noch nicht ganz. Rechne noch einmal genau nach!", false);
+                    setVal("");
+                    return;
+                }
+                onSave(num); 
+                setVal(""); 
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[80] animate-fade-in backdrop-blur-sm">
+                    <div className="bg-[#fcf8f2] rounded-3xl p-6 shadow-2xl border-4 border-amber-200 w-full max-w-sm flex flex-col items-center">
+                        <h3 className="text-xl font-bold text-amber-900 mb-2 text-center">{title}</h3>
+                        {equation && <div className="text-xl font-bold text-blue-600 mb-4 bg-blue-50 px-6 py-2 rounded-xl border border-blue-200 shadow-inner">{equation} = ?</div>}
+                        
+                        <div className="bg-white border-2 border-amber-300 w-full h-16 rounded-xl mb-6 text-4xl font-bold text-amber-900 flex items-center justify-center shadow-inner">
+                            {val || "?"}
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 w-full mb-6">
+                            {[1,2,3,4,5,6,7,8,9].map(d => (
+                                <button key={d} onClick={() => handleDigit(d)} className="bg-amber-100 hover:bg-amber-200 text-amber-900 text-2xl font-bold py-4 rounded-xl shadow-sm active:scale-95 transition-transform">{d}</button>
+                            ))}
+                            <button onClick={handleDel} className="bg-red-100 hover:bg-red-200 text-red-700 text-xl font-bold py-4 rounded-xl shadow-sm active:scale-95 transition-transform">Löschen</button>
+                            <button onClick={() => handleDigit(0)} className="bg-amber-100 hover:bg-amber-200 text-amber-900 text-2xl font-bold py-4 rounded-xl shadow-sm active:scale-95 transition-transform">0</button>
+                            <button onClick={handleSubmit} className="bg-green-500 hover:bg-green-600 text-white text-xl font-bold py-4 rounded-xl shadow-md active:scale-95 transition-transform">OK</button>
+                        </div>
+                        <button onClick={() => {setVal(""); onClose();}} className="text-gray-500 font-bold hover:text-gray-700">Abbrechen</button>
+                    </div>
+                </div>
+            );
+        };
+
+        function ZaubergartenApp() {
+            const [hasStarted, setHasStarted] = useState(false);
+            const [appMode, setAppMode] = useState('tutorial'); 
+            const [tutStep, setTutStep] = useState(0); 
+            const [currentLevel, setCurrentLevel] = useState(1);
+            const [levelData, setLevelData] = useState({ target: 15, initialGrid: [] });
+            const [grid, setGrid] = useState(Array(9).fill(null));
+            const [guidedMode, setGuidedMode] = useState(true);
+            const [activeCellModal, setActiveCellModal] = useState(null);
+            const [errorLines, setErrorLines] = useState([]);
+            
+            const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+            const [fairyText, setFairyText] = useState(""); 
+            const [showNextButton, setShowNextButton] = useState(false);
+
+            const [modalPhase, setModalPhase] = useState('calcMissing'); 
+            const [userSumGuess, setUserSumGuess] = useState(0);
+
+            const [numpadConfig, setNumpadConfig] = useState({ isOpen: false, type: '', idx: null }); 
+            const [shakingCell, setShakingCell] = useState(null);
+
+            const speak = (text, requireNextClick = false) => {
+                setFairyText(text); 
+                setShowNextButton(false);
+                if (!window.speechSynthesis) {
+                    if(requireNextClick) setShowNextButton(true);
+                    return;
+                }
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'de-DE';
+                utterance.rate = 0.9; 
+                utterance.pitch = 1.15; 
+                utterance.onstart = () => setIsPlayingAudio(true);
+                utterance.onend = () => { setIsPlayingAudio(false); if(requireNextClick) setShowNextButton(true); };
+                utterance.onerror = () => { setIsPlayingAudio(false); if(requireNextClick) setShowNextButton(true); };
+                window.speechSynthesis.speak(utterance);
+            };
+
+            // --- TUTORIAL ---
+            useEffect(() => {
+                if (!hasStarted || appMode !== 'tutorial') return;
+                switch (tutStep) {
+                    case 0: setGrid(Array(9).fill(null)); speak("Hallo, ich bin Lenia! In unserem Zaubergarten pflanzen wir Samen-Würfel in Pflanztöpfe.", true); break;
+                    case 1: speak("Schau einmal nach oben zur Sonne. Die Zahl verrät uns, wie viele Würfel unsere Blume braucht. Heute ist es die 15!", true); break;
+                    case 2: speak("Die Magie funktioniert nur, wenn die Wurzeln sich in einer geraden Linie durch genau drei Töpfe verbinden können!", true); break;
+                    case 3: setGrid([8, 1, null, null, null, null, null, null, null]); speak("Lass uns eine waagerechte Linie pflanzen! Wir haben schon 8 und 1 Samen in den Töpfen. Klicke auf den leeren Topf der Linie!", false); break;
+                    case 4: speak("Zusammen haben wir schon 9 Samen. Klicke hier unten auf das Plus, bis der Zahlenstrahl das Ziel erreicht hat!", false); break;
+                    case 5: setGrid([8, 1, 6, null, null, null, null, null, null]); speak("Klasse! Die erste Reihe ist fertig. Die Wurzeln können sich auch senkrecht verbinden.", true); break;
+                    case 6: setGrid([8, 1, 6, 3, null, null, null, null, null]); speak("Hier links haben wir schon 8 und 3 Samen übereinander. Klicke auf den leeren Topf ganz unten!", false); break;
+                    case 7: speak("Ergänze das fehlende Saatgut, damit auch diese senkrechte Reihe genau 15 ergibt. Pflanze sie dann ein!", false); break;
+                    case 8: setGrid([8, 1, 6, 3, null, null, 4, null, null]); speak("Richtig! Zuletzt gibt es noch einen geheimen Weg: Die Wurzeln können sich auch schräg von Ecke zu Ecke verbinden.", true); break;
+                    case 9: setGrid([8, 1, 6, 3, null, null, 4, null, 2]); speak("Schau dir diese schräge Reihe an. Wir haben oben eine 8 und unten eine 2. Klicke auf den Topf in der Mitte!", false); break;
+                    case 10: speak("Fülle diesen letzten Topf auf 15 auf. Denk dran: Erst die Töpfe zusammenzählen, dann ergänzen!", false); break;
+                    case 11: setGrid([8, 1, 6, 3, 5, null, 4, null, 2]); speak("Wundervoll! Jede Linie muss am Ende die Sonne ergeben. Nun bist du bereit für deinen eigenen Garten!", true); break;
+                    case 12: 
+                        setAppMode('menu'); 
+                        setActiveCellModal(null);
+                        speak("Möchtest du das Zaubergarten-Abenteuer spielen, oder hast du eine eigene Hausaufgabe aus der Schule mitgebracht?", false);
+                        break;
+                }
+            }, [tutStep, appMode, hasStarted]);
+
+            const nextTutStep = () => setTutStep(prev => prev + 1);
+
+            const startNewLevel = (levelNumber) => {
+                let target, missing, storyText;
+                if (levelNumber === 1) {
+                    target = [15, 18, 21][Math.floor(Math.random() * 3)]; missing = 4;
+                    storyText = `Dein erstes Beet! Jede Reihe braucht ${target} Samen. Finde die Linien, bei denen nur noch ein Topf leer ist!`;
+                } else if (levelNumber === 2) {
+                    const targets = [24, 27, 30, 33]; target = targets[Math.floor(Math.random() * targets.length)]; missing = 5;
+                    storyText = `Die Pflanze wächst! Die Sonne wärmt mit ${target}. Damit wir nicht jeden Würfel einzeln legen müssen, zaubere ich uns blaue Zehner-Stangen dazu.`;
+                } else if (levelNumber === 3) {
+                    const targets = [45, 51, 60]; target = targets[Math.floor(Math.random() * targets.length)]; missing = 5;
+                    storyText = `Du wirst immer besser! Knifflig: Du musst die vorhandenen Töpfe in einer Linie nun zuerst SELBST zusammenzählen.`;
+                } else if (levelNumber === 4) {
+                    const targets = [75, 81, 90, 99]; target = targets[Math.floor(Math.random() * targets.length)]; missing = 5;
+                    storyText = `Die Meisterprüfung vor der großen Blüte! Die Sonne strahlt hell mit ${target}. Zeig, was du in der Matrix kannst!`;
+                } else {
+                    setAppMode('outro');
+                    speak("Wundervoll! Du hast die Meisterprüfung bestanden! Der gesamte Zaubergarten blüht dank deiner Hilfe in den schönsten Farben. Du bist ein wahrer Meistergärtner!", false);
+                    return;
+                }
+                const initialGrid = generateSolvableGrid(target, missing);
+                setLevelData({ target, initialGrid }); setGrid([...initialGrid]); setCurrentLevel(levelNumber);
+                setErrorLines([]); setActiveCellModal(null); setAppMode('play'); setGuidedMode(true);
+                speak(storyText, true);
+            };
+
+            const startHomeworkSetup = () => {
+                setAppMode('hw_setup');
+                setLevelData({ target: '?', initialGrid: Array(9).fill(null) });
+                setGrid(Array(9).fill(null));
+                setErrorLines([]);
+                speak("Tippe auf die Sonne oder auf die Töpfe, um die Zahlen aus deinem Heft abzuschreiben.", false);
+            };
+
+            const startHomeworkPlay = () => {
+                const fullLine = getFullLine(grid);
+                if (levelData.target === '?' && !fullLine) { 
+                    speak("Wir brauchen die magische Zahl in der Sonne oder mindestens eine komplett gefüllte Reihe!", false); 
+                    return; 
+                }
+                setAppMode('hw_play');
+                setLevelData(prev => ({ ...prev, initialGrid: [...grid] }));
+                
+                if (levelData.target === '?') {
+                    speak("Oh, die magische Zahl fehlt! Aber schau, eine Reihe ist schon voll. Klicke auf die pulsierende Sonne, um die magische Zahl auszurechnen!", true);
+                } else {
+                    speak("Die Hausaufgabe läuft! Klicke auf einen leeren Topf, um ihn zu füllen. Wenn du Hilfe brauchst, klicke auf mich!", false);
+                }
+            };
+
+            // Fehlerprüfung Grid
+            useEffect(() => {
+                if (appMode !== 'play' && appMode !== 'hw_play') return;
+                if (grid.length === 0 || grid.includes(null) || levelData.target === '?') { setErrorLines([]); return; }
+                const errors = [];
+                getAllLines().forEach((line, index) => {
+                    if (grid[line[0]] + grid[line[1]] + grid[line[2]] !== levelData.target) errors.push(index);
+                });
+                if (errors.length === 0) {
+                    if (appMode === 'hw_play') speak("Juhu! Du hast die Matrix deiner Hausaufgabe komplett richtig gelöst! Du bist spitze.", true);
+                    else speak("Klasse! Das ganze Beet blüht! Alle Wurzeln sind verbunden.", true);
+                } else {
+                    setErrorLines(errors);
+                    speak("Fast fertig! Aber manche Reihen wackeln rot. Da passt die Menge noch nicht.", false);
+                }
+            }, [grid, appMode, levelData.target]);
+
+            const handleLeniaClick = () => {
+                if (isPlayingAudio) return;
+                if (appMode === 'hw_play' || appMode === 'play') {
+                    if (levelData.target === '?') {
+                        speak("Rechne zuerst die magische Zahl aus! Klicke dafür auf die pulsierende Sonne.", false);
+                        return;
+                    }
+                    const hintDir = getDirectionalHint(grid);
+                    if (hintDir) speak(`Schau dir mal die ${hintDir} an! Dort sind schon zwei Töpfe gefüllt. Du schaffst das!`, false);
+                    else speak("Jede Linie muss zusammen die Sonne ergeben. Zähle die Töpfe zusammen und fülle den Rest auf!", false);
+                }
+            };
+
+
+            // --- RECHNUNG / MATH VIEW LOGIK ---
+            const isTut = appMode === 'tutorial';
+            const showMathView = activeCellModal !== null; 
+            
+            let mathTarget = 15, mathKnown = [0,0], mathCurrent = 0, sumKnown = 0, totalNow = 0, isSuccess = false;
+            if (showMathView && activeCellModal) {
+                mathTarget = isTut ? 15 : levelData.target;
+                mathKnown = activeCellModal.lineIndices ? activeCellModal.lineIndices.filter(i => i !== activeCellModal.idx).map(i => grid[i] || 0) : [0,0];
+                mathCurrent = activeCellModal.currentDrops || 0;
+                sumKnown = mathKnown[0] + mathKnown[1];
+                totalNow = sumKnown + mathCurrent;
+                isSuccess = totalNow === mathTarget;
+            }
+
+            useEffect(() => {
+                if (!isTut) return;
+                if (tutStep === 3 && isSuccess) setTutStep(4);
+                if (tutStep === 4 && !isSuccess) setTutStep(3);
+                if (tutStep === 6 && isSuccess) setTutStep(7);
+                if (tutStep === 7 && !isSuccess) setTutStep(6);
+                if (tutStep === 9 && isSuccess) setTutStep(10);
+                if (tutStep === 10 && !isSuccess) setTutStep(9);
+            }, [appMode, tutStep, isSuccess, isTut]);
+
+            const handleMathSave = () => {
+                if (isTut) {
+                    if (isSuccess) {
+                        if (tutStep === 4) setTutStep(5);
+                        else if (tutStep === 7) setTutStep(8);
+                        else if (tutStep === 10) setTutStep(11);
+                        setActiveCellModal(null);
+                    }
+                    return;
+                }
+                if (isSuccess || (!guidedMode && appMode !== 'hw_play')) {
+                    const newGrid = [...grid];
+                    newGrid[activeCellModal.idx] = mathCurrent;
+                    setGrid(newGrid);
+                    setActiveCellModal(null);
+                } else {
+                    speak(`Das Saatgut reicht noch nicht für die Wurzeln. Schau auf den Zahlenstrahl!`);
+                }
+            };
+
+            const updateDrops = (amount) => {
+                if (isTut && isSuccess && amount > 0) return; 
+                if (isTut && sumKnown + mathCurrent + amount > mathTarget) return; 
+                const next = mathCurrent + amount;
+                if (next >= 0 && next + sumKnown <= mathTarget + 50) setActiveCellModal({...activeCellModal, currentDrops: next});
+            };
+
+            const handleSumGuessSubmit = () => {
+                if (userSumGuess === sumKnown) {
+                    speak("Klasse gerechnet! Und wie viel fehlt jetzt noch in der Reihe bis zur " + mathTarget + "?");
+                    setModalPhase('calcMissing');
+                } else {
+                    speak("Das stimmt noch nicht ganz. Zähle die beiden Töpfe noch einmal genau zusammen.");
+                }
+            };
+            const updateUserSumGuess = (amount) => {
+                const next = userSumGuess + amount;
+                if (next >= 0 && next <= 200) setUserSumGuess(next);
+            }
+
+            // Numpad Vorbereitung
+            let numpadTitle = "Zahl eingeben";
+            let numpadEquation = null;
+            let expectedSum = null;
+            if (numpadConfig.type === 'target') {
+                numpadTitle = "Zahl in der Sonne";
+            } else if (numpadConfig.type === 'calc_target') {
+                numpadTitle = "Magische Zahl berechnen";
+                const fl = getFullLine(grid);
+                if (fl) {
+                    const [a, b, c] = fl.map(i => grid[i]);
+                    numpadEquation = `${a} + ${b} + ${c}`;
+                    expectedSum = a + b + c;
+                }
+            } else {
+                numpadTitle = "Zahl im Topf";
+            }
+
+            const hwCanStart = levelData.target !== '?' || getFullLine(grid) !== null;
+
+            // STARTBILDSCHIRM
+            if (!hasStarted) {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+                        <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-blue-300 rounded-full flex items-center justify-center shadow-2xl border-4 border-white overflow-hidden mb-8">
+                             <FairyLenia isSpeaking={false} className="w-full h-full mt-4" />
+                        </div>
+                        <h1 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">Der Zaubergarten</h1>
+                        <p className="text-lg text-gray-600 mb-8 max-w-md">Hilf Lenia der Fee, die magischen Matrix-Quadrate zu lösen und Blumen zu pflanzen!</p>
+                        <button onClick={() => setHasStarted(true)} className="px-8 py-4 bg-blue-400 hover:bg-blue-500 text-white rounded-full font-bold text-2xl shadow-xl hover:scale-105 transition-transform animate-bounce">
+                            Garten betreten 🌻
+                        </button>
+                    </div>
+                );
+            }
+
+            if (appMode === 'menu') {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-gradient-to-b from-[#fcf8f2] to-amber-50">
+                        <h2 className="text-3xl md:text-4xl font-bold text-amber-900 mb-12">Was möchtest du tun?</h2>
+                        <div className="flex flex-col md:flex-row gap-6 w-full max-w-2xl">
+                            <button onClick={() => startNewLevel(1)} className="flex-1 bg-green-500 hover:bg-green-600 text-white p-8 rounded-3xl shadow-xl hover:-translate-y-2 transition-transform flex flex-col items-center group border-4 border-green-400">
+                                <IconFlower size={64} className="mb-4 text-green-200 group-hover:animate-spin-slow" />
+                                <span className="text-2xl font-bold">Zaubergarten Spielen</span>
+                                <span className="mt-2 text-green-100 text-sm">Die geführte Geschichte spielen</span>
+                            </button>
+                            <button onClick={startHomeworkSetup} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white p-8 rounded-3xl shadow-xl hover:-translate-y-2 transition-transform flex flex-col items-center group border-4 border-amber-400">
+                                <IconSun size={64} className="mb-4 text-amber-200 group-hover:scale-110 transition-transform" />
+                                <span className="text-2xl font-bold">Hausaufgabe lösen</span>
+                                <span className="mt-2 text-amber-100 text-sm">Eigene Zahlen eintragen</span>
+                            </button>
+                        </div>
+                        <div className="mt-12 flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-blue-100">
+                            <div className="w-16 h-16 bg-blue-100 rounded-full overflow-hidden shrink-0"><FairyLenia className="w-full h-full mt-2"/></div>
+                            <p className="text-gray-600 text-left text-sm md:text-base font-medium">Tipp: Wähle <strong>Hausaufgabe lösen</strong>, wenn du eine Matrix aus deinem Schulheft abschreiben möchtest!</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (appMode === 'outro') {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-gradient-to-b from-green-50 to-green-200">
+                        <div className="animate-bounce mb-8">
+                            <IconFlower className="text-pink-500 w-24 h-24 inline-block" />
+                            <IconFlower className="text-yellow-500 w-32 h-32 inline-block mx-4" />
+                            <IconFlower className="text-purple-500 w-24 h-24 inline-block" />
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-bold text-green-800 mb-6 drop-shadow-sm">Meisterprüfung bestanden!</h1>
+                        <p className="text-xl md:text-2xl text-green-900 font-medium mb-12 max-w-xl">Du hast das Geheimnis der magischen Quadrate gelüftet. Der Zaubergarten blüht in voller Pracht!</p>
+                        
+                        <div className="fixed bottom-0 left-0 right-0 p-6 flex justify-center z-50">
+                            <div className="flex flex-col items-center max-w-xl w-full relative">
+                                {fairyText && (
+                                    <div className="bg-white shadow-xl rounded-2xl rounded-br-none p-5 border-2 border-blue-200 mb-3 relative animate-fade-in w-full text-center">
+                                        <p className="text-lg text-gray-700 font-medium leading-relaxed">"{fairyText}"</p>
+                                        <div className="absolute -bottom-3 right-12 w-6 h-6 bg-white border-b-2 border-r-2 border-blue-200 transform rotate-45"></div>
+                                    </div>
+                                )}
+                                <div className="self-end mr-6 pointer-events-auto flex items-end gap-4">
+                                     <button onClick={() => setAppMode('menu')} className="mb-4 bg-white text-blue-600 font-bold px-6 py-3 rounded-full shadow-lg hover:bg-blue-50 border border-blue-200">Zurück zum Menü</button>
+                                    <div className="w-28 h-28 bg-gradient-to-br from-blue-100 to-blue-300 rounded-full flex items-center justify-center shadow-2xl border-4 border-white overflow-hidden">
+                                        <FairyLenia isSpeaking={isPlayingAudio} className="w-full h-full mt-4" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex flex-col min-h-screen relative w-full pb-72"> 
+                    
+                    <NumpadModal 
+                        isOpen={numpadConfig.isOpen} 
+                        title={numpadTitle}
+                        equation={numpadEquation}
+                        expectedSum={expectedSum}
+                        speakFunc={speak}
+                        onClose={() => setNumpadConfig({isOpen: false, type: '', idx: null})}
+                        onSave={(val) => {
+                            if (numpadConfig.type === 'target') {
+                                setLevelData(prev => ({...prev, target: val || '?'}));
+                            } else if (numpadConfig.type === 'calc_target') {
+                                setLevelData(prev => ({...prev, target: val}));
+                                speak("Klasse! Du hast die magische Zahl berechnet. Jetzt kannst du die Matrix lösen!", false);
+                            } else {
+                                const newGrid = [...grid];
+                                newGrid[numpadConfig.idx] = val;
+                                setGrid(newGrid);
+                            }
+                            setNumpadConfig({isOpen: false, type: '', idx: null});
+                        }}
+                    />
+
+                    <header className="p-3 md:p-4 flex justify-between items-center bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-20 shrink-0">
+                        <div className="flex items-center gap-2">
+                            <IconFlower className="text-pink-500" />
+                            <h1 className="font-bold text-base md:text-xl text-amber-900">
+                                {appMode.includes('hw') ? "Hausaufgaben-Beet" : "Magische Matrix"}
+                            </h1>
+                        </div>
+                        <div className="flex items-center gap-2 md:gap-4">
+                            {appMode === 'play' && <span className="text-xs md:text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Level {currentLevel}</span>}
+                            {appMode === 'hw_play' && (
+                                <button onClick={startHomeworkSetup} className="text-xs md:text-sm font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">Zurücksetzen</button>
+                            )}
+                            <button 
+                                onClick={() => setAppMode('menu')}
+                                className="px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold transition-colors shadow-sm bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                            >
+                                Menü
+                            </button>
+                        </div>
+                    </header>
+
+                    <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl mx-auto md:p-4 lg:gap-8 relative z-10">
+                        
+                        <aside className="w-full lg:w-1/3 flex flex-col items-center justify-start pt-4 lg:pt-12 order-1 lg:order-2 shrink-0 px-4">
+                            {appMode === 'tutorial' && (
+                                <div className="w-full flex justify-end mb-2">
+                                    <button 
+                                        onClick={() => {
+                                            window.speechSynthesis.cancel(); setIsPlayingAudio(false);
+                                            setAppMode('menu'); setActiveCellModal(null);
+                                        }}
+                                        className="text-xs md:text-sm font-bold text-gray-400 hover:text-amber-600 bg-gray-100 hover:bg-amber-100 px-4 py-1.5 rounded-full transition-all border border-gray-200 shadow-sm active:scale-95"
+                                    >
+                                        Einführung überspringen ⏭
+                                    </button>
+                                </div>
+                            )}
+
+                            {fairyText && (
+                                <div className="bg-white shadow-xl rounded-2xl p-4 md:p-5 border-2 border-blue-200 mb-4 relative animate-fade-in w-full flex flex-col items-center">
+                                    <p className="text-sm md:text-base text-gray-700 font-medium leading-relaxed text-center">
+                                        "{fairyText}"
+                                    </p>
+                                    
+                                    {showNextButton && appMode === 'tutorial' && (
+                                        <button onClick={nextTutStep} className="mt-4 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-6 rounded-full text-sm transition-colors border-2 border-blue-300 shadow-sm animate-pulse">Verstanden ➔</button>
+                                    )}
+                                    {showNextButton && appMode === 'play' && grid.includes(null) && (
+                                         <button onClick={() => setShowNextButton(false)} className="mt-4 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-2 px-6 rounded-full text-sm transition-colors border-2 border-amber-400 shadow-sm animate-pulse">Los geht's ➔</button>
+                                    )}
+                                    {appMode === 'hw_setup' && (
+                                         <button onClick={startHomeworkPlay} disabled={!hwCanStart} className={`mt-4 font-bold py-3 px-6 rounded-full text-sm transition-colors shadow-sm ${!hwCanStart ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white animate-pulse'}`}>Aufgabe starten ➔</button>
+                                    )}
+                                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-2 border-r-2 border-blue-200 transform rotate-45"></div>
+                                </div>
+                            )}
+
+                            <div 
+                                onClick={handleLeniaClick}
+                                className={`transform transition-transform animate-float mt-2 relative ${(appMode === 'play' || appMode === 'hw_play') && !isPlayingAudio ? 'cursor-pointer hover:-translate-y-2' : ''}`}
+                            >
+                                {appMode === 'play' && <GrowingPlant level={currentLevel} />}
+                                
+                                <div className="w-20 h-20 md:w-28 md:h-28 bg-gradient-to-br from-blue-100 to-blue-300 rounded-full flex items-center justify-center shadow-lg border-4 border-white overflow-hidden relative z-20">
+                                    <FairyLenia isSpeaking={isPlayingAudio} className="w-full h-full mt-4 md:mt-6" />
+                                </div>
+                            </div>
+                        </aside>
+
+                        <main className="w-full lg:w-2/3 flex flex-col items-center order-2 lg:order-1 relative p-4 min-h-[500px]">
+                            
+                            {/* --- DIE MATRIX ANSICHT --- */}
+                            {!showMathView && (
+                                <div className="animate-fade-in flex flex-col items-center w-full">
+                                    <div className="flex flex-col items-center mb-6 relative mt-2 md:mt-4">
+                                        {isTut && tutStep === 1 && <Pointer className="-top-12" />}
+                                        <IconSun className={`text-amber-400 fill-amber-300 absolute -top-10 md:-top-12 animate-spin-slow w-24 h-24 md:w-32 md:h-32 opacity-90 transition-all ${isTut && tutStep === 1 ? 'scale-110 drop-shadow-lg' : ''}`} />
+                                        <button 
+                                            onClick={() => {
+                                                if (appMode === 'hw_setup') setNumpadConfig({isOpen: true, type: 'target'});
+                                                if (appMode === 'hw_play' && levelData.target === '?') setNumpadConfig({isOpen: true, type: 'calc_target'});
+                                            }}
+                                            className={`bg-amber-100 rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center border-4 border-amber-300 z-10 mt-4 md:mt-6 shadow-md ${appMode === 'hw_setup' || (appMode === 'hw_play' && levelData.target === '?') ? 'hover:bg-amber-200 cursor-pointer ring-4 ring-amber-300 animate-pulse' : 'cursor-default'}`}
+                                        >
+                                            <span className="text-xl md:text-3xl font-bold text-amber-800">{isTut ? 15 : levelData.target}</span>
+                                        </button>
+                                        <h2 className="text-amber-800 font-bold mt-2 bg-white/80 px-4 py-1 rounded-full text-sm shadow-sm">Sonne: {isTut ? 15 : levelData.target} Samen pro Linie</h2>
+                                    </div>
+
+                                    <div className={`grid grid-cols-3 gap-2 md:gap-3 bg-[#8a6844] p-3 md:p-5 rounded-2xl md:rounded-3xl shadow-xl w-full max-w-[320px] md:max-w-[420px] transition-all duration-1000 ${isTut && tutStep < 3 ? 'opacity-40 grayscale scale-95 pointer-events-none' : 'scale-100'}`}>
+                                        {grid.map((val, idx) => {
+                                            const isInitialPlay = (appMode === 'play' || appMode === 'hw_play') && levelData.initialGrid && levelData.initialGrid[idx] !== null;
+                                            const bestLine = getBestLine(idx, grid);
+                                            const isSolvableNow = appMode === 'play' ? (bestLine !== null) : true;
+                                            const isError = (appMode === 'play' || appMode === 'hw_play') && errorLines.some(lineIdx => getAllLines()[lineIdx].includes(idx));
+                                                
+                                            let disableClick = isInitialPlay;
+                                            let isHighlightTutorial = false;
+                                            let isPulseTutorial = false;
+
+                                            if (isTut) {
+                                                disableClick = true; 
+                                                if (tutStep === 3) { if ([0,1,2].includes(idx)) isHighlightTutorial = true; if (idx === 2) { disableClick = false; isPulseTutorial = true; } }
+                                                else if (tutStep === 6) { if ([0,3,6].includes(idx)) isHighlightTutorial = true; if (idx === 6) { disableClick = false; isPulseTutorial = true; } }
+                                                else if (tutStep === 9) { if ([0,4,8].includes(idx)) isHighlightTutorial = true; if (idx === 4) { disableClick = false; isPulseTutorial = true; } }
+                                            }
+                                            if (appMode === 'hw_setup') disableClick = false;
+
+                                            return (
+                                                <button 
+                                                    key={idx}
+                                                    onClick={() => {
+                                                        if (disableClick) return;
+                                                        
+                                                        if (appMode === 'hw_setup') {
+                                                            setNumpadConfig({isOpen: true, type: 'cell', idx});
+                                                            return;
+                                                        }
+
+                                                        if (appMode === 'hw_play' && levelData.target === '?') {
+                                                            speak("Rechne zuerst die magische Zahl in der Sonne aus! Klicke auf die pulsierende Sonne.", false);
+                                                            return;
+                                                        }
+
+                                                        if (isTut) {
+                                                            let lines = [];
+                                                            if (tutStep === 3) { lines = [0,1,2]; setTutStep(4); }
+                                                            if (tutStep === 6) { lines = [0,3,6]; setTutStep(7); }
+                                                            if (tutStep === 9) { lines = [0,4,8]; setTutStep(10); }
+                                                            setActiveCellModal({ idx, lineIndices: lines, currentDrops: val || 0 });
+                                                            setModalPhase('calcMissing');
+                                                        } else {
+                                                            if (!bestLine && grid.includes(null)) {
+                                                                setShakingCell(idx);
+                                                                setTimeout(() => setShakingCell(null), 500);
+                                                                const hintDir = getDirectionalHint(grid);
+                                                                let text = "Hier fehlen noch zu viele Samen! Wir brauchen eine Linie, in der schon zwei Töpfe voll sind.";
+                                                                if (hintDir) text += ` Schau doch mal ${hintDir}!`;
+                                                                speak(text, false);
+                                                                return; 
+                                                            }
+                                                            setActiveCellModal({
+                                                                idx, 
+                                                                lineIndices: bestLine || getAllLines().find(l=>l.includes(idx)), 
+                                                                currentDrops: val || 0
+                                                            });
+                                                            if (currentLevel >= 3 || appMode === 'hw_play') {
+                                                                setModalPhase('calcSum'); setUserSumGuess(0);
+                                                            } else {
+                                                                setModalPhase('calcMissing');
+                                                            }
+                                                        }
+                                                    }}
+                                                    disabled={disableClick}
+                                                    className={`
+                                                        aspect-square rounded-xl md:rounded-2xl flex flex-col items-center justify-center shadow-inner transition-all duration-300 relative
+                                                        ${disableClick ? 'bg-[#b38a5e] border-t-4 border-[#c7a47e] cursor-default' : 'cursor-pointer hover:bg-[#7a5833]'}
+                                                        ${!disableClick && val !== null ? 'bg-[#c7a47e] border-t-4 border-[#deb992]' : ''}
+                                                        ${!disableClick && val === null && !isPulseTutorial ? 'bg-[#6b4c2a]' : ''}
+                                                        ${val === null && isSolvableNow && guidedMode && appMode === 'play' ? 'ring-4 ring-yellow-400 ring-opacity-80 animate-pulse z-10' : ''}
+                                                        ${isError && val !== null && !isInitialPlay && levelData.target !== '?' ? 'bg-red-400 border-red-500 animate-shake z-10' : ''}
+                                                        ${isHighlightTutorial && !isPulseTutorial ? 'ring-4 ring-amber-300 z-10 bg-[#e0c4a4]' : ''}
+                                                        ${isPulseTutorial ? 'ring-4 ring-yellow-400 z-20 bg-yellow-100 border-yellow-400 animate-pulse scale-105' : ''}
+                                                        ${shakingCell === idx ? 'animate-shake ring-4 ring-red-400 z-20' : ''}
+                                                        ${appMode === 'hw_setup' ? 'hover:bg-[#8a6844] border-2 border-dashed border-[#deb992]' : ''}
+                                                    `}
+                                                >
+                                                    {isPulseTutorial && <Pointer className="-top-8 md:-top-10" />}
+                                                    {val !== null ? (
+                                                        <span className={`text-3xl md:text-5xl font-bold drop-shadow-sm ${disableClick && appMode !== 'hw_setup' ? 'text-white' : 'text-amber-900'}`}>{val}</span>
+                                                    ) : (
+                                                        <span className={`text-4xl md:text-6xl font-bold ${isPulseTutorial || (isSolvableNow && guidedMode) ? 'text-yellow-200' : 'text-[#8a6844] opacity-50'} ${isTut && tutStep < 3 ? 'opacity-0' : ''}`}>
+                                                            {appMode === 'hw_setup' ? '+' : '?'}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {grid.length > 0 && !grid.includes(null) && errorLines.length === 0 && appMode === 'play' && (
+                                        <div className="mt-8 flex flex-col items-center animate-fade-in pb-10">
+                                            {showNextButton && (
+                                                <button 
+                                                    onClick={() => startNewLevel(currentLevel + 1)}
+                                                    className="bg-amber-500 hover:bg-amber-600 text-white px-6 md:px-8 py-4 rounded-full font-bold text-lg md:text-xl shadow-lg active:scale-95 transition-all animate-pulse"
+                                                >
+                                                    Nächste Matrix
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                    {grid.length > 0 && !grid.includes(null) && errorLines.length === 0 && appMode === 'hw_play' && (
+                                        <div className="mt-8 flex flex-col items-center animate-fade-in pb-10">
+                                            <button 
+                                                onClick={startHomeworkSetup}
+                                                className="bg-amber-500 hover:bg-amber-600 text-white px-6 md:px-8 py-4 rounded-full font-bold text-lg md:text-xl shadow-lg active:scale-95 transition-all animate-pulse"
+                                            >
+                                                Neue Aufgabe eintragen
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* --- DAS RECHENFENSTER (Modal) --- */}
+                            {showMathView && activeCellModal && (
+                                <div className="bg-[#fcf8f2] rounded-3xl p-4 md:p-6 w-full max-w-xl shadow-2xl border-4 border-amber-200 flex flex-col animate-fade-in relative mt-2">
+                                    {!isTut && (
+                                        <button onClick={() => setActiveCellModal(null)} className="absolute top-2 right-2 md:top-4 md:right-4 w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-full font-bold text-gray-600 flex items-center justify-center text-xl z-10 transition-colors">✕</button>
+                                    )}
+                                    
+                                    <div className="flex justify-center items-center gap-4 md:gap-8 mb-4 md:mb-8 mt-2 shrink-0">
+                                        <div className="flex flex-col items-center">
+                                            <div className="relative flex justify-center">
+                                                <IconSun className="text-amber-400 fill-amber-300 animate-spin-slow w-16 h-16 md:w-20 md:h-20" />
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="bg-amber-100 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center border-2 border-amber-300 shadow-sm mt-1">
+                                                        <span className="text-sm md:text-lg font-bold text-amber-800">{mathTarget}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span className="text-[10px] md:text-xs font-bold text-amber-700 mt-1 uppercase tracking-wide">Sonne</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <MiniMap lineIndices={activeCellModal.lineIndices} activeIdx={activeCellModal.idx} />
+                                            <span className="text-[10px] md:text-xs font-bold text-amber-700 mt-1 uppercase tracking-wide">Diese Wurzel</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {modalPhase === 'calcSum' && (
+                                        <div className="flex flex-col items-center w-full mb-6 animate-fade-in">
+                                            <h3 className="text-lg md:text-xl font-bold text-blue-700 mb-4 text-center">Schritt 1: Wie viele Würfel haben wir schon?</h3>
+                                            
+                                            <div className="flex items-center justify-center gap-2 md:gap-4 text-xl md:text-3xl font-bold text-gray-600 bg-white border-2 border-blue-200 px-4 py-4 rounded-2xl shadow-sm w-full max-w-md">
+                                                <div className="flex flex-col items-center">
+                                                    <span>{mathKnown[0]}</span>
+                                                    <VisualQuantity amount={mathKnown[0]} targetSum={mathTarget} isTut={false} />
+                                                </div>
+                                                <span className="text-gray-400">+</span>
+                                                <div className="flex flex-col items-center">
+                                                    <span>{mathKnown[1]}</span>
+                                                    <VisualQuantity amount={mathKnown[1]} targetSum={mathTarget} isTut={false} />
+                                                </div>
+                                                <span className="text-gray-400">=</span>
+                                                <div className="bg-blue-100 border-2 border-blue-300 px-4 py-2 rounded-xl text-blue-800 min-w-[70px] text-center shadow-inner">
+                                                    {userSumGuess === 0 ? "?" : userSumGuess}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-center gap-3 md:gap-6 mt-6 shrink-0">
+                                                <div className="flex flex-col gap-2">
+                                                    <button onClick={() => updateUserSumGuess(10)} className="px-4 md:px-6 py-3 md:py-4 rounded-xl font-bold text-white shadow-sm bg-blue-500 hover:bg-blue-600 active:scale-95 flex flex-col items-center">
+                                                        <span className="text-lg md:text-xl">+ 10</span><span className="text-[10px] opacity-80">Stange</span>
+                                                    </button>
+                                                    <button onClick={() => updateUserSumGuess(-10)} className="px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold text-white shadow-sm bg-red-400 hover:bg-red-500 active:scale-95">- 10</button>
+                                                </div>
+                                                <div className="flex flex-col gap-2">
+                                                    <button onClick={() => updateUserSumGuess(1)} className="px-5 md:px-10 py-3 md:py-4 rounded-xl font-bold text-white shadow-sm bg-green-500 hover:bg-green-600 active:scale-95 flex flex-col items-center">
+                                                        <span className="text-lg md:text-xl">+ 1</span><span className="text-[10px] opacity-80">Würfel</span>
+                                                    </button>
+                                                    <button onClick={() => updateUserSumGuess(-1)} className="px-5 md:px-10 py-2 md:py-3 rounded-xl font-bold text-white shadow-sm bg-orange-400 hover:bg-orange-500 active:scale-95">- 1</button>
+                                                </div>
+                                            </div>
+
+                                            <button 
+                                                onClick={handleSumGuessSubmit}
+                                                className={`w-full max-w-md mt-6 py-4 md:py-5 rounded-xl font-bold text-lg md:text-xl text-white transition-all shadow-lg ${userSumGuess > 0 ? 'bg-blue-600 hover:bg-blue-700 active:scale-95' : 'bg-gray-300 cursor-not-allowed'}`}
+                                            >
+                                                Zusammenzählen prüfen
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {modalPhase === 'calcMissing' && (
+                                        <div className="flex flex-col items-center w-full animate-fade-in">
+                                            {(currentLevel >= 3 || appMode==='hw_play') && <h3 className="text-lg md:text-xl font-bold text-green-700 mb-4 text-center">Schritt 2: Fülle nun bis zur {mathTarget} auf!</h3>}
+                                            
+                                            <div className="flex flex-col items-center w-full mb-6 space-y-4">
+                                                <div className="flex items-center justify-center gap-2 md:gap-4 text-lg md:text-xl font-bold text-gray-600 bg-white border-2 border-gray-200 px-2 md:px-4 py-3 md:py-4 rounded-2xl shadow-sm w-full max-w-md">
+                                                    <div className="flex flex-col items-center">
+                                                        <span>{mathKnown[0]}</span>
+                                                        {currentLevel < 3 && appMode !== 'hw_play' && <VisualQuantity amount={mathKnown[0]} targetSum={mathTarget} isTut={isTut} />}
+                                                    </div>
+                                                    <span className="text-gray-400">+</span>
+                                                    <div className="flex flex-col items-center">
+                                                        <span>{mathKnown[1]}</span>
+                                                        {currentLevel < 3 && appMode !== 'hw_play' && <VisualQuantity amount={mathKnown[1]} targetSum={mathTarget} isTut={isTut} />}
+                                                    </div>
+                                                    <span className="text-gray-400">=</span>
+                                                    <div className="flex flex-col items-center bg-blue-50 px-3 md:px-5 py-2 rounded-xl border border-blue-100">
+                                                        <span className="text-2xl md:text-3xl text-blue-600">{sumKnown}</span>
+                                                        <div className="text-[10px] text-blue-400 mt-0.5">Zusammen</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-center gap-2 md:gap-4 text-xl md:text-3xl font-bold w-full max-w-md mt-2">
+                                                    <span className="text-blue-600 min-w-[30px] text-center">{sumKnown}</span>
+                                                    <span className="text-gray-400">+</span>
+                                                    <div className="relative">
+                                                        <div className={`px-4 md:px-6 py-3 md:py-4 rounded-2xl border-4 text-amber-700 shadow-inner flex flex-col items-center min-w-[70px] md:min-w-[90px] transition-all ${isTut && (tutStep===4 || tutStep===7 || tutStep===10) ? 'bg-[#f0d9b5] border-[#d4b78c]' : 'bg-yellow-100 border-yellow-400 ring-2 ring-yellow-200'}`}>
+                                                            <span>{mathCurrent === 0 ? "?" : mathCurrent}</span>
+                                                            <VisualQuantity amount={mathCurrent} targetSum={mathTarget} isTut={isTut} />
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-gray-400">=</span>
+                                                    <span className={`px-3 md:px-5 py-2 md:py-3 rounded-2xl border-2 min-w-[50px] text-center ${isSuccess ? 'bg-green-100 border-green-400 text-green-700' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                                                        {mathTarget}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-center gap-3 md:gap-6 mb-6 relative">
+                                                {(mathTarget >= 20 && currentLevel >= 2) || appMode === 'hw_play' ? (
+                                                    <div className="flex flex-col gap-2">
+                                                        <button onClick={() => updateDrops(10)} disabled={isTut} className={`px-4 md:px-6 py-3 md:py-4 rounded-xl font-bold text-white shadow-sm flex flex-col items-center leading-tight ${isTut ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 active:scale-95'}`}>
+                                                            <span className="text-lg md:text-xl">+ 10</span>
+                                                            <span className="text-[10px] md:text-xs font-normal opacity-80">Stange</span>
+                                                        </button>
+                                                        <button onClick={() => updateDrops(-10)} disabled={isTut} className={`px-4 md:px-6 py-2 md:py-3 rounded-xl font-bold text-white shadow-sm text-sm md:text-base ${isTut ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-red-400 hover:bg-red-500 active:scale-95'}`}>- 10</button>
+                                                    </div>
+                                                ) : null}
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="relative">
+                                                        {isTut && !isSuccess && <Pointer className="-top-10 left-1/2" />}
+                                                        <button 
+                                                            onClick={() => updateDrops(1)} 
+                                                            disabled={isTut && isSuccess}
+                                                            className={`px-5 md:px-10 py-3 md:py-4 rounded-xl font-bold text-white shadow-sm flex flex-col items-center leading-tight transition-all ${(isTut && isSuccess) ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 active:scale-95'} ${isTut && !isSuccess ? 'ring-4 ring-green-300 animate-pulse' : ''}`}
+                                                        >
+                                                            <span className="text-lg md:text-xl">+ 1</span>
+                                                            <span className="text-[10px] md:text-xs font-normal opacity-80">Würfel</span>
+                                                        </button>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => updateDrops(-1)} 
+                                                        disabled={isTut && isSuccess}
+                                                        className={`px-5 md:px-10 py-2 md:py-3 rounded-xl font-bold text-white shadow-sm text-sm md:text-base ${(isTut && isSuccess) ? 'bg-gray-300 opacity-50 cursor-not-allowed' : 'bg-orange-400 hover:bg-orange-500 active:scale-95'}`}
+                                                    >
+                                                        - 1
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <MontessoriZahlenstrahl target={mathTarget} current={totalNow} />
+
+                                            <div className="relative w-full max-w-md">
+                                                {isTut && isSuccess && <Pointer className="-top-12" />}
+                                                <button 
+                                                    onClick={handleMathSave}
+                                                    disabled={!isSuccess && (isTut || (guidedMode && appMode!=='hw_play'))}
+                                                    className={`w-full py-4 md:py-5 rounded-xl font-bold text-lg md:text-xl text-white transition-all shadow-lg ${(!isSuccess && (isTut || (guidedMode && appMode!=='hw_play'))) ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-green-600 hover:bg-green-700 active:scale-95'} ${isTut && isSuccess ? 'ring-4 ring-green-400 animate-pulse' : ''}`}
+                                                >
+                                                    {isSuccess ? '🌱 Reihe Einpflanzen 🌱' : 'Saatgut prüfen'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ZaubergartenApp />);
+    </script>
+</body>
+</html>
