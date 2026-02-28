@@ -289,7 +289,6 @@
             return null;
         };
 
-        // --- NUMPAD MODAL (Erweitert um magische Zahl-Berechnung) ---
         const NumpadModal = ({ isOpen, onClose, onSave, title, equation, expectedSum, speakFunc }) => {
             const [val, setVal] = useState("");
             if (!isOpen) return null;
@@ -461,8 +460,49 @@
                 }
             }, [grid, appMode, levelData.target]);
 
+            // --- Lenia Klick Handler (Erweitert um pädagogische Rechentipps) ---
             const handleLeniaClick = () => {
                 if (isPlayingAudio) return;
+                
+                // Pädagogische Tipps im Rechenfenster
+                if (activeCellModal !== null) {
+                    const mTarget = appMode === 'tutorial' ? 15 : levelData.target;
+                    const mKnown = activeCellModal.lineIndices ? activeCellModal.lineIndices.filter(i => i !== activeCellModal.idx).map(i => grid[i] || 0) : [0,0];
+                    const sKnown = mKnown[0] + mKnown[1];
+
+                    if (modalPhase === 'calcSum') {
+                        speak("Zähle erst die blauen Zehner-Stangen zusammen, dann die grünen Einer-Würfel. Trag das Ergebnis unten ein!", false);
+                    } else if (modalPhase === 'calcMissing') {
+                        const diff = mTarget - sKnown;
+                        if (diff <= 0) {
+                            speak("Wir haben schon genug Samen!", false);
+                        } else if (diff <= 10) {
+                            speak(`Zähle einfach die Einer! Von ${sKnown} bis ${mTarget} kannst du prima an deinen Fingern abzählen.`, false);
+                        } else {
+                            // Strategie: Ergänzen mit Zehnerübergang/Kompensation
+                            const tCurrent = Math.floor(sKnown / 10);
+                            const eCurrent = sKnown % 10;
+                            const tTarget = Math.floor(mTarget / 10);
+                            const eTarget = mTarget % 10;
+                            
+                            if (eCurrent > eTarget) {
+                                const tensToAdd = tTarget - tCurrent;
+                                const onesToSub = eCurrent - eTarget;
+                                speak(`Wir schauen uns erst an, wie viele Zehner vor uns liegen. Es ist leichter, erst ${tensToAdd} Zehnerstange${tensToAdd > 1 ? 'n' : ''} dazuzulegen. Da die ${eCurrent} Einer hier mehr sind als die ${eTarget} Einer im Ziel, haben wir jetzt zu viel. Wir ziehen die Differenz ab: ${eCurrent} minus ${eTarget} ist ${onesToSub}. Klicke ${onesToSub} mal auf Minus!`, false);
+                            } else {
+                                const tensToAdd = tTarget - tCurrent;
+                                const onesToAdd = eTarget - eCurrent;
+                                let txt = `Wir schauen uns erst an, wie viele Zehner vor uns liegen. Klicke ${tensToAdd} mal auf die Zehnerstange. `;
+                                if (onesToAdd > 0) txt += `Dann zählen wir die Einer. Lege noch ${onesToAdd} grüne Würfel dazu!`;
+                                else txt += `Und schon bist du genau beim Ziel!`;
+                                speak(txt, false);
+                            }
+                        }
+                    }
+                    return;
+                }
+
+                // Standard Tipps für das Beet
                 if (appMode === 'hw_play' || appMode === 'play') {
                     if (levelData.target === '?') {
                         speak("Rechne zuerst die magische Zahl aus! Klicke dafür auf die pulsierende Sonne.", false);
@@ -528,10 +568,10 @@
 
             const handleSumGuessSubmit = () => {
                 if (userSumGuess === sumKnown) {
-                    speak("Klasse gerechnet! Und wie viel fehlt jetzt noch in der Reihe bis zur " + mathTarget + "?");
+                    speak("Klasse gerechnet! Und wie viel fehlt jetzt noch in der Reihe bis zur " + mathTarget + "?", false);
                     setModalPhase('calcMissing');
                 } else {
-                    speak("Das stimmt noch nicht ganz. Zähle die beiden Töpfe noch einmal genau zusammen.");
+                    speak("Das stimmt noch nicht ganz. Zähle die beiden Töpfe noch einmal genau zusammen.", false);
                 }
             };
             const updateUserSumGuess = (amount) => {
@@ -714,7 +754,7 @@
 
                             <div 
                                 onClick={handleLeniaClick}
-                                className={`transform transition-transform animate-float mt-2 relative ${(appMode === 'play' || appMode === 'hw_play') && !isPlayingAudio ? 'cursor-pointer hover:-translate-y-2' : ''}`}
+                                className={`transform transition-transform animate-float mt-2 relative ${(appMode === 'play' || appMode === 'hw_play' || activeCellModal !== null) && !isPlayingAudio ? 'cursor-pointer hover:-translate-y-2' : ''}`}
                             >
                                 {appMode === 'play' && <GrowingPlant level={currentLevel} />}
                                 
