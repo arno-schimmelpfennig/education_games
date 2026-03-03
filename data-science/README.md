@@ -24,14 +24,15 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 1. `lineare_regression_interaktion.html`
 2. `gradient_descent_interaktion.html`
 3. `bias_variance_tradeoff_interaktion.html`
-4. `matrix_interaktion.html`
-5. `matrizenmultiplikation_interaktion.html`
-6. `regularization_interaktion.html`
+4. `klassifikation_metriken_interaktion.html` (Gleichungen, Anteile, Konfusionsmatrix, Precision/Recall, Threshold, ROC/AUC)
+5. `matrix_interaktion.html`
+6. `matrizenmultiplikation_interaktion.html`
+7. `regularization_interaktion.html`
 
 ### Code-Praxis-Erweiterungen (modulweise oder gesammelt)
-7. `lineare_regression_code_praxis.html` (fokussiert auf Regression + OLS)
-8. `gradient_descent_code_praxis.html` (fokussiert auf GD-Implementierung, Batch/Mini-Batch/SGD, Momentum)
-9. `predictive_modeling_code_praxis.html` (fokussiert auf Train/Test, Ridge/Lasso, Evaluation)
+8. `lineare_regression_code_praxis.html` (fokussiert auf Regression + OLS)
+9. `gradient_descent_code_praxis.html` (fokussiert auf GD-Implementierung, Batch/Mini-Batch/SGD, Momentum)
+10. `predictive_modeling_code_praxis.html` (fokussiert auf Train/Test, Ridge/Lasso, Evaluation)
 
 Hinweis: Erweiterungsseiten werden in den Interaktionsseiten als Popup geoeffnet.
 
@@ -44,13 +45,15 @@ Ein Zusammenhang mit einem Einflussfaktor wird sichtbar und interpretierbar (`m`
 Was vorher manuell justiert wurde, wird als Optimierungsschritt automatisiert gelernt.
 3. Bias-Variance:
 Mehr Flexibilitaet ist nicht automatisch besser; Generalisierung, Signal und Rauschen muessen gegeneinander abgewogen werden.
-4. Matrix:
+4. Klassifikation + Metriken:
+Vor Matrix werden Gleichungen/Anteile stabilisiert und Klassifikationsmetriken didaktisch aufgebaut (Confusion Matrix, Precision, Recall, F1, Threshold, ROC/AUC).
+5. Matrix:
 Mehrere Einflussfaktoren werden als Eingabestruktur fuer Modelle organisiert.
-5. Matrizenmultiplikation:
+6. Matrizenmultiplikation:
 Die gleiche Logik wird als skalierbare Rechenform `X*w+b` gebuendelt.
-6. Regularization:
+7. Regularization:
 Ridge/Lasso steuern die Komplexitaet gezielt (Stabilitaet vs. Detailtreue/Selektion).
-7. Predictive Modeling Praxis:
+8. Predictive Modeling Praxis:
 Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residuen, Outlier).
 
 ## Verbindliche UX-Regeln
@@ -81,9 +84,28 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
 - End-of-topic Mini-Quiz mit Freischaltung des Bias-Variance-Themas.
 - Separate Code-Praxis-Seite mit reiner Python-Implementierung und Visualisierung (`gradient_descent_code_praxis.html`).
 
+### Klassifikation + Metriken (vor Matrix)
+- Problemwechsel klar machen: Regression (freie Zahlen) vs. Klassifikation (Ja/Nein mit 0/1).
+- Warum lineare Regression fuer Klassen oft scheitert (Ausreisser-Effekt, ungueltiger Wertebereich <0 bzw. >1).
+- Sigmoid/logistische Funktion als Begrenzung auf `[0,1]` inklusive einfacher Grenzfall-Intuition.
+- Logistische Hypothese in einfacher Form: Score `t = b0 + b1*x` und Wahrscheinlichkeit `p = sigmoid(t)`.
+- Parameterwirkung sichtbar machen: `b0` verschiebt, `b1` steuert Richtung/Steilheit, negatives `b1` spiegelt.
+- Bedingte Wahrscheinlichkeit und Notation aufbauen: `P(y=1|x;b)` sowie `P(y=0)=1-P(y=1)`.
+- Decision Boundary als Modelleigenschaft erklaeren (nicht als starre Dateneigenschaft), inkl. Schwellenregel.
+- Gleichung als Gleichgewicht erklaeren (`=` als Wertgleichheit) und Variable als Platzhalter einfuehren.
+- Bruch, Dezimalzahl und Prozent fuer Metrik-Verstaendnis sichern.
+- Konfusionsmatrix mit TP/TN/FP/FN als Fehlerarten statt nur richtig/falsch lesen.
+- Accuracy, Precision, Recall, F1 und Specificity mit Kontextbezug unterscheiden.
+- Threshold-Wahl inklusive Tradeoff (False Positive vs. False Negative) sichtbar machen.
+- ROC-Idee (TPR gegen FPR) als diagnostische Bruecke zum Modellvergleich einbauen.
+- Log-Loss als Kostenidee erklaeren (groesserer Fehler -> groesserer Verlust) und Loesen via Gradient Descent verknuepfen.
+- Mehrklassen-Bruecke als wiederholte binaere Fragen (One-vs-Rest-Idee).
+
 ### Bias-Variance + Regularization + Predictive Modeling
 - Underfitting/Overfitting und Bias-Variance-Tradeoff.
-- L1/L2 als Lasso/Ridge in interaktiver Darstellung.
+- Harte vs. weiche Regularisierungskonzepte (Nebenbedingung vs. Penalty-Term in der Kostenfunktion).
+- L1/L2 als Lasso/Ridge in interaktiver Darstellung, inklusive Wirkung von `alpha/lambda = 0` bis hoch.
+- Elastic Net als Mischform mit `r = l1_ratio` fuer korrelierte Merkmale.
 - Train/Test-Split als Pflicht fuer Generalisierungsbewertung.
 - Parameter-Tuning (alpha/lambda) im Workflow.
 - Residuenmuster lesen, Outlier-Einstieg mit z-Score.

@@ -989,12 +989,12 @@
   <div id="app-layout">
     <aside id="sidebar">
       <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
-      <h1>Matrizen verstehen<br>nach Regression</h1>
+      <h1>Matrizen verstehen<br>nach logistischer Klassifikation</h1>
       <p class="lead">Jetzt erweitern wir das Heizkosten-Beispiel: von einer x-Achse auf mehrere Einflussfaktoren gleichzeitig.</p>
 
       <div class="story-box">
-        <strong>Brücke aus Thema 2 und Thema 3:</strong>
-        Nach Training (Thema 2) und Generalisierungs-Check (Thema 3) organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix.
+        <strong>Brücke aus Thema 2, Thema 3 und Thema 4:</strong>
+        Nach Training (Thema 2), Generalisierungs-Check (Thema 3) und logistischer Klassifikation mit Metriken (Thema 4) organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix.
       </div>
 
       <div class="step-box">
@@ -1005,6 +1005,18 @@
           <p id="step-action"></p>
         </div>
         <div class="step-template" aria-label="Lern-Template">
+          <div class="step-template-item">
+            <strong>Lernziel</strong>
+            <p id="step-goal"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Didaktik-Methode</strong>
+            <p id="step-method"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Schrittformel</strong>
+            <p id="step-equation"></p>
+          </div>
           <div class="step-template-item">
             <strong>Warum</strong>
             <p id="step-why"></p>
@@ -1041,11 +1053,11 @@
         <strong>Nächste Schritte</strong>
         <p id="matrix-path-teaser" hidden></p>
         <div class="path-content">
-          <p>Nächstes Thema 5: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
+          <p>Nächstes Thema 6: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
           <div class="path-status" id="matrix-quiz-status">Zwischen-Quiz wird nach Schritt 6 angeboten. Danach wird die Navigation freigeschaltet.</div>
           <button id="open-matrix-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
-          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 5: Matrizenmultiplikation</a>
-          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurück zu Thema 3: Bias-Variance</a>
+          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 6: Matrizenmultiplikation</a>
+          <a class="path-link" href="klassifikation_metriken_interaktion.html">Zurueck zu Thema 4: Logistische Klassifikation und Metriken</a>
           <button id="replay-matrix" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -1181,7 +1193,7 @@
             <li><strong>Grenze von 1 x-Achse:</strong> Ein Einflussfaktor reicht oft nicht aus.</li>
             <li><strong>Matrix-Idee:</strong> Mehrere Merkmale werden als Spalten nebeneinander organisiert.</li>
             <li><strong>Modell:</strong> y-hat = b + w_temp*temp + w_faktor*faktor.</li>
-            <li><strong>Brücke zu Thema 5:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
+            <li><strong>Brücke zu Thema 6:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
           </ul>
           <div class="shape-bridge">
             <strong>Shape-Brücke</strong>
@@ -1245,7 +1257,7 @@
       {
         title: "Schritt 5: Transfer",
         text: "Im nächsten Thema rechnen wir das Gleiche als Matrizenmultiplikation: X * w erzeugt y-hat für alle Zeilen auf einmal.",
-        chat: "Diskussion: Was wird in Thema 5 mathematisch automatisiert, was ihr hier per Regler macht?",
+        chat: "Diskussion: Was wird in Thema 6 mathematisch automatisiert, was ihr hier per Regler macht?",
         answer: "Die gleiche Logik wird algebraisch gebündelt: statt pro Zeile einzeln zu rechnen, berechnet Matrixmultiplikation alles in einem Schritt."
       },
       {
@@ -1258,35 +1270,56 @@
 
     const stepTemplate = [
       {
+        goal: "Die Grenze von univariater Sicht erkennen.",
+        method: "Kontrastbeispiel + aktivierende Leitfrage.",
         why: "Wir müssen sehen, wann ein einzelner Einflussfaktor nicht mehr ausreicht.",
         consequence: "Wenn mehrere Faktoren gleichzeitig wirken, dann wird eine Ein-Achsen-Sicht systematisch zu grob.",
         reflection: "Welcher zweite Faktor ist in deinem Umfeld fast immer mitentscheidend?"
       },
       {
+        goal: "Matrix als Zeilen/Spalten-Struktur sicher lesen.",
+        method: "Repräsentationswechsel: Alltagstabelle -> Matrixsprache.",
         why: "Ohne Matrix-Leseverständnis bleibt multivariate Regression abstrakt.",
         consequence: "Wenn ihr Zeilen und Spalten korrekt trennt, dann könnt ihr später Modellfehler gezielt einer Struktur zuordnen.",
         reflection: "Was war für dich die wichtigste Umdeutung: Zeile als Fall oder Spalte als Merkmal?"
       },
       {
+        goal: "Gewichte als steuerbare Modellparameter anwenden.",
+        method: "Interaktive Variation mit unmittelbarem Feedback.",
         why: "Gewichte machen aus Daten ein steuerbares Modell.",
         consequence: "Wenn Gewichte unbalanciert sind, dann verbessert ein Merkmal lokal, während das Gesamtbild kippt.",
         reflection: "Welches Gewicht hat bei dir den stärksten Einfluss auf den MAE gezeigt?"
       },
       {
+        goal: "Fehlervergleich als Entscheidungsbasis nutzen.",
+        method: "Formative Diagnostik über MAE und Zeilenfehler.",
         why: "Konsequenzen werden erst durch Fehlervergleich messbar.",
         consequence: "Wenn MAE und Fehler-Spalte fallen, dann steigt die Verlässlichkeit über alle Zeilen statt nur in Einzelfällen.",
         reflection: "Ab welchem Fehlerniveau würdest du das Modell im Alltag akzeptieren?"
       },
       {
+        goal: "Transfer zur Batch-Algebra vorbereiten.",
+        method: "Scaffolding vom Einzelrechnen zu X*w.",
         why: "Transfer sichert den Sprung von Tabellenlogik zu skalierbarer Algebra.",
         consequence: "Wenn ihr die gleiche Logik als X*w denkt, dann könnt ihr viele Fälle in einem Schritt berechnen.",
         reflection: "Welche Aufgabe in deinem Job wäre mit Batch-Vorhersagen sofort effizienter?"
       },
       {
+        goal: "Shape-Regel vor Matrizenmultiplikation absichern.",
+        method: "Fehlerorientiertes Lernen (typische Gegenbeispiele).",
         why: "Shape-Sicherheit verhindert typische Blocker beim Rechnen und beim späteren Coding.",
         consequence: "Wenn die Innen-Dimensionen nicht passen, dann ist Multiplikation fachlich und technisch nicht definiert.",
         reflection: "Wie würdest du den Shape-Check in einem Satz erklären?"
       }
+    ];
+
+    const stepEquations = [
+      "Einflussgrenze: y-hat = b + w_temp*temp (nur ein Merkmal)",
+      "Matrixstruktur: X = [temp, faktor], Zeilen = Fälle, Spalten = Merkmale",
+      "Einzelfall: y-hat_i = b + w_temp*temp_i + w_faktor*faktor_i",
+      "Fehlermaß: MAE = (1/n) * Summe |y_i - y-hat_i|",
+      "Batch-Idee: y-hat = X * w + b",
+      "Shape-Regel: X(6x2) * w(2x1) -> y-hat(6x1)"
     ];
 
     const matrixStepNavStorageKey = "ds-matrix-step-nav-unlocked";
@@ -1495,9 +1528,9 @@
       } else if (state.stepIndex === 3) {
         hint.textContent = "Jetzt auf MAE und Fehler-Spalte achten: Balance statt Einzeltreffer.";
       } else if (state.stepIndex === 4) {
-        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 5.";
+        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 6.";
       } else {
-        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 5 ohne Fehlstart umgesetzt werden.";
+        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 6 ohne Fehlstart umgesetzt werden.";
       }
     }
 
@@ -1568,6 +1601,9 @@
       document.getElementById("step-action").textContent = getStepActionText(step);
       document.getElementById("chat-question").textContent = step.chat;
       const template = stepTemplate[state.stepIndex];
+      document.getElementById("step-goal").textContent = template.goal;
+      document.getElementById("step-method").textContent = template.method;
+      document.getElementById("step-equation").textContent = stepEquations[state.stepIndex] || stepEquations[0];
       document.getElementById("step-why").textContent = template.why;
       document.getElementById("step-consequence").textContent = template.consequence;
       document.getElementById("step-reflection").textContent = template.reflection;
@@ -1636,7 +1672,7 @@
       const link = document.getElementById("to-matmul-link");
       link.classList.remove("disabled");
       link.setAttribute("aria-disabled", "false");
-      status.textContent = "Zwischen-Quiz bestanden. Thema 5 ist freigeschaltet.";
+      status.textContent = "Zwischen-Quiz bestanden. Thema 6 ist freigeschaltet.";
       status.style.borderColor = "rgba(31, 139, 76, 0.45)";
       status.style.background = "#f3fbf6";
       status.style.color = "#275b3f";
@@ -1652,7 +1688,7 @@
 
       const feedback = document.getElementById("quiz-feedback");
       if (score >= 3) {
-        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 5 ist freigeschaltet.`;
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 6 ist freigeschaltet.`;
         feedback.style.color = "#1f8b4c";
         unlockNextTopic();
       } else {

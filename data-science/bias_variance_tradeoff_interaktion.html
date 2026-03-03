@@ -1178,7 +1178,7 @@
     <div id="quiz-backdrop"></div>
     <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <h3 id="quiz-title">Mini-Quiz: Bias-Variance</h3>
-      <p>3 Fragen, mindestens 2 richtig. Danach wird der Weiterlink zu Thema 4 (Matrix) freigeschaltet.</p>
+      <p>3 Fragen, mindestens 2 richtig. Danach wird der Weiterlink zu Thema 4 (Logistische Klassifikation & Metriken) freigeschaltet.</p>
       <form id="bias-quiz-form">
         <div class="quiz-question">
           <strong>1) Woran erkennt man Overfitting am ehesten?</strong>
@@ -1282,9 +1282,9 @@
         <strong>Nächste Schritte</strong>
         <p id="bias-path-teaser" hidden></p>
         <div class="path-content">
-          <div class="path-status" id="bias-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Danach wird Thema 4 (Matrix) freigeschaltet.</div>
+          <div class="path-status" id="bias-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Danach wird Thema 4 (Logistische Klassifikation & Metriken) freigeschaltet.</div>
           <button id="open-bias-quiz" class="secondary" type="button" disabled>Mini-Quiz starten</button>
-          <a id="to-matrix-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 4: Matrix verstehen</a>
+          <a id="to-matrix-link" class="path-link disabled" href="klassifikation_metriken_interaktion.html" aria-disabled="true">Weiter zu Thema 4: Logistische Klassifikation und Metriken</a>
           <a class="path-link" href="gradient_descent_interaktion.html">Zurück zu Thema 2: Gradient Descent</a>
           <button id="replay-bias" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
@@ -1554,6 +1554,10 @@
             <li><strong>Bias hoch (zu simpel):</strong> Modell verpasst wichtige Struktur.</li>
             <li><strong>Varianz hoch (zu komplex):</strong> Modell reagiert zu stark auf Zufallsrauschen.</li>
             <li><strong>Irreduzierbarer Fehler:</strong> Ein Rest-Rauschen bleibt immer und kann nicht wegoptimiert werden.</li>
+            <li><strong>Data Generation Function:</strong> Hinter den Messpunkten steckt eine unbekannte Zielfunktion; Modellierung approximiert sie unter Rauschen.</li>
+            <li><strong>Nutzen vor Technik:</strong> Modellqualität zählt nur, wenn Vorhersagen eine Entscheidung verbessern (z. B. Planung, Bevorratung, Risikoabschätzung).</li>
+            <li><strong>Train/Test/Validierung:</strong> Typisch z. B. 60-70% Training, Rest Test/Validierung für Generalisierungsprüfung.</li>
+            <li><strong>Stichprobe:</strong> Zufällige, möglichst repräsentative Daten sind entscheidend; mehr Daten stabilisieren Schätzungen.</li>
             <li><strong>Dartscheiben-Bild:</strong> Bias = systematisch daneben, Varianz = starke Streuung der Treffer.</li>
             <li><strong>Ziel:</strong> Sweet Spot zwischen Bias und Varianz statt Perfektion im Training.</li>
             <li><strong>Harte Einschränkung:</strong> Feste Gewichtsgrenze (Range), z. B. |w| <= c.</li>
@@ -1562,6 +1566,10 @@
             <li><strong>Ridge/Lasso/ElasticNet:</strong> Ridge schrumpft Gewichte kontinuierlich, Lasso kann Gewichte auf 0 setzen, ElasticNet mischt beides über l1_ratio.</li>
             <li><strong>Feature Engineering:</strong> Bessere Merkmale erhöhen Signalqualität und reduzieren unnötige Varianz schon vor dem Training.</li>
             <li><strong>Praxis-Werkzeuge:</strong> mehr Daten, Feature Engineering, Regularisierung und Kreuzvalidierung helfen beim Ausbalancieren.</li>
+            <li><strong>Lernkurven-Lesart:</strong> Underfitting: beide Fehler hoch und nah beieinander. Overfitting: Training niedrig, Test deutlich höher.</li>
+            <li><strong>Erwartungswert-Idee:</strong> MSE basiert auf Mittelung über viele mögliche Stichproben (Expectation Operator E[·]).</li>
+            <li><strong>Mini-Beispiel Erwartungswert:</strong> Fairer Würfel hat E[X] = (1+2+3+4+5+6)/6 = 3.5.</li>
+            <li><strong>Methodenbeispiele:</strong> Eher hoher Bias: lineare/ logistische Modelle, LDA. Eher hohe Varianz: tiefe Bäume, KNN, flexible SVM.</li>
             <li><strong>Ensemble-Idee:</strong> Bagging senkt Varianz, Boosting reduziert Bias durch sequenzielles Nachbessern.</li>
             <li><strong>Didaktik:</strong> Teilnehmende lernen, warum Generalisierung wichtiger ist als Demo-Perfektion.</li>
           </ul>
@@ -1624,7 +1632,7 @@
       },
       {
         title: "Schritt 5: Praxis-Werkzeuge klar einordnen",
-        text: "Nutze jetzt die vier Praxis-Werkzeuge bewusst: mehr Daten, Feature Engineering, Regularisierung und Kreuzvalidierung. Mehr Daten reduzieren Stichprobenrauschen und oft die Varianz. Feature Engineering baut bessere Merkmale (z. B. x²), damit Signal klarer lernbar wird. Regularisierung ergänzt die Cost Function um Strafterme für große Gewichte. Kreuzvalidierung prüft über mehrere Splits, ob das Modell auch außerhalb eines einzelnen Datensplits stabil bleibt.",
+        text: "Nutze jetzt die vier Praxis-Werkzeuge bewusst: mehr Daten, Feature Engineering, Regularisierung und Kreuzvalidierung. Mehr Daten reduzieren Stichprobenrauschen und oft die Varianz. Feature Engineering baut bessere Merkmale (z. B. x²), damit Signal klarer lernbar wird. Regularisierung ergänzt die Cost Function um Strafterme für große Gewichte. Kreuzvalidierung prüft über mehrere Splits, ob das Modell auch außerhalb eines einzelnen Datensplits stabil bleibt. Merker aus dem Kurs: Underfitting zeigt oft hohe, ähnliche Train/Test-Fehler; Overfitting zeigt niedrigen Trainings- aber deutlich höheren Testfehler.",
         chat: "Chat: Welches dieser vier Werkzeuge würdet ihr zuerst einsetzen und warum?"
       },
       {
@@ -1750,7 +1758,8 @@
         explanation: "Ein lineares Modell mit nur zwei Parametern ist stabil, kann aber gekrümmte Zusammenhänge nicht vollständig erfassen.",
         terms: [
           { term: "Bias²", desc: "E[(f̂(x) - f(x))²] misst den systematischen Fehler durch zu starre Annahmen." },
-          { term: "Varianz", desc: "E[(f̂(x) - E[f̂(x)])²] ist hier meist noch klein, weil das Modell wenig flexibel ist." }
+          { term: "Varianz", desc: "E[(f̂(x) - E[f̂(x)])²] ist hier meist noch klein, weil das Modell wenig flexibel ist." },
+          { term: "Data Generation Function", desc: "f(x) ist die unbekannte, verrauschte Zielbeziehung hinter den Beobachtungsdaten." }
         ]
       },
       {
@@ -1778,18 +1787,20 @@
         terms: [
           { term: "Bias²", desc: "Zu hohe Modellvereinfachung erzeugt Unteranpassung." },
           { term: "Varianz", desc: "Zu hohe Empfindlichkeit gegenüber Datenfluktuationen erzeugt Überanpassung." },
-          { term: "σ²_Rauschen", desc: "Unvermeidbarer Datenanteil, der sich nicht wegoptimieren lässt." }
+          { term: "σ²_Rauschen", desc: "Unvermeidbarer Datenanteil, der sich nicht wegoptimieren lässt." },
+          { term: "Erwartungswert E[·]", desc: "MSE ist ein Mittel über viele mögliche Stichproben - nicht nur über einen einzelnen Split." }
         ]
       },
       {
         title: "Formelblick Schritt 5: Praxis-Werkzeuge",
-        equation: "CV<sub>k</sub> = (1/k) · Σ<sub>i=1..k</sub> MSE<sub>val</sub><sup>(i)</sup>",
+        equation: "CV<sub>k</sub> = (1/k) · Σ<sub>i=1..k</sub> MSE<sub>val</sub><sup>(i)</sup> | Lernkurven-Lücke = MSE<sub>test</sub> - MSE<sub>train</sub>",
         explanation: "Praxis bedeutet, Maßnahmen systematisch zu kombinieren, statt nur einen einzelnen Split zu optimieren.",
         terms: [
           { term: "Mehr Daten", desc: "Mehr Beobachtungen stabilisieren Schätzungen und senken häufig die Varianz." },
           { term: "Feature Engineering", desc: "Neue Merkmalsfunktion φ(x) macht relevantes Signal besser lernbar." },
           { term: "Regularisierung", desc: "J = MSE + λ·Ω(w) begrenzt große Gewichte und reduziert Overfitting-Risiko." },
-          { term: "Kreuzvalidierung", desc: "Mehrere Train/Validierungs-Splits liefern robuste Modellwahl statt Zufallstreffer." }
+          { term: "Kreuzvalidierung", desc: "Mehrere Train/Validierungs-Splits liefern robuste Modellwahl statt Zufallstreffer." },
+          { term: "Train/Test/Validierung", desc: "Typisch z. B. 60-70% Training plus getrennte Prüfung auf ungesehenen Daten." }
         ]
       },
       {
@@ -2350,7 +2361,7 @@
       biasPathTeaser.textContent = "";
 
       if (!ready) {
-        biasQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} freigeschaltet. Danach wird Thema 4 (Matrix) aktiviert.`;
+        biasQuizStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} freigeschaltet. Danach wird Thema 4 (Logistische Klassifikation & Metriken) aktiviert.`;
         biasQuizStatusEl.style.borderColor = "#cbd4e4";
         biasQuizStatusEl.style.background = "#fff";
         biasQuizStatusEl.style.color = "#5f6d84";
@@ -2411,7 +2422,7 @@
     function unlockMatrixNavigation() {
       toMatrixLink.classList.remove("disabled");
       toMatrixLink.setAttribute("aria-disabled", "false");
-      biasQuizStatusEl.textContent = "Mini-Quiz bestanden. Thema 4 (Matrix) ist freigeschaltet.";
+      biasQuizStatusEl.textContent = "Mini-Quiz bestanden. Thema 4 (Logistische Klassifikation & Metriken) ist freigeschaltet.";
       biasQuizStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
       biasQuizStatusEl.style.background = "#f3fbf6";
       biasQuizStatusEl.style.color = "#275b3f";

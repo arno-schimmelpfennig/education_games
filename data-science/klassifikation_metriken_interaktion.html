@@ -1,0 +1,2106 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Logistische Klassifikation und Metriken | Webinar-Interaktion</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --ink: #223049;
+      --muted: #5d6b82;
+      --brand: #173262;
+      --accent: #6f2d45;
+      --ok: #1f8b4c;
+      --warn: #b86820;
+      --bad: #b03a3a;
+      --line: #d4ddea;
+      --soft: #eef3fa;
+      --shadow: 0 14px 30px rgba(16, 37, 74, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top right, #edf4ff 0%, #f9fbff 45%, var(--bg) 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    body.quiz-active {
+      overflow: hidden;
+    }
+
+    #app-layout {
+      display: grid;
+      grid-template-columns: minmax(330px, 420px) minmax(0, 1fr);
+      height: 100vh;
+    }
+
+    #sidebar {
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    #stage {
+      padding: 16px;
+      overflow-y: auto;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    h1 {
+      margin: 8px 0 6px;
+      color: var(--brand);
+      font-size: 1.75rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 1.02rem;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.48;
+    }
+
+    .brandline {
+      color: #6a7891;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .lead {
+      color: #4a5a74;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .story-box,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .usage-box,
+    .path-box,
+    .didactic-box,
+    .card,
+    .codepath-bar,
+    .formula-card,
+    .table-card,
+    .matrix-card,
+    .roc-card,
+    .ctrl-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .story-box,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .usage-box,
+    .path-box,
+    .didactic-box {
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .story-box strong,
+    .chat-box strong,
+    .answer-box strong,
+    .usage-box strong,
+    .didactic-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #2c3a53;
+    }
+
+    .step-box h3 {
+      margin-bottom: 6px;
+    }
+
+    .step-action-box {
+      margin-top: 10px;
+      border: 1px dashed #bcc9dd;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .step-action-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #2f466d;
+      font-size: 0.83rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .step-template {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-template-item {
+      border: 1px solid #dde5f2;
+      background: #fbfdff;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.86rem;
+      color: #3f4f68;
+    }
+
+    .step-template-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #223f67;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .timeline-item {
+      border: 1px solid #d6deed;
+      border-radius: 10px;
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      color: #52627b;
+      background: #fbfdff;
+    }
+
+    .timeline-item.done {
+      border-color: #b9d7c0;
+      background: #f2fbf4;
+      color: #2e6642;
+    }
+
+    .timeline-item.active {
+      border-color: #a6badd;
+      background: #eef4ff;
+      color: #244165;
+      font-weight: 700;
+    }
+
+    .timeline-item.clickable {
+      cursor: pointer;
+    }
+
+    .timeline-item.clickable:focus-visible {
+      outline: 2px solid #4d74bb;
+      outline-offset: 2px;
+    }
+
+    .path-box {
+      border-color: rgba(111, 45, 69, 0.22);
+      background: linear-gradient(180deg, #fff9fb 0%, #ffffff 100%);
+    }
+
+    .path-box strong {
+      color: #4b1f30;
+    }
+
+    .path-content {
+      display: grid;
+      gap: 8px;
+    }
+
+    .path-status {
+      border: 1px solid #cbd4e4;
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.83rem;
+      color: #5f6d84;
+    }
+
+    .path-link,
+    .extension-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 9px 11px;
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #304f84);
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: 0;
+      cursor: pointer;
+      transition: filter .2s ease, transform .2s ease;
+    }
+
+    .path-link:hover,
+    .extension-link:hover,
+    button:hover {
+      filter: brightness(1.03);
+      transform: translateY(-1px);
+    }
+
+    .path-link.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .ctrl-group {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #304f84);
+      transition: filter .2s ease, transform .2s ease;
+    }
+
+    button.secondary {
+      background: #f2f5fb;
+      color: #30455f;
+      border: 1px solid #cad5e8;
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .codepath-bar {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .codepath-title {
+      font-size: 0.82rem;
+      color: #3b4f70;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .codepath-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .codepath-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid #ced9eb;
+      border-radius: 999px;
+      padding: 6px 10px;
+      text-decoration: none;
+      color: #2f466b;
+      background: #f9fbff;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .codepath-step.active {
+      border-color: #a9bfdf;
+      background: #eef4ff;
+    }
+
+    .codepath-step.is-disabled {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .codepath-index {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #1f3f71;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .chip-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid #d5deec;
+      border-radius: 11px;
+      background: #ffffff;
+      padding: 8px;
+      font-size: 0.82rem;
+      color: #435470;
+      box-shadow: 0 8px 16px rgba(16, 37, 74, 0.06);
+    }
+
+    .chip strong {
+      color: #2b3f61;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .formula-card,
+    .table-card,
+    .matrix-card,
+    .roc-card,
+    .ctrl-card {
+      padding: 12px;
+    }
+
+    .formula-line {
+      margin-top: 8px;
+      border: 1px dashed #c4d0e3;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 8px;
+      font-size: 0.95rem;
+      color: #284465;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .formula-meta {
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: #52627c;
+    }
+
+    .sigmoid-card {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .sigmoid-formula {
+      border: 1px dashed #c4d0e3;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 8px;
+      font-size: 0.86rem;
+      color: #2d4365;
+      line-height: 1.45;
+    }
+
+    .sigmoid-formula .line {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-weight: 700;
+      margin-top: 4px;
+      color: #223f66;
+    }
+
+    #sigmoid-canvas {
+      width: 100%;
+      height: 230px;
+      border: 1px solid #d7dfec;
+      border-radius: 10px;
+      background: #ffffff;
+      display: block;
+    }
+
+    .sigmoid-legend {
+      display: grid;
+      gap: 4px;
+      font-size: 0.79rem;
+      color: #4e5e77;
+    }
+
+    .sigmoid-controls {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .sigmoid-controls label {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #2f476c;
+    }
+
+    .sigmoid-controls output {
+      min-width: 58px;
+      text-align: right;
+      font-weight: 700;
+      color: #2b3f63;
+    }
+
+    .sigmoid-controls input[type="range"] {
+      width: 100%;
+      accent-color: #6f2d45;
+    }
+
+    .method-stack {
+      border: 1px solid #d4ddec;
+      border-radius: 10px;
+      background: #f9fcff;
+      padding: 8px;
+      font-size: 0.8rem;
+      color: #4b5b74;
+      line-height: 1.45;
+    }
+
+    .method-stack strong {
+      color: #2b4266;
+    }
+
+    .micro-lab {
+      border: 1px solid #d7e0ee;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .micro-lab h4 {
+      margin: 0;
+      font-size: 0.86rem;
+      color: #2d476f;
+    }
+
+    .prediction-options {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .prediction-options label {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      font-size: 0.82rem;
+      color: #3f4f68;
+      line-height: 1.4;
+    }
+
+    .micro-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .micro-feedback {
+      min-height: 20px;
+      font-size: 0.8rem;
+      color: #3d4d67;
+      line-height: 1.45;
+    }
+
+    .self-explain-input {
+      width: 100%;
+      border: 1px solid #cdd8ea;
+      border-radius: 9px;
+      min-height: 68px;
+      resize: vertical;
+      padding: 8px;
+      font: inherit;
+      font-size: 0.82rem;
+      color: #2f3f5a;
+      background: #fff;
+    }
+
+    .method-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      border: 1px solid #d3ddee;
+      border-radius: 999px;
+      background: #f9fbff;
+      color: #3c4f6d;
+      font-size: 0.78rem;
+      padding: 4px 9px;
+      font-weight: 700;
+    }
+
+    .data-table,
+    .confusion-table,
+    .roc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.82rem;
+    }
+
+    .data-table th,
+    .data-table td,
+    .confusion-table th,
+    .confusion-table td,
+    .roc-table th,
+    .roc-table td {
+      border: 1px solid #d7e0ee;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .data-table th,
+    .confusion-table th,
+    .roc-table th {
+      background: #f3f7ff;
+      color: #345077;
+      font-weight: 700;
+    }
+
+    .actual-pos {
+      background: #fff6f6;
+      color: #8a2f2f;
+      font-weight: 700;
+    }
+
+    .actual-neg {
+      background: #f4faf4;
+      color: #2f7045;
+      font-weight: 700;
+    }
+
+    .pred-pos {
+      color: #7d2738;
+      font-weight: 700;
+    }
+
+    .pred-neg {
+      color: #2f5f46;
+      font-weight: 700;
+    }
+
+    .matrix-cell {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .cell-tp { background: #eefaf0; color: #1f6f42; }
+    .cell-fn { background: #fff5e8; color: #8b5a13; }
+    .cell-fp { background: #fff0f0; color: #8f3131; }
+    .cell-tn { background: #eef5ff; color: #295187; }
+
+    .panel-note {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 9px;
+      border: 1px solid #d4ddec;
+      background: #f9fcff;
+      font-size: 0.82rem;
+      color: #4d5d75;
+    }
+
+    .ctrl-card label {
+      display: block;
+      font-weight: 700;
+      color: #2d476f;
+      font-size: 0.86rem;
+      margin-bottom: 6px;
+    }
+
+    .ctrl-card input[type="range"] {
+      width: 100%;
+      accent-color: #7b2f48;
+    }
+
+    .ctrl-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .ctrl-row output {
+      min-width: 58px;
+      text-align: right;
+      font-weight: 700;
+      color: #2b3f63;
+      font-size: 0.86rem;
+    }
+
+    #roc-canvas {
+      width: 100%;
+      height: 210px;
+      border: 1px solid #d7dfec;
+      border-radius: 10px;
+      background: #ffffff;
+      margin-top: 8px;
+      display: block;
+    }
+
+    .quiz-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      z-index: 1400;
+    }
+
+    .quiz-overlay[aria-hidden="false"] {
+      display: block;
+    }
+
+    #quiz-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(14, 27, 48, 0.58);
+    }
+
+    #quiz-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(740px, 92vw);
+      max-height: 88vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #dbe3ef;
+      box-shadow: 0 20px 42px rgba(17, 37, 72, 0.35);
+      padding: 16px;
+    }
+
+    .quiz-question {
+      border: 1px solid #d6deed;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fbfdff;
+    }
+
+    .quiz-question strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #2f3d54;
+      font-size: 0.87rem;
+    }
+
+    .quiz-option {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+      font-size: 0.84rem;
+      color: #40506a;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .quiz-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #2b3f61;
+    }
+
+    .focus {
+      border-color: rgba(111, 45, 69, 0.5);
+      box-shadow: 0 14px 32px rgba(111, 45, 69, 0.16);
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+        height: auto;
+      }
+
+      #app-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      #sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      #stage {
+        overflow: visible;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-overlay" class="quiz-overlay" aria-hidden="true">
+    <div id="quiz-backdrop"></div>
+    <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+      <h3 id="quiz-title">Mini-Quiz: Logistische Klassifikation und Metriken</h3>
+      <p style="margin:0 0 10px;color:#44526a;font-size:0.88rem;line-height:1.45;">4 Fragen, mindestens 3 richtig. Danach wird Thema 5 (Matrix) freigeschaltet.</p>
+      <form id="classification-quiz-form">
+        <div class="quiz-question">
+          <strong>1) Warum passt die Sigmoid-Funktion zu binaerer Klassifikation?</strong>
+          <label class="quiz-option"><input type="radio" name="q1" value="a">Weil sie Wahrscheinlichkeiten auf den Bereich 0 bis 1 begrenzt</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="b">Weil sie automatisch den besten Threshold auswaehlt</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="c">Weil sie immer eine perfekte Trennung garantiert</label>
+        </div>
+        <div class="quiz-question">
+          <strong>2) Was steuert b1 in <code>p = sigmoid(b0 + b1*x)</code> am deutlichsten?</strong>
+          <label class="quiz-option"><input type="radio" name="q2" value="a">Richtung und Steilheit der Kurve</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b">Nur die Anzahl der Trainingsfaelle</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c">Nur die Zahl der Klassen</label>
+        </div>
+        <div class="quiz-question">
+          <strong>3) Was ist der Unterschied zwischen Modellparametern und Threshold?</strong>
+          <label class="quiz-option"><input type="radio" name="q3" value="a">b0/b1 formen die Wahrscheinlichkeitskurve, der Threshold setzt die Ja/Nein-Grenze</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="b">Threshold formt die Kurve, b0/b1 zaehlen nur Faelle</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="c">Es gibt keinen Unterschied</label>
+        </div>
+        <div class="quiz-question">
+          <strong>4) Welche Formel fuer Specificity ist korrekt?</strong>
+          <label class="quiz-option"><input type="radio" name="q4" value="a">TN / (TN + FP)</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="b">TP / (TP + FN)</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="c">FP / (FP + TN + FN)</label>
+        </div>
+        <div class="quiz-actions">
+          <button id="grade-quiz" type="submit">Quiz auswerten</button>
+          <button id="close-quiz" type="button" class="secondary">Schliessen</button>
+        </div>
+      </form>
+      <div id="quiz-feedback" class="quiz-feedback"></div>
+    </section>
+  </div>
+
+  <div id="app-layout">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Logistische Klassifikation<br>und Metriken vor Matrix</h1>
+      <p class="lead">Zwischen Bias-Variance und Matrix bauen wir die Bruecke: Warum lineare Regression fuer Klassen nicht reicht, wie Sigmoid mit b0/b1 arbeitet und wie Threshold plus Metriken die Entscheidung steuern.</p>
+
+      <div class="story-box">
+        <strong>Durchgehende Geschichte:</strong>
+        Mila arbeitet im Gesundheitslabor. Ihr Team muss fuer jeden Fall "krank" oder "gesund" entscheiden. Zuerst lernt Mila, wie aus Messwerten eine Wahrscheinlichkeit wird. Danach entscheidet sie mit dem passenden Threshold und bewertet fair mit Metriken.
+      </div>
+
+      <div class="didactic-box">
+        <strong>Didaktischer Modus in diesem Kapitel</strong>
+        Wir arbeiten in kleinen Schritten: erst alltagsnahes Bild, dann Formel, dann direkter Test am Regler. Jede Stufe nutzt eine Lernmethode mit sofortigem Feedback.
+      </div>
+
+      <div class="step-box">
+        <h3 id="step-title"></h3>
+        <p id="step-text"></p>
+        <div class="step-action-box" aria-live="polite">
+          <strong>Konkrete Aufgabe jetzt</strong>
+          <p id="step-action"></p>
+        </div>
+        <div class="step-template" aria-label="Lern-Template">
+          <div class="step-template-item">
+            <strong>Lernziel</strong>
+            <p id="step-goal"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Didaktik-Methode</strong>
+            <p id="step-method"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Schrittformel</strong>
+            <p id="step-equation"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Warum</strong>
+            <p id="step-why"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Mini-Reflexion</strong>
+            <p id="step-reflection"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-box">
+        <strong>Diskussionsfrage fuer die Runde</strong>
+        <p id="chat-question"></p>
+      </div>
+
+      <div class="answer-box">
+        <strong id="answer-title">Aufloesung zum vorherigen Schritt</strong>
+        <p id="answer-text">Die Aufloesung erscheint, sobald ihr weiterklickt.</p>
+      </div>
+
+      <div class="timeline" id="timeline"></div>
+
+      <div class="usage-box">
+        <strong>Praxis-Uebertrag:</strong>
+        Diese Grundlagen verhindern spaeter typische Fehler bei Matrixlesen, Gewichten und Modellvergleich.
+      </div>
+
+      <div class="path-box" id="path-box">
+        <strong>Naechste Schritte</strong>
+        <div class="path-content">
+          <div class="path-status" id="path-status">Mini-Quiz wird nach dem letzten Schritt angeboten. Danach wird Thema 5 (Matrix) freigeschaltet.</div>
+          <button id="open-quiz" class="secondary" type="button" disabled>Mini-Quiz starten</button>
+          <a id="to-matrix-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 5: Matrix verstehen</a>
+          <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurueck zu Thema 3: Bias-Variance Tradeoff</a>
+          <button id="replay-topic" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Lern-Schritt</button>
+        <button id="next-step">Naechster Lern-Schritt</button>
+        <button id="reset-session" class="secondary">Session zuruecksetzen</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="codepath-bar" aria-label="Codepfad Navigation">
+        <div class="codepath-title">Lernpfad</div>
+        <div class="codepath-steps">
+          <a class="codepath-step is-disabled" href="lineare_regression_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">1</span><span>Lineare Regression</span></a>
+          <a class="codepath-step is-disabled" href="gradient_descent_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">2</span><span>Gradient Descent</span></a>
+          <a class="codepath-step is-disabled" href="bias_variance_tradeoff_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">3</span><span>Bias-Variance</span></a>
+          <a class="codepath-step active" href="klassifikation_metriken_interaktion.html"><span class="codepath-index">4</span><span>Logistische Klassifikation und Metriken</span></a>
+          <a class="codepath-step is-disabled" href="matrix_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">5</span><span>Matrix</span></a>
+          <a class="codepath-step is-disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">6</span><span>Matrizenmultiplikation</span></a>
+          <a class="codepath-step is-disabled" href="regularization_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">7</span><span>Regularization</span></a>
+        </div>
+      </section>
+
+      <div class="chip-row">
+        <div class="chip"><strong>Threshold:</strong> <span id="chip-threshold">0.50</span></div>
+        <div class="chip"><strong>Accuracy:</strong> <span id="chip-accuracy">0.00</span></div>
+        <div class="chip"><strong>Precision:</strong> <span id="chip-precision">0.00</span></div>
+        <div class="chip"><strong>Recall:</strong> <span id="chip-recall">0.00</span></div>
+        <div class="chip"><strong>Specificity:</strong> <span id="chip-specificity">0.00</span></div>
+        <div class="chip"><strong>FPR:</strong> <span id="chip-fpr">0.00</span></div>
+        <div class="chip"><strong>F1:</strong> <span id="chip-f1">0.00</span></div>
+        <div class="chip"><strong>AUC:</strong> <span id="chip-auc">0.00</span></div>
+      </div>
+
+      <section class="content-grid">
+        <div class="left-col" style="display:grid;gap:10px;">
+          <article class="formula-card" id="formula-card">
+            <h3>Formelblick in kleinen Schritten</h3>
+            <p id="formula-caption">Wir starten mit der Klassifikationsidee und bauen darauf Threshold und Metriken auf.</p>
+            <div class="formula-line" id="formula-line">p = P(y = 1 | x), Klasse = 1 falls p >= 0.5, sonst 0</div>
+            <div class="formula-meta" id="formula-meta">Das Modell gibt zuerst eine Wahrscheinlichkeit, dann macht der Threshold daraus eine Entscheidung.</div>
+            <span class="method-badge" id="formula-method">Methode: Pretraining + Worked Example</span>
+          </article>
+
+          <article class="card sigmoid-card" id="sigmoid-card">
+            <h3>Live-Kurvenlabor: Was veraendert b0 und b1?</h3>
+            <p>Bewege nur zwei Regler und beobachte die Kurve. So wird sichtbar, was das Modell intern veraendert.</p>
+            <div class="sigmoid-formula">
+              <span>Schritt 1 (Score):</span>
+              <span class="line" id="sigmoid-line-1">logit = b0 + b1 * x</span>
+              <span>Schritt 2 (Wahrscheinlichkeit):</span>
+              <span class="line" id="sigmoid-line-2">p = 1 / (1 + e^(-logit))</span>
+              <span class="line" id="sigmoid-line-3">Grenzpunkt bei p = 0.5: x* = -b0 / b1</span>
+            </div>
+            <canvas id="sigmoid-canvas" width="560" height="230" aria-label="Live-Plot der logistischen Kurve"></canvas>
+            <div class="sigmoid-legend">
+              <span>Schwarz: aktuelle S-Kurve (Modellwahrscheinlichkeit).</span>
+              <span>Rot gestrichelt: 0.5-Linie (Kipp-Punkt).</span>
+              <span>Blau gestrichelt: x* bei p = 0.5 (aus b0 und b1).</span>
+            </div>
+            <div class="sigmoid-controls">
+              <label for="sigmoid-b0">Basiswert b0 (Grundneigung)<output id="sigmoid-b0-value" for="sigmoid-b0">-3.00</output></label>
+              <input id="sigmoid-b0" type="range" min="-8" max="8" step="0.1" value="-3">
+
+              <label for="sigmoid-b1">Steilheit b1 (Richtung + Tempo)<output id="sigmoid-b1-value" for="sigmoid-b1">0.20</output></label>
+              <input id="sigmoid-b1" type="range" min="-1" max="1" step="0.02" value="0.2">
+            </div>
+            <div class="panel-note" id="sigmoid-effect-note">Beobachtung: b0 verschiebt die Wahrscheinlichkeiten insgesamt. b1 steuert Richtung und Steilheit der Kurve.</div>
+            <div class="panel-note" id="sigmoid-ml-note">ML-Bezug: Training sucht passende b0/b1-Werte, damit Vorhersagen moeglichst gut zu den echten Labels passen.</div>
+            <div class="method-stack">
+              <strong>Didaktik im Kurvenlabor:</strong> Erst Vorhersage abgeben (Pretesting), dann Regler testen (aktives Experiment), danach Rueckmeldung lesen (formativ), zum Schluss in eigenen Worten erklaeren (Self-Explanation).
+            </div>
+
+            <section class="micro-lab" aria-label="Vorhersage-Check">
+              <h4>Vorhersage zuerst (30 Sekunden)</h4>
+              <p id="prediction-question" style="font-size:0.82rem;color:#3f4f68;line-height:1.4;">Frage wird geladen...</p>
+              <fieldset class="prediction-options" id="prediction-options"></fieldset>
+              <div class="micro-actions">
+                <button id="check-prediction" type="button">Antwort pruefen</button>
+                <button id="next-prediction" type="button" class="secondary">Neue Frage</button>
+              </div>
+              <div class="micro-feedback" id="prediction-feedback"></div>
+            </section>
+
+            <section class="micro-lab" aria-label="Selbsterklaerung">
+              <h4>Erklaere die Kurve in einem Satz</h4>
+              <p style="font-size:0.82rem;color:#3f4f68;line-height:1.4;">Ohne Fachsprache: Was macht b0? Was macht b1? Was bedeutet der 0.5-Punkt?</p>
+              <textarea id="self-explain-input" class="self-explain-input" placeholder="Beispiel: Wenn b1 groesser wird, kippt die Kurve schneller von niedrig nach hoch..."></textarea>
+              <div class="micro-actions">
+                <button id="check-self-explain" type="button">Rueckmeldung geben</button>
+                <button id="show-self-explain-solution" type="button" class="secondary">Musterantwort</button>
+              </div>
+              <div class="micro-feedback" id="self-explain-feedback"></div>
+              <div class="panel-note" id="self-explain-solution" hidden></div>
+            </section>
+          </article>
+
+          <article class="table-card" id="data-card">
+            <h3>Laborfaelle (Mila-Team)</h3>
+            <p>Jede Zeile ist ein Mensch. <strong>Risiko</strong> ist die Modellwahrscheinlichkeit, <strong>Ist</strong> ist die echte Klasse.</p>
+            <table class="data-table" aria-label="Datentabelle">
+              <thead>
+                <tr>
+                  <th>Fall</th>
+                  <th>Risiko p</th>
+                  <th>Ist</th>
+                  <th>Vorhersage</th>
+                  <th>Typ</th>
+                </tr>
+              </thead>
+              <tbody id="case-body"></tbody>
+            </table>
+            <div class="panel-note" id="data-note">Noch kein Schritt aktiv.</div>
+          </article>
+
+          <article class="roc-card" id="roc-card">
+            <h3>Threshold-Sicht: ROC plus PR-Idee</h3>
+            <p>Jeder Threshold erzeugt <strong>TPR/Recall</strong>, <strong>FPR</strong> und <strong>Precision</strong>. ROC zeigt TPR gegen FPR, PR zeigt Precision gegen Recall.</p>
+            <canvas id="roc-canvas" width="560" height="220"></canvas>
+            <table class="roc-table" aria-label="ROC-Wertetabelle">
+              <thead>
+                <tr>
+                  <th>Threshold</th>
+                  <th>TPR</th>
+                  <th>FPR</th>
+                  <th>Precision</th>
+                </tr>
+              </thead>
+              <tbody id="roc-body"></tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="right-col" style="display:grid;gap:10px;">
+          <article class="ctrl-card" id="ctrl-card">
+            <h3>Steuerung</h3>
+            <p id="threshold-hint" style="margin-bottom:8px;color:#51617a;font-size:0.84rem;">Der Threshold wird ab Schritt 5 frei gegeben.</p>
+            <div class="ctrl-row">
+              <label for="threshold">Schwellenwert</label>
+              <output id="threshold-value" for="threshold">0.50</output>
+            </div>
+            <input id="threshold" type="range" min="0.20" max="0.80" step="0.05" value="0.50" disabled>
+            <div class="panel-note" id="threshold-note">Merker: Hoher Threshold = strenger, niedriger Threshold = grosszuegiger.</div>
+          </article>
+
+          <article class="matrix-card" id="matrix-card">
+            <h3>Konfusionsmatrix</h3>
+            <table class="confusion-table" aria-label="Konfusionsmatrix">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Ist Positiv</th>
+                  <th>Ist Negativ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Vorhergesagt Positiv</th>
+                  <td class="matrix-cell cell-tp" id="cell-tp">0</td>
+                  <td class="matrix-cell cell-fp" id="cell-fp">0</td>
+                </tr>
+                <tr>
+                  <th>Vorhergesagt Negativ</th>
+                  <td class="matrix-cell cell-fn" id="cell-fn">0</td>
+                  <td class="matrix-cell cell-tn" id="cell-tn">0</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="panel-note" id="matrix-note">Ziel: TP und TN hoch, FP und FN kontrolliert - passend zum Use Case.</div>
+          </article>
+
+          <article class="card" style="padding:12px;">
+            <h3 style="margin-bottom:8px;">Metrik-Interpretation</h3>
+            <ul style="margin:0;padding-left:18px;color:#4b5e79;font-size:0.84rem;line-height:1.45;">
+              <li><strong>Accuracy:</strong> Wie oft insgesamt richtig.</li>
+              <li><strong>Precision:</strong> Wenn Modell "positiv" sagt - wie oft stimmt das?</li>
+              <li><strong>Recall:</strong> Wie viele echte Positive wurden gefunden?</li>
+              <li><strong>Specificity:</strong> Wie viele echte Negative wurden korrekt als negativ erkannt?</li>
+              <li><strong>FPR:</strong> Wie oft ist ein echter Negativ-Fall faelschlich positiv?</li>
+              <li><strong>F1:</strong> Kompromiss aus Precision und Recall.</li>
+              <li><strong>ROC-AUC:</strong> Gesamtsicht ueber viele Thresholds.</li>
+            </ul>
+            <div class="panel-note" id="imbalance-note">Merker: Bei unausgewogenen Klassen kann Accuracy allein taeuschen.</div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const cases = [
+      { id: "P01", risk: 0.92, actual: 1 },
+      { id: "P02", risk: 0.86, actual: 1 },
+      { id: "P03", risk: 0.79, actual: 0 },
+      { id: "P04", risk: 0.72, actual: 1 },
+      { id: "P05", risk: 0.66, actual: 0 },
+      { id: "P06", risk: 0.59, actual: 1 },
+      { id: "P07", risk: 0.52, actual: 0 },
+      { id: "P08", risk: 0.48, actual: 1 },
+      { id: "P09", risk: 0.41, actual: 0 },
+      { id: "P10", risk: 0.35, actual: 0 },
+      { id: "P11", risk: 0.27, actual: 0 },
+      { id: "P12", risk: 0.22, actual: 1 }
+    ];
+
+    const steps = [
+      {
+        title: "Schritt 1: Warum Klassifikation statt Regression?",
+        text: "Mila startet mit einer klaren Ja/Nein-Frage: krank oder gesund. Das Ziel ist nicht irgendeine freie Zahl, sondern eine Wahrscheinlichkeit zwischen 0 und 1, die spaeter zu Klasse 0 oder 1 wird.",
+        chat: "Welche Ja/Nein-Entscheidung aus deinem Arbeitsalltag passt zu Klasse 0/1?",
+        answer: "Bei Klassifikation wollen wir zuerst p zwischen 0 und 1. Die finale Klasse entsteht erst durch einen Grenzwert (Threshold).",
+        focus: "formula"
+      },
+      {
+        title: "Schritt 2: Warum lineare Regression hier kippt",
+        text: "Mila testet erst eine lineare Linie und sieht das Problem: Ausreisser verschieben die Linie stark und Vorhersagen koennen unter 0 oder ueber 1 liegen. Genau das passt nicht zu Wahrscheinlichkeiten.",
+        chat: "Warum sind Werte wie -0.3 oder 1.4 fuer eine Wahrscheinlichkeit unbrauchbar?",
+        answer: "Wahrscheinlichkeiten duerfen nur im Bereich 0 bis 1 liegen. Deshalb braucht Klassifikation eine begrenzte Funktion.",
+        focus: "formula"
+      },
+      {
+        title: "Schritt 3: Sigmoid als 0-1-Begrenzer",
+        text: "Jetzt setzt Mila die Sigmoid-Funktion ein. Sie nimmt einen beliebigen Score t und drueckt ihn auf den Bereich 0 bis 1. Sehr negatives t wird nahe 0, sehr positives t wird nahe 1.",
+        chat: "Was bedeutet fuer dich anschaulich: t wird sehr gross positiv, was macht dann p?",
+        answer: "Bei grossem positivem t geht p gegen 1, bei grossem negativem t gegen 0. So bleibt die Ausgabe immer als Wahrscheinlichkeit lesbar.",
+        focus: "formula"
+      },
+      {
+        title: "Schritt 4: b0 und b1 live verstehen",
+        text: "Im Kurvenlabor veraendert Mila b0 und b1. b0 verschiebt die Kurve nach links oder rechts. b1 macht den Uebergang steiler oder flacher und kann bei negativem Wert die Richtung drehen.",
+        chat: "Was beobachtest du zuerst, wenn b1 von positiv auf negativ wechselt?",
+        answer: "Die S-Kurve kippt in die andere Richtung. Bei wachsendem x sinkt dann p statt zu steigen.",
+        focus: "formula"
+      },
+      {
+        title: "Schritt 5: Bedingte Wahrscheinlichkeit und Threshold",
+        text: "Jetzt trennt Mila sauber: Das Modell berechnet P(y=1|x;b), also eine bedingte Wahrscheinlichkeit. Erst danach setzt der Threshold die Entscheidungsregel, zum Beispiel p >= 0.5 oder je nach Business auch p >= 0.2.",
+        chat: "Warum ist der Threshold eine Produktentscheidung und nicht nur Mathe?",
+        answer: "Mit dem Threshold entscheidet das Team, wie streng oder sensibel das System reagieren soll. Das haengt von Risiko und Kosten der Fehler ab.",
+        focus: "threshold"
+      },
+      {
+        title: "Schritt 6: Decision Boundary und Fehlerarten",
+        text: "Mila schaut auf die Entscheidungsgrenze: Sie ist Eigenschaft der Modellparameter b und nicht direkt der Daten. Danach sortiert sie jeden Fall in TP, TN, FP oder FN, um die Fehlerarten sichtbar zu machen.",
+        chat: "Wer entscheidet bei Punkten genau auf der Grenze: Daten oder Definitionsregel?",
+        answer: "Das ist eine Definitionsfrage, zum Beispiel '>= Grenze ist positiv'. Wichtig ist, die Regel konsistent zu halten.",
+        focus: "matrix"
+      },
+      {
+        title: "Schritt 7: Metriken im Tradeoff lesen",
+        text: "Mit derselben Kurve kann Mila unterschiedliche Schwellen waehlen. Dadurch verschieben sich Precision, Recall, Specificity und FPR. ROC- und PR-Sicht helfen, die passende Balance fuer den Use Case zu finden.",
+        chat: "Welche Metrik waere fuer euch wichtiger, wenn uebersehene Positive besonders teuer sind?",
+        answer: "Dann wird Recall zentral, auch wenn eventuell mehr False Positives akzeptiert werden muessen.",
+        focus: "metrics"
+      },
+      {
+        title: "Schritt 8: Wie lernt das Modell? Loss, Gradient, Mehrklassen",
+        text: "Zum Schluss verknuepft Mila alles: Das Training minimiert Log-Loss, typischerweise mit Gradient Descent. Fuer mehrere Klassen stellt man mehrere Ja/Nein-Fragen (One-vs-Rest). Danach geht es logisch weiter mit Matrixdarstellung.",
+        chat: "Welche Information aus diesem Kapitel landet als naechstes in X und b?",
+        answer: "Die Merkmale pro Fall werden zu Spalten in X, die Gewichte zu b. Logistische Regression schreibt sich dann kompakt als sigmoid(X*b).",
+        focus: "bridge"
+      }
+    ];
+
+    const stepTemplate = [
+      {
+        goal: "Verstehen, was bei Klassifikation vorhergesagt wird: Wahrscheinlichkeit statt freie Zahl.",
+        method: "Pretraining + Dual Coding: Alltagsfrage (krank/gesund) wird direkt auf 0/1 und p abgebildet.",
+        why: "Ohne diese Grundidee wirken spaetere Formeln wie reine Symbolik.",
+        reflection: "Wo in deinem Kontext brauchst du zuerst eine Wahrscheinlichkeit, bevor du Ja/Nein entscheidest?"
+      },
+      {
+        goal: "Erkennen, warum lineare Regression fuer Klassifikation an Grenzen stoesst.",
+        method: "Contrasting Cases: gleicher Datensatz, zwei Modellideen, sichtbarer Unterschied bei Ausreissern und Wertebereich.",
+        why: "Der Modellwechsel wird nachvollziehbar, nicht nur behauptet.",
+        reflection: "Welches Risiko waere bei euch groesser: zu hohe oder zu niedrige falsche Wahrscheinlichkeit?"
+      },
+      {
+        goal: "Sigmoid als begrenzende Funktion sicher erklaeren koennen.",
+        method: "Worked Example + Grenzfall-Denken (sehr negativ / sehr positiv).",
+        why: "So entsteht Intuition fuer die Formel ohne schweren Mathe-Einstieg.",
+        reflection: "Wie wuerdest du in einem Satz erklaeren, was die Sigmoid-Funktion macht?"
+      },
+      {
+        goal: "Wirkung von b0 und b1 sicher beobachten und benennen.",
+        method: "Predict-Observe-Explain: erst Vermutung, dann Regler testen, dann in Worten erklaeren.",
+        why: "Aktives Experimentieren verbessert den Transfer in spaetere Modellinterpretation.",
+        reflection: "Was veraendert sich bei dir leichter zu merken: Verschiebung durch b0 oder Steilheit durch b1?"
+      },
+      {
+        goal: "Notation P(y=1|x;b) und Threshold-Regel unterscheiden.",
+        method: "Scaffolding mit Fading: zuerst Satzsprache, dann Symbolsprache, dann Entscheidungsregel.",
+        why: "So bleibt klar: Modellparameter formen p, der Threshold setzt die Produktgrenze.",
+        reflection: "Wann waehlt ihr eher einen niedrigeren Threshold?"
+      },
+      {
+        goal: "Decision Boundary verstehen und TP/TN/FP/FN korrekt zuordnen.",
+        method: "Card-Sorting + formative Rueckmeldung direkt in der Falltabelle.",
+        why: "Fehlerarten sind die Basis fuer alle folgenden Metriken.",
+        reflection: "Welcher Fehlertyp ist in eurem Umfeld am teuersten?"
+      },
+      {
+        goal: "Metriken als Tradeoff lesen statt als Einzelzahl.",
+        method: "Retrieval Practice + Decision Table je Threshold (ROC/PR als Vergleichsbild).",
+        why: "Damit wird Metrik-Wahl zur begruendeten Entscheidung statt Bauchgefuehl.",
+        reflection: "Welche Metrik muss im Report immer zuerst genannt werden?"
+      },
+      {
+        goal: "Training und Erweiterung auf Mehrklassen als naechste Stufe einordnen.",
+        method: "Concept Mapping + Transferfrage Richtung Matrixschreibweise.",
+        why: "So schliesst das Kapitel inhaltlich sauber an Matrix und Matrizenmultiplikation an.",
+        reflection: "Welche Formel aus diesem Kapitel moechtest du als Merksatz mitnehmen?"
+      }
+    ];
+
+    const formulaContent = [
+      {
+        caption: "Klassifikation bedeutet: zuerst Wahrscheinlichkeit, dann Klasse.",
+        line: "p = P(y = 1 | x), Klasse = 1 falls p >= tau, sonst 0",
+        meta: "tau ist der Threshold. Ohne tau gibt es nur Wahrscheinlichkeiten, noch keine harte Ja/Nein-Entscheidung.",
+        method: "Methode: Pretraining + Worked Example"
+      },
+      {
+        caption: "Warum linear hier nicht reicht.",
+        line: "lineares Modell: y_hat = b0 + b1*x  (Werte koennen <0 oder >1 sein)",
+        meta: "Lineare Regression ist nicht auf den Wahrscheinlichkeitsbereich 0 bis 1 begrenzt.",
+        method: "Methode: Contrasting Cases"
+      },
+      {
+        caption: "Sigmoid drueckt jeden Score in den Bereich 0 bis 1.",
+        line: "sigmoid(t) = 1 / (1 + e^(-t)), mit t -> -inf => 0 und t -> +inf => 1",
+        meta: "Damit wird aus einem unbegrenzten Score t eine interpretierbare Wahrscheinlichkeit p.",
+        method: "Methode: Worked Example + Grenzfaelle"
+      },
+      {
+        caption: "Parameter-Wirkung direkt an der Kurve lesen.",
+        line: "t = b0 + b1*x, Grenzpunkt bei p=0.5: x* = -b0/b1",
+        meta: "b0 verschiebt die Kurve, b1 steuert Richtung und Steilheit.",
+        method: "Methode: Predict-Observe-Explain"
+      },
+      {
+        caption: "Bedingte Wahrscheinlichkeit und Gegenwahrscheinlichkeit.",
+        line: "P(y=1|x;b)=p, P(y=0|x;b)=1-p, Entscheidung: p>=tau",
+        meta: "Gleiche Kurve, unterschiedliche Entscheidungen je nach tau.",
+        method: "Methode: Scaffolding mit Fading"
+      },
+      {
+        caption: "Entscheidungsgrenze und Fehlerfelder.",
+        line: "Boundary (linear): b0 + b1*x1 + b2*x2 = 0; Felder: TP, TN, FP, FN",
+        meta: "Die Grenze entsteht aus den Parametern des Modells; danach werden Faelle in Fehlerarten einsortiert.",
+        method: "Methode: Card-Sorting + Feedback"
+      },
+      {
+        caption: "Metriken im Schwellen-Tradeoff.",
+        line: "Precision=TP/(TP+FP), Recall=TP/(TP+FN), Specificity=TN/(TN+FP), FPR=FP/(FP+TN)",
+        meta: "Threshold veraendert alle diese Werte gleichzeitig. ROC/PR macht den Tradeoff sichtbar.",
+        method: "Methode: Retrieval Practice + Decision Table"
+      },
+      {
+        caption: "Training und Mehrklassen-Bruecke.",
+        line: "Log-Loss = -[y*ln(p) + (1-y)*ln(1-p)], Update via Gradient Descent, Mehrklassen via One-vs-Rest",
+        meta: "Danach schreiben wir das kompakt in Matrixform als sigmoid(X*b).",
+        method: "Methode: Concept Mapping + Transfer"
+      }
+    ];
+
+    const quizAnswers = { q1: "a", q2: "a", q3: "a", q4: "a" };
+    const thresholdsForRoc = [0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80];
+    const navStorageKey = "ds-classification-step-nav-unlocked";
+
+    const state = {
+      threshold: 0.50,
+      logitB0: -3,
+      logitB1: 0.2,
+      predictionIndex: 0,
+      stepIndex: 0,
+      quizReady: false,
+      stepJumpUnlocked: (() => {
+        try {
+          return localStorage.getItem(navStorageKey) === "1";
+        } catch (err) {
+          return false;
+        }
+      })(),
+      hasAdvanced: false
+    };
+
+    const thresholdInput = document.getElementById("threshold");
+    const thresholdValueEl = document.getElementById("threshold-value");
+    const thresholdHintEl = document.getElementById("threshold-hint");
+    const thresholdNoteEl = document.getElementById("threshold-note");
+    const caseBodyEl = document.getElementById("case-body");
+    const rocBodyEl = document.getElementById("roc-body");
+    const rocCanvas = document.getElementById("roc-canvas");
+    const timelineEl = document.getElementById("timeline");
+    const prevStepBtn = document.getElementById("prev-step");
+    const imbalanceNoteEl = document.getElementById("imbalance-note");
+    const openQuizBtn = document.getElementById("open-quiz");
+    const replayTopicBtn = document.getElementById("replay-topic");
+    const toMatrixLink = document.getElementById("to-matrix-link");
+    const pathStatusEl = document.getElementById("path-status");
+    const quizOverlay = document.getElementById("quiz-overlay");
+    const quizForm = document.getElementById("classification-quiz-form");
+    const quizFeedbackEl = document.getElementById("quiz-feedback");
+    const sigmoidB0Input = document.getElementById("sigmoid-b0");
+    const sigmoidB1Input = document.getElementById("sigmoid-b1");
+    const sigmoidB0ValueEl = document.getElementById("sigmoid-b0-value");
+    const sigmoidB1ValueEl = document.getElementById("sigmoid-b1-value");
+    const sigmoidLine1El = document.getElementById("sigmoid-line-1");
+    const sigmoidLine3El = document.getElementById("sigmoid-line-3");
+    const sigmoidCanvas = document.getElementById("sigmoid-canvas");
+    const sigmoidEffectNoteEl = document.getElementById("sigmoid-effect-note");
+    const sigmoidMlNoteEl = document.getElementById("sigmoid-ml-note");
+    const predictionQuestionEl = document.getElementById("prediction-question");
+    const predictionOptionsEl = document.getElementById("prediction-options");
+    const predictionFeedbackEl = document.getElementById("prediction-feedback");
+    const selfExplainInputEl = document.getElementById("self-explain-input");
+    const selfExplainFeedbackEl = document.getElementById("self-explain-feedback");
+    const selfExplainSolutionEl = document.getElementById("self-explain-solution");
+
+    const sigmoidRange = {
+      minX: -50,
+      maxX: 50
+    };
+
+    const predictionQuestions = [
+      {
+        question: "Wenn nur b0 groesser wird (b1 bleibt gleich), was siehst du meistens?",
+        options: [
+          "Die Wahrscheinlichkeit steigt insgesamt; der 0.5-Punkt wandert nach links.",
+          "Die Kurve bleibt gleich, nur die rote Linie bewegt sich.",
+          "Die Kurve kippt sofort nach unten."
+        ],
+        correct: 0,
+        feedback: "Richtig: b0 verschiebt die Kurve relativ zur x-Achse und damit den 0.5-Grenzpunkt."
+      },
+      {
+        question: "Wenn |b1| deutlich groesser wird, was aendert sich zuerst?",
+        options: [
+          "Die Kurve wird steiler; der Wechsel von niedrig zu hoch wird schraeger.",
+          "Nur die rote 0.5-Linie wird breiter.",
+          "Der Threshold im rechten Panel springt automatisch auf 0.7."
+        ],
+        correct: 0,
+        feedback: "Richtig: b1 steuert die Steilheit und Richtung der Kurve."
+      },
+      {
+        question: "Was ist der wichtigste Unterschied zwischen b0/b1 und Threshold?",
+        options: [
+          "b0/b1 formen die Kurve; der Threshold entscheidet nur, ab welchem p wir 'positiv' sagen.",
+          "Threshold formt die Kurve, b0/b1 zaehlen nur Daten.",
+          "Beides ist identisch und austauschbar."
+        ],
+        correct: 0,
+        feedback: "Richtig: Modellparameter formen die Wahrscheinlichkeiten, Threshold macht daraus eine Klassengrenze."
+      },
+      {
+        question: "Was bedeutet ein negatives b1?",
+        options: [
+          "Mit wachsendem x sinkt die Wahrscheinlichkeit; die Kurve faellt.",
+          "Die Kurve wird immer flach bei genau p=0.5.",
+          "Der 0.5-Punkt verschwindet grundsaetzlich."
+        ],
+        correct: 0,
+        feedback: "Richtig: negatives b1 dreht die Richtung der S-Kurve um."
+      }
+    ];
+
+    function logisticSigmoid(value) {
+      if (value >= 0) {
+        const expNeg = Math.exp(-value);
+        return 1 / (1 + expNeg);
+      }
+      const expPos = Math.exp(value);
+      return expPos / (1 + expPos);
+    }
+
+    function getMidpointX() {
+      if (Math.abs(state.logitB1) < 0.0001) return null;
+      return -state.logitB0 / state.logitB1;
+    }
+
+    function setSigmoidCanvasSize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = sigmoidCanvas.getBoundingClientRect();
+      sigmoidCanvas.width = Math.floor(rect.width * dpr);
+      sigmoidCanvas.height = Math.floor(rect.height * dpr);
+      const ctx = sigmoidCanvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, width: rect.width, height: rect.height };
+    }
+
+    function drawSigmoidLab() {
+      const { ctx, width, height } = setSigmoidCanvasSize();
+      const pad = { top: 16, right: 14, bottom: 28, left: 34 };
+      const plotWidth = width - pad.left - pad.right;
+      const plotHeight = height - pad.top - pad.bottom;
+      const x = (value) => pad.left + ((value - sigmoidRange.minX) / (sigmoidRange.maxX - sigmoidRange.minX)) * plotWidth;
+      const y = (probability) => pad.top + (1 - probability) * plotHeight;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = "#d6deeb";
+      ctx.lineWidth = 1;
+      [-40, -20, 0, 20, 40].forEach((tick) => {
+        const xx = x(tick);
+        ctx.beginPath();
+        ctx.moveTo(xx, pad.top);
+        ctx.lineTo(xx, height - pad.bottom);
+        ctx.stroke();
+      });
+      [0, 0.2, 0.4, 0.6, 0.8, 1].forEach((tick) => {
+        const yy = y(tick);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yy);
+        ctx.lineTo(width - pad.right, yy);
+        ctx.stroke();
+      });
+
+      ctx.strokeStyle = "#8a9bb5";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.rect(pad.left, pad.top, plotWidth, plotHeight);
+      ctx.stroke();
+
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = "#bc3d55";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y(0.5));
+      ctx.lineTo(width - pad.right, y(0.5));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const midpoint = getMidpointX();
+      if (midpoint !== null && midpoint >= sigmoidRange.minX && midpoint <= sigmoidRange.maxX) {
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = "#2f58c6";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x(midpoint), pad.top);
+        ctx.lineTo(x(midpoint), height - pad.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      ctx.strokeStyle = "#1f2736";
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      const pointCount = 240;
+      for (let i = 0; i <= pointCount; i += 1) {
+        const xValue = sigmoidRange.minX + (i / pointCount) * (sigmoidRange.maxX - sigmoidRange.minX);
+        const logit = state.logitB0 + state.logitB1 * xValue;
+        const p = logisticSigmoid(logit);
+        const px = x(xValue);
+        const py = y(p);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = "#495870";
+      ctx.font = "11px Inter";
+      ctx.textAlign = "right";
+      ctx.fillText("p", pad.left - 8, pad.top + 10);
+      ctx.textAlign = "center";
+      ctx.fillText("x", width - pad.right, height - 8);
+    }
+
+    function updateSigmoidNarrative() {
+      const b0 = state.logitB0;
+      const b1 = state.logitB1;
+      const absB1 = Math.abs(b1);
+      const midpoint = getMidpointX();
+
+      sigmoidB0ValueEl.textContent = b0.toFixed(2);
+      sigmoidB1ValueEl.textContent = b1.toFixed(2);
+      sigmoidLine1El.textContent = `logit = ${b0.toFixed(2)} ${b1 >= 0 ? "+" : "-"} ${Math.abs(b1).toFixed(2)} * x`;
+      sigmoidLine3El.textContent = midpoint === null
+        ? "Grenzpunkt bei p = 0.5: x* ist instabil, weil b1 fast 0 ist."
+        : `Grenzpunkt bei p = 0.5: x* = -(${b0.toFixed(2)}) / ${b1.toFixed(2)} = ${midpoint.toFixed(2)}`;
+
+      let steepnessText = "sehr weich";
+      if (absB1 >= 0.35) steepnessText = "sehr steil";
+      else if (absB1 >= 0.18) steepnessText = "deutlich";
+      else if (absB1 >= 0.07) steepnessText = "moderat";
+
+      const directionText = b1 >= 0 ? "steigt (von links unten nach rechts oben)" : "faellt (von links oben nach rechts unten)";
+      const midpointText = midpoint === null
+        ? "Der 0.5-Punkt ist gerade nicht stabil, weil b1 fast 0 ist."
+        : (midpoint < sigmoidRange.minX || midpoint > sigmoidRange.maxX)
+          ? `Der 0.5-Punkt liegt bei x=${midpoint.toFixed(1)} und damit ausserhalb des aktuellen Bildausschnitts.`
+          : `Der 0.5-Punkt liegt bei x=${midpoint.toFixed(1)} (blaue Linie).`;
+
+      sigmoidEffectNoteEl.textContent = `Plakativ: b0 setzt die Grundneigung (bei gleichem x wird p mit hoeherem b0 groesser). b1 bestimmt Richtung und Scharfheit: die Kurve ${directionText} und ist aktuell ${steepnessText}. ${midpointText}`;
+
+      if (state.stepIndex < 4) {
+        sigmoidMlNoteEl.textContent = "ML-Bezug: Das Training sucht genau solche b0/b1-Werte, damit die Kurve zu den echten Klassen passt.";
+      } else {
+        sigmoidMlNoteEl.textContent = "ML-Bezug: Erst formt das Training mit b0/b1 die Kurve. Danach setzt ihr den Threshold (z. B. 0.5) fuer eine konkrete Ja/Nein-Entscheidung.";
+      }
+    }
+
+    function renderSigmoidLab() {
+      updateSigmoidNarrative();
+      drawSigmoidLab();
+      if (!selfExplainSolutionEl.hidden) {
+        selfExplainSolutionEl.textContent = buildSelfExplainSolution();
+      }
+    }
+
+    function renderPredictionQuestion() {
+      const item = predictionQuestions[state.predictionIndex % predictionQuestions.length];
+      predictionQuestionEl.textContent = item.question;
+      predictionOptionsEl.innerHTML = "";
+      item.options.forEach((text, idx) => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="radio" name="prediction-option" value="${idx}">${text}`;
+        predictionOptionsEl.appendChild(label);
+      });
+      predictionFeedbackEl.textContent = "Tipp: Erst eine Vermutung abgeben, dann Regler bewegen und vergleichen.";
+      predictionFeedbackEl.style.color = "#3d4d67";
+    }
+
+    function gradePredictionQuestion() {
+      const item = predictionQuestions[state.predictionIndex % predictionQuestions.length];
+      const selected = predictionOptionsEl.querySelector('input[name="prediction-option"]:checked');
+      if (!selected) {
+        predictionFeedbackEl.textContent = "Bitte zuerst eine Option auswaehlen.";
+        predictionFeedbackEl.style.color = "#9a324d";
+        return;
+      }
+      if (Number(selected.value) === item.correct) {
+        predictionFeedbackEl.textContent = `Richtig. ${item.feedback} Jetzt kurz am Regler pruefen.`;
+        predictionFeedbackEl.style.color = "#1f8b4c";
+      } else {
+        predictionFeedbackEl.textContent = `Noch nicht. ${item.feedback}`;
+        predictionFeedbackEl.style.color = "#9a324d";
+      }
+    }
+
+    function nextPredictionQuestion() {
+      state.predictionIndex = (state.predictionIndex + 1) % predictionQuestions.length;
+      renderPredictionQuestion();
+    }
+
+    function buildSelfExplainSolution() {
+      const midpoint = getMidpointX();
+      const direction = state.logitB1 >= 0 ? "ansteigt" : "abfaellt";
+      const steepness = Math.abs(state.logitB1) >= 0.25 ? "scharf" : "eher weich";
+      const midpointText = midpoint === null
+        ? "Der 0.5-Punkt ist gerade instabil, weil b1 fast null ist."
+        : `Der 0.5-Punkt liegt bei x=${midpoint.toFixed(1)}.`;
+      return `Muster: b0 setzt die Grundneigung der Wahrscheinlichkeit. b1 bestimmt, ob die Kurve ${direction} und wie ${steepness} der Uebergang ist. ${midpointText} Danach legt der Threshold fest, ab welchem p wir 'positiv' entscheiden.`;
+    }
+
+    function checkSelfExplanation() {
+      const text = selfExplainInputEl.value.trim().toLowerCase();
+      if (text.length < 24) {
+        selfExplainFeedbackEl.textContent = "Bitte etwas ausfuehrlicher: mindestens ein kurzer Satz mit b0, b1 und 0.5-Punkt.";
+        selfExplainFeedbackEl.style.color = "#9a324d";
+        return;
+      }
+
+      const hasB0 = text.includes("b0") || text.includes("grund");
+      const hasB1 = text.includes("b1") || text.includes("steil") || text.includes("richtung");
+      const hasBoundary = text.includes("0.5") || text.includes("grenz") || text.includes("threshold");
+      const score = [hasB0, hasB1, hasBoundary].filter(Boolean).length;
+
+      if (score === 3) {
+        selfExplainFeedbackEl.textContent = "Sehr gut: Du hast Grundneigung, Kurvenform und Entscheidungsgrenze klar getrennt.";
+        selfExplainFeedbackEl.style.color = "#1f8b4c";
+      } else if (score === 2) {
+        selfExplainFeedbackEl.textContent = "Gut: Ein Punkt fehlt noch. Ergaenze entweder b0/b1 oder die 0.5-Grenze (Threshold).";
+        selfExplainFeedbackEl.style.color = "#b86820";
+      } else {
+        selfExplainFeedbackEl.textContent = "Bitte noch klarer trennen: Was macht b0? Was macht b1? Und was macht der Threshold?";
+        selfExplainFeedbackEl.style.color = "#9a324d";
+      }
+    }
+
+    function toggleSelfExplainSolution() {
+      const isHidden = selfExplainSolutionEl.hidden;
+      if (isHidden) {
+        selfExplainSolutionEl.hidden = false;
+        selfExplainSolutionEl.textContent = buildSelfExplainSolution();
+      } else {
+        selfExplainSolutionEl.hidden = true;
+        selfExplainSolutionEl.textContent = "";
+      }
+    }
+
+    function safeDiv(num, den) {
+      return den === 0 ? 0 : num / den;
+    }
+
+    function classify(item, threshold) {
+      return item.risk >= threshold ? 1 : 0;
+    }
+
+    function computeConfusion(threshold) {
+      let tp = 0;
+      let tn = 0;
+      let fp = 0;
+      let fn = 0;
+
+      cases.forEach((item) => {
+        const pred = classify(item, threshold);
+        if (item.actual === 1 && pred === 1) tp += 1;
+        else if (item.actual === 0 && pred === 0) tn += 1;
+        else if (item.actual === 0 && pred === 1) fp += 1;
+        else fn += 1;
+      });
+
+      const total = tp + tn + fp + fn;
+      const accuracy = safeDiv(tp + tn, total);
+      const precision = safeDiv(tp, tp + fp);
+      const recall = safeDiv(tp, tp + fn);
+      const specificity = safeDiv(tn, tn + fp);
+      const f1 = safeDiv(2 * precision * recall, precision + recall);
+      const fpr = safeDiv(fp, fp + tn);
+
+      return { tp, tn, fp, fn, total, accuracy, precision, recall, specificity, f1, fpr };
+    }
+
+    function computeRocPoints() {
+      return thresholdsForRoc
+        .map((t) => {
+          const m = computeConfusion(t);
+          return {
+            threshold: t,
+            tpr: m.recall,
+            fpr: m.fpr,
+            precision: m.precision
+          };
+        })
+        .sort((a, b) => a.fpr - b.fpr);
+    }
+
+    function computeAuc(points) {
+      if (points.length < 2) return 0;
+      let area = 0;
+      for (let i = 1; i < points.length; i += 1) {
+        const x1 = points[i - 1].fpr;
+        const x2 = points[i].fpr;
+        const y1 = points[i - 1].tpr;
+        const y2 = points[i].tpr;
+        area += (x2 - x1) * (y1 + y2) / 2;
+      }
+      return Math.max(0, Math.min(1, area));
+    }
+
+    function setCanvasSize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = rocCanvas.getBoundingClientRect();
+      rocCanvas.width = Math.floor(rect.width * dpr);
+      rocCanvas.height = Math.floor(rect.height * dpr);
+      const ctx = rocCanvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, width: rect.width, height: rect.height };
+    }
+
+    function drawRoc(points) {
+      const { ctx, width, height } = setCanvasSize();
+      const pad = { top: 16, right: 16, bottom: 34, left: 38 };
+      const x0 = pad.left;
+      const y0 = height - pad.bottom;
+      const xMax = width - pad.right;
+      const yMax = pad.top;
+
+      const x = (v) => x0 + v * (xMax - x0);
+      const y = (v) => y0 - v * (y0 - yMax);
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = "#d5deec";
+      ctx.lineWidth = 1;
+      for (let t = 0; t <= 1.0001; t += 0.2) {
+        const xx = x(t);
+        const yy = y(t);
+        ctx.beginPath();
+        ctx.moveTo(xx, yMax);
+        ctx.lineTo(xx, y0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x0, yy);
+        ctx.lineTo(xMax, yy);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = "#7f8ea7";
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(xMax, y0);
+      ctx.lineTo(xMax, yMax);
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x0, yMax);
+      ctx.stroke();
+
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = "#9ba9bf";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(xMax, yMax);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = "#7b2f48";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      points.forEach((p, idx) => {
+        const px = x(p.fpr);
+        const py = y(p.tpr);
+        if (idx === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+
+      points.forEach((p) => {
+        const px = x(p.fpr);
+        const py = y(p.tpr);
+        const isCurrent = Math.abs(p.threshold - state.threshold) < 0.001;
+        ctx.beginPath();
+        ctx.fillStyle = isCurrent ? "#7b2f48" : "#244f85";
+        ctx.arc(px, py, isCurrent ? 4.5 : 3.4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "#42546f";
+      ctx.font = "11px Inter";
+      ctx.textAlign = "center";
+      ctx.fillText("FPR", (x0 + xMax) / 2, height - 8);
+      ctx.save();
+      ctx.translate(10, (y0 + yMax) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("TPR", 0, 0);
+      ctx.restore();
+    }
+
+    function metricTypeLabel(item, pred) {
+      if (item.actual === 1 && pred === 1) return "TP";
+      if (item.actual === 0 && pred === 0) return "TN";
+      if (item.actual === 0 && pred === 1) return "FP";
+      return "FN";
+    }
+
+    function renderCaseTable() {
+      caseBodyEl.innerHTML = "";
+      const metrics = computeConfusion(state.threshold);
+      cases.forEach((item) => {
+        const pred = classify(item, state.threshold);
+        const tr = document.createElement("tr");
+        const type = metricTypeLabel(item, pred);
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td>${item.risk.toFixed(2)}</td>
+          <td class="${item.actual === 1 ? "actual-pos" : "actual-neg"}">${item.actual === 1 ? "Positiv" : "Negativ"}</td>
+          <td class="${pred === 1 ? "pred-pos" : "pred-neg"}">${pred === 1 ? "Positiv" : "Negativ"}</td>
+          <td><strong>${type}</strong></td>
+        `;
+        caseBodyEl.appendChild(tr);
+      });
+
+      document.getElementById("cell-tp").textContent = metrics.tp;
+      document.getElementById("cell-tn").textContent = metrics.tn;
+      document.getElementById("cell-fp").textContent = metrics.fp;
+      document.getElementById("cell-fn").textContent = metrics.fn;
+
+      document.getElementById("chip-threshold").textContent = state.threshold.toFixed(2);
+      document.getElementById("chip-accuracy").textContent = metrics.accuracy.toFixed(2);
+      document.getElementById("chip-precision").textContent = metrics.precision.toFixed(2);
+      document.getElementById("chip-recall").textContent = metrics.recall.toFixed(2);
+      document.getElementById("chip-specificity").textContent = metrics.specificity.toFixed(2);
+      document.getElementById("chip-fpr").textContent = metrics.fpr.toFixed(2);
+      document.getElementById("chip-f1").textContent = metrics.f1.toFixed(2);
+
+      const points = computeRocPoints();
+      const auc = computeAuc(points);
+      document.getElementById("chip-auc").textContent = auc.toFixed(2);
+
+      renderRocTable(points);
+      drawRoc(points);
+
+      const positives = cases.filter((item) => item.actual === 1).length;
+      const negatives = cases.length - positives;
+      const majorityRate = Math.max(positives, negatives) / cases.length;
+      const majorityLabel = positives >= negatives ? "immer positiv" : "immer negativ";
+      imbalanceNoteEl.textContent = `Klassenverteilung: ${positives} positiv, ${negatives} negativ. Baseline (${majorityLabel}) haette Accuracy ${majorityRate.toFixed(2)}. Darum nie nur Accuracy lesen.`;
+
+      const dataNote = document.getElementById("data-note");
+      if (state.stepIndex < 3) {
+        dataNote.textContent = "Bis Schritt 3 nur lesen: Welche Faelle liegen nah an der spaeteren Entscheidungsgrenze?";
+      } else if (state.stepIndex < 5) {
+        dataNote.textContent = "Kurvenlabor aktiv: Beobachte, wie b0/b1 und danach der Threshold die Entscheidungen verschieben.";
+      } else if (state.stepIndex === 5) {
+        dataNote.textContent = "Jetzt aktiv: Ordne jeden Fall als TP, TN, FP oder FN und benenne den Fehlertyp.";
+      } else {
+        dataNote.textContent = "Metrik-Tradeoff aktiv: Verfolge, wie Threshold-Aenderungen Precision, Recall, Specificity und FPR gemeinsam verschieben.";
+      }
+    }
+
+    function renderRocTable(points) {
+      rocBodyEl.innerHTML = "";
+      points.forEach((p) => {
+        const tr = document.createElement("tr");
+        const isCurrent = Math.abs(p.threshold - state.threshold) < 0.001;
+        if (isCurrent) {
+          tr.style.background = "#fff6fa";
+          tr.style.fontWeight = "700";
+        }
+        tr.innerHTML = `
+          <td>${p.threshold.toFixed(2)}</td>
+          <td>${p.tpr.toFixed(2)}</td>
+          <td>${p.fpr.toFixed(2)}</td>
+          <td>${p.precision.toFixed(2)}</td>
+        `;
+        rocBodyEl.appendChild(tr);
+      });
+    }
+
+    function updateFormulaPanel() {
+      const content = formulaContent[state.stepIndex] || formulaContent[0];
+      document.getElementById("formula-caption").textContent = content.caption;
+      document.getElementById("formula-line").textContent = content.line;
+      document.getElementById("formula-meta").textContent = content.meta;
+      document.getElementById("formula-method").textContent = content.method;
+    }
+
+    function updateFocusCards() {
+      const formulaCard = document.getElementById("formula-card");
+      const sigmoidCard = document.getElementById("sigmoid-card");
+      const matrixCard = document.getElementById("matrix-card");
+      const rocCard = document.getElementById("roc-card");
+      const ctrlCard = document.getElementById("ctrl-card");
+      const dataCard = document.getElementById("data-card");
+
+      [formulaCard, sigmoidCard, matrixCard, rocCard, ctrlCard, dataCard].forEach((el) => el.classList.remove("focus"));
+
+      const step = steps[state.stepIndex];
+      if (step.focus === "formula") {
+        formulaCard.classList.add("focus");
+        sigmoidCard.classList.add("focus");
+      } else if (step.focus === "matrix") {
+        matrixCard.classList.add("focus");
+        dataCard.classList.add("focus");
+      } else if (step.focus === "metrics") {
+        matrixCard.classList.add("focus");
+        rocCard.classList.add("focus");
+        ctrlCard.classList.add("focus");
+      } else if (step.focus === "threshold") {
+        ctrlCard.classList.add("focus");
+        rocCard.classList.add("focus");
+        sigmoidCard.classList.add("focus");
+      } else if (step.focus === "bridge") {
+        rocCard.classList.add("focus");
+        formulaCard.classList.add("focus");
+        sigmoidCard.classList.add("focus");
+        dataCard.classList.add("focus");
+      } else {
+        formulaCard.classList.add("focus");
+        sigmoidCard.classList.add("focus");
+        dataCard.classList.add("focus");
+      }
+    }
+
+    function persistStepUnlock() {
+      try {
+        localStorage.setItem(navStorageKey, "1");
+      } catch (err) {
+        // Ignore storage issues.
+      }
+    }
+
+    function jumpToStep(idx) {
+      if (!state.stepJumpUnlocked) return;
+      if (idx === state.stepIndex) return;
+      state.hasAdvanced = true;
+      state.stepIndex = idx;
+      updateStepContent();
+    }
+
+    function renderTimeline() {
+      timelineEl.innerHTML = "";
+      steps.forEach((step, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        if (idx < state.stepIndex) item.classList.add("done");
+        if (idx === state.stepIndex) item.classList.add("active");
+        item.textContent = `${idx + 1}. ${step.title.replace(`Schritt ${idx + 1}: `, "")}`;
+
+        if (state.stepJumpUnlocked) {
+          item.classList.add("clickable");
+          item.setAttribute("role", "button");
+          item.tabIndex = 0;
+          item.addEventListener("click", () => jumpToStep(idx));
+          item.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              jumpToStep(idx);
+            }
+          });
+        }
+
+        timelineEl.appendChild(item);
+      });
+    }
+
+    function updateStepAnswer() {
+      const titleEl = document.getElementById("answer-title");
+      const textEl = document.getElementById("answer-text");
+      if (!state.hasAdvanced) {
+        titleEl.textContent = "Aufloesung zum vorherigen Schritt";
+        textEl.textContent = "Die Aufloesung erscheint, sobald ihr zum naechsten Schritt geht.";
+        return;
+      }
+      const prevIdx = (state.stepIndex - 1 + steps.length) % steps.length;
+      titleEl.textContent = `Aufloesung zu Schritt ${prevIdx + 1}`;
+      textEl.textContent = steps[prevIdx].answer;
+    }
+
+    function getStepActionText(step) {
+      if (!step || !step.text) return "";
+      const firstSentence = step.text.match(/^.*?[.!?](?:\s|$)/);
+      return (firstSentence ? firstSentence[0] : step.text).trim();
+    }
+
+    function updatePathState() {
+      const ready = state.quizReady;
+      openQuizBtn.disabled = !ready;
+      replayTopicBtn.hidden = !ready;
+
+      if (!ready) {
+        pathStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} angeboten. Danach wird Thema 5 (Matrix) freigeschaltet.`;
+        pathStatusEl.style.borderColor = "#cbd4e4";
+        pathStatusEl.style.background = "#fff";
+        pathStatusEl.style.color = "#5f6d84";
+        return;
+      }
+
+      if (toMatrixLink.classList.contains("disabled")) {
+        pathStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Mini-Quiz starten (3 von 4 richtig), dann Thema 5 freischalten.";
+        pathStatusEl.style.borderColor = "rgba(111, 45, 69, 0.32)";
+        pathStatusEl.style.background = "#fff7fa";
+        pathStatusEl.style.color = "#6f2d45";
+      }
+    }
+
+    function syncThresholdControl() {
+      const enabled = state.stepIndex >= 4;
+      thresholdInput.disabled = !enabled;
+      if (!enabled) {
+        thresholdHintEl.textContent = "Der Threshold wird ab Schritt 5 frei gegeben.";
+        thresholdNoteEl.textContent = "Erst Begriffe sichern, dann Regler bewegen.";
+      } else {
+        thresholdHintEl.textContent = "Threshold aktiv: bewege den Regler und beobachte FP/FN, Recall und FPR.";
+        thresholdNoteEl.textContent = "Hoher Threshold = strenger. Niedriger Threshold = sensibler.";
+      }
+    }
+
+    function updateStepContent() {
+      if (state.stepIndex === steps.length - 1) {
+        state.quizReady = true;
+        if (!state.stepJumpUnlocked) {
+          state.stepJumpUnlocked = true;
+          persistStepUnlock();
+        }
+      }
+
+      const step = steps[state.stepIndex];
+      const tpl = stepTemplate[state.stepIndex];
+
+      prevStepBtn.hidden = state.stepIndex === 0;
+      prevStepBtn.disabled = state.stepIndex === 0;
+
+      document.getElementById("step-title").textContent = step.title;
+      document.getElementById("step-text").textContent = step.text;
+      document.getElementById("step-action").textContent = getStepActionText(step);
+      document.getElementById("chat-question").textContent = step.chat;
+      document.getElementById("step-goal").textContent = tpl.goal;
+      document.getElementById("step-method").textContent = tpl.method;
+      document.getElementById("step-equation").textContent = (formulaContent[state.stepIndex] || formulaContent[0]).line;
+      document.getElementById("step-why").textContent = tpl.why;
+      document.getElementById("step-reflection").textContent = tpl.reflection;
+
+      thresholdValueEl.textContent = state.threshold.toFixed(2);
+      updateStepAnswer();
+      updateFormulaPanel();
+      renderSigmoidLab();
+      syncThresholdControl();
+      updateFocusCards();
+      updatePathState();
+      renderTimeline();
+      renderCaseTable();
+    }
+
+    function unlockMatrixNavigation() {
+      toMatrixLink.classList.remove("disabled");
+      toMatrixLink.setAttribute("aria-disabled", "false");
+      pathStatusEl.textContent = "Mini-Quiz bestanden. Thema 5 (Matrix) ist freigeschaltet.";
+      pathStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
+      pathStatusEl.style.background = "#f3fbf6";
+      pathStatusEl.style.color = "#275b3f";
+    }
+
+    function openQuiz() {
+      if (!state.quizReady) return;
+      document.body.classList.add("quiz-active");
+      quizOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeQuiz() {
+      document.body.classList.remove("quiz-active");
+      quizOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function gradeQuiz(event) {
+      event.preventDefault();
+      let score = 0;
+      Object.keys(quizAnswers).forEach((qid) => {
+        const checked = quizForm.querySelector(`input[name="${qid}"]:checked`);
+        if (checked && checked.value === quizAnswers[qid]) score += 1;
+      });
+
+      if (score >= 3) {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/4 richtig. Sehr gut - Thema 5 ist freigeschaltet.`;
+        quizFeedbackEl.style.color = "#1f8b4c";
+        unlockMatrixNavigation();
+      } else {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/4 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
+        quizFeedbackEl.style.color = "#9a324d";
+      }
+    }
+
+    function resetSession() {
+      state.threshold = 0.50;
+      state.logitB0 = -3;
+      state.logitB1 = 0.2;
+      state.predictionIndex = 0;
+      state.stepIndex = 0;
+      state.quizReady = false;
+      state.hasAdvanced = false;
+      thresholdInput.value = state.threshold.toFixed(2);
+      sigmoidB0Input.value = String(state.logitB0);
+      sigmoidB1Input.value = String(state.logitB1);
+      selfExplainInputEl.value = "";
+      selfExplainFeedbackEl.textContent = "";
+      selfExplainSolutionEl.hidden = true;
+      selfExplainSolutionEl.textContent = "";
+      renderPredictionQuestion();
+      toMatrixLink.classList.add("disabled");
+      toMatrixLink.setAttribute("aria-disabled", "true");
+      quizFeedbackEl.textContent = "";
+      updateStepContent();
+    }
+
+    thresholdInput.addEventListener("input", (event) => {
+      state.threshold = Number(event.target.value);
+      thresholdValueEl.textContent = state.threshold.toFixed(2);
+      renderCaseTable();
+    });
+
+    sigmoidB0Input.addEventListener("input", (event) => {
+      state.logitB0 = Number(event.target.value);
+      renderSigmoidLab();
+    });
+
+    sigmoidB1Input.addEventListener("input", (event) => {
+      state.logitB1 = Number(event.target.value);
+      renderSigmoidLab();
+    });
+
+    document.getElementById("check-prediction").addEventListener("click", gradePredictionQuestion);
+    document.getElementById("next-prediction").addEventListener("click", nextPredictionQuestion);
+    document.getElementById("check-self-explain").addEventListener("click", checkSelfExplanation);
+    document.getElementById("show-self-explain-solution").addEventListener("click", toggleSelfExplainSolution);
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex === 0) return;
+      state.stepIndex -= 1;
+      state.hasAdvanced = true;
+      updateStepContent();
+    });
+
+    document.getElementById("next-step").addEventListener("click", () => {
+      state.stepIndex = (state.stepIndex + 1) % steps.length;
+      state.hasAdvanced = true;
+      updateStepContent();
+    });
+
+    document.getElementById("reset-session").addEventListener("click", resetSession);
+    replayTopicBtn.addEventListener("click", resetSession);
+    openQuizBtn.addEventListener("click", openQuiz);
+    document.getElementById("close-quiz").addEventListener("click", closeQuiz);
+    document.getElementById("quiz-backdrop").addEventListener("click", closeQuiz);
+    quizForm.addEventListener("submit", gradeQuiz);
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && document.body.classList.contains("quiz-active")) {
+        closeQuiz();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      renderCaseTable();
+      drawSigmoidLab();
+    });
+
+    renderPredictionQuestion();
+    updateStepContent();
+  </script>
+</body>
+</html>

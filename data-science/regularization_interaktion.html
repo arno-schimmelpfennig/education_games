@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Regularization (L1/L2) | Webinar-Interaktion</title>
+  <title>Regularization (Ridge/Lasso/Elastic Net) | Webinar-Interaktion</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
 
@@ -973,7 +973,7 @@
     <div id="quiz-backdrop"></div>
     <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <h3 id="quiz-title">Mini-Quiz: Regularization</h3>
-      <p>3 Fragen, mindestens 2 richtig. Danach wird die Predictive-Modeling-Codepraxis (im Anschluss an Thema 6) freigeschaltet.</p>
+      <p>4 Fragen, mindestens 3 richtig. Danach wird die Predictive-Modeling-Codepraxis (im Anschluss an Thema 7) freigeschaltet.</p>
       <form id="regularization-quiz-form">
         <div class="quiz-question">
           <strong>1) Was trifft auf Ridge (L2) zu?</strong>
@@ -992,6 +992,12 @@
           <label class="quiz-option"><input type="radio" name="q3" value="a"> Sonst wird das Modell zu komplex.</label>
           <label class="quiz-option"><input type="radio" name="q3" value="b"> Sonst steigt nur der Trainingsfehler, Test bleibt gleich.</label>
           <label class="quiz-option"><input type="radio" name="q3" value="c"> Sonst droht Underfitting durch zu starke Bremse.</label>
+        </div>
+        <div class="quiz-question">
+          <strong>4) Wann ist Elastic Net oft sinnvoll?</strong>
+          <label class="quiz-option"><input type="radio" name="q4" value="a"> Wenn viele Merkmale stark korreliert sind und man Ridge/Lasso balancieren möchte.</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="b"> Nur wenn Lambda gleich 0 ist.</label>
+          <label class="quiz-option"><input type="radio" name="q4" value="c"> Nur für Klassifikation, nicht für Regression.</label>
         </div>
         <div class="quiz-actions">
           <button id="grade-regularization-quiz" type="submit">Quiz auswerten</button>
@@ -1017,12 +1023,12 @@
       <div class="brandline">AS Digital Marketing | Webinar Studio</div>
       <h1>Regularization<br>gegen Überanpassung</h1>
       <p class="lead">
-        Gemeinsame Lernansicht: Ihr vergleicht Ridge (L2) und Lasso (L1) live und seht, wie sich Koeffizienten, Fehler und Robustheit verändern.
+        Gemeinsame Lernansicht: Ihr vergleicht Ridge (L2), Lasso (L1) und Elastic Net live und seht, wie sich Koeffizienten, Fehler und Robustheit verändern.
       </p>
 
       <div class="story-box">
         <strong>Alltagsszenario:</strong>
-        Ein Team möchte Mieten für Wohnungen vorhersagen. Es gibt viele Merkmale - aber nicht alle sind verlässlich.
+        Ein Team möchte Mieten für Wohnungen vorhersagen. Es gibt viele Merkmale - aber nicht alle sind verlässlich. Das Team muss entscheiden, wie stark das Modell gebremst wird, damit es neue Wohnungen besser einschätzt.
       </div>
 
       <div class="step-box">
@@ -1033,6 +1039,14 @@
           <p id="step-action"></p>
         </div>
         <div class="step-template" aria-label="Lern-Template">
+          <div class="step-template-item">
+            <strong>Lernziel</strong>
+            <p id="step-goal"></p>
+          </div>
+          <div class="step-template-item">
+            <strong>Didaktik-Methode</strong>
+            <p id="step-method"></p>
+          </div>
           <div class="step-template-item">
             <strong>Warum</strong>
             <p id="step-why"></p>
@@ -1064,10 +1078,10 @@
         <strong>Nächste Schritte</strong>
         <p id="regularization-path-teaser" hidden></p>
         <div class="path-content">
-          <div class="path-status" id="regularization-quiz-status">Mini-Quiz wird nach Schritt 5 angeboten (Navigation ist bereits aktiv).</div>
+          <div class="path-status" id="regularization-quiz-status">Mini-Quiz wird nach Schritt 8 angeboten.</div>
           <button id="open-regularization-quiz" class="secondary" hidden>Mini-Quiz starten</button>
-          <a id="to-predictive-link" class="path-link" href="predictive_modeling_code_praxis.html" aria-disabled="false">Weiter: Predictive Modeling Code-Praxis (nach Thema 6)</a>
-          <a class="path-link" href="matrizenmultiplikation_interaktion.html">Zurück zu Thema 5: Matrizenmultiplikation</a>
+          <a id="to-predictive-link" class="path-link disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true">Weiter: Predictive Modeling Code-Praxis (nach Thema 7)</a>
+          <a class="path-link" href="matrizenmultiplikation_interaktion.html">Zurück zu Thema 6: Matrizenmultiplikation</a>
           <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurück zu Thema 3: Bias-Variance Tradeoff</a>
           <button id="replay-regularization" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
@@ -1117,6 +1131,7 @@
       <div class="chip-row">
         <div class="chip"><strong>Modus:</strong> <span id="chip-mode">Ridge (L2)</span></div>
         <div class="chip"><strong>Lambda:</strong> <span id="chip-lambda">0.0</span></div>
+        <div class="chip"><strong>l1-ratio r:</strong> <span id="chip-l1-ratio">0.50</span></div>
         <div class="chip"><strong>Aktive Merkmale:</strong> <span id="chip-active">0</span></div>
         <div class="chip"><strong>Trainingsfehler:</strong> <span id="chip-train">0.0</span></div>
         <div class="chip"><strong>Testfehler:</strong> <span id="chip-test">0.0</span></div>
@@ -1151,10 +1166,10 @@
           <div class="mode-block">
             <div class="slider-label">
               <span class="label-with-tip">
-                Modus (Ridge/Lasso)
+                Modus (Ridge/Lasso/Elastic Net)
                 <span class="tip-wrap">
                   <button type="button" class="tip-icon" aria-label="Hilfe zu Ridge und Lasso">i</button>
-                  <span class="tip-text">Was? Ridge nutzt L2 und schrumpft Gewichte weich. Lasso nutzt L1 und kann Gewichte exakt auf 0 setzen. Warum? Damit ihr je nach Datenlage Stabilität oder Feature-Selektion priorisieren könnt.</span>
+                  <span class="tip-text">Ridge nutzt L2 und schrumpft Gewichte weich. Lasso nutzt L1 und kann Gewichte exakt auf 0 setzen. Elastic Net mischt beides und hilft oft bei stark korrelierten Merkmalen.</span>
                 </span>
               </span>
               <span id="mode-value">Ridge (L2)</span>
@@ -1162,6 +1177,7 @@
             <div class="mode-btn-row">
               <button id="mode-l2" type="button" class="mode-btn active">Ridge (L2)</button>
               <button id="mode-l1" type="button" class="mode-btn">Lasso (L1)</button>
+              <button id="mode-en" type="button" class="mode-btn">Elastic Net</button>
             </div>
           </div>
 
@@ -1177,6 +1193,18 @@
           </div>
           <input id="lambda" type="range" min="0" max="10" step="0.1" value="0" title="Steuert die Stärke der Regularisierung von keiner bis sehr stark.">
 
+          <div class="slider-label" id="l1-ratio-wrap" hidden>
+            <span class="label-with-tip">
+              l1-ratio r (nur Elastic Net)
+              <span class="tip-wrap">
+                <button type="button" class="tip-icon" aria-label="Hilfe zu l1-ratio">i</button>
+                <span class="tip-text">r = 0 bedeutet reines Ridge-Verhalten, r = 1 bedeutet reines Lasso-Verhalten. Werte dazwischen mischen beide Effekte.</span>
+              </span>
+            </span>
+            <span id="l1-ratio-value">0.50</span>
+          </div>
+          <input id="l1-ratio" type="range" min="0" max="1" step="0.05" value="0.5" hidden title="Mischparameter von Elastic Net: 0 = mehr Ridge, 1 = mehr Lasso.">
+
           <div class="btn-row">
             <button id="preset-low">Niedrig (0.5)</button>
             <button id="preset-mid">Mittel (3.0)</button>
@@ -1186,16 +1214,24 @@
           <div class="mini-note">
             Merksatz: Ridge hält alle Features im Spiel, Lasso kann Features ausschalten. Beide reduzieren Overfitting, wenn Lambda passend gewählt ist.
           </div>
+          <div class="mini-note" id="equation-note">
+            Formel folgt im Schrittverlauf.
+          </div>
         </div>
 
         <div class="knowledge-card">
-          <h3>Vorteile und Grenzen</h3>
+          <h3>Vorteile, Grenzen und Gleichungen</h3>
           <ul>
             <li><strong>Ridge/L2:</strong> Schiebt Koeffizienten Richtung 0, aber selten exakt auf 0.</li>
             <li><strong>Lasso/L1:</strong> Kann Koeffizienten auf 0 setzen und wirkt als Feature-Selektion.</li>
+            <li><strong>Elastic Net:</strong> Mischt L1 und L2 über <code>r = l1-ratio</code>.</li>
+            <li><strong>Data Generation Function unbekannt:</strong> Regularisierung hilft besonders bei streuenden Daten mit unklarer Grundfunktion.</li>
+            <li><strong>Harte Einschränkung:</strong> Beispiel: <code>∑|b_j| ≤ t</code> oder <code>∑b_j² ≤ t</code>.</li>
+            <li><strong>Weiche Einschränkung:</strong> <code>J = MSE + α · Penalty</code>.</li>
+            <li><strong>Geometrische Intuition:</strong> L2 entspricht der Ridge-Kreis-Idee (weiches Schrumpfen), L1 der Diamant-Idee (mehr Nullsetzungen).</li>
             <li><strong>Trade-off:</strong> Zu wenig Strafe = Overfitting, zu viel Strafe = Underfitting.</li>
             <li><strong>Feature Engineering zuerst:</strong> Saubere, fachlich sinnvolle Features reduzieren Rauschen, bevor L1/L2 als Bremse wirkt.</li>
-            <li><strong>Praxis:</strong> Alpha/Lambda immer über Validierung oder CV tunen.</li>
+            <li><strong>Praxis:</strong> Alpha/Lambda immer über Validierung oder CV tunen (Defaultwerte sind nur Startpunkte).</li>
             <li><strong>Ziel:</strong> Bessere Generalisierung auf neuen Daten, nicht perfekte Trainingswerte.</li>
           </ul>
         </div>
@@ -1232,58 +1268,115 @@
 
     const steps = [
       {
-        title: "Schritt 1: Ohne Strafe starten",
-        text: "Lambda auf 0: Alle Gewichte sind frei. Das Modell reagiert stark auf jedes Detail und kann Zufall übernehmen.",
-        chat: "Chat: Glaubt ihr, dass alle Merkmale gleich verlässlich sind?"
+        title: "Schritt 1: Recap Bias-Varianz",
+        text: "Bevor wir regularisieren, klären wir das Problem: Overfitting bedeutet meist niedriger Trainingsfehler, aber hoher Testfehler. Genau dort setzt Regularisierung an.",
+        chat: "Chat: Woran erkennt ihr in euren Projekten, dass ein Modell zu nervös auf Trainingsdaten reagiert?"
       },
       {
-        title: "Schritt 2: Ridge (L2) einstellen",
-        text: "Bleibt im Ridge-Modus und setzt Lambda auf etwa 1 bis 3. Alle Gewichte schrumpfen, wichtige Signale bleiben aber erhalten.",
-        chat: "Chat: Wann wirkt diese weiche Schrumpfung für euch robust genug?"
+        title: "Schritt 2: Harte Einschränkung verstehen",
+        text: "Stellt euch eine Regel vor: Koeffizienten dürfen nur in einem erlaubten Bereich liegen. Das ist die harte Einschränkung mit t als Grenze. Das ist besonders hilfreich, wenn die wahre Daten-Generierungsfunktion unbekannt ist und Daten stark streuen.",
+        chat: "Chat: Warum könnte eine feste Grenze für Gewichte vor Übertreibung schützen?"
       },
       {
-        title: "Schritt 3: Lasso (L1) vergleichen",
-        text: "Wechselt auf Lasso und beobachtet: Mit steigendem Lambda werden einzelne Koeffizienten genau 0. So entsteht implizite Feature-Selektion.",
-        chat: "Chat: Wann hilft euch dieses Nullsetzen mehr als reine Schrumpfung?"
+        title: "Schritt 3: Von hart zu weich (alpha)",
+        text: "Statt fixer Grenze ergänzen wir die Kostenfunktion um einen Strafterm: J = MSE + alpha * Penalty. So wird die Bremse flexibel einstellbar. Alpha/Lambda ist ein Hyperparameter und muss validiert werden.",
+        chat: "Chat: Was passiert, wenn alpha = 0 und was bei sehr großem alpha?"
       },
       {
-        title: "Schritt 4: Fehlerkurven lesen",
-        text: "Vergleicht Train/Test für beide Modi. Trainingsfehler steigt oft mit Lambda, Testfehler hat ein Minimum: dort liegt der nutzbare Bereich.",
-        chat: "Chat: Warum optimieren wir trotz allem auf Test/CV und nicht auf Train?"
+        title: "Schritt 4: Ridge (L2) live",
+        text: "Bleibt im Ridge-Modus und erhöht Lambda schrittweise. Alle Gewichte schrumpfen, aber selten exakt auf 0. Geometrisch zieht die L2-Strafe die Lösung in Richtung Nullpunkt (Ridge-Kreis-Idee).",
+        chat: "Chat: Wann ist euch weiche Schrumpfung lieber als komplette Merkmalsentfernung?"
       },
       {
-        title: "Schritt 5: Transfer zu Predictive Modeling",
-        text: "In Realprojekten kombiniert ihr jetzt alles: Split, Tuning, Ridge/Lasso-Vergleich, Residuen-Check und Outlier-Prüfung. Danach geht es in die Code-Praxis.",
-        chat: "Chat: Welche Projektentscheidung trefft ihr jetzt datenbasiert statt aus Bauchgefuehl?"
+        title: "Schritt 5: Lasso (L1) live",
+        text: "Wechselt zu Lasso. Mit steigender Strafe werden einzelne Koeffizienten exakt 0. Das ist implizite Feature-Selektion.",
+        chat: "Chat: Welche Merkmale wären in eurem Kontext gute Kandidaten zum Herausfiltern?"
+      },
+      {
+        title: "Schritt 6: Elastic Net als Mischung",
+        text: "Jetzt mischen wir L1 und L2 mit r = l1-ratio. r=0 ist Ridge-nah, r=1 ist Lasso-nah. Dazwischen liegt der Kompromiss.",
+        chat: "Chat: Bei korrelierten Merkmalen: Würdet ihr eher rein L1/L2 oder eine Mischung wählen?"
+      },
+      {
+        title: "Schritt 7: Lambda- und r-Tuning",
+        text: "Lest Train/Test zusammen: nicht den kleinsten Trainingsfehler suchen, sondern den stabilen Bereich auf Testdaten.",
+        chat: "Chat: Welche Parameter würdet ihr zuerst mit CV abstimmen: alpha, r oder beides?"
+      },
+      {
+        title: "Schritt 8: Transfer in den Workflow",
+        text: "Der nächste Praxisablauf: Split, Standardisierung, Modellwahl (Ridge/Lasso/ElasticNet), Hyperparameter-Tuning, Residuen-Check und finaler Test.",
+        chat: "Chat: Welche Entscheidung in eurem Team wird durch diesen Ablauf sofort robuster?"
       }
     ];
 
     const stepTemplate = [
       {
-        why: "Der Start ohne Strafe zeigt, wie schnell freie Modelle Rauschen aufnehmen.",
-        consequence: "Wenn Lambda bei 0 bleibt, dann steigt das Overfitting-Risiko trotz scheinbar guter Trainingswerte.",
-        reflection: "Welche Features in deinem Umfeld wirken verdachtig instabil oder zufällig?"
+        goal: "Bias-Varianz und Overfitting als Ausgangsproblem verankern.",
+        method: "Aktivierungsfrage + kurze Retrieval-Abfrage.",
+        why: "Nur wer das Problem klar sieht, versteht den Nutzen von Regularisierung.",
+        consequence: "Wenn Overfitting nicht erkannt wird, wird Lambda zufällig statt zielgerichtet gesetzt.",
+        reflection: "Welche Warnsignale für Overfitting kennt ihr bereits?"
       },
       {
-        why: "Ridge erklärt, wie kontrollierte Schrumpfung Stabilität schafft ohne harte Selektion.",
-        consequence: "Wenn L2 moderat erhöht wird, dann bleiben alle Features erhalten, aber extreme Gewichte werden gebremst.",
-        reflection: "In welchem Fall wäre dir Stabilität wichtiger als maximale Detailtreue?"
+        goal: "Harte Einschränkung als geometrische Regel verstehen.",
+        method: "Konkrete Metapher (Leitplanke) + worked example.",
+        why: "Die harte Form erklärt, was Penalty später mathematisch ersetzt.",
+        consequence: "Wenn t als Grenze klar ist, wird alpha als Regler logisch nachvollziehbar.",
+        reflection: "Wie würdest du t ohne Formel als Regel beschreiben?"
       },
       {
-        why: "Lasso zeigt den Unterschied zwischen reiner Daempfung und echter Feature-Auswahl.",
-        consequence: "Wenn L1 steigt, dann können irrelevante Koeffizienten exakt 0 werden und das Modell wird schlanker.",
-        reflection: "Welche Art von Merkmalen würdest du in einem Projekt gern automatisch entfernen lassen?"
+        goal: "Weiche Einschränkung mit Kostenfunktion sicher lesen.",
+        method: "Scaffolding: erst Symbole benennen, dann Formel lesen.",
+        why: "Die Formel J = MSE + alpha * Penalty ist die zentrale Sprache für Ridge/Lasso/Elastic Net.",
+        consequence: "Wenn alpha falsch interpretiert wird, wird Modellsteuerung fachlich unzuverlässig.",
+        reflection: "Welcher Teil der Gleichung ist Fehler, welcher ist Bremse?"
       },
       {
-        why: "Die Fehlerkurven liefern die Entscheidungsbasis für brauchbare Lambda-Bereiche.",
-        consequence: "Wenn nur Train sinkt, aber Test steigt, dann ist die Regularisierungseinstellung operativ unbrauchbar.",
-        reflection: "Wie würdest du den akzeptablen Fehlerbereich mit Stakeholdern abstimmen?"
+        goal: "Ridge-Wirkung auf Koeffizienten und Fehlerbild anwenden.",
+        method: "Interaktive Parameterstudie mit sofortigem Feedback.",
+        why: "Ridge ist die robuste Basis bei vielen kleinen, korrelierten Signalen.",
+        consequence: "Wenn L2 moderat erhöht wird, sinkt meist Overfitting-Risiko ohne harte Nullsetzung.",
+        reflection: "Ab welchem Lambda wirkt Ridge für euch stabil genug?"
       },
       {
-        why: "Der Transfer bündelt das Vorgehen für reale Predictive-Workflows.",
-        consequence: "Wenn Split, Tuning und Diagnostik kombiniert werden, dann entstehen robustere Modellentscheidungen.",
-        reflection: "Welcher Teil dieses Workflows würde in deinem Team den größten Qualitätssprung bringen?"
+        goal: "Lasso als Merkmalsselektion praktisch unterscheiden.",
+        method: "Kontrastfall Ridge vs. Lasso am selben Datenset.",
+        why: "L1 und L2 liefern unterschiedliche Modellstrukturen trotz gleicher Aufgabe.",
+        consequence: "Wenn L1 zu hoch ist, gehen auch nützliche Signale verloren (Underfitting-Risiko).",
+        reflection: "Welche Features würdet ihr notfalls bewusst opfern?"
+      },
+      {
+        goal: "Elastic Net als kontrollierte Mischung erklären.",
+        method: "Parameter-Interleaving: Lambda und r gemeinsam variieren.",
+        why: "Viele reale Daten profitieren von der Kombination aus Stabilisierung und Selektion.",
+        consequence: "Wenn r nicht verstanden ist, wird Elastic Net wie ein Zufallsmodus genutzt.",
+        reflection: "Wann wäre r eher niedrig, wann eher hoch?"
+      },
+      {
+        goal: "Hyperparameter-Tuning auf Test-/CV-Logik ausrichten.",
+        method: "Fehlerkurven lesen + Entscheidungsregel formulieren.",
+        why: "Der beste Trainingswert ist nicht automatisch das beste Produktionsmodell.",
+        consequence: "Wenn nur Trainingsfehler optimiert wird, steigt das Risiko schlechter Generalisierung.",
+        reflection: "Welche Metrik wäre euer primärer Tuning-Kompass?"
+      },
+      {
+        goal: "Regelkreis in einen wiederholbaren Workflow überführen.",
+        method: "Transferaufgabe mit Checkliste.",
+        why: "Didaktischer Abschluss: Wissen wird in handlungsfähige Schritte übersetzt.",
+        consequence: "Wenn der Ablauf standardisiert wird, sinkt Modellrisiko im Teamalltag.",
+        reflection: "Welchen Schritt würdet ihr sofort als Teamstandard definieren?"
       }
+    ];
+
+    const stepEquations = [
+      "Recap: MSE(y-hat) = Bias^2 + Varianz + Rauschen",
+      "Harte Einschränkung: min J(b) unter der Bedingung Summe|b_j| <= t oder Summe b_j^2 <= t",
+      "Weiche Einschränkung: J(b) = MSE + alpha * Penalty (alpha/lambda per Validierung tunen)",
+      "Ridge (L2): J(b) = MSE + alpha * Summe b_j^2 (Richtung Nullpunkt)",
+      "Lasso (L1): J(b) = MSE + alpha * Summe |b_j|",
+      "Elastic Net: J(b) = MSE + r*alpha*Summe|b_j| + (1-r)*alpha*Summe b_j^2",
+      "Tuning-Regel: suche Parameter mit minimalem Validierungs-/Testfehler statt minimalem Trainingsfehler",
+      "Pipeline: Split -> Scale -> Modell + Tuning -> Residuencheck -> finaler Test"
     ];
 
     const regularizationStepNavStorageKey = "ds-regularization-step-nav-unlocked";
@@ -1297,6 +1390,7 @@
 
     const state = {
       lambda: 0,
+      l1Ratio: 0.5,
       regType: "l2",
       stepIndex: 0,
       pathUnlocked: false,
@@ -1314,6 +1408,9 @@
     const codePopupTriggers = document.querySelectorAll('a[href$="_code_praxis.html"]:not([aria-disabled="true"])');
     const modeL2Btn = document.getElementById("mode-l2");
     const modeL1Btn = document.getElementById("mode-l1");
+    const modeEnBtn = document.getElementById("mode-en");
+    const l1RatioWrap = document.getElementById("l1-ratio-wrap");
+    const l1RatioInput = document.getElementById("l1-ratio");
     const regularizationPathBox = document.getElementById("regularization-path-box");
     const regularizationPathTeaser = document.getElementById("regularization-path-teaser");
     const regularizationQuizStatusEl = document.getElementById("regularization-quiz-status");
@@ -1324,13 +1421,20 @@
     const regularizationQuizForm = document.getElementById("regularization-quiz-form");
     const regularizationQuizFeedbackEl = document.getElementById("regularization-quiz-feedback");
     const regularizationStepPopupSeen = new Set();
-    const regularizationQuizAnswers = { q1: "b", q2: "a", q3: "c" };
+    const regularizationQuizAnswers = { q1: "b", q2: "a", q3: "c", q4: "a" };
 
     function shrinkCoef(baseCoef, scale) {
       if (state.regType === "l1") {
         const penalty = state.lambda * scale * 5.5;
         const shrunk = Math.max(0, Math.abs(baseCoef) - penalty);
         return Math.sign(baseCoef) * shrunk;
+      }
+      if (state.regType === "en") {
+        const r = state.l1Ratio;
+        const l1Penalty = state.lambda * scale * 5.2 * r;
+        const l1Shrunk = Math.sign(baseCoef) * Math.max(0, Math.abs(baseCoef) - l1Penalty);
+        const l2Shrunk = baseCoef / (1 + state.lambda * scale * 0.55 * (1 - r));
+        return (1 - r) * l2Shrunk + r * l1Shrunk;
       }
       return baseCoef / (1 + state.lambda * scale * 0.55);
     }
@@ -1339,6 +1443,13 @@
       if (state.regType === "l1") {
         const train = 8.8 + state.lambda * 1.05;
         const test = 12.4 + Math.pow(state.lambda - 2.5, 2) * 0.9;
+        return { train, test };
+      }
+      if (state.regType === "en") {
+        const train = 8.4 + state.lambda * 0.93 + Math.abs(state.l1Ratio - 0.45) * 0.35;
+        const test = 11.2
+          + Math.pow(state.lambda - (2.7 + state.l1Ratio * 0.7), 2) * 0.74
+          + Math.pow(state.l1Ratio - 0.45, 2) * 0.8;
         return { train, test };
       }
       const train = 8 + state.lambda * 0.85;
@@ -1359,7 +1470,9 @@
           title: "Guter Bereich",
           text: state.regType === "l1"
             ? "Lasso setzt irrelevante Gewichte teils auf 0 und bleibt oft gut interpretierbar."
-            : "Ridge schrumpft alle Gewichte und bleibt oft stabil bei korrelierten Features.",
+            : (state.regType === "en"
+              ? "Elastic Net balanciert Schrumpfung und Selektion über r (l1-ratio)."
+              : "Ridge schrumpft alle Gewichte und bleibt oft stabil bei korrelierten Features."),
           color: "#1f8b4c"
         };
       }
@@ -1417,12 +1530,14 @@
       const errors = computeErrors();
       const status = modelStatus();
       const rent = predictedRent();
-      const modeLabel = state.regType === "l1" ? "Lasso (L1)" : "Ridge (L2)";
+      const modeLabel = state.regType === "l1" ? "Lasso (L1)" : (state.regType === "en" ? "Elastic Net" : "Ridge (L2)");
 
       document.getElementById("mode-value").textContent = modeLabel;
       document.getElementById("chip-mode").textContent = modeLabel;
       document.getElementById("lambda-value").textContent = state.lambda.toFixed(1);
       document.getElementById("chip-lambda").textContent = state.lambda.toFixed(1);
+      document.getElementById("l1-ratio-value").textContent = state.l1Ratio.toFixed(2);
+      document.getElementById("chip-l1-ratio").textContent = state.l1Ratio.toFixed(2);
       document.getElementById("chip-active").textContent = activeFeatureCount();
       document.getElementById("chip-train").textContent = errors.train.toFixed(1);
       document.getElementById("chip-test").textContent = errors.test.toFixed(1);
@@ -1441,6 +1556,11 @@
         Vorhersage: <span style="color: var(--brand-main); font-weight:800;">${rent.toFixed(0)} €</span><br>
         Modus: <strong>${modeLabel}</strong> - beobachte, wie Lambda Stabilität gegen Detailtreue abwägt.
       `;
+    }
+
+    function updateEquationNote() {
+      const eq = stepEquations[state.stepIndex] || stepEquations[0];
+      document.getElementById("equation-note").innerHTML = `<strong>Formel in diesem Schritt:</strong> ${eq}`;
     }
 
     function persistRegularizationStepUnlock() {
@@ -1528,9 +1648,12 @@
       document.getElementById("step-action").textContent = getStepActionText(step);
       document.getElementById("chat-question").textContent = step.chat;
       const template = stepTemplate[state.stepIndex];
+      document.getElementById("step-goal").textContent = template.goal;
+      document.getElementById("step-method").textContent = template.method;
       document.getElementById("step-why").textContent = template.why;
       document.getElementById("step-consequence").textContent = template.consequence;
       document.getElementById("step-reflection").textContent = template.reflection;
+      updateEquationNote();
       updatePathAndQuiz();
       renderTimeline();
       maybeShowRegularizationStepPopup();
@@ -1552,7 +1675,7 @@
       }
 
       if (toPredictiveLink.classList.contains("disabled")) {
-        regularizationQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Mini-Quiz starten (2 von 3 richtig).";
+        regularizationQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Mini-Quiz starten (3 von 4 richtig).";
         regularizationQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
         regularizationQuizStatusEl.style.background = "#fff7fa";
         regularizationQuizStatusEl.style.color = "#6f2d45";
@@ -1567,9 +1690,20 @@
     }
 
     function setRegType(type) {
-      state.regType = type === "l1" ? "l1" : "l2";
+      state.regType = type === "l1" ? "l1" : (type === "en" ? "en" : "l2");
       modeL2Btn.classList.toggle("active", state.regType === "l2");
       modeL1Btn.classList.toggle("active", state.regType === "l1");
+      modeEnBtn.classList.toggle("active", state.regType === "en");
+      const showMix = state.regType === "en";
+      l1RatioWrap.hidden = !showMix;
+      l1RatioInput.hidden = !showMix;
+      renderCoefList();
+      updateDiagnostics();
+    }
+
+    function setL1Ratio(value) {
+      state.l1Ratio = Math.max(0, Math.min(1, value));
+      l1RatioInput.value = state.l1Ratio;
       renderCoefList();
       updateDiagnostics();
     }
@@ -1612,17 +1746,18 @@
         if (checked && checked.value === regularizationQuizAnswers[qid]) score += 1;
       });
 
-      if (score >= 2) {
-        regularizationQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Code-Praxis freigeschaltet.`;
+      if (score >= 3) {
+        regularizationQuizFeedbackEl.textContent = `Ergebnis: ${score}/4 richtig. Sehr gut - Code-Praxis freigeschaltet.`;
         regularizationQuizFeedbackEl.style.color = "#1f8b4c";
         unlockPredictiveNavigation();
       } else {
-        regularizationQuizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
+        regularizationQuizFeedbackEl.textContent = `Ergebnis: ${score}/4 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
         regularizationQuizFeedbackEl.style.color = "#9a324d";
       }
     }
 
     lambdaInput.addEventListener("input", (e) => setLambda(Number(e.target.value)));
+    l1RatioInput.addEventListener("input", (e) => setL1Ratio(Number(e.target.value)));
 
     prevStepBtn.addEventListener("click", () => {
       if (state.stepIndex === 0) return;
@@ -1640,12 +1775,15 @@
     document.getElementById("preset-high").addEventListener("click", () => setLambda(8.0));
     modeL2Btn.addEventListener("click", () => setRegType("l2"));
     modeL1Btn.addEventListener("click", () => setRegType("l1"));
+    modeEnBtn.addEventListener("click", () => setRegType("en"));
 
     document.getElementById("reset-session").addEventListener("click", () => {
       state.stepIndex = 0;
       state.pathUnlocked = false;
       state.quizReady = false;
+      state.l1Ratio = 0.5;
       setRegType("l2");
+      setL1Ratio(0.5);
       setLambda(0);
       toPredictiveLink.classList.add("disabled");
       toPredictiveLink.setAttribute("aria-disabled", "true");
@@ -1681,6 +1819,9 @@
     });
 
     setRegType("l2");
+    setL1Ratio(0.5);
+    toPredictiveLink.classList.add("disabled");
+    toPredictiveLink.setAttribute("aria-disabled", "true");
     updateStepContent();
   </script>
 </body>
