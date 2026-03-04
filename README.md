@@ -38,15 +38,18 @@ http://localhost:8000/
 
 ## Data Science: gepflegte Dateiliste
 
-### Interaktive Lernseiten
+### Interaktive Lernseiten (Kernpfad)
 
 1. `data-science/lineare_regression_interaktion.html`
 2. `data-science/gradient_descent_interaktion.html`
 3. `data-science/bias_variance_tradeoff_interaktion.html`
 4. `data-science/klassifikation_metriken_interaktion.html`
-5. `data-science/matrix_interaktion.html`
-6. `data-science/matrizenmultiplikation_interaktion.html`
-7. `data-science/regularization_interaktion.html`
+5. `data-science/knn_grundlagen_interaktion.html`
+6. `data-science/knn_hyperparameter_tuning_interaktion.html`
+7. `data-science/distanzmetriken_und_scaling_interaktion.html`
+8. `data-science/matrix_interaktion.html`
+9. `data-science/matrizenmultiplikation_interaktion.html`
+10. `data-science/regularization_interaktion.html`
 
 ### Code-Praxis
 
@@ -54,11 +57,13 @@ http://localhost:8000/
 2. `data-science/gradient_descent_code_praxis.html`
 3. `data-science/predictive_modeling_code_praxis.html`
 
-### Optionaler Einsteiger-Start (vor Thema 1)
+### Optionale Einstiege (vor Thema 1)
 
 1. `data-science/bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html`
+2. `data-science/lernkompass_notebook_und_toolhilfe_interaktion.html`
 
-Hinweis: Die Übersicht in [`index.html`](./index.html) ist auf diese Dateinamen abgestimmt.
+Hinweis: Die Übersicht in [`index.html`](./index.html) ist auf diese Reihenfolge abgestimmt.
+Hinweis: In den Data-Science-Themen ist ein einheitlicher Formel-Leseschlüssel integriert, damit Begriffe wie `logit`, `e_hat`, `MSE` und `Bias²` konsistent erklärt werden.
 
 ## Pflegehinweise
 

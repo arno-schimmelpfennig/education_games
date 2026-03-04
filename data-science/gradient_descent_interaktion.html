@@ -161,6 +161,43 @@
       padding: 7px 8px;
     }
 
+    .path-roadmap {
+      margin-top: 8px;
+      background: #ffffff;
+      border: 1px dashed #c9d3e3;
+      border-radius: 9px;
+      padding: 8px 9px;
+    }
+
+    .path-roadmap strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #2d456f;
+    }
+
+    .path-roadmap ol {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 4px;
+      font-size: 0.79rem;
+      line-height: 1.35;
+      color: #41526c;
+    }
+
+    .path-roadmap a {
+      color: #244b84;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .path-roadmap a:hover {
+      text-decoration: underline;
+    }
+
     .recap-box {
       background: #f7fbff;
       border: 1px solid #cfd8e8;
@@ -1006,6 +1043,31 @@
       line-height: 1.45;
     }
 
+    .formula-guide {
+      margin: 0 0 10px;
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .formula-guide strong {
+      color: #1f3f72;
+      font-size: 0.82rem;
+    }
+
+    .formula-guide ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3e4f68;
+    }
+
     .method-summary {
       margin: 0 0 8px;
       font-size: 0.83rem;
@@ -1675,7 +1737,7 @@
                 Lineare Regression: <code>y = b0 + b1*x1 + ... + e</code>
                 <span class="tip-wrap">
                   <button type="button" class="tip-icon" aria-label="Hilfe zur Regressionsformel">i</button>
-                  <span class="tip-text">Woher kommt die Formel? Aus der Annahme, dass sich y als Grundwert plus gewichtete Einflüsse erklären lässt. Bedeutung: b0 ist der Startwert, b1...bn sind Gewichte der Merkmale x, e ist der Restfehler.</span>
+                  <span class="tip-text">Woher kommt die Formel? Aus der Annahme, dass sich y als Grundwert plus gewichtete Einflüsse erklären lässt. Bedeutung: b0 ist der Startwert, b1...bn sind Gewichte der Merkmale x, e ist der unbekannte Restfehler. In Daten seht ihr meist e_hat = y - y_hat als beobachtetes Residuum.</span>
                 </span>
               </span>
             </li>
@@ -1806,6 +1868,18 @@
 
       <div class="path-box collapsed" id="gradient-path-box">
         <strong>Nächste Schritte</strong>
+        <div class="path-roadmap">
+          <strong>Gesamtpfad ab Thema 4</strong>
+          <ol>
+            <li><a href="klassifikation_metriken_interaktion.html">Thema 4: Logistische Klassifikation und Metriken</a></li>
+            <li><a href="knn_grundlagen_interaktion.html">Thema 5: KNN Grundlagen</a></li>
+            <li><a href="knn_hyperparameter_tuning_interaktion.html">Thema 6: KNN Hyperparameter-Tuning</a></li>
+            <li><a href="distanzmetriken_und_scaling_interaktion.html">Thema 7: Distanzmetriken und Scaling</a></li>
+            <li><a href="matrix_interaktion.html">Thema 8: Matrix verstehen</a></li>
+            <li><a href="matrizenmultiplikation_interaktion.html">Thema 9: Matrizenmultiplikation</a></li>
+            <li><a href="regularization_interaktion.html">Thema 10: Regularization (L1/L2)</a></li>
+          </ol>
+        </div>
         <p id="gradient-path-teaser" hidden></p>
         <div class="path-content">
           <div class="path-status" id="gradient-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Thema 3 (Bias-Variance) ist dann direkt erreichbar.</div>
@@ -1986,6 +2060,15 @@
         <div class="knowledge-card">
           <div id="knowledge-core-block">
             <h3>Vorteile, Grenzen, Lehrplanbezug</h3>
+            <div class="formula-guide">
+              <strong>Formel-Leseschlüssel (gilt für alle DS-Themen)</strong>
+              <ul>
+                <li><strong>Vorhersage:</strong> y_hat = b0 + b1*x1 + ... + bp*xp. y_hat ist der geschätzte Zielwert.</li>
+                <li><strong>Residuum je Fall:</strong> e_hat_i = y_i - y_hat_i. Das ist der beobachtete Fehler für Fall i.</li>
+                <li><strong>MSE:</strong> (1/n) * Summe (e_hat_i)^2. Das Quadrat verhindert Vorzeichen-Aufhebung und gewichtet große Fehler stärker.</li>
+                <li><strong>J(w):</strong> Loss-Funktion über die Gewichte w. Gradient Descent passt w so an, dass J(w) sinkt.</li>
+              </ul>
+            </div>
             <ul>
               <li><strong>MSE als Loss:</strong> Wir minimieren J(w), um bessere Modellparameter zu erhalten.</li>
               <li><strong>Batch/Mini-Batch/SGD:</strong> stabiler vs. schneller, dafür unterschiedlich verrauschte Updates.</li>

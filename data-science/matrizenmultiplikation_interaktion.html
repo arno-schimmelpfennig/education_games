@@ -909,6 +909,31 @@
       line-height: 1.45;
     }
 
+    .formula-guide {
+      margin: 0 0 10px;
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .formula-guide strong {
+      color: #1f3f72;
+      font-size: 0.82rem;
+    }
+
+    .formula-guide ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3e4f68;
+    }
+
     #quiz-overlay {
       position: fixed;
       inset: 0;
@@ -1294,6 +1319,15 @@
 
         <div class="knowledge-card">
           <h3>Kernideen</h3>
+          <div class="formula-guide">
+            <strong>Formel-Leseschlüssel</strong>
+            <ul>
+              <li><strong>Batch-Vorhersage:</strong> y_hat = X * w + b für viele Zeilen auf einmal.</li>
+              <li><strong>Shape-Regel:</strong> X(m x n) * w(n x 1) ergibt y_hat(m x 1).</li>
+              <li><strong>Nicht vertauschbar:</strong> X*w ist nicht automatisch gleich w*X.</li>
+              <li><strong>Fehler je Zeile:</strong> e_hat_i = y_i - y_hat_i; daraus entsteht später die Loss-Funktion.</li>
+            </ul>
+          </div>
           <ul>
             <li><strong>Dot-Product:</strong> Pro Zeile werden Merkmal*Gewicht-Beiträge aufsummiert.</li>
             <li><strong>Batch:</strong> X*w rechnet alle Zeilen in einem mathematischen Block.</li>

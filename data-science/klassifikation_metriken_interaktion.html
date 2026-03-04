@@ -90,6 +90,7 @@
     }
 
     .story-box,
+    .thread-box,
     .step-box,
     .chat-box,
     .answer-box,
@@ -110,6 +111,7 @@
     }
 
     .story-box,
+    .thread-box,
     .step-box,
     .chat-box,
     .answer-box,
@@ -121,6 +123,7 @@
     }
 
     .story-box strong,
+    .thread-box strong,
     .chat-box strong,
     .answer-box strong,
     .usage-box strong,
@@ -128,6 +131,16 @@
       display: block;
       margin-bottom: 6px;
       color: #2c3a53;
+    }
+
+    .thread-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #42526b;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      display: grid;
+      gap: 4px;
     }
 
     .step-box h3 {
@@ -406,6 +419,30 @@
       margin-top: 8px;
       font-size: 0.84rem;
       color: #52627c;
+    }
+
+    .formula-guide {
+      border: 1px solid #d7e0ee;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .formula-guide strong {
+      color: #2b4266;
+      font-size: 0.82rem;
+    }
+
+    .formula-guide ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3f4f68;
     }
 
     .sigmoid-card {
@@ -826,7 +863,16 @@
 
       <div class="didactic-box">
         <strong>Didaktischer Modus in diesem Kapitel</strong>
-        Wir arbeiten in kleinen Schritten: erst alltagsnahes Bild, dann Formel, dann direkter Test am Regler. Jede Stufe nutzt eine Lernmethode mit sofortigem Feedback.
+        Wir arbeiten in kleinen Schritten: erst alltagsnahes Bild, dann Formel, dann direkter Test am Regler. Neue Begriffe kommen erst, wenn der vorherige Schritt sitzt.
+      </div>
+
+      <div class="thread-box">
+        <strong>Roter Faden in 3 Stationen</strong>
+        <ul>
+          <li>1) Das Modell gibt eine Wahrscheinlichkeit zwischen 0 und 1 aus.</li>
+          <li>2) Der Threshold macht daraus eine klare Ja/Nein-Entscheidung.</li>
+          <li>3) Metriken zeigen, ob diese Entscheidung zum Alltag und Risiko passt.</li>
+        </ul>
       </div>
 
       <div class="step-box">
@@ -897,18 +943,11 @@
 
     <main id="stage">
       <section class="codepath-bar" aria-label="Codepfad Navigation">
-        <div class="codepath-title">Lernpfad</div>
+        <div class="codepath-title">Codepfad</div>
         <div class="codepath-steps">
-          <a class="codepath-step is-disabled" href="lineare_regression_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">1</span><span>Lineare Regression</span></a>
-          <a class="codepath-step is-disabled" href="gradient_descent_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">2</span><span>Gradient Descent</span></a>
-          <a class="codepath-step is-disabled" href="bias_variance_tradeoff_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">3</span><span>Bias-Variance</span></a>
-          <a class="codepath-step active" href="klassifikation_metriken_interaktion.html"><span class="codepath-index">4</span><span>Logistische Klassifikation und Metriken</span></a>
-          <a class="codepath-step is-disabled" href="knn_grundlagen_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">5</span><span>KNN Grundlagen</span></a>
-          <a class="codepath-step is-disabled" href="knn_hyperparameter_tuning_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">6</span><span>KNN Hyperparameter</span></a>
-          <a class="codepath-step is-disabled" href="distanzmetriken_und_scaling_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">7</span><span>Distanzmetriken + Scaling</span></a>
-          <a class="codepath-step is-disabled" href="matrix_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">8</span><span>Matrix</span></a>
-          <a class="codepath-step is-disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">9</span><span>Matrizenmultiplikation</span></a>
-          <a class="codepath-step is-disabled" href="regularization_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">10</span><span>Regularization</span></a>
+          <a class="codepath-step is-disabled" href="lineare_regression_code_praxis.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">1</span><span>Linear Regression</span></a>
+          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">2</span><span>Gradient Descent</span></a>
+          <a class="codepath-step active" href="predictive_modeling_code_praxis.html"><span class="codepath-index">3</span><span>Predictive Modeling</span></a>
         </div>
       </section>
 
@@ -942,6 +981,15 @@
               <span>Schritt 2 (Wahrscheinlichkeit):</span>
               <span class="line" id="sigmoid-line-2">p = 1 / (1 + e^(-logit))</span>
               <span class="line" id="sigmoid-line-3">Grenzpunkt bei p = 0.5: x* = -b0 / b1</span>
+            </div>
+            <div class="formula-guide">
+              <strong>Formel-Leseschluessel fuer diesen Block</strong>
+              <ul>
+                <li><strong>logit:</strong> logit = b0 + b1*x ist ein linearer Score vor der Wahrscheinlichkeits-Umrechnung.</li>
+                <li><strong>Sigmoid:</strong> p = 1 / (1 + e^(-logit)) macht aus jedem Score eine Zahl zwischen 0 und 1.</li>
+                <li><strong>Wichtig:</strong> Das <code>e</code> in e^(-logit) ist die Euler-Zahl (ca. 2.718), nicht ein Fehlerterm.</li>
+                <li><strong>Warum diese Form?</strong> So bleiben lineare Zusammenhaenge in den Parametern erhalten, aber die Ausgabe ist eine gueltige Wahrscheinlichkeit.</li>
+              </ul>
             </div>
             <canvas id="sigmoid-canvas" width="560" height="230" aria-label="Live-Plot der logistischen Kurve"></canvas>
             <div class="sigmoid-legend">
@@ -1062,6 +1110,7 @@
 
           <article class="card" style="padding:12px;">
             <h3 style="margin-bottom:8px;">Metrik-Interpretation</h3>
+            <p style="margin:0 0 8px;color:#4b5e79;font-size:0.82rem;line-height:1.4;">Einstieg: zuerst Accuracy, Precision, Recall. Danach erst die erweiterten Kennzahlen.</p>
             <ul style="margin:0;padding-left:18px;color:#4b5e79;font-size:0.84rem;line-height:1.45;">
               <li><strong>Accuracy:</strong> Wie oft insgesamt richtig.</li>
               <li><strong>Precision:</strong> Wenn Modell "positiv" sagt - wie oft stimmt das?</li>
@@ -1139,16 +1188,16 @@
       },
       {
         title: "Schritt 7: Metriken im Tradeoff lesen",
-        text: "Mit derselben Kurve kann Mila unterschiedliche Schwellen waehlen. Dadurch verschieben sich Precision, Recall, Specificity und FPR. ROC- und PR-Sicht helfen, die passende Balance fuer den Use Case zu finden.",
+        text: "Mit derselben Kurve kann Mila unterschiedliche Schwellen waehlen. Sie startet bewusst mit drei Kernmetriken: Accuracy, Precision und Recall. Erst danach kommen Specificity, FPR und ROC als Erweiterung hinzu.",
         chat: "Welche Metrik waere fuer euch wichtiger, wenn uebersehene Positive besonders teuer sind?",
         answer: "Dann wird Recall zentral, auch wenn eventuell mehr False Positives akzeptiert werden muessen.",
         focus: "metrics"
       },
       {
-        title: "Schritt 8: Wie lernt das Modell? Loss, Gradient, Mehrklassen",
-        text: "Zum Schluss verknuepft Mila alles: Das Training minimiert Log-Loss, typischerweise mit Gradient Descent. Fuer mehrere Klassen stellt man mehrere Ja/Nein-Fragen (One-vs-Rest). Danach geht es logisch weiter mit Matrixdarstellung.",
-        chat: "Welche Information aus diesem Kapitel landet als naechstes in X und b?",
-        answer: "Die Merkmale pro Fall werden zu Spalten in X, die Gewichte zu b. Logistische Regression schreibt sich dann kompakt als sigmoid(X*b).",
+        title: "Schritt 8: Abschluss und Uebergang zu KNN",
+        text: "Mila fasst zusammen: Das Modell liefert Wahrscheinlichkeiten, der Threshold trifft die Ja/Nein-Entscheidung und Metriken machen Fehlerkosten sichtbar. Als naechstes vergleicht sie neue Faelle mit aehnlichen Faellen (KNN) statt mit einer festen Kurve.",
+        chat: "Welchen Merksatz nimmst du in den naechsten Schritt mit?",
+        answer: "Merksatz: erst Wahrscheinlichkeit, dann Entscheidung, dann Metrik-Check. Genau dieses Muster nutzt ihr gleich wieder bei KNN.",
         focus: "bridge"
       }
     ];
@@ -1191,16 +1240,16 @@
         reflection: "Welcher Fehlertyp ist in eurem Umfeld am teuersten?"
       },
       {
-        goal: "Metriken als Tradeoff lesen statt als Einzelzahl.",
-        method: "Retrieval Practice + Decision Table je Threshold (ROC/PR als Vergleichsbild).",
-        why: "Damit wird Metrik-Wahl zur begruendeten Entscheidung statt Bauchgefuehl.",
+        goal: "Metriken stufenweise lesen: erst Kernmetriken, dann Erweiterung.",
+        method: "Scaffolding + Retrieval Practice je Threshold.",
+        why: "Die Lernlast bleibt niedrig und die Metrik-Wahl wird trotzdem begruendet.",
         reflection: "Welche Metrik muss im Report immer zuerst genannt werden?"
       },
       {
-        goal: "Training und Erweiterung auf Mehrklassen als naechste Stufe einordnen.",
-        method: "Concept Mapping + Transferfrage Richtung Matrixschreibweise.",
-        why: "So schliesst das Kapitel inhaltlich sauber an Matrix und Matrizenmultiplikation an.",
-        reflection: "Welche Formel aus diesem Kapitel moechtest du als Merksatz mitnehmen?"
+        goal: "Den Ablauf als Merkkette sichern und ruhig in KNN ueberleiten.",
+        method: "Advance Organizer + Concept Mapping (Merkkette vor neuem Kapitel).",
+        why: "So endet das Thema ohne Begriffs-Sprung und der Uebergang bleibt nachvollziehbar.",
+        reflection: "Welche 3-Wort-Kette merkst du dir: Wahrscheinlichkeit, Entscheidung, ...?"
       }
     ];
 
@@ -1219,8 +1268,8 @@
       },
       {
         caption: "Sigmoid drueckt jeden Score in den Bereich 0 bis 1.",
-        line: "sigmoid(t) = 1 / (1 + e^(-t)), mit t -> -inf => 0 und t -> +inf => 1",
-        meta: "Damit wird aus einem unbegrenzten Score t eine interpretierbare Wahrscheinlichkeit p.",
+        line: "logit = b0 + b1*x, p = sigmoid(logit) = 1 / (1 + e^(-logit))",
+        meta: "logit ist der lineare Score; die Sigmoid-Funktion macht daraus eine gueltige Wahrscheinlichkeit p zwischen 0 und 1.",
         method: "Methode: Worked Example + Grenzfaelle"
       },
       {
@@ -1243,15 +1292,15 @@
       },
       {
         caption: "Metriken im Schwellen-Tradeoff.",
-        line: "Precision=TP/(TP+FP), Recall=TP/(TP+FN), Specificity=TN/(TN+FP), FPR=FP/(FP+TN)",
-        meta: "Threshold veraendert alle diese Werte gleichzeitig. ROC/PR macht den Tradeoff sichtbar.",
-        method: "Methode: Retrieval Practice + Decision Table"
+        line: "Start: Accuracy=(TP+TN)/N, Precision=TP/(TP+FP), Recall=TP/(TP+FN)",
+        meta: "Wenn diese drei klar sind, folgen Specificity/FPR und danach ROC als Erweiterung.",
+        method: "Methode: Scaffolding + Retrieval Practice"
       },
       {
-        caption: "Training und Mehrklassen-Bruecke.",
-        line: "Log-Loss = -[y*ln(p) + (1-y)*ln(1-p)], Update via Gradient Descent, Mehrklassen via One-vs-Rest",
-        meta: "Danach schreiben wir das kompakt in Matrixform als sigmoid(X*b).",
-        method: "Methode: Concept Mapping + Transfer"
+        caption: "Kapitelabschluss mit klarer Lernkette.",
+        line: "Merkkette: Wahrscheinlichkeit -> Threshold -> TP/TN/FP/FN -> passende Metrik",
+        meta: "Naechstes Kapitel: KNN entscheidet ueber Aehnlichkeit von Nachbarn, aber die Bewertungslogik bleibt gleich.",
+        method: "Methode: Advance Organizer + Transfer"
       }
     ];
 

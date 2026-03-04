@@ -774,6 +774,31 @@
       line-height: 1.45;
     }
 
+    .formula-guide {
+      margin: 0 0 10px;
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .formula-guide strong {
+      color: #1f3f72;
+      font-size: 0.82rem;
+    }
+
+    .formula-guide ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3e4f68;
+    }
+
     .badge-webinar {
       display: inline-block;
       margin-top: 4px;
@@ -1221,6 +1246,15 @@
 
         <div class="knowledge-card">
           <h3>Vorteile, Grenzen und Gleichungen</h3>
+          <div class="formula-guide">
+            <strong>Formel-Leseschlüssel</strong>
+            <ul>
+              <li><strong>Grundidee:</strong> J = MSE + alpha * Penalty. Ein Teil passt Daten an, ein Teil bremst große Gewichte.</li>
+              <li><strong>Ridge (L2):</strong> Penalty = Summe b_j^2, schrumpft Gewichte weich Richtung 0.</li>
+              <li><strong>Lasso (L1):</strong> Penalty = Summe |b_j|, kann Gewichte exakt auf 0 setzen.</li>
+              <li><strong>Warum Quadrat bei L2?</strong> Große Koeffizienten werden überproportional stärker bestraft und die Optimierung bleibt glatt.</li>
+            </ul>
+          </div>
           <ul>
             <li><strong>Ridge/L2:</strong> Schiebt Koeffizienten Richtung 0, aber selten exakt auf 0.</li>
             <li><strong>Lasso/L1:</strong> Kann Koeffizienten auf 0 setzen und wirkt als Feature-Selektion.</li>

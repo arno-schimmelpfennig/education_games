@@ -118,6 +118,43 @@
       display: none;
     }
 
+    .path-roadmap {
+      margin-top: 8px;
+      background: #ffffff;
+      border: 1px dashed #c9d3e3;
+      border-radius: 9px;
+      padding: 8px 9px;
+    }
+
+    .path-roadmap strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #2d456f;
+    }
+
+    .path-roadmap ol {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 4px;
+      font-size: 0.79rem;
+      line-height: 1.35;
+      color: #41526c;
+    }
+
+    .path-roadmap a {
+      color: #244b84;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .path-roadmap a:hover {
+      text-decoration: underline;
+    }
+
     .path-link {
       display: block;
       width: 100%;
@@ -690,6 +727,31 @@
     .formula-dictionary dd {
       margin: 0;
       line-height: 1.38;
+    }
+
+    .formula-guide {
+      margin-bottom: 10px;
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .formula-guide strong {
+      color: #1f3f72;
+      font-size: 0.82rem;
+    }
+
+    .formula-guide ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3e4f68;
     }
 
     .bottom-panel {
@@ -1280,6 +1342,18 @@
 
       <div class="path-box" id="bias-path-box">
         <strong>Nächste Schritte</strong>
+        <div class="path-roadmap">
+          <strong>Gesamtpfad ab Thema 4</strong>
+          <ol>
+            <li><a href="klassifikation_metriken_interaktion.html">Thema 4: Logistische Klassifikation und Metriken</a></li>
+            <li><a href="knn_grundlagen_interaktion.html">Thema 5: KNN Grundlagen</a></li>
+            <li><a href="knn_hyperparameter_tuning_interaktion.html">Thema 6: KNN Hyperparameter-Tuning</a></li>
+            <li><a href="distanzmetriken_und_scaling_interaktion.html">Thema 7: Distanzmetriken und Scaling</a></li>
+            <li><a href="matrix_interaktion.html">Thema 8: Matrix verstehen</a></li>
+            <li><a href="matrizenmultiplikation_interaktion.html">Thema 9: Matrizenmultiplikation</a></li>
+            <li><a href="regularization_interaktion.html">Thema 10: Regularization (L1/L2)</a></li>
+          </ol>
+        </div>
         <p id="bias-path-teaser" hidden></p>
         <div class="path-content">
           <div class="path-status" id="bias-quiz-status">Mini-Quiz wird nach Schritt 6 angeboten. Danach wird Thema 4 (Logistische Klassifikation & Metriken) freigeschaltet.</div>
@@ -1529,6 +1603,15 @@
 
         <div class="knowledge-card">
           <h3>Vorteile und Grenzen</h3>
+          <div class="formula-guide">
+            <strong>Formel-Leseschlüssel: Warum Bias²?</strong>
+            <ul>
+              <li><strong>Hut-Notation:</strong> y_hat oder f_hat bedeutet „vom Modell geschätzt“, nicht der echte unbekannte Wert.</li>
+              <li><strong>Bias wird quadriert:</strong> Bias kann positiv oder negativ sein. Bias² macht die Größe vergleichbar und immer nicht-negativ.</li>
+              <li><strong>Varianz ist bereits quadratisch:</strong> Varianz = E[(f_hat - E[f_hat])²], daher steckt das Quadrat schon in der Definition.</li>
+              <li><strong>Rauschen steht als sigma²:</strong> Auch der irreduzierbare Fehler wird als quadratische Größe gemessen. So haben alle Terme dieselbe Einheit wie MSE.</li>
+            </ul>
+          </div>
           <div class="decomposition-panel is-locked" id="decomposition-panel">
             <h4>Theorie-Panel: Fehlerzerlegung (live)</h4>
             <p class="decomposition-intro" id="decomposition-intro">Ab Schritt 4 aktiv: Dort zerlegen wir den Fehler sichtbar in Bias², Varianz und Rauschen.</p>

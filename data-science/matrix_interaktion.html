@@ -762,6 +762,31 @@
       line-height: 1.45;
     }
 
+    .formula-guide {
+      margin: 0 0 10px;
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      padding: 9px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .formula-guide strong {
+      color: #1f3f72;
+      font-size: 0.82rem;
+    }
+
+    .formula-guide ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.8rem;
+      line-height: 1.38;
+      color: #3e4f68;
+    }
+
     .shape-bridge {
       margin-top: 10px;
       padding: 9px 10px;
@@ -1189,6 +1214,15 @@
 
         <div class="knowledge-card">
           <h3>Warum Matrix statt 1 Achse?</h3>
+          <div class="formula-guide">
+            <strong>Formel-Leseschlüssel</strong>
+            <ul>
+              <li><strong>X:</strong> Datenmatrix mit Zeilen = Fälle, Spalten = Merkmale.</li>
+              <li><strong>w:</strong> Gewichtsvektor, ein Gewicht pro Merkmal.</li>
+              <li><strong>Vorhersage:</strong> y_hat = X * w + b. b verschiebt alle Vorhersagen gemeinsam.</li>
+              <li><strong>Fehler:</strong> e_hat_i = y_i - y_hat_i, zusammengefasst z. B. über MAE = (1/n) * Summe |e_hat_i|.</li>
+            </ul>
+          </div>
           <ul>
             <li><strong>Grenze von 1 x-Achse:</strong> Ein Einflussfaktor reicht oft nicht aus.</li>
             <li><strong>Matrix-Idee:</strong> Mehrere Merkmale werden als Spalten nebeneinander organisiert.</li>
