@@ -72,6 +72,7 @@
     }
 
     .story-box,
+    .concept-box,
     .step-box,
     .chat-box,
     .usage-box,
@@ -83,10 +84,21 @@
     }
 
     .story-box strong,
+    .concept-box strong,
     .chat-box strong,
     .usage-box strong,
     .path-box strong {
       color: var(--brand-accent);
+    }
+
+    .concept-box ul {
+      margin: 7px 0 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 5px;
+      font-size: 0.82rem;
+      line-height: 1.36;
+      color: #3f4e66;
     }
 
     .path-box p {
@@ -1056,6 +1068,16 @@
         Ein Team möchte Mieten für Wohnungen vorhersagen. Es gibt viele Merkmale - aber nicht alle sind verlässlich. Das Team muss entscheiden, wie stark das Modell gebremst wird, damit es neue Wohnungen besser einschätzt.
       </div>
 
+      <div class="concept-box">
+        <strong>Kernbegriffe in einfacher Sprache</strong>
+        <ul>
+          <li><strong>Regression:</strong> Wir sagen eine Zahl vorher (z. B. Miete in Euro).</li>
+          <li><strong>Koeffizienten:</strong> Zahlen im Modell, die den Einfluss eines Merkmals steuern (z. B. b_wohnflaeche).</li>
+          <li><strong>Gewichtung:</strong> Der Vorgang, mit dem ein Merkmal durch seinen Koeffizienten staerker oder schwaecher wirkt.</li>
+          <li><strong>Regularisierung:</strong> Eine zusaetzliche Strafe im Lernziel, damit Koeffizienten nicht unnoetig gross werden.</li>
+        </ul>
+      </div>
+
       <div class="step-box">
         <h3 id="step-title"></h3>
         <p id="step-text"></p>
@@ -1237,7 +1259,7 @@
           </div>
 
           <div class="mini-note">
-            Merksatz: Ridge hält alle Features im Spiel, Lasso kann Features ausschalten. Beide reduzieren Overfitting, wenn Lambda passend gewählt ist.
+            Merksatz: Koeffizienten sind gelernte Gewichte. Ridge hält sie klein, Lasso kann einige auf 0 setzen.
           </div>
           <div class="mini-note" id="equation-note">
             Formel folgt im Schrittverlauf.
@@ -1249,10 +1271,12 @@
           <div class="formula-guide">
             <strong>Formel-Leseschlüssel</strong>
             <ul>
-              <li><strong>Grundidee:</strong> J = MSE + alpha * Penalty. Ein Teil passt Daten an, ein Teil bremst große Gewichte.</li>
+              <li><strong>Regression:</strong> y_hat = b0 + Summe(b_j * x_j). b_j sind die Koeffizienten (gelerntes Gewicht pro Merkmal).</li>
+              <li><strong>Was wird hinzugefügt?</strong> Zum Lernziel kommt ein Strafterm: J = MSE + alpha * Penalty.</li>
               <li><strong>Ridge (L2):</strong> Penalty = Summe b_j^2, schrumpft Gewichte weich Richtung 0.</li>
               <li><strong>Lasso (L1):</strong> Penalty = Summe |b_j|, kann Gewichte exakt auf 0 setzen.</li>
               <li><strong>Warum Quadrat bei L2?</strong> Große Koeffizienten werden überproportional stärker bestraft und die Optimierung bleibt glatt.</li>
+              <li><strong>Ausreißer:</strong> Regularisierung bremst Koeffizienten, entfernt Ausreißer aber nicht direkt. Dafür braucht es zusätzlich Outlier-Check/robuste Verfahren.</li>
             </ul>
           </div>
           <ul>
@@ -1264,6 +1288,7 @@
             <li><strong>Weiche Einschränkung:</strong> <code>J = MSE + α · Penalty</code>.</li>
             <li><strong>Geometrische Intuition:</strong> L2 entspricht der Ridge-Kreis-Idee (weiches Schrumpfen), L1 der Diamant-Idee (mehr Nullsetzungen).</li>
             <li><strong>Trade-off:</strong> Zu wenig Strafe = Overfitting, zu viel Strafe = Underfitting.</li>
+            <li><strong>Ausreißer-Effekt:</strong> Bei MSE treiben große Residuen den Fehler stark hoch. Ridge/Lasso begrenzen eher die Modellreaktion, ersetzen aber keine saubere Outlier-Behandlung.</li>
             <li><strong>Feature Engineering zuerst:</strong> Saubere, fachlich sinnvolle Features reduzieren Rauschen, bevor L1/L2 als Bremse wirkt.</li>
             <li><strong>Praxis:</strong> Alpha/Lambda immer über Validierung oder CV tunen (Defaultwerte sind nur Startpunkte).</li>
             <li><strong>Ziel:</strong> Bessere Generalisierung auf neuen Daten, nicht perfekte Trainingswerte.</li>
@@ -1302,29 +1327,29 @@
 
     const steps = [
       {
-        title: "Schritt 1: Recap Bias-Varianz",
-        text: "Bevor wir regularisieren, klären wir das Problem: Overfitting bedeutet meist niedriger Trainingsfehler, aber hoher Testfehler. Genau dort setzt Regularisierung an.",
-        chat: "Chat: Woran erkennt ihr in euren Projekten, dass ein Modell zu nervös auf Trainingsdaten reagiert?"
+        title: "Schritt 1: Was ist Regression hier?",
+        text: "Regression heißt: Wir sagen eine Zahl vorher, zum Beispiel Mietpreis in Euro. Das Modell nutzt y_hat = b0 + Summe(b_j*x_j). Die Koeffizienten b_j sind gelernte Gewichte je Merkmal.",
+        chat: "Chat: Welche Merkmale sollten bei einer Mietpreis-Regression aus eurer Sicht das höchste Gewicht haben?"
       },
       {
         title: "Schritt 2: Harte Einschränkung verstehen",
-        text: "Stellt euch eine Regel vor: Koeffizienten dürfen nur in einem erlaubten Bereich liegen. Das ist die harte Einschränkung mit t als Grenze. Das ist besonders hilfreich, wenn die wahre Daten-Generierungsfunktion unbekannt ist und Daten stark streuen.",
-        chat: "Chat: Warum könnte eine feste Grenze für Gewichte vor Übertreibung schützen?"
+        text: "Ohne Bremse können Koeffizienten zu groß werden und auf Rauschen reagieren. Eine harte Einschränkung setzt eine feste Grenze t: Gewichte dürfen nur in einem erlaubten Bereich liegen.",
+        chat: "Chat: Warum kann eine feste Obergrenze für Koeffizienten bei schwankenden Daten helfen?"
       },
       {
         title: "Schritt 3: Von hart zu weich (alpha)",
-        text: "Statt fixer Grenze ergänzen wir die Kostenfunktion um einen Strafterm: J = MSE + alpha * Penalty. So wird die Bremse flexibel einstellbar. Alpha/Lambda ist ein Hyperparameter und muss validiert werden.",
-        chat: "Chat: Was passiert, wenn alpha = 0 und was bei sehr großem alpha?"
+        text: "Statt fixer Grenze addieren wir eine Strafe direkt zur Zielfunktion: J = MSE + alpha * Penalty. Genau das wird hinzugefügt. alpha (Lambda) steuert die Stärke dieser Strafe.",
+        chat: "Chat: Was bedeutet alpha = 0 im Vergleich zu sehr großem alpha?"
       },
       {
         title: "Schritt 4: Ridge (L2) live",
-        text: "Bleibt im Ridge-Modus und erhöht Lambda schrittweise. Alle Gewichte schrumpfen, aber selten exakt auf 0. Geometrisch zieht die L2-Strafe die Lösung in Richtung Nullpunkt (Ridge-Kreis-Idee).",
-        chat: "Chat: Wann ist euch weiche Schrumpfung lieber als komplette Merkmalsentfernung?"
+        text: "Ridge nutzt als Bestrafung die Summe der quadrierten Koeffizienten (L2). Wirkung: alle Gewichte werden kleiner, meist aber nicht exakt null.",
+        chat: "Chat: Wann ist euch diese weiche Schrumpfung lieber als harte Selektion?"
       },
       {
         title: "Schritt 5: Lasso (L1) live",
-        text: "Wechselt zu Lasso. Mit steigender Strafe werden einzelne Koeffizienten exakt 0. Das ist implizite Feature-Selektion.",
-        chat: "Chat: Welche Merkmale wären in eurem Kontext gute Kandidaten zum Herausfiltern?"
+        text: "Lasso nutzt als Bestrafung die Summe der absoluten Koeffizienten (L1). Wirkung: einige Gewichte werden genau 0 - dadurch entsteht Feature-Selektion.",
+        chat: "Chat: Welche Merkmale wären gute Kandidaten, die Lasso auf 0 setzen darf?"
       },
       {
         title: "Schritt 6: Elastic Net als Mischung",
@@ -1333,23 +1358,23 @@
       },
       {
         title: "Schritt 7: Lambda- und r-Tuning",
-        text: "Lest Train/Test zusammen: nicht den kleinsten Trainingsfehler suchen, sondern den stabilen Bereich auf Testdaten.",
+        text: "Lest Train/Test zusammen: nicht den kleinsten Trainingsfehler suchen, sondern den stabilen Bereich auf Testdaten. Achtung Ausreißer: sie treiben MSE stark, daher immer Residuen und auffällige Fälle mitprüfen.",
         chat: "Chat: Welche Parameter würdet ihr zuerst mit CV abstimmen: alpha, r oder beides?"
       },
       {
         title: "Schritt 8: Transfer in den Workflow",
-        text: "Der nächste Praxisablauf: Split, Standardisierung, Modellwahl (Ridge/Lasso/ElasticNet), Hyperparameter-Tuning, Residuen-Check und finaler Test.",
+        text: "Der nächste Praxisablauf: Split, Standardisierung, Modellwahl (Ridge/Lasso/ElasticNet), Hyperparameter-Tuning, Residuen-Check (inkl. Ausreißer) und finaler Test.",
         chat: "Chat: Welche Entscheidung in eurem Team wird durch diesen Ablauf sofort robuster?"
       }
     ];
 
     const stepTemplate = [
       {
-        goal: "Bias-Varianz und Overfitting als Ausgangsproblem verankern.",
+        goal: "Regression, Koeffizient und Gewichtung sauber unterscheiden.",
         method: "Aktivierungsfrage + kurze Retrieval-Abfrage.",
-        why: "Nur wer das Problem klar sieht, versteht den Nutzen von Regularisierung.",
-        consequence: "Wenn Overfitting nicht erkannt wird, wird Lambda zufällig statt zielgerichtet gesetzt.",
-        reflection: "Welche Warnsignale für Overfitting kennt ihr bereits?"
+        why: "Ohne Begriffsklarheit wirkt Regularisierung wie ein reiner Formeltrick.",
+        consequence: "Wenn Koeffizienten als Gewichte verstanden werden, wird die Wirkung von Strafen nachvollziehbar.",
+        reflection: "Welche zwei Merkmale würdest du in einer Regression zuerst gewichten?"
       },
       {
         goal: "Harte Einschränkung als geometrische Regel verstehen.",
@@ -1362,8 +1387,8 @@
         goal: "Weiche Einschränkung mit Kostenfunktion sicher lesen.",
         method: "Scaffolding: erst Symbole benennen, dann Formel lesen.",
         why: "Die Formel J = MSE + alpha * Penalty ist die zentrale Sprache für Ridge/Lasso/Elastic Net.",
-        consequence: "Wenn alpha falsch interpretiert wird, wird Modellsteuerung fachlich unzuverlässig.",
-        reflection: "Welcher Teil der Gleichung ist Fehler, welcher ist Bremse?"
+        consequence: "Wenn unklar bleibt, was genau hinzugefügt wird, wird Modellsteuerung fachlich unzuverlässig.",
+        reflection: "Welcher Term passt Daten an, welcher Term bremst Koeffizienten?"
       },
       {
         goal: "Ridge-Wirkung auf Koeffizienten und Fehlerbild anwenden.",
@@ -1403,9 +1428,9 @@
     ];
 
     const stepEquations = [
-      "Recap: MSE(y-hat) = Bias^2 + Varianz + Rauschen",
+      "Regression: y_hat = b0 + Summe(b_j*x_j), b_j = Koeffizienten (Gewichte pro Merkmal)",
       "Harte Einschränkung: min J(b) unter der Bedingung Summe|b_j| <= t oder Summe b_j^2 <= t",
-      "Weiche Einschränkung: J(b) = MSE + alpha * Penalty (alpha/lambda per Validierung tunen)",
+      "Weiche Einschränkung: J(b) = MSE + alpha * Penalty (genau dieser Strafterm wird hinzugefügt)",
       "Ridge (L2): J(b) = MSE + alpha * Summe b_j^2 (Richtung Nullpunkt)",
       "Lasso (L1): J(b) = MSE + alpha * Summe |b_j|",
       "Elastic Net: J(b) = MSE + r*alpha*Summe|b_j| + (1-r)*alpha*Summe b_j^2",

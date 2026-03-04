@@ -709,6 +709,181 @@
     .cell-fp { background: #fff0f0; color: #8f3131; }
     .cell-tn { background: #eef5ff; color: #295187; }
 
+    .sort-legend {
+      display: grid;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .sort-legend-item {
+      border: 1px solid #d6dfed;
+      border-radius: 8px;
+      background: #fff;
+      padding: 7px;
+      display: grid;
+      gap: 2px;
+      font-size: 0.79rem;
+      color: #3f4f68;
+      line-height: 1.36;
+    }
+
+    .sort-legend-item strong {
+      color: #2f3f58;
+    }
+
+    .sort-legend-item.tp { border-left: 4px solid #2f8b4c; }
+    .sort-legend-item.tn { border-left: 4px solid #2f5d9b; }
+    .sort-legend-item.fp { border-left: 4px solid #9a334a; }
+    .sort-legend-item.fn { border-left: 4px solid #ba7c1f; }
+
+    .sorting-board {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .sorting-bin {
+      border: 1px solid #d7e0ee;
+      border-radius: 10px;
+      padding: 7px;
+      min-height: 108px;
+      background: #fff;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 6px;
+    }
+
+    .sorting-bin h4 {
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #2f3f58;
+    }
+
+    .sorting-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      border: 1px solid rgba(44, 63, 88, 0.2);
+      background: #fff;
+      color: #2f3f58;
+    }
+
+    .sorting-bin.tp { background: #eefaf0; }
+    .sorting-bin.tn { background: #eef5ff; }
+    .sorting-bin.fp { background: #fff0f0; }
+    .sorting-bin.fn { background: #fff5e8; }
+
+    .bin-cases {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-content: flex-start;
+    }
+
+    .case-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(36, 50, 74, 0.18);
+      background: #fff;
+      color: #2f3f58;
+      padding: 2px 7px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .metric-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .metric-tile {
+      border: 1px solid #d5deed;
+      border-radius: 9px;
+      background: #fff;
+      padding: 7px;
+      display: grid;
+      gap: 3px;
+      font-size: 0.78rem;
+      color: #3e4e68;
+      line-height: 1.35;
+    }
+
+    .metric-tile strong {
+      color: #2f3f58;
+    }
+
+    .metric-tile code {
+      display: inline-block;
+      width: fit-content;
+      border: 1px solid #d6deec;
+      border-radius: 6px;
+      background: #f7faff;
+      padding: 1px 5px;
+      color: #2c4063;
+      font-size: 0.74rem;
+    }
+
+    .threshold-coach {
+      margin-top: 8px;
+      border: 1px solid #d4ddec;
+      border-radius: 9px;
+      background: #f9fcff;
+      padding: 8px;
+      font-size: 0.8rem;
+      color: #465670;
+      line-height: 1.42;
+      display: grid;
+      gap: 6px;
+    }
+
+    .threshold-coach strong {
+      color: #2f466d;
+    }
+
+    .threshold-coach ol {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .threshold-helper {
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .threshold-helper label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #2f466d;
+    }
+
+    .threshold-helper select {
+      width: 100%;
+      border: 1px solid #cfd9ea;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font: inherit;
+      font-size: 0.81rem;
+      color: #33445f;
+      background: #fff;
+    }
+
     .panel-note {
       margin-top: 8px;
       padding: 8px;
@@ -855,6 +1030,13 @@
       }
 
       .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .sorting-board,
+      .metric-deck {
         grid-template-columns: 1fr;
       }
     }
@@ -1176,18 +1358,65 @@
             <div class="panel-note" id="matrix-note">Ziel: TP und TN hoch, FP und FN kontrolliert - passend zum Use Case.</div>
           </article>
 
-          <article class="card" style="padding:12px;">
-            <h3 style="margin-bottom:8px;">Metrik-Interpretation</h3>
-            <p style="margin:0 0 8px;color:#4b5e79;font-size:0.82rem;line-height:1.4;">Einstieg: zuerst Accuracy, Precision, Recall. Danach erst die erweiterten Kennzahlen.</p>
-            <ul style="margin:0;padding-left:18px;color:#4b5e79;font-size:0.84rem;line-height:1.45;">
-              <li><strong>Accuracy:</strong> Wie oft insgesamt richtig.</li>
-              <li><strong>Precision:</strong> Wenn Modell "positiv" sagt - wie oft stimmt das?</li>
-              <li><strong>Recall:</strong> Wie viele echte Positive wurden gefunden?</li>
-              <li><strong>Specificity:</strong> Wie viele echte Negative wurden korrekt als negativ erkannt?</li>
-              <li><strong>FPR:</strong> Wie oft ist ein echter Negativ-Fall faelschlich positiv?</li>
-              <li><strong>F1:</strong> Kompromiss aus Precision und Recall.</li>
-              <li><strong>ROC-AUC:</strong> Gesamtsicht ueber viele Thresholds.</li>
-            </ul>
+          <article class="card" id="sorting-card" style="padding:12px;">
+            <h3 style="margin-bottom:8px;">Mila sortiert live: TP, TN, FP, FN</h3>
+            <p style="margin:0 0 8px;color:#4b5e79;font-size:0.82rem;line-height:1.4;">Jeder Fall landet in genau einem Feld. So werden richtige Entscheidungen und Fehlertypen sofort sichtbar.</p>
+            <div class="sort-legend" aria-label="Definitionen TP TN FP FN">
+              <div class="sort-legend-item tp"><strong>TP (True Positive)</strong><span>Modell sagt positiv, Ist ist positiv. Treffer bei echten Positiven.</span></div>
+              <div class="sort-legend-item tn"><strong>TN (True Negative)</strong><span>Modell sagt negativ, Ist ist negativ. Treffer bei echten Negativen.</span></div>
+              <div class="sort-legend-item fp"><strong>FP (False Positive)</strong><span>Modell sagt positiv, Ist ist negativ. Falscher Alarm.</span></div>
+              <div class="sort-legend-item fn"><strong>FN (False Negative)</strong><span>Modell sagt negativ, Ist ist positiv. Uebersehener Positiv-Fall.</span></div>
+            </div>
+            <div class="sorting-board" aria-label="Live Sortierboard fuer TP TN FP FN">
+              <section class="sorting-bin tp">
+                <h4>TP <span class="sorting-count" id="bin-count-tp">0</span></h4>
+                <div class="bin-cases" id="bin-tp"></div>
+              </section>
+              <section class="sorting-bin tn">
+                <h4>TN <span class="sorting-count" id="bin-count-tn">0</span></h4>
+                <div class="bin-cases" id="bin-tn"></div>
+              </section>
+              <section class="sorting-bin fp">
+                <h4>FP <span class="sorting-count" id="bin-count-fp">0</span></h4>
+                <div class="bin-cases" id="bin-fp"></div>
+              </section>
+              <section class="sorting-bin fn">
+                <h4>FN <span class="sorting-count" id="bin-count-fn">0</span></h4>
+                <div class="bin-cases" id="bin-fn"></div>
+              </section>
+            </div>
+            <div class="panel-note" id="sorting-note">Ab Schritt 5 aktiv: dann siehst du live, wie der Threshold Faelle zwischen FP und FN verschiebt.</div>
+          </article>
+
+          <article class="card" id="metrics-card" style="padding:12px;">
+            <h3 style="margin-bottom:8px;">Schritt 7: Kernmetriken und Schwellenwahl</h3>
+            <p style="margin:0 0 8px;color:#4b5e79;font-size:0.82rem;line-height:1.4;">Mila startet mit drei Kernmetriken: <strong>ACC</strong> (Accuracy), <strong>PRE</strong> (Precision) und <strong>REC</strong> (Recall). Erst dann kommen Erweiterungen wie SPC, FPR und ROC-AUC.</p>
+            <div class="metric-deck" aria-label="Metriken mit Abkuerzungen">
+              <div class="metric-tile"><strong>ACC (Accuracy)</strong><span>Anteil aller richtigen Entscheidungen.</span><code>ACC = (TP + TN) / N</code></div>
+              <div class="metric-tile"><strong>PRE (Precision / PPV)</strong><span>Wie verlaesslich ein positiver Alarm ist.</span><code>PRE = TP / (TP + FP)</code></div>
+              <div class="metric-tile"><strong>REC (Recall / TPR)</strong><span>Wie viele echte Positive gefunden werden.</span><code>REC = TP / (TP + FN)</code></div>
+              <div class="metric-tile"><strong>SPC (Specificity / TNR)</strong><span>Wie viele echte Negative korrekt negativ sind.</span><code>SPC = TN / (TN + FP)</code></div>
+              <div class="metric-tile"><strong>FPR (False Positive Rate)</strong><span>Anteil falscher positiver Alarme bei echten Negativen.</span><code>FPR = FP / (FP + TN)</code></div>
+              <div class="metric-tile"><strong>F1</strong><span>Balance zwischen PRE und REC.</span><code>F1 = 2 * PRE * REC / (PRE + REC)</code></div>
+            </div>
+            <div class="threshold-coach">
+              <strong>Wie waehlt man die Schwelle tau?</strong>
+              <ol>
+                <li>Fehlerkosten klären: Ist <code>FN</code> oder <code>FP</code> teurer?</li>
+                <li>Zielmetrik festlegen: hohe <code>REC</code>, hohe <code>PRE</code> oder Balance (<code>F1</code>).</li>
+                <li>Mehrere Schwellen auf Validierungsdaten testen (nicht auf Trainingsdaten).</li>
+                <li>Schwelle waehlen, dokumentieren und auf Testdaten final pruefen.</li>
+              </ol>
+            </div>
+            <div class="threshold-helper">
+              <label for="threshold-goal">Schwellenziel fuer dieses Beispiel</label>
+              <select id="threshold-goal">
+                <option value="balanced">Ausgewogen (F1 priorisieren)</option>
+                <option value="recall">Nichts uebersehen (Recall priorisieren)</option>
+                <option value="precision">Wenig Fehlalarm (Precision priorisieren)</option>
+              </select>
+            </div>
+            <div class="panel-note" id="threshold-choice-note">Ab Schritt 7 aktiv: Waehle ein Ziel und vergleiche Vorschlagsschwelle mit deiner aktuellen Schwelle.</div>
             <div class="panel-note" id="imbalance-note">Merker: Bei unausgewogenen Klassen kann Accuracy allein taeuschen.</div>
           </article>
         </div>
@@ -1242,23 +1471,23 @@
       },
       {
         title: "Schritt 5: Bedingte Wahrscheinlichkeit und Threshold",
-        text: "Jetzt trennt Mila sauber: Das Modell berechnet P(y=1|x;b), also eine bedingte Wahrscheinlichkeit. Erst danach setzt der Threshold die Entscheidungsregel, zum Beispiel p >= 0.5 oder je nach Business auch p >= 0.2.",
+        text: "Jetzt trennt Mila sauber: Das Modell berechnet P(y=1|x;b), also eine bedingte Wahrscheinlichkeit. Erst danach setzt der Threshold die Entscheidungsregel, zum Beispiel p >= 0.5 oder je nach Business auch p >= 0.2. Beobachte dabei im Sortierboard, wie Faelle zwischen FP und FN wechseln.",
         chat: "Warum ist der Threshold eine Produktentscheidung und nicht nur Mathe?",
         answer: "Mit dem Threshold entscheidet das Team, wie streng oder sensibel das System reagieren soll. Das haengt von Risiko und Kosten der Fehler ab.",
         focus: "threshold"
       },
       {
         title: "Schritt 6: Decision Boundary und Fehlerarten",
-        text: "Mila schaut auf die Entscheidungsgrenze: Sie ist Eigenschaft der Modellparameter b und nicht direkt der Daten. Danach sortiert sie jeden Fall in TP, TN, FP oder FN, um die Fehlerarten sichtbar zu machen.",
+        text: "Mila schaut auf die Entscheidungsgrenze: Sie ist Eigenschaft der Modellparameter b und nicht direkt der Daten. Danach sortiert sie jeden Fall in TP, TN, FP oder FN, um die Fehlerarten sichtbar zu machen. Genau das siehst du jetzt live im Sortierboard rechts.",
         chat: "Wer entscheidet bei Punkten genau auf der Grenze: Daten oder Definitionsregel?",
         answer: "Das ist eine Definitionsfrage, zum Beispiel '>= Grenze ist positiv'. Wichtig ist, die Regel konsistent zu halten.",
         focus: "matrix"
       },
       {
         title: "Schritt 7: Metriken im Tradeoff lesen",
-        text: "Mit derselben Kurve kann Mila unterschiedliche Schwellen waehlen. Sie startet bewusst mit drei Kernmetriken: Accuracy, Precision und Recall. Erst danach kommen Specificity, FPR und ROC als Erweiterung hinzu.",
+        text: "Mit derselben Kurve kann Mila unterschiedliche Schwellen waehlen. Sie startet bewusst mit drei Kernmetriken: ACC (Accuracy), PRE (Precision) und REC (Recall). ACC zeigt Gesamtquote, PRE zeigt Alarm-Verlaesslichkeit, REC zeigt gefundene Positive. Danach kommen SPC, FPR und ROC als Erweiterung hinzu.",
         chat: "Welche Metrik waere fuer euch wichtiger, wenn uebersehene Positive besonders teuer sind?",
-        answer: "Dann wird Recall zentral, auch wenn eventuell mehr False Positives akzeptiert werden muessen.",
+        answer: "Dann wird REC (Recall) zentral. Praktisch heisst das oft: Schwelle etwas senken, damit weniger FN entstehen - auch wenn mehr FP akzeptiert werden muessen.",
         focus: "metrics"
       },
       {
@@ -1303,7 +1532,7 @@
       },
       {
         goal: "Decision Boundary verstehen und TP/TN/FP/FN korrekt zuordnen.",
-        method: "Card-Sorting + formative Rueckmeldung direkt in der Falltabelle.",
+        method: "Card-Sorting im Live-Sortierboard + formative Rueckmeldung direkt in der Falltabelle.",
         why: "Fehlerarten sind die Basis fuer alle folgenden Metriken.",
         reflection: "Welcher Fehlertyp ist in eurem Umfeld am teuersten?"
       },
@@ -1311,7 +1540,7 @@
         goal: "Metriken stufenweise lesen: erst Kernmetriken, dann Erweiterung.",
         method: "Scaffolding + Retrieval Practice je Threshold.",
         why: "Die Lernlast bleibt niedrig und die Metrik-Wahl wird trotzdem begruendet.",
-        reflection: "Welche Metrik muss im Report immer zuerst genannt werden?"
+        reflection: "Welche Zielmetrik steuert in deinem Use Case die Schwelle: REC, PRE oder F1?"
       },
       {
         goal: "Den Ablauf als Merkkette sichern und ruhig in KNN ueberleiten.",
@@ -1360,8 +1589,8 @@
       },
       {
         caption: "Metriken im Schwellen-Tradeoff.",
-        line: "Start: Accuracy=(TP+TN)/N, Precision=TP/(TP+FP), Recall=TP/(TP+FN)",
-        meta: "Wenn diese drei klar sind, folgen Specificity/FPR und danach ROC als Erweiterung.",
+        line: "Start: ACC=(TP+TN)/N, PRE=TP/(TP+FP), REC=TP/(TP+FN)",
+        meta: "Schwelle tau ueber Validierung waehlen: REC hoch bei teuren FN, PRE hoch bei teuren FP.",
         method: "Methode: Scaffolding + Retrieval Practice"
       },
       {
@@ -1430,6 +1659,23 @@
     const outlierStrengthInput = document.getElementById("outlier-strength");
     const outlierStrengthValueEl = document.getElementById("outlier-strength-value");
     const outlierPredNoteEl = document.getElementById("outlier-pred-note");
+    const sortingNoteEl = document.getElementById("sorting-note");
+    const sortingCardEl = document.getElementById("sorting-card");
+    const metricsCardEl = document.getElementById("metrics-card");
+    const thresholdGoalSelect = document.getElementById("threshold-goal");
+    const thresholdChoiceNoteEl = document.getElementById("threshold-choice-note");
+    const sortingBins = {
+      TP: document.getElementById("bin-tp"),
+      TN: document.getElementById("bin-tn"),
+      FP: document.getElementById("bin-fp"),
+      FN: document.getElementById("bin-fn")
+    };
+    const sortingCounts = {
+      TP: document.getElementById("bin-count-tp"),
+      TN: document.getElementById("bin-count-tn"),
+      FP: document.getElementById("bin-count-fp"),
+      FN: document.getElementById("bin-count-fn")
+    };
 
     const sigmoidRange = {
       minX: -50,
@@ -2026,6 +2272,101 @@
       return "FN";
     }
 
+    function renderSortingBoard() {
+      const bucketMap = { TP: [], TN: [], FP: [], FN: [] };
+
+      cases.forEach((item) => {
+        const pred = classify(item, state.threshold);
+        const type = metricTypeLabel(item, pred);
+        bucketMap[type].push(item);
+      });
+
+      ["TP", "TN", "FP", "FN"].forEach((type) => {
+        const container = sortingBins[type];
+        const countEl = sortingCounts[type];
+        container.innerHTML = "";
+        bucketMap[type].forEach((item) => {
+          const chip = document.createElement("span");
+          chip.className = "case-chip";
+          chip.textContent = `${item.id} (${item.risk.toFixed(2)})`;
+          container.appendChild(chip);
+        });
+        countEl.textContent = String(bucketMap[type].length);
+      });
+
+      if (state.stepIndex < 4) {
+        sortingNoteEl.textContent = "Ab Schritt 5 aktiv: dann siehst du live, wie der Threshold Faelle zwischen FP und FN verschiebt.";
+      } else if (state.stepIndex === 4) {
+        sortingNoteEl.textContent = "Threshold aktiv: bewege den Regler und beobachte, welche Faelle aus TP nach FN oder aus TN nach FP wechseln.";
+      } else if (state.stepIndex === 5) {
+        sortingNoteEl.textContent = "Schritt 6 aktiv: Lies jede Kachel laut als Definition (z. B. FN = uebersehener Positiv-Fall).";
+      } else {
+        sortingNoteEl.textContent = "Metrik-Transfer: Precision reagiert stark auf FP, Recall reagiert stark auf FN. Nutze das Board als schnelle Diagnose.";
+      }
+    }
+
+    function pickThresholdSuggestion(goal, candidates) {
+      if (!candidates.length) return null;
+
+      if (goal === "recall") {
+        const targetPool = candidates.filter((c) => c.recall >= 0.8);
+        const pool = targetPool.length ? targetPool : candidates;
+        return [...pool].sort((a, b) =>
+          (b.recall - a.recall)
+          || (b.precision - a.precision)
+          || (a.fpr - b.fpr)
+        )[0];
+      }
+
+      if (goal === "precision") {
+        const targetPool = candidates.filter((c) => c.precision >= 0.75);
+        const pool = targetPool.length ? targetPool : candidates;
+        return [...pool].sort((a, b) =>
+          (b.precision - a.precision)
+          || (b.recall - a.recall)
+          || (a.fpr - b.fpr)
+        )[0];
+      }
+
+      return [...candidates].sort((a, b) =>
+        (b.f1 - a.f1)
+        || (Math.abs(a.threshold - 0.5) - Math.abs(b.threshold - 0.5))
+      )[0];
+    }
+
+    function updateThresholdChoiceNote() {
+      const enabled = state.stepIndex >= 6;
+      thresholdGoalSelect.disabled = !enabled;
+
+      if (!enabled) {
+        thresholdChoiceNoteEl.textContent = "Ab Schritt 7 aktiv: Waehle ein Ziel und vergleiche Vorschlagsschwelle mit deiner aktuellen Schwelle.";
+        return;
+      }
+
+      const goal = thresholdGoalSelect.value;
+      const goalLabel = goal === "recall"
+        ? "Recall priorisieren (moeglichst wenige FN)"
+        : goal === "precision"
+          ? "Precision priorisieren (moeglichst wenige FP)"
+          : "Ausgewogen (F1 priorisieren)";
+
+      const candidates = thresholdsForRoc.map((threshold) => {
+        const metric = computeConfusion(threshold);
+        return { threshold, ...metric };
+      });
+      const suggestion = pickThresholdSuggestion(goal, candidates);
+      if (!suggestion) return;
+
+      const delta = state.threshold - suggestion.threshold;
+      const deltaText = Math.abs(delta) < 0.001
+        ? "Aktuell liegst du bereits auf der Vorschlagsschwelle."
+        : delta > 0
+          ? `Deine aktuelle Schwelle ist strenger als der Vorschlag (um ${Math.abs(delta).toFixed(2)}).`
+          : `Deine aktuelle Schwelle ist grosszuegiger als der Vorschlag (um ${Math.abs(delta).toFixed(2)}).`;
+
+      thresholdChoiceNoteEl.textContent = `${goalLabel}: Vorschlag tau=${suggestion.threshold.toFixed(2)} | ACC=${suggestion.accuracy.toFixed(2)}, PRE=${suggestion.precision.toFixed(2)}, REC=${suggestion.recall.toFixed(2)}, FPR=${suggestion.fpr.toFixed(2)}. Aktuell tau=${state.threshold.toFixed(2)}. ${deltaText} Wichtige Regel: Schwellenwahl erst auf Validierungsdaten, danach auf Testdaten pruefen.`;
+    }
+
     function renderCaseTable() {
       caseBodyEl.innerHTML = "";
       const metrics = computeConfusion(state.threshold);
@@ -2062,6 +2403,8 @@
 
       renderRocTable(points);
       drawRoc(points);
+      renderSortingBoard();
+      updateThresholdChoiceNote();
 
       const positives = cases.filter((item) => item.actual === 1).length;
       const negatives = cases.length - positives;
@@ -2077,7 +2420,7 @@
       } else if (state.stepIndex === 5) {
         dataNote.textContent = "Jetzt aktiv: Ordne jeden Fall als TP, TN, FP oder FN und benenne den Fehlertyp.";
       } else {
-        dataNote.textContent = "Metrik-Tradeoff aktiv: Verfolge, wie Threshold-Aenderungen Precision, Recall, Specificity und FPR gemeinsam verschieben.";
+        dataNote.textContent = "Metrik-Tradeoff aktiv: Verfolge, wie Threshold-Aenderungen Precision, Recall, Specificity und FPR gemeinsam verschieben. Nutze zusaetzlich den Schwellenhelfer im Metrik-Panel.";
       }
     }
 
@@ -2117,7 +2460,7 @@
       const ctrlCard = document.getElementById("ctrl-card");
       const dataCard = document.getElementById("data-card");
 
-      [formulaCard, sigmoidCard, outlierCard, matrixCard, rocCard, ctrlCard, dataCard].forEach((el) => el.classList.remove("focus"));
+      [formulaCard, sigmoidCard, outlierCard, matrixCard, rocCard, ctrlCard, dataCard, sortingCardEl, metricsCardEl].forEach((el) => el.classList.remove("focus"));
 
       const step = steps[state.stepIndex];
       if (step.focus === "formula") {
@@ -2127,25 +2470,32 @@
       } else if (step.focus === "matrix") {
         matrixCard.classList.add("focus");
         dataCard.classList.add("focus");
+        sortingCardEl.classList.add("focus");
       } else if (step.focus === "metrics") {
         matrixCard.classList.add("focus");
         rocCard.classList.add("focus");
         ctrlCard.classList.add("focus");
+        sortingCardEl.classList.add("focus");
+        metricsCardEl.classList.add("focus");
       } else if (step.focus === "threshold") {
         ctrlCard.classList.add("focus");
         rocCard.classList.add("focus");
         sigmoidCard.classList.add("focus");
+        sortingCardEl.classList.add("focus");
       } else if (step.focus === "bridge") {
         rocCard.classList.add("focus");
         formulaCard.classList.add("focus");
         sigmoidCard.classList.add("focus");
         outlierCard.classList.add("focus");
         dataCard.classList.add("focus");
+        sortingCardEl.classList.add("focus");
+        metricsCardEl.classList.add("focus");
       } else {
         formulaCard.classList.add("focus");
         sigmoidCard.classList.add("focus");
         outlierCard.classList.add("focus");
         dataCard.classList.add("focus");
+        sortingCardEl.classList.add("focus");
       }
     }
 
@@ -2346,6 +2696,10 @@
     thresholdInput.addEventListener("input", (event) => {
       state.threshold = Number(event.target.value);
       thresholdValueEl.textContent = state.threshold.toFixed(2);
+      renderCaseTable();
+    });
+
+    thresholdGoalSelect.addEventListener("change", () => {
       renderCaseTable();
     });
 
