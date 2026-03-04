@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distanzmetriken und Scaling | Data Science</title>
+  <style>
+    :root {
+      --bg: #edf3fb;
+      --panel: #ffffff;
+      --ink: #1f2a3c;
+      --muted: #5e6d86;
+      --brand: #173262;
+      --accent: #6f2d45;
+      --line: #d7dfed;
+      --ok: #1f8b4c;
+      --warn: #b76a20;
+      --shadow: 0 14px 28px rgba(20, 39, 74, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 88% 0%, #f8fbff 0%, var(--bg) 46%, #e7eef8 100%);
+      min-height: 100vh;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(330px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+      border-right: 1px solid var(--line);
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    #stage {
+      padding: 16px;
+      overflow-y: auto;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    h1 {
+      margin: 8px 0 6px;
+      color: var(--brand);
+      font-size: 1.62rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 1rem;
+    }
+
+    p { margin: 0; line-height: 1.48; }
+
+    .brandline {
+      color: #667691;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .lead {
+      color: #4a5b75;
+      margin-bottom: 12px;
+      font-size: 0.92rem;
+    }
+
+    .card,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .path-box,
+    .usage-box,
+    .viz-card,
+    .ctrl-card,
+    .table-card,
+    .quiz-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .path-box,
+    .usage-box,
+    .quiz-box { padding: 11px; margin-bottom: 10px; }
+
+    .step-action {
+      margin-top: 9px;
+      border: 1px dashed #b9c8de;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.86rem;
+      color: #385078;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .timeline-item {
+      border: 1px solid #d5deed;
+      background: #fbfdff;
+      border-radius: 10px;
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      color: #52627b;
+    }
+
+    .timeline-item.active {
+      border-color: #a9bcdf;
+      background: #eef4ff;
+      color: #1f3e6a;
+      font-weight: 700;
+    }
+
+    .timeline-item.done {
+      border-color: #b8d6bf;
+      background: #f2fbf4;
+      color: #2f6944;
+    }
+
+    .path-box {
+      border-color: rgba(111, 45, 69, 0.24);
+      background: linear-gradient(180deg, #fff9fb 0%, #ffffff 100%);
+    }
+
+    .path-status {
+      border: 1px dashed #c9d3e5;
+      border-radius: 10px;
+      background: #fff;
+      color: #56657e;
+      font-size: 0.82rem;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .path-link,
+    .ctrl-group button,
+    .mini-btn,
+    .mode-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .path-link {
+      width: 100%;
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #2d4f84);
+      margin-bottom: 8px;
+    }
+
+    .path-link.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+      filter: grayscale(0.2);
+    }
+
+    .ctrl-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+    .ctrl-group button,
+    .mini-btn,
+    .mode-btn {
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #345a95);
+    }
+
+    .ctrl-group .secondary,
+    .mini-btn.secondary,
+    .mode-btn.secondary {
+      background: #eef3fb;
+      color: #27426d;
+      border: 1px solid #c6d3e9;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+      gap: 12px;
+    }
+
+    .viz-card,
+    .ctrl-card,
+    .table-card { padding: 12px; }
+
+    .viz-wrap {
+      border: 1px solid #d8e0ee;
+      border-radius: 12px;
+      background: #f9fbff;
+      padding: 8px;
+      margin-top: 8px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 320px;
+      border-radius: 10px;
+      background: #fff;
+      display: block;
+    }
+
+    .ctrl-row { margin-bottom: 10px; }
+
+    .ctrl-row label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      color: #475773;
+      margin-bottom: 5px;
+    }
+
+    input[type="range"],
+    select { width: 100%; }
+
+    select {
+      border: 1px solid #c8d5ea;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fff;
+      font-size: 0.84rem;
+      color: #2f466f;
+    }
+
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border: 1px solid #d4deee;
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 8px;
+      font-size: 0.82rem;
+      color: #4f5f79;
+      text-align: center;
+    }
+
+    .chip b { display: block; margin-top: 4px; color: #213f69; }
+
+    .status-banner {
+      margin-top: 8px;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.83rem;
+      border: 1px solid #d5deed;
+      background: #fbfdff;
+      color: #475a78;
+    }
+
+    .status-banner.warn {
+      border-color: #ecd2b7;
+      background: #fff8f1;
+      color: var(--warn);
+    }
+
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #4a5b75;
+    }
+
+    .metric-table th,
+    .metric-table td {
+      border: 1px solid #dbe4f2;
+      padding: 6px 7px;
+      text-align: center;
+    }
+
+    .metric-table th { background: #f4f8ff; color: #2f4771; }
+
+    .quiz-box label {
+      display: block;
+      margin: 5px 0;
+      font-size: 0.84rem;
+      color: #4a5a74;
+    }
+
+    .quiz-box .feedback {
+      margin-top: 8px;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .feedback.ok { color: var(--ok); }
+    .feedback.warn { color: var(--warn); }
+
+    @media (max-width: 1020px) {
+      #app { grid-template-columns: 1fr; }
+      #sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .grid { grid-template-columns: 1fr; }
+      .ctrl-group { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Thema 7: Distanz und Scaling</h1>
+      <p class="lead">Welche Distanz passt zum Problem? Und warum muessen Merkmale vor Distanzmodellen skaliert werden?</p>
+
+      <div class="card">
+        <strong>Story</strong>
+        <p>Berlin nach Nuernberg: Luftlinie ist anders als Strassennetz. Genau so unterscheiden sich Euklidisch und Manhattan in Datenraeumen.</p>
+      </div>
+
+      <div class="step-box">
+        <h3 id="step-title"></h3>
+        <p id="step-text"></p>
+        <div class="step-action"><strong>Aktion jetzt:</strong> <span id="step-action"></span></div>
+      </div>
+
+      <div class="chat-box">
+        <strong>Diskussionsfrage</strong>
+        <p id="chat-question"></p>
+      </div>
+
+      <div class="answer-box">
+        <strong>Aufloesung</strong>
+        <p id="answer-text"></p>
+      </div>
+
+      <div class="timeline" id="timeline"></div>
+
+      <div class="usage-box">
+        <strong>Praxis-Uebertrag:</strong><br>
+        Bei KNN und anderen distanzbasierten Verfahren entscheidet die Metrik plus Skalierung direkt ueber Nachbarschaften.
+      </div>
+
+      <div class="path-box">
+        <strong>Naechste Schritte</strong>
+        <div class="path-status" id="path-status">Nach Schritt 7 und Mini-Check wird Thema 8 (Matrix) freigeschaltet.</div>
+        <a id="to-next-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 8: Matrix verstehen</a>
+        <a class="path-link" href="knn_hyperparameter_tuning_interaktion.html">Zurueck zu Thema 6: KNN Hyperparameter-Tuning</a>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Schritt</button>
+        <button id="next-step">Naechster Schritt</button>
+        <button id="reset-session" class="secondary">Reset</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="grid">
+        <article class="viz-card">
+          <h3>Punktabstand live</h3>
+          <p>Punkt A und B im zweidimensionalen Raum. Distanzlinie folgt der gewaehlten Metrik.</p>
+          <div class="viz-wrap">
+            <canvas id="distance-canvas" width="760" height="460" aria-label="Visualisierung verschiedener Distanzmetriken"></canvas>
+          </div>
+        </article>
+
+        <article class="ctrl-card">
+          <h3>Steuerung</h3>
+          <div class="ctrl-row">
+            <label for="metric-select">Metrik</label>
+            <select id="metric-select">
+              <option value="euclidean">Euklidische Distanz</option>
+              <option value="manhattan">Manhattan-Distanz</option>
+              <option value="minkowski">Minkowski-Distanz</option>
+              <option value="cosine">Cosinus-Aehnlichkeit</option>
+            </select>
+          </div>
+
+          <div class="ctrl-row" id="p-row">
+            <label for="p-slider">Minkowski p <output id="p-value" for="p-slider">2.0</output></label>
+            <input id="p-slider" type="range" min="1" max="5" step="0.1" value="2">
+          </div>
+
+          <div class="ctrl-row">
+            <label for="scale-toggle">Scaling aktivieren</label>
+            <select id="scale-toggle">
+              <option value="off">Nein (Rohdaten)</option>
+              <option value="on">Ja (standardisiert)</option>
+            </select>
+          </div>
+
+          <div class="ctrl-row">
+            <label for="a-x">Punkt A x <output id="a-x-value" for="a-x">20</output></label>
+            <input id="a-x" type="range" min="0" max="100" step="1" value="20">
+          </div>
+          <div class="ctrl-row">
+            <label for="a-y">Punkt A y <output id="a-y-value" for="a-y">1200</output></label>
+            <input id="a-y" type="range" min="0" max="2000" step="10" value="1200">
+          </div>
+          <div class="ctrl-row">
+            <label for="b-x">Punkt B x <output id="b-x-value" for="b-x">70</output></label>
+            <input id="b-x" type="range" min="0" max="100" step="1" value="70">
+          </div>
+          <div class="ctrl-row">
+            <label for="b-y">Punkt B y <output id="b-y-value" for="b-y">200</output></label>
+            <input id="b-y" type="range" min="0" max="2000" step="10" value="200">
+          </div>
+
+          <div class="chips">
+            <div class="chip">Distanz/Similarity<b id="chip-distance">0.00</b></div>
+            <div class="chip">x-Anteil<b id="chip-x-part">0%</b></div>
+            <div class="chip">y-Anteil<b id="chip-y-part">0%</b></div>
+          </div>
+
+          <div id="status-banner" class="status-banner">Status wird berechnet...</div>
+        </article>
+      </section>
+
+      <section class="table-card">
+        <h3>Vergleich der Metriken</h3>
+        <p>Dieselben Punkte, unterschiedliche Distanzdefinition.</p>
+        <table class="metric-table">
+          <thead>
+            <tr>
+              <th>Metrik</th>
+              <th>Wert</th>
+              <th>Typische Intuition</th>
+            </tr>
+          </thead>
+          <tbody id="metric-table-body"></tbody>
+        </table>
+      </section>
+
+      <section class="quiz-box">
+        <h3>Mini-Check (3 Fragen)</h3>
+        <label><input type="radio" name="q1" value="a"> Manhattan passt gut zu Strassennetz-/Raster-Intuition.</label>
+        <label><input type="radio" name="q1" value="b"> Manhattan entspricht immer der Luftlinie.</label>
+        <label><input type="radio" name="q2" value="a"> Minkowski mit p=2 entspricht der euklidischen Distanz.</label>
+        <label><input type="radio" name="q2" value="b"> Minkowski mit p=2 entspricht Cosinus-Aehnlichkeit.</label>
+        <label><input type="radio" name="q3" value="a"> Ohne Scaling koennen Merkmale mit grossem Wertebereich die Distanz dominieren.</label>
+        <label><input type="radio" name="q3" value="b"> Scaling ist bei Distanzmodellen nie relevant.</label>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="grade-quiz" class="mini-btn" type="button">Mini-Check auswerten</button>
+          <button id="unlock-next" class="mini-btn secondary" type="button">Weiterlink freischalten</button>
+        </div>
+        <div id="quiz-feedback" class="feedback"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const steps = [
+      {
+        title: "Schritt 1: Distanz ist Modelllogik",
+        text: "KNN nutzt Distanz, um Naehe zu definieren. Aendere die Metrik und beobachte, wie sich derselbe Punktabstand anders liest.",
+        action: "Wechsle von Euklidisch auf Manhattan.",
+        chat: "Warum kann eine andere Distanzmetrik zu anderer Nachbarschaft fuehren?",
+        answer: "Weil 'naehe' mathematisch unterschiedlich definiert wird."
+      },
+      {
+        title: "Schritt 2: Euklidisch als Luftlinie",
+        text: "Euklidisch misst den direkten geometrischen Weg. Das ist oft die intuitive Startmetrik.",
+        action: "Setze Metrik auf Euklidisch und lies den Distanzwert.",
+        chat: "Wann ist Luftlinie eine passende Annahme?",
+        answer: "Wenn der Raum kontinuierlich ist und keine Raster-/Netzrestriktionen dominieren."
+      },
+      {
+        title: "Schritt 3: Manhattan als Rasterweg",
+        text: "Manhattan summiert absolute Achsenunterschiede. Das passt zu Gitter- oder Strassenlogik.",
+        action: "Vergleiche denselben Punktabstand in Manhattan und Euklidisch.",
+        chat: "Warum ist Manhattan oft groesser oder gleich euklidisch?",
+        answer: "Weil Umwege ueber Achsen summiert werden statt direkter Diagonale."
+      },
+      {
+        title: "Schritt 4: Minkowski als Generalisierung",
+        text: "Minkowski steuert mit p, wie stark grosse Differenzen gewichtet werden. p=1 ist Manhattan, p=2 euklidisch.",
+        action: "Waehle Minkowski und variiere p von 1.0 bis 5.0.",
+        chat: "Was aendert sich sichtbar, wenn p steigt?",
+        answer: "Grosse Komponenten gewinnen relativ mehr Einfluss."
+      },
+      {
+        title: "Schritt 5: Cosinus fuer Richtungsaehnlichkeit",
+        text: "Cosinus vergleicht Richtungen von Vektoren statt absolute Laengen. Wichtig bei Text- und Embeddingraeumen.",
+        action: "Schalte auf Cosinus und beobachte den Similarity-Wert.",
+        chat: "Warum kann Cosinus hoch sein, obwohl die Punktlaengen verschieden sind?",
+        answer: "Weil die Richtung aehnlich bleibt, auch wenn die Laenge skaliert ist."
+      },
+      {
+        title: "Schritt 6: Warum Scaling Pflicht ist",
+        text: "Wenn y viel groessere Werte hat als x, dominiert y die Distanz. Scaling bringt Merkmale auf vergleichbare Skalen.",
+        action: "Schalte Scaling an/aus und beobachte x/y-Anteile.",
+        chat: "Was passiert ohne Scaling in diesem Beispiel?",
+        answer: "Die y-Differenz ueberdeckt fast den gesamten Distanzbeitrag."
+      },
+      {
+        title: "Schritt 7: Bruecke zu Matrix",
+        text: "Jetzt sind Metrik und Skalierung klar. Als naechstes organisieren wir mehrere Features als Matrix fuer skalierbare Modellrechnung.",
+        action: "Fuehre den Mini-Check aus und schalte Thema 8 frei.",
+        chat: "Warum kommt nach Distanzlogik jetzt Matrixdarstellung?",
+        answer: "Weil mehrere Merkmale nur in strukturierter Form (X) sauber weiterverarbeitet werden."
+      }
+    ];
+
+    const state = {
+      stepIndex: 0,
+      metric: "euclidean",
+      p: 2,
+      scaling: false,
+      ax: 20,
+      ay: 1200,
+      bx: 70,
+      by: 200,
+      unlocked: false
+    };
+
+    const canvas = document.getElementById("distance-canvas");
+    const ctx = canvas.getContext("2d");
+
+    const metricSelect = document.getElementById("metric-select");
+    const pSlider = document.getElementById("p-slider");
+    const pValueEl = document.getElementById("p-value");
+    const pRowEl = document.getElementById("p-row");
+    const scaleToggle = document.getElementById("scale-toggle");
+    const axInput = document.getElementById("a-x");
+    const ayInput = document.getElementById("a-y");
+    const bxInput = document.getElementById("b-x");
+    const byInput = document.getElementById("b-y");
+    const axValueEl = document.getElementById("a-x-value");
+    const ayValueEl = document.getElementById("a-y-value");
+    const bxValueEl = document.getElementById("b-x-value");
+    const byValueEl = document.getElementById("b-y-value");
+
+    const chipDistanceEl = document.getElementById("chip-distance");
+    const chipXPartEl = document.getElementById("chip-x-part");
+    const chipYPartEl = document.getElementById("chip-y-part");
+    const statusBannerEl = document.getElementById("status-banner");
+    const metricTableBodyEl = document.getElementById("metric-table-body");
+
+    const stepTitleEl = document.getElementById("step-title");
+    const stepTextEl = document.getElementById("step-text");
+    const stepActionEl = document.getElementById("step-action");
+    const chatQuestionEl = document.getElementById("chat-question");
+    const answerTextEl = document.getElementById("answer-text");
+    const timelineEl = document.getElementById("timeline");
+    const prevStepBtn = document.getElementById("prev-step");
+    const nextStepBtn = document.getElementById("next-step");
+    const resetSessionBtn = document.getElementById("reset-session");
+
+    const toNextLink = document.getElementById("to-next-link");
+    const pathStatusEl = document.getElementById("path-status");
+    const quizFeedbackEl = document.getElementById("quiz-feedback");
+
+    function standardized(x, mean, std) {
+      return std === 0 ? 0 : (x - mean) / std;
+    }
+
+    function scaledPoints() {
+      if (!state.scaling) {
+        return {
+          a: { x: state.ax, y: state.ay },
+          b: { x: state.bx, y: state.by }
+        };
+      }
+      const mx = (state.ax + state.bx) / 2;
+      const my = (state.ay + state.by) / 2;
+      const sx = Math.max(1e-6, Math.abs(state.ax - state.bx) / Math.sqrt(2));
+      const sy = Math.max(1e-6, Math.abs(state.ay - state.by) / Math.sqrt(2));
+      return {
+        a: { x: standardized(state.ax, mx, sx), y: standardized(state.ay, my, sy) },
+        b: { x: standardized(state.bx, mx, sx), y: standardized(state.by, my, sy) }
+      };
+    }
+
+    function metricValues() {
+      const rawDx = Math.abs(state.ax - state.bx);
+      const rawDy = Math.abs(state.ay - state.by);
+      const points = scaledPoints();
+      const dx = Math.abs(points.a.x - points.b.x);
+      const dy = Math.abs(points.a.y - points.b.y);
+
+      const euclid = Math.sqrt(dx * dx + dy * dy);
+      const manhattan = dx + dy;
+      const minkowski = Math.pow(Math.pow(dx, state.p) + Math.pow(dy, state.p), 1 / state.p);
+
+      const dot = points.a.x * points.b.x + points.a.y * points.b.y;
+      const normA = Math.sqrt(points.a.x * points.a.x + points.a.y * points.a.y);
+      const normB = Math.sqrt(points.b.x * points.b.x + points.b.y * points.b.y);
+      const cosine = normA === 0 || normB === 0 ? 0 : dot / (normA * normB);
+
+      const sumRaw = rawDx + rawDy;
+      const xPart = sumRaw === 0 ? 0 : (rawDx / sumRaw) * 100;
+      const yPart = sumRaw === 0 ? 0 : (rawDy / sumRaw) * 100;
+
+      return {
+        euclid,
+        manhattan,
+        minkowski,
+        cosine,
+        xPart,
+        yPart,
+        scaledDx: dx,
+        scaledDy: dy
+      };
+    }
+
+    function draw() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const pad = { top: 28, right: 30, bottom: 44, left: 46 };
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = "#e2e9f5";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 10; i += 1) {
+        const x = pad.left + (i / 10) * (w - pad.left - pad.right);
+        const y = pad.top + (i / 10) * (h - pad.top - pad.bottom);
+        ctx.beginPath();
+        ctx.moveTo(x, pad.top);
+        ctx.lineTo(x, h - pad.bottom);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(w - pad.right, y);
+        ctx.stroke();
+      }
+
+      function toX(v) {
+        return pad.left + (v / 100) * (w - pad.left - pad.right);
+      }
+      function toY(v) {
+        return h - pad.bottom - (v / 2000) * (h - pad.top - pad.bottom);
+      }
+
+      const ax = toX(state.ax);
+      const ay = toY(state.ay);
+      const bx = toX(state.bx);
+      const by = toY(state.by);
+
+      ctx.strokeStyle = "#7d8ea9";
+      ctx.lineWidth = 1.6;
+
+      if (state.metric === "manhattan") {
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(bx, ay);
+        ctx.lineTo(bx, by);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(bx, by);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "#2e5ea1";
+      ctx.beginPath();
+      ctx.arc(ax, ay, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#d37a2f";
+      ctx.beginPath();
+      ctx.arc(bx, by, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#1f2f4a";
+      ctx.font = "12px Inter";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("A", ax + 10, ay - 6);
+      ctx.fillText("B", bx + 10, by - 6);
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = "#556680";
+      ctx.fillText("Feature x", (w + pad.left - pad.right) / 2, h - pad.bottom + 14);
+
+      ctx.save();
+      ctx.translate(16, (h + pad.top - pad.bottom) / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("Feature y", 0, 0);
+      ctx.restore();
+    }
+
+    function updateMetrics() {
+      const m = metricValues();
+      let value;
+      if (state.metric === "euclidean") value = m.euclid;
+      else if (state.metric === "manhattan") value = m.manhattan;
+      else if (state.metric === "minkowski") value = m.minkowski;
+      else value = m.cosine;
+
+      chipDistanceEl.textContent = state.metric === "cosine" ? value.toFixed(3) : value.toFixed(2);
+      chipXPartEl.textContent = `${m.xPart.toFixed(1)}%`;
+      chipYPartEl.textContent = `${m.yPart.toFixed(1)}%`;
+
+      statusBannerEl.className = "status-banner";
+      if (!state.scaling && m.yPart > 85) {
+        statusBannerEl.classList.add("warn");
+        statusBannerEl.textContent = "Warnung: y dominiert die Distanz stark. Bei KNN fuehrt das oft zu verzerrter Nachbarschaft. Scaling empfohlen.";
+      } else {
+        const metricText = state.metric === "cosine"
+          ? "Cosinus bewertet Richtungsnaehe statt absolute Laenge."
+          : `${state.metric} basiert auf dx=${m.scaledDx.toFixed(2)} und dy=${m.scaledDy.toFixed(2)} im aktuellen Raum.`;
+        statusBannerEl.textContent = metricText;
+      }
+
+      metricTableBodyEl.innerHTML = "";
+      const rows = [
+        ["Euklidisch", m.euclid.toFixed(3), "Luftlinie"],
+        ["Manhattan", m.manhattan.toFixed(3), "Rasterweg"],
+        ["Minkowski (p)", m.minkowski.toFixed(3), `Generalisierung mit p=${state.p.toFixed(1)}`],
+        ["Cosinus", m.cosine.toFixed(3), "Richtungsaehnlichkeit"]
+      ];
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>`;
+        metricTableBodyEl.appendChild(tr);
+      });
+    }
+
+    function renderTimeline() {
+      timelineEl.innerHTML = "";
+      steps.forEach((step, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        if (idx < state.stepIndex) {
+          item.classList.add("done");
+        } else if (idx === state.stepIndex) {
+          item.classList.add("active");
+        }
+        item.textContent = step.title;
+        timelineEl.appendChild(item);
+      });
+    }
+
+    function setLinkUnlocked(unlocked) {
+      state.unlocked = unlocked;
+      if (unlocked) {
+        toNextLink.classList.remove("disabled");
+        toNextLink.setAttribute("aria-disabled", "false");
+        pathStatusEl.textContent = "Freigeschaltet: Weiter zu Thema 8 (Matrix verstehen).";
+      } else {
+        toNextLink.classList.add("disabled");
+        toNextLink.setAttribute("aria-disabled", "true");
+        pathStatusEl.textContent = "Nach Schritt 7 und Mini-Check wird Thema 8 (Matrix) freigeschaltet.";
+      }
+    }
+
+    function renderStep() {
+      const step = steps[state.stepIndex];
+      stepTitleEl.textContent = step.title;
+      stepTextEl.textContent = step.text;
+      stepActionEl.textContent = step.action;
+      chatQuestionEl.textContent = step.chat;
+      answerTextEl.textContent = step.answer;
+      prevStepBtn.hidden = state.stepIndex === 0;
+      nextStepBtn.hidden = state.stepIndex >= steps.length - 1;
+      renderTimeline();
+
+      if (!state.unlocked && state.stepIndex < steps.length - 1) {
+        pathStatusEl.textContent = `Schritt ${state.stepIndex + 1}/${steps.length}: Noch ${steps.length - state.stepIndex - 1} Schritt(e) bis zur Freischaltung.`;
+      }
+    }
+
+    function syncInputs() {
+      axInput.value = String(state.ax);
+      ayInput.value = String(state.ay);
+      bxInput.value = String(state.bx);
+      byInput.value = String(state.by);
+      pSlider.value = String(state.p);
+      metricSelect.value = state.metric;
+      scaleToggle.value = state.scaling ? "on" : "off";
+
+      axValueEl.textContent = String(state.ax);
+      ayValueEl.textContent = String(state.ay);
+      bxValueEl.textContent = String(state.bx);
+      byValueEl.textContent = String(state.by);
+      pValueEl.textContent = state.p.toFixed(1);
+      pRowEl.style.display = state.metric === "minkowski" ? "block" : "none";
+    }
+
+    function refresh() {
+      syncInputs();
+      draw();
+      updateMetrics();
+    }
+
+    function resetSession() {
+      state.stepIndex = 0;
+      state.metric = "euclidean";
+      state.p = 2;
+      state.scaling = false;
+      state.ax = 20;
+      state.ay = 1200;
+      state.bx = 70;
+      state.by = 200;
+      setLinkUnlocked(false);
+      quizFeedbackEl.textContent = "";
+      quizFeedbackEl.className = "feedback";
+      document.querySelectorAll('input[type="radio"]').forEach((input) => {
+        input.checked = false;
+      });
+      renderStep();
+      refresh();
+    }
+
+    metricSelect.addEventListener("change", () => {
+      state.metric = metricSelect.value;
+      refresh();
+    });
+
+    pSlider.addEventListener("input", () => {
+      state.p = Number(pSlider.value);
+      refresh();
+    });
+
+    scaleToggle.addEventListener("change", () => {
+      state.scaling = scaleToggle.value === "on";
+      refresh();
+    });
+
+    axInput.addEventListener("input", () => { state.ax = Number(axInput.value); refresh(); });
+    ayInput.addEventListener("input", () => { state.ay = Number(ayInput.value); refresh(); });
+    bxInput.addEventListener("input", () => { state.bx = Number(bxInput.value); refresh(); });
+    byInput.addEventListener("input", () => { state.by = Number(byInput.value); refresh(); });
+
+    nextStepBtn.addEventListener("click", () => {
+      if (state.stepIndex < steps.length - 1) {
+        state.stepIndex += 1;
+        renderStep();
+      }
+    });
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex > 0) {
+        state.stepIndex -= 1;
+        renderStep();
+      }
+    });
+
+    resetSessionBtn.addEventListener("click", resetSession);
+
+    document.getElementById("grade-quiz").addEventListener("click", () => {
+      const q1 = document.querySelector('input[name="q1"]:checked')?.value;
+      const q2 = document.querySelector('input[name="q2"]:checked')?.value;
+      const q3 = document.querySelector('input[name="q3"]:checked')?.value;
+      let score = 0;
+      if (q1 === "a") score += 1;
+      if (q2 === "a") score += 1;
+      if (q3 === "a") score += 1;
+
+      if (score >= 2) {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Gut - Thema 8 kann freigeschaltet werden.`;
+        quizFeedbackEl.className = "feedback ok";
+      } else {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Kurz wiederholen und erneut pruefen.`;
+        quizFeedbackEl.className = "feedback warn";
+      }
+    });
+
+    document.getElementById("unlock-next").addEventListener("click", () => {
+      if (state.stepIndex === steps.length - 1) {
+        setLinkUnlocked(true);
+      } else {
+        pathStatusEl.textContent = "Bitte erst bis Schritt 7 durchgehen, dann freischalten.";
+      }
+    });
+
+    setLinkUnlocked(false);
+    renderStep();
+    refresh();
+  </script>
+</body>
+</html>

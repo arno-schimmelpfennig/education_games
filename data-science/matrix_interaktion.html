@@ -993,8 +993,8 @@
       <p class="lead">Jetzt erweitern wir das Heizkosten-Beispiel: von einer x-Achse auf mehrere Einflussfaktoren gleichzeitig.</p>
 
       <div class="story-box">
-        <strong>Brücke aus Thema 2, Thema 3 und Thema 4:</strong>
-        Nach Training (Thema 2), Generalisierungs-Check (Thema 3) und logistischer Klassifikation mit Metriken (Thema 4) organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix.
+        <strong>Brücke aus Thema 5, Thema 6 und Thema 7:</strong>
+        Nach KNN-Grundlagen (Thema 5), K-Tuning (Thema 6) und Distanz/Scaling (Thema 7) organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix.
       </div>
 
       <div class="step-box">
@@ -1053,11 +1053,11 @@
         <strong>Nächste Schritte</strong>
         <p id="matrix-path-teaser" hidden></p>
         <div class="path-content">
-          <p>Nächstes Thema 6: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
+          <p>Nächstes Thema 9: Wie aus X und Gewichten durch Matrizenmultiplikation ganze Vorhersagevektoren entstehen.</p>
           <div class="path-status" id="matrix-quiz-status">Zwischen-Quiz wird nach Schritt 6 angeboten. Danach wird die Navigation freigeschaltet.</div>
           <button id="open-matrix-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
-          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 6: Matrizenmultiplikation</a>
-          <a class="path-link" href="klassifikation_metriken_interaktion.html">Zurueck zu Thema 4: Logistische Klassifikation und Metriken</a>
+          <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 9: Matrizenmultiplikation</a>
+          <a class="path-link" href="distanzmetriken_und_scaling_interaktion.html">Zurueck zu Thema 7: Distanzmetriken und Scaling</a>
           <button id="replay-matrix" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
@@ -1193,7 +1193,7 @@
             <li><strong>Grenze von 1 x-Achse:</strong> Ein Einflussfaktor reicht oft nicht aus.</li>
             <li><strong>Matrix-Idee:</strong> Mehrere Merkmale werden als Spalten nebeneinander organisiert.</li>
             <li><strong>Modell:</strong> y-hat = b + w_temp*temp + w_faktor*faktor.</li>
-            <li><strong>Brücke zu Thema 6:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
+            <li><strong>Brücke zu Thema 9:</strong> Das rechnen wir als Matrizenmultiplikation für viele Zeilen auf einmal.</li>
           </ul>
           <div class="shape-bridge">
             <strong>Shape-Brücke</strong>
@@ -1257,7 +1257,7 @@
       {
         title: "Schritt 5: Transfer",
         text: "Im nächsten Thema rechnen wir das Gleiche als Matrizenmultiplikation: X * w erzeugt y-hat für alle Zeilen auf einmal.",
-        chat: "Diskussion: Was wird in Thema 6 mathematisch automatisiert, was ihr hier per Regler macht?",
+        chat: "Diskussion: Was wird in Thema 9 mathematisch automatisiert, was ihr hier per Regler macht?",
         answer: "Die gleiche Logik wird algebraisch gebündelt: statt pro Zeile einzeln zu rechnen, berechnet Matrixmultiplikation alles in einem Schritt."
       },
       {
@@ -1528,9 +1528,9 @@
       } else if (state.stepIndex === 3) {
         hint.textContent = "Jetzt auf MAE und Fehler-Spalte achten: Balance statt Einzeltreffer.";
       } else if (state.stepIndex === 4) {
-        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 6.";
+        hint.textContent = "Transferphase: Die gleiche Rechnung folgt als Matrixmultiplikation in Thema 9.";
       } else {
-        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 6 ohne Fehlstart umgesetzt werden.";
+        hint.textContent = "Shape-Check: Achte auf Innen-Dimensionen. Nur dann kann Thema 9 ohne Fehlstart umgesetzt werden.";
       }
     }
 
@@ -1672,7 +1672,7 @@
       const link = document.getElementById("to-matmul-link");
       link.classList.remove("disabled");
       link.setAttribute("aria-disabled", "false");
-      status.textContent = "Zwischen-Quiz bestanden. Thema 6 ist freigeschaltet.";
+      status.textContent = "Zwischen-Quiz bestanden. Thema 9 ist freigeschaltet.";
       status.style.borderColor = "rgba(31, 139, 76, 0.45)";
       status.style.background = "#f3fbf6";
       status.style.color = "#275b3f";
@@ -1688,7 +1688,7 @@
 
       const feedback = document.getElementById("quiz-feedback");
       if (score >= 3) {
-        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 6 ist freigeschaltet.`;
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 9 ist freigeschaltet.`;
         feedback.style.color = "#1f8b4c";
         unlockNextTopic();
       } else {

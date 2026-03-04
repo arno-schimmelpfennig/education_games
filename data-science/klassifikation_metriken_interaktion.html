@@ -778,7 +778,7 @@
     <div id="quiz-backdrop"></div>
     <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <h3 id="quiz-title">Mini-Quiz: Logistische Klassifikation und Metriken</h3>
-      <p style="margin:0 0 10px;color:#44526a;font-size:0.88rem;line-height:1.45;">4 Fragen, mindestens 3 richtig. Danach wird Thema 5 (Matrix) freigeschaltet.</p>
+      <p style="margin:0 0 10px;color:#44526a;font-size:0.88rem;line-height:1.45;">4 Fragen, mindestens 3 richtig. Danach wird Thema 5 (KNN Grundlagen) freigeschaltet.</p>
       <form id="classification-quiz-form">
         <div class="quiz-question">
           <strong>1) Warum passt die Sigmoid-Funktion zu binaerer Klassifikation?</strong>
@@ -880,9 +880,9 @@
       <div class="path-box" id="path-box">
         <strong>Naechste Schritte</strong>
         <div class="path-content">
-          <div class="path-status" id="path-status">Mini-Quiz wird nach dem letzten Schritt angeboten. Danach wird Thema 5 (Matrix) freigeschaltet.</div>
+          <div class="path-status" id="path-status">Mini-Quiz wird nach dem letzten Schritt angeboten. Danach wird Thema 5 (KNN Grundlagen) freigeschaltet.</div>
           <button id="open-quiz" class="secondary" type="button" disabled>Mini-Quiz starten</button>
-          <a id="to-matrix-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 5: Matrix verstehen</a>
+          <a id="to-matrix-link" class="path-link disabled" href="knn_grundlagen_interaktion.html" aria-disabled="true">Weiter zu Thema 5: KNN Grundlagen</a>
           <a class="path-link" href="bias_variance_tradeoff_interaktion.html">Zurueck zu Thema 3: Bias-Variance Tradeoff</a>
           <button id="replay-topic" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
@@ -903,9 +903,12 @@
           <a class="codepath-step is-disabled" href="gradient_descent_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">2</span><span>Gradient Descent</span></a>
           <a class="codepath-step is-disabled" href="bias_variance_tradeoff_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">3</span><span>Bias-Variance</span></a>
           <a class="codepath-step active" href="klassifikation_metriken_interaktion.html"><span class="codepath-index">4</span><span>Logistische Klassifikation und Metriken</span></a>
-          <a class="codepath-step is-disabled" href="matrix_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">5</span><span>Matrix</span></a>
-          <a class="codepath-step is-disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">6</span><span>Matrizenmultiplikation</span></a>
-          <a class="codepath-step is-disabled" href="regularization_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">7</span><span>Regularization</span></a>
+          <a class="codepath-step is-disabled" href="knn_grundlagen_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">5</span><span>KNN Grundlagen</span></a>
+          <a class="codepath-step is-disabled" href="knn_hyperparameter_tuning_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">6</span><span>KNN Hyperparameter</span></a>
+          <a class="codepath-step is-disabled" href="distanzmetriken_und_scaling_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">7</span><span>Distanzmetriken + Scaling</span></a>
+          <a class="codepath-step is-disabled" href="matrix_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">8</span><span>Matrix</span></a>
+          <a class="codepath-step is-disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">9</span><span>Matrizenmultiplikation</span></a>
+          <a class="codepath-step is-disabled" href="regularization_interaktion.html" aria-disabled="true" tabindex="-1"><span class="codepath-index">10</span><span>Regularization</span></a>
         </div>
       </section>
 
@@ -1924,7 +1927,7 @@
       replayTopicBtn.hidden = !ready;
 
       if (!ready) {
-        pathStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} angeboten. Danach wird Thema 5 (Matrix) freigeschaltet.`;
+        pathStatusEl.textContent = `Mini-Quiz wird nach Schritt ${steps.length} angeboten. Danach wird Thema 5 (KNN Grundlagen) freigeschaltet.`;
         pathStatusEl.style.borderColor = "#cbd4e4";
         pathStatusEl.style.background = "#fff";
         pathStatusEl.style.color = "#5f6d84";
@@ -1990,7 +1993,7 @@
     function unlockMatrixNavigation() {
       toMatrixLink.classList.remove("disabled");
       toMatrixLink.setAttribute("aria-disabled", "false");
-      pathStatusEl.textContent = "Mini-Quiz bestanden. Thema 5 (Matrix) ist freigeschaltet.";
+      pathStatusEl.textContent = "Mini-Quiz bestanden. Thema 5 (KNN Grundlagen) ist freigeschaltet.";
       pathStatusEl.style.borderColor = "rgba(31, 139, 76, 0.45)";
       pathStatusEl.style.background = "#f3fbf6";
       pathStatusEl.style.color = "#275b3f";

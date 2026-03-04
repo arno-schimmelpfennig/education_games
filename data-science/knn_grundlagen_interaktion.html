@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KNN Grundlagen | Data Science</title>
+  <style>
+    :root {
+      --bg: #edf3fb;
+      --panel: #ffffff;
+      --ink: #1f2a3c;
+      --muted: #5e6d86;
+      --brand: #173262;
+      --accent: #6f2d45;
+      --line: #d7dfed;
+      --ok: #1f8b4c;
+      --warn: #b76a20;
+      --shadow: 0 14px 28px rgba(20, 39, 74, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 88% 0%, #f8fbff 0%, var(--bg) 46%, #e7eef8 100%);
+      min-height: 100vh;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(330px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+      border-right: 1px solid var(--line);
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    #stage {
+      padding: 16px;
+      overflow-y: auto;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    h1 {
+      margin: 8px 0 6px;
+      color: var(--brand);
+      font-size: 1.62rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 1rem;
+    }
+
+    p { margin: 0; line-height: 1.48; }
+
+    .brandline {
+      color: #667691;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .lead {
+      color: #4a5b75;
+      margin-bottom: 12px;
+      font-size: 0.92rem;
+    }
+
+    .card,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .path-box,
+    .usage-box,
+    .chart-card,
+    .ctrl-card,
+    .neighbors-card,
+    .quiz-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .step-box,
+    .chat-box,
+    .answer-box,
+    .path-box,
+    .usage-box,
+    .quiz-box { padding: 11px; margin-bottom: 10px; }
+
+    .step-action {
+      margin-top: 9px;
+      border: 1px dashed #b9c8de;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.86rem;
+      color: #385078;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .timeline-item {
+      border: 1px solid #d5deed;
+      background: #fbfdff;
+      border-radius: 10px;
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      color: #52627b;
+    }
+
+    .timeline-item.active {
+      border-color: #a9bcdf;
+      background: #eef4ff;
+      color: #1f3e6a;
+      font-weight: 700;
+    }
+
+    .timeline-item.done {
+      border-color: #b8d6bf;
+      background: #f2fbf4;
+      color: #2f6944;
+    }
+
+    .path-box {
+      border-color: rgba(111, 45, 69, 0.24);
+      background: linear-gradient(180deg, #fff9fb 0%, #ffffff 100%);
+    }
+
+    .path-status {
+      border: 1px dashed #c9d3e5;
+      border-radius: 10px;
+      background: #fff;
+      color: #56657e;
+      font-size: 0.82rem;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .path-link,
+    .ctrl-group button,
+    .mini-btn,
+    .mode-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .path-link {
+      width: 100%;
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #2d4f84);
+      margin-bottom: 8px;
+    }
+
+    .path-link.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+      filter: grayscale(0.2);
+    }
+
+    .ctrl-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+    .ctrl-group button,
+    .mini-btn,
+    .mode-btn {
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #345a95);
+    }
+
+    .ctrl-group .secondary,
+    .mini-btn.secondary,
+    .mode-btn.secondary {
+      background: #eef3fb;
+      color: #27426d;
+      border: 1px solid #c6d3e9;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+      gap: 12px;
+    }
+
+    .chart-card,
+    .ctrl-card,
+    .neighbors-card { padding: 12px; }
+
+    .chart-wrap {
+      border: 1px solid #d8e0ee;
+      border-radius: 12px;
+      background: #f9fbff;
+      padding: 8px;
+      margin-top: 8px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 340px;
+      border-radius: 10px;
+      background: #fff;
+      display: block;
+    }
+
+    .legend {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #53637d;
+      display: grid;
+      gap: 4px;
+    }
+
+    .ctrl-row { margin-bottom: 10px; }
+
+    .ctrl-row label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      color: #475773;
+      margin-bottom: 5px;
+    }
+
+    input[type="range"] { width: 100%; }
+
+    .mode-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #6f2d45, #8c4561);
+      color: #fff;
+    }
+
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border: 1px solid #d4deee;
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 8px;
+      font-size: 0.82rem;
+      color: #4f5f79;
+      text-align: center;
+    }
+
+    .chip b { display: block; margin-top: 4px; color: #213f69; }
+
+    .neighbors-list {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      font-size: 0.83rem;
+      color: #4a5b75;
+      line-height: 1.42;
+      display: grid;
+      gap: 4px;
+      max-height: 230px;
+      overflow: auto;
+    }
+
+    .formula-box {
+      margin-top: 8px;
+      border: 1px dashed #c8d4e8;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 8px;
+      color: #3e4f69;
+      font-size: 0.83rem;
+      line-height: 1.42;
+    }
+
+    .quiz-box label {
+      display: block;
+      margin: 5px 0;
+      font-size: 0.84rem;
+      color: #4a5a74;
+    }
+
+    .quiz-box .feedback {
+      margin-top: 8px;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .feedback.ok { color: var(--ok); }
+    .feedback.warn { color: var(--warn); }
+
+    @media (max-width: 1020px) {
+      #app { grid-template-columns: 1fr; }
+      #sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
+      .grid { grid-template-columns: 1fr; }
+      .ctrl-group { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Thema 5: KNN Grundlagen</h1>
+      <p class="lead">Aehnlichkeit statt Formelzwang: KNN ist ueberwachtes Lernen und ordnet neue Faelle nach naechsten Nachbarn ein.</p>
+
+      <div class="card">
+        <strong>Story</strong>
+        <p>Mira sortiert ein neues Produkt in ein Regal ein. Sie fragt: Welche vorhandenen Produkte sehen am aehnlichsten aus?</p>
+      </div>
+
+      <div class="step-box">
+        <h3 id="step-title"></h3>
+        <p id="step-text"></p>
+        <div class="step-action"><strong>Aktion jetzt:</strong> <span id="step-action"></span></div>
+      </div>
+
+      <div class="chat-box">
+        <strong>Diskussionsfrage</strong>
+        <p id="chat-question"></p>
+      </div>
+
+      <div class="answer-box">
+        <strong>Aufloesung</strong>
+        <p id="answer-text"></p>
+      </div>
+
+      <div class="timeline" id="timeline"></div>
+
+      <div class="usage-box">
+        <strong>Praxis-Uebertrag:</strong><br>
+        KNN ist ein nicht-parametrisches Verfahren mit kaum Verteilungsannahmen. Es funktioniert fuer Klassifikation (Modus) und Regression (Mittelwert).
+      </div>
+
+      <div class="path-box">
+        <strong>Naechste Schritte</strong>
+        <div class="path-status" id="path-status">Nach Schritt 6 und Mini-Check wird Thema 6 (KNN Tuning) freigeschaltet.</div>
+        <a id="to-next-link" class="path-link disabled" href="knn_hyperparameter_tuning_interaktion.html" aria-disabled="true">Weiter zu Thema 6: KNN Hyperparameter-Tuning</a>
+        <a class="path-link" href="klassifikation_metriken_interaktion.html">Zurueck zu Thema 4: Klassifikation und Metriken</a>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="prev-step" class="secondary" hidden>Vorheriger Schritt</button>
+        <button id="next-step">Naechster Schritt</button>
+        <button id="reset-session" class="secondary">Reset</button>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <section class="grid">
+        <article class="chart-card">
+          <h3>KNN-Feld (2 Merkmale)</h3>
+          <p>x = Merkmal 1, y = Merkmal 2. Schwarzer Stern = neuer Fall.</p>
+          <div class="chart-wrap">
+            <canvas id="knn-canvas" width="760" height="480" aria-label="KNN Visualisierung mit Nachbarn"></canvas>
+          </div>
+          <div class="legend">
+            <span>Blau = Klasse Katze, Orange = Klasse Huehner.</span>
+            <span>Punktgroesse zeigt Distanzgewicht der gewaehlt-naechsten Nachbarn.</span>
+            <span>Gestrichelter Kreis markiert die Distanz zum k-ten Nachbarn.</span>
+          </div>
+        </article>
+
+        <article class="ctrl-card">
+          <h3>Steuerung</h3>
+          <div class="mode-row">
+            <button id="mode-class" class="mode-btn active" type="button">Klassifikation</button>
+            <button id="mode-reg" class="mode-btn secondary" type="button">Regression</button>
+          </div>
+          <div class="ctrl-row">
+            <label for="k-slider">Nachbarn k <output id="k-value" for="k-slider">3</output></label>
+            <input id="k-slider" type="range" min="1" max="9" step="2" value="3">
+          </div>
+          <div class="ctrl-row">
+            <label for="x-slider">Neuer Punkt x <output id="x-value" for="x-slider">54</output></label>
+            <input id="x-slider" type="range" min="8" max="92" step="1" value="54">
+          </div>
+          <div class="ctrl-row">
+            <label for="y-slider">Neuer Punkt y <output id="y-value" for="y-slider">58</output></label>
+            <input id="y-slider" type="range" min="8" max="92" step="1" value="58">
+          </div>
+
+          <div class="chips">
+            <div class="chip">Vorhersage<b id="chip-pred">-</b></div>
+            <div class="chip">KNN-Ausgabe<b id="chip-stat">-</b></div>
+            <div class="chip">Annahmecheck<b id="chip-assume">Aehnlich = nah</b></div>
+          </div>
+
+          <div class="formula-box" id="formula-box">Klassifikation: wir nehmen den Modus der k naechsten Nachbarn.</div>
+        </article>
+      </section>
+
+      <section class="neighbors-card">
+        <h3>Naechste Nachbarn (sortiert)</h3>
+        <p>So wird aus Distanz eine Entscheidung.</p>
+        <ol id="neighbors-list" class="neighbors-list"></ol>
+      </section>
+
+      <section class="quiz-box">
+        <h3>Mini-Check (3 Fragen)</h3>
+        <label><input type="radio" name="q1" value="a"> Bei KNN-Klassifikation wird meist der Modus der Nachbarn verwendet.</label>
+        <label><input type="radio" name="q1" value="b"> Bei KNN-Klassifikation wird immer der Median verwendet.</label>
+        <label><input type="radio" name="q2" value="a"> KNN ist typischerweise nicht-parametrisch und macht wenige Verteilungsannahmen.</label>
+        <label><input type="radio" name="q2" value="b"> KNN braucht strenge Normalverteilungsannahmen wie OLS-Tests.</label>
+        <label><input type="radio" name="q3" value="a"> Bei KNN-Regression wird aus Nachbarwerten meist ein Mittelwert gebildet.</label>
+        <label><input type="radio" name="q3" value="b"> Bei KNN-Regression wird immer eine Klasse ausgegeben.</label>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="grade-quiz" class="mini-btn" type="button">Mini-Check auswerten</button>
+          <button id="unlock-next" class="mini-btn secondary" type="button">Weiterlink freischalten</button>
+        </div>
+        <div id="quiz-feedback" class="feedback"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const data = [
+      { id: "K1", x: 18, y: 26, cls: "Katze", value: 4.1 },
+      { id: "K2", x: 24, y: 44, cls: "Katze", value: 4.7 },
+      { id: "K3", x: 30, y: 20, cls: "Katze", value: 3.9 },
+      { id: "K4", x: 36, y: 36, cls: "Katze", value: 4.3 },
+      { id: "K5", x: 44, y: 24, cls: "Katze", value: 4.9 },
+      { id: "H1", x: 60, y: 66, cls: "Huehner", value: 8.7 },
+      { id: "H2", x: 68, y: 54, cls: "Huehner", value: 8.1 },
+      { id: "H3", x: 74, y: 72, cls: "Huehner", value: 9.0 },
+      { id: "H4", x: 82, y: 60, cls: "Huehner", value: 8.5 },
+      { id: "H5", x: 56, y: 80, cls: "Huehner", value: 8.9 }
+    ];
+
+    const steps = [
+      {
+        title: "Schritt 1: Idee von KNN",
+        text: "KNN ist ein ueberwachtes Lernverfahren. Es fragt nicht zuerst nach einer Formel, sondern nach Naehe: Welche bekannten Punkte liegen am dichtesten am neuen Fall?",
+        action: "Lass den Modus auf Klassifikation und beobachte die k-naechsten Punkte.",
+        chat: "Warum kann Naehe in vielen Alltagsfaellen ein guter Start sein?",
+        answer: "Weil aehnliche Faelle oft aehnliche Ergebnisse haben - zum Beispiel Produktgruppen oder Kundensegmente."
+      },
+      {
+        title: "Schritt 2: k = 1 vs k = 3",
+        text: "Mit k=1 entscheidet genau ein Nachbar. Mit k=3 entsteht eine stabilere Mehrheitsentscheidung.",
+        action: "Schiebe k von 1 auf 3 und vergleiche Vorhersage und Nachbarliste.",
+        chat: "Welche Version wirkt robuster gegen einzelne Ausreisser?",
+        answer: "k=3 ist meist robuster als k=1, weil nicht ein einzelner Punkt alles bestimmt."
+      },
+      {
+        title: "Schritt 3: Klassifikation und Modus",
+        text: "Im Klassifikationsmodus zaehlt KNN die Klassen der naechsten Nachbarn. Die haeufigste Klasse gewinnt (Modus).",
+        action: "Beobachte, wie die Klasse im Chip bei veraendertem Punkt umschaltet.",
+        chat: "Was passiert bei Gleichstand?",
+        answer: "Dann braucht man eine Tie-Break-Regel (z. B. naehere Distanz priorisieren oder ungerades k waehlen)."
+      },
+      {
+        title: "Schritt 4: Regression und Mittelwert",
+        text: "KNN kann auch numerische Zielwerte vorhersagen. Dann wird aus den Nachbarn ein Mittelwert gebildet (Regression statt Klassifikation).",
+        action: "Wechsle auf Regression und vergleiche den Mittelwert der Nachbarwerte.",
+        chat: "Warum ist die Ausgabe jetzt eine Zahl statt Klasse?",
+        answer: "Weil das Ziel in der Regression kontinuierlich ist, nicht Ja/Nein."
+      },
+      {
+        title: "Schritt 5: Nicht-parametrisch",
+        text: "KNN ist nicht-parametrisch: Es nimmt keine starre globale Funktionsform an. Das ist flexibel, braucht aber gute Distanz- und k-Wahl.",
+        action: "Verschiebe den neuen Punkt in Randbereiche und beobachte, wie lokal die Entscheidung bleibt.",
+        chat: "Welche Staerke hat dieser lokale Ansatz?",
+        answer: "Unregelmaessige Grenzen sind moeglich, wo lineare Grenzen zu grob waeren."
+      },
+      {
+        title: "Schritt 6: Bruecke zum Tuning",
+        text: "Die Kernfrage lautet jetzt: Welches k ist sinnvoll? Das loesen wir empirisch im naechsten Thema mit Fehlervergleich.",
+        action: "Fuehre den Mini-Check aus und schalte den Weiterlink zu Thema 6 frei.",
+        chat: "Warum gibt es hier kein magisches k ohne Testvergleich?",
+        answer: "Weil die passende Nachbarschaft von Datenstruktur, Distanzmetrik und Rauschen abhaengt."
+      }
+    ];
+
+    const state = {
+      stepIndex: 0,
+      mode: "class",
+      k: 3,
+      px: 54,
+      py: 58,
+      unlocked: false
+    };
+
+    const canvas = document.getElementById("knn-canvas");
+    const ctx = canvas.getContext("2d");
+    const kSlider = document.getElementById("k-slider");
+    const xSlider = document.getElementById("x-slider");
+    const ySlider = document.getElementById("y-slider");
+    const kValueEl = document.getElementById("k-value");
+    const xValueEl = document.getElementById("x-value");
+    const yValueEl = document.getElementById("y-value");
+
+    const stepTitleEl = document.getElementById("step-title");
+    const stepTextEl = document.getElementById("step-text");
+    const stepActionEl = document.getElementById("step-action");
+    const chatQuestionEl = document.getElementById("chat-question");
+    const answerTextEl = document.getElementById("answer-text");
+    const timelineEl = document.getElementById("timeline");
+    const prevStepBtn = document.getElementById("prev-step");
+    const nextStepBtn = document.getElementById("next-step");
+    const resetSessionBtn = document.getElementById("reset-session");
+
+    const neighborsListEl = document.getElementById("neighbors-list");
+    const chipPredEl = document.getElementById("chip-pred");
+    const chipStatEl = document.getElementById("chip-stat");
+    const formulaBoxEl = document.getElementById("formula-box");
+
+    const modeClassBtn = document.getElementById("mode-class");
+    const modeRegBtn = document.getElementById("mode-reg");
+
+    const toNextLink = document.getElementById("to-next-link");
+    const pathStatusEl = document.getElementById("path-status");
+    const quizFeedbackEl = document.getElementById("quiz-feedback");
+
+    function distance(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function getNeighbors() {
+      const point = { x: state.px, y: state.py };
+      return data
+        .map((d) => ({ ...d, dist: distance(d, point) }))
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, state.k);
+    }
+
+    function getPrediction(neighbors) {
+      if (state.mode === "class") {
+        const counts = neighbors.reduce((acc, n) => {
+          acc[n.cls] = (acc[n.cls] || 0) + 1;
+          return acc;
+        }, {});
+        const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+        return {
+          label: best[0],
+          stat: `Modus: ${best[0]} (${best[1]}/${neighbors.length})`
+        };
+      }
+      const mean = neighbors.reduce((sum, n) => sum + n.value, 0) / neighbors.length;
+      return {
+        label: `${mean.toFixed(2)}`,
+        stat: `Mittelwert: ${mean.toFixed(2)}`
+      };
+    }
+
+    function toCanvas(value, maxPx) {
+      return (value / 100) * maxPx;
+    }
+
+    function draw() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = "#e2e9f5";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 10; i += 1) {
+        const x = (i / 10) * w;
+        const y = (i / 10) * h;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      const neighbors = getNeighbors();
+      const kthDist = neighbors[neighbors.length - 1]?.dist || 0;
+
+      const pointX = toCanvas(state.px, w);
+      const pointY = h - toCanvas(state.py, h);
+
+      ctx.setLineDash([8, 6]);
+      ctx.strokeStyle = "#7f8faa";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(pointX, pointY, (kthDist / 100) * Math.min(w, h), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      data.forEach((d) => {
+        const x = toCanvas(d.x, w);
+        const y = h - toCanvas(d.y, h);
+        const isNeighbor = neighbors.some((n) => n.id === d.id);
+        const r = isNeighbor ? 10 : 7;
+        ctx.beginPath();
+        ctx.fillStyle = d.cls === "Katze" ? "#2e5ea1" : "#d07b2f";
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = isNeighbor ? "#11294a" : "#ffffff";
+        ctx.lineWidth = isNeighbor ? 2 : 1;
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "12px Inter";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(d.id, x, y);
+      });
+
+      ctx.fillStyle = "#0f2037";
+      ctx.beginPath();
+      ctx.moveTo(pointX, pointY - 11);
+      ctx.lineTo(pointX + 11, pointY + 11);
+      ctx.lineTo(pointX - 11, pointY + 11);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(pointX, pointY - 8);
+      ctx.lineTo(pointX + 8, pointY + 8);
+      ctx.lineTo(pointX - 8, pointY + 8);
+      ctx.closePath();
+      ctx.stroke();
+
+      const prediction = getPrediction(neighbors);
+      chipPredEl.textContent = state.mode === "class" ? prediction.label : `${prediction.label} (numeric)`;
+      chipStatEl.textContent = prediction.stat;
+      formulaBoxEl.textContent = state.mode === "class"
+        ? "Klassifikation: Klasse = Modus der k-naechsten Nachbarn."
+        : "Regression: Vorhersage = Mittelwert der k-naechsten Nachbarwerte.";
+
+      neighborsListEl.innerHTML = "";
+      neighbors.forEach((n, idx) => {
+        const li = document.createElement("li");
+        const clsPart = state.mode === "class"
+          ? `Klasse ${n.cls}`
+          : `Wert ${n.value.toFixed(2)}`;
+        li.textContent = `${idx + 1}. ${n.id} | Distanz ${n.dist.toFixed(2)} | ${clsPart}`;
+        neighborsListEl.appendChild(li);
+      });
+    }
+
+    function renderTimeline() {
+      timelineEl.innerHTML = "";
+      steps.forEach((step, idx) => {
+        const item = document.createElement("div");
+        item.className = "timeline-item";
+        if (idx < state.stepIndex) {
+          item.classList.add("done");
+        } else if (idx === state.stepIndex) {
+          item.classList.add("active");
+        }
+        item.textContent = step.title;
+        timelineEl.appendChild(item);
+      });
+    }
+
+    function setLinkUnlocked(unlocked) {
+      state.unlocked = unlocked;
+      if (unlocked) {
+        toNextLink.classList.remove("disabled");
+        toNextLink.setAttribute("aria-disabled", "false");
+        pathStatusEl.textContent = "Freigeschaltet: Weiter zu Thema 6 (KNN Hyperparameter-Tuning).";
+      } else {
+        toNextLink.classList.add("disabled");
+        toNextLink.setAttribute("aria-disabled", "true");
+        pathStatusEl.textContent = "Nach Schritt 6 und Mini-Check wird Thema 6 (KNN Tuning) freigeschaltet.";
+      }
+    }
+
+    function renderStep() {
+      const step = steps[state.stepIndex];
+      stepTitleEl.textContent = step.title;
+      stepTextEl.textContent = step.text;
+      stepActionEl.textContent = step.action;
+      chatQuestionEl.textContent = step.chat;
+      answerTextEl.textContent = step.answer;
+      prevStepBtn.hidden = state.stepIndex === 0;
+      nextStepBtn.hidden = state.stepIndex >= steps.length - 1;
+      renderTimeline();
+
+      if (!state.unlocked && state.stepIndex < steps.length - 1) {
+        pathStatusEl.textContent = `Schritt ${state.stepIndex + 1}/${steps.length}: Noch ${steps.length - state.stepIndex - 1} Schritt(e) bis zur Freischaltung.`;
+      }
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeClassBtn.classList.toggle("active", mode === "class");
+      modeRegBtn.classList.toggle("active", mode === "reg");
+      modeClassBtn.classList.toggle("secondary", mode !== "class");
+      modeRegBtn.classList.toggle("secondary", mode !== "reg");
+      draw();
+    }
+
+    function resetSession() {
+      state.stepIndex = 0;
+      state.mode = "class";
+      state.k = 3;
+      state.px = 54;
+      state.py = 58;
+      kSlider.value = "3";
+      xSlider.value = "54";
+      ySlider.value = "58";
+      kValueEl.textContent = "3";
+      xValueEl.textContent = "54";
+      yValueEl.textContent = "58";
+      setMode("class");
+      setLinkUnlocked(false);
+      quizFeedbackEl.textContent = "";
+      quizFeedbackEl.className = "feedback";
+      document.querySelectorAll('input[type="radio"]').forEach((input) => {
+        input.checked = false;
+      });
+      renderStep();
+      draw();
+    }
+
+    kSlider.addEventListener("input", () => {
+      state.k = Number(kSlider.value);
+      kValueEl.textContent = String(state.k);
+      draw();
+    });
+
+    xSlider.addEventListener("input", () => {
+      state.px = Number(xSlider.value);
+      xValueEl.textContent = String(state.px);
+      draw();
+    });
+
+    ySlider.addEventListener("input", () => {
+      state.py = Number(ySlider.value);
+      yValueEl.textContent = String(state.py);
+      draw();
+    });
+
+    modeClassBtn.addEventListener("click", () => setMode("class"));
+    modeRegBtn.addEventListener("click", () => setMode("reg"));
+
+    nextStepBtn.addEventListener("click", () => {
+      if (state.stepIndex < steps.length - 1) {
+        state.stepIndex += 1;
+        renderStep();
+      }
+    });
+
+    prevStepBtn.addEventListener("click", () => {
+      if (state.stepIndex > 0) {
+        state.stepIndex -= 1;
+        renderStep();
+      }
+    });
+
+    resetSessionBtn.addEventListener("click", resetSession);
+
+    document.getElementById("grade-quiz").addEventListener("click", () => {
+      const q1 = document.querySelector('input[name="q1"]:checked')?.value;
+      const q2 = document.querySelector('input[name="q2"]:checked')?.value;
+      const q3 = document.querySelector('input[name="q3"]:checked')?.value;
+      let score = 0;
+      if (q1 === "a") score += 1;
+      if (q2 === "a") score += 1;
+      if (q3 === "a") score += 1;
+
+      if (score >= 2) {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Gut - Thema 6 kann freigeschaltet werden.`;
+        quizFeedbackEl.className = "feedback ok";
+      } else {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Kurz wiederholen und erneut pruefen.`;
+        quizFeedbackEl.className = "feedback warn";
+      }
+    });
+
+    document.getElementById("unlock-next").addEventListener("click", () => {
+      if (state.stepIndex === steps.length - 1) {
+        setLinkUnlocked(true);
+      } else {
+        pathStatusEl.textContent = "Bitte erst bis Schritt 6 durchgehen, dann freischalten.";
+      }
+    });
+
+    setLinkUnlocked(false);
+    renderStep();
+    draw();
+  </script>
+</body>
+</html>
