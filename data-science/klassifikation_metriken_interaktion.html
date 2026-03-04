@@ -451,6 +451,56 @@
       gap: 8px;
     }
 
+    .outlier-card {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    #outlier-canvas {
+      width: 100%;
+      height: 235px;
+      border: 1px solid #d7dfec;
+      border-radius: 10px;
+      background: #ffffff;
+      display: block;
+    }
+
+    .outlier-legend {
+      display: grid;
+      gap: 4px;
+      font-size: 0.79rem;
+      color: #4e5e77;
+    }
+
+    .outlier-controls {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .outlier-controls label {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #2f476c;
+    }
+
+    .outlier-controls output {
+      min-width: 58px;
+      text-align: right;
+      font-weight: 700;
+      color: #2b3f63;
+    }
+
+    .outlier-controls input[type="range"] {
+      width: 100%;
+      accent-color: #6f2d45;
+    }
+
     .sigmoid-formula {
       border: 1px dashed #c4d0e3;
       border-radius: 10px;
@@ -1034,6 +1084,24 @@
             </section>
           </article>
 
+          <article class="card outlier-card" id="outlier-card">
+            <h3>Ausreisser-Effekt sichtbar (Schritt 2)</h3>
+            <p>Hier siehst du genau, warum lineare Regression fuer Klassifikation kippt: Ein grosser Ausreisser zieht die Linie und kann Vorhersagen ausserhalb von 0 bis 1 erzeugen.</p>
+            <canvas id="outlier-canvas" width="560" height="235" aria-label="Visualisierung vom Ausreisser-Effekt auf eine lineare Regressionslinie"></canvas>
+            <div class="outlier-legend">
+              <span>Gruene Linie: linearer Fit ohne Ausreisser.</span>
+              <span>Violette Linie: linearer Fit mit Ausreisser.</span>
+              <span>Gruenes Band: gueltiger Wahrscheinlichkeitsbereich 0 bis 1.</span>
+            </div>
+            <div class="outlier-controls">
+              <label for="outlier-strength">Ausreisser-Staerke
+                <output id="outlier-strength-value" for="outlier-strength">3.0</output>
+              </label>
+              <input id="outlier-strength" type="range" min="0" max="5" step="0.5" value="3.0">
+            </div>
+            <div class="panel-note" id="outlier-pred-note">Ab Schritt 2 aktiv: Dann siehst du den Effekt auf die lineare Linie direkt.</div>
+          </article>
+
           <article class="table-card" id="data-card">
             <h3>Laborfaelle (Mila-Team)</h3>
             <p>Jede Zeile ist ein Mensch. <strong>Risiko</strong> ist die Modellwahrscheinlichkeit, <strong>Ist</strong> ist die echte Klasse.</p>
@@ -1153,7 +1221,7 @@
       },
       {
         title: "Schritt 2: Warum lineare Regression hier kippt",
-        text: "Mila testet erst eine lineare Linie und sieht das Problem: Ausreisser verschieben die Linie stark und Vorhersagen koennen unter 0 oder ueber 1 liegen. Genau das passt nicht zu Wahrscheinlichkeiten.",
+        text: "Mila testet erst eine lineare Linie und sieht das Problem: Ausreisser verschieben die Linie stark und Vorhersagen koennen unter 0 oder ueber 1 liegen. Genau das passt nicht zu Wahrscheinlichkeiten. Nutze jetzt das Ausreisser-Panel und beobachte die violette Linie.",
         chat: "Warum sind Werte wie -0.3 oder 1.4 fuer eine Wahrscheinlichkeit unbrauchbar?",
         answer: "Wahrscheinlichkeiten duerfen nur im Bereich 0 bis 1 liegen. Deshalb braucht Klassifikation eine begrenzte Funktion.",
         focus: "formula"
@@ -1312,6 +1380,7 @@
       threshold: 0.50,
       logitB0: -3,
       logitB1: 0.2,
+      outlierStrength: 3.0,
       predictionIndex: 0,
       stepIndex: 0,
       quizReady: false,
@@ -1357,11 +1426,27 @@
     const selfExplainInputEl = document.getElementById("self-explain-input");
     const selfExplainFeedbackEl = document.getElementById("self-explain-feedback");
     const selfExplainSolutionEl = document.getElementById("self-explain-solution");
+    const outlierCanvas = document.getElementById("outlier-canvas");
+    const outlierStrengthInput = document.getElementById("outlier-strength");
+    const outlierStrengthValueEl = document.getElementById("outlier-strength-value");
+    const outlierPredNoteEl = document.getElementById("outlier-pred-note");
 
     const sigmoidRange = {
       minX: -50,
       maxX: 50
     };
+
+    const outlierBasePoints = [
+      { x: -4, y: 0.08 },
+      { x: -3, y: 0.15 },
+      { x: -2, y: 0.20 },
+      { x: -1, y: 0.27 },
+      { x: 0, y: 0.35 },
+      { x: 1, y: 0.44 },
+      { x: 2, y: 0.56 },
+      { x: 3, y: 0.65 },
+      { x: 4, y: 0.78 }
+    ];
 
     const predictionQuestions = [
       {
@@ -1549,6 +1634,157 @@
       if (!selfExplainSolutionEl.hidden) {
         selfExplainSolutionEl.textContent = buildSelfExplainSolution();
       }
+    }
+
+    function setOutlierCanvasSize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = outlierCanvas.getBoundingClientRect();
+      outlierCanvas.width = Math.floor(rect.width * dpr);
+      outlierCanvas.height = Math.floor(rect.height * dpr);
+      const ctx = outlierCanvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, width: rect.width, height: rect.height };
+    }
+
+    function fitLinearModel(points) {
+      const n = points.length;
+      if (n < 2) return { m: 0, b: 0 };
+
+      let sumX = 0;
+      let sumY = 0;
+      let sumXX = 0;
+      let sumXY = 0;
+
+      points.forEach((p) => {
+        sumX += p.x;
+        sumY += p.y;
+        sumXX += p.x * p.x;
+        sumXY += p.x * p.y;
+      });
+
+      const den = n * sumXX - sumX * sumX;
+      if (Math.abs(den) < 1e-9) {
+        return { m: 0, b: sumY / n };
+      }
+
+      const m = (n * sumXY - sumX * sumY) / den;
+      const b = (sumY - m * sumX) / n;
+      return { m, b };
+    }
+
+    function drawOutlierDemo() {
+      const { ctx, width, height } = setOutlierCanvasSize();
+      const outlierPoint = { x: 6, y: 1 + state.outlierStrength * 1.2 };
+      const pointsWithOutlier = [...outlierBasePoints, outlierPoint];
+      const modelClean = fitLinearModel(outlierBasePoints);
+      const modelOutlier = fitLinearModel(pointsWithOutlier);
+
+      const xMin = -5;
+      const xMax = 7;
+      const yMin = -1;
+      const yMax = Math.max(2.2, outlierPoint.y + 0.6);
+      const pad = { top: 14, right: 14, bottom: 30, left: 36 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+      const x = (value) => pad.left + ((value - xMin) / (xMax - xMin)) * plotW;
+      const y = (value) => pad.top + (1 - (value - yMin) / (yMax - yMin)) * plotH;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      // Probability band [0,1]: valid zone for probabilities.
+      const bandTop = y(1);
+      const bandBottom = y(0);
+      ctx.fillStyle = "rgba(44, 130, 73, 0.08)";
+      ctx.fillRect(pad.left, bandTop, plotW, bandBottom - bandTop);
+
+      ctx.strokeStyle = "#d6deeb";
+      ctx.lineWidth = 1;
+      for (let tick = xMin; tick <= xMax + 0.01; tick += 2) {
+        const xx = x(tick);
+        ctx.beginPath();
+        ctx.moveTo(xx, pad.top);
+        ctx.lineTo(xx, height - pad.bottom);
+        ctx.stroke();
+      }
+      for (let tick = Math.ceil(yMin); tick <= Math.floor(yMax); tick += 1) {
+        const yy = y(tick);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yy);
+        ctx.lineTo(width - pad.right, yy);
+        ctx.stroke();
+      }
+
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = "#2f8346";
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y(0));
+      ctx.lineTo(width - pad.right, y(0));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y(1));
+      ctx.lineTo(width - pad.right, y(1));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const drawLine = (model, color, widthPx) => {
+        const yA = model.b + model.m * xMin;
+        const yB = model.b + model.m * xMax;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = widthPx;
+        ctx.beginPath();
+        ctx.moveTo(x(xMin), y(yA));
+        ctx.lineTo(x(xMax), y(yB));
+        ctx.stroke();
+      };
+      drawLine(modelClean, "#2f8b4c", 2.1);
+      drawLine(modelOutlier, "#7b2f48", 2.2);
+
+      outlierBasePoints.forEach((p) => {
+        ctx.beginPath();
+        ctx.fillStyle = "#2f5b96";
+        ctx.arc(x(p.x), y(p.y), 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.beginPath();
+      ctx.fillStyle = "#9a324d";
+      ctx.arc(x(outlierPoint.x), y(outlierPoint.y), 5.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.3;
+      ctx.stroke();
+
+      ctx.strokeStyle = "#8a9bb5";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.rect(pad.left, pad.top, plotW, plotH);
+      ctx.stroke();
+
+      const probeX = 5;
+      const predClean = modelClean.b + modelClean.m * probeX;
+      const predOutlier = modelOutlier.b + modelOutlier.m * probeX;
+      const outside = predOutlier < 0 || predOutlier > 1;
+
+      outlierStrengthValueEl.textContent = state.outlierStrength.toFixed(1);
+      if (state.stepIndex < 1) {
+        outlierPredNoteEl.textContent = "Ab Schritt 2 aktiv: Dann siehst du, wie ein grosser Ausreisser die lineare Linie sichtbar verschiebt.";
+      } else {
+        outlierPredNoteEl.textContent = `Probe bei x=${probeX}: ohne Ausreisser y_hat=${predClean.toFixed(2)}, mit Ausreisser y_hat=${predOutlier.toFixed(2)}${outside ? " (ausserhalb 0..1)." : "."}`;
+      }
+
+      ctx.fillStyle = "#42546f";
+      ctx.font = "11px Inter";
+      ctx.textAlign = "right";
+      ctx.fillText("y_hat", pad.left - 8, pad.top + 11);
+      ctx.textAlign = "center";
+      ctx.fillText("x", width - pad.right, height - 8);
+    }
+
+    function syncOutlierControl() {
+      const enabled = state.stepIndex >= 1;
+      outlierStrengthInput.disabled = !enabled;
     }
 
     function renderPredictionQuestion() {
@@ -1875,17 +2111,19 @@
     function updateFocusCards() {
       const formulaCard = document.getElementById("formula-card");
       const sigmoidCard = document.getElementById("sigmoid-card");
+      const outlierCard = document.getElementById("outlier-card");
       const matrixCard = document.getElementById("matrix-card");
       const rocCard = document.getElementById("roc-card");
       const ctrlCard = document.getElementById("ctrl-card");
       const dataCard = document.getElementById("data-card");
 
-      [formulaCard, sigmoidCard, matrixCard, rocCard, ctrlCard, dataCard].forEach((el) => el.classList.remove("focus"));
+      [formulaCard, sigmoidCard, outlierCard, matrixCard, rocCard, ctrlCard, dataCard].forEach((el) => el.classList.remove("focus"));
 
       const step = steps[state.stepIndex];
       if (step.focus === "formula") {
         formulaCard.classList.add("focus");
         sigmoidCard.classList.add("focus");
+        if (state.stepIndex === 1) outlierCard.classList.add("focus");
       } else if (step.focus === "matrix") {
         matrixCard.classList.add("focus");
         dataCard.classList.add("focus");
@@ -1901,10 +2139,12 @@
         rocCard.classList.add("focus");
         formulaCard.classList.add("focus");
         sigmoidCard.classList.add("focus");
+        outlierCard.classList.add("focus");
         dataCard.classList.add("focus");
       } else {
         formulaCard.classList.add("focus");
         sigmoidCard.classList.add("focus");
+        outlierCard.classList.add("focus");
         dataCard.classList.add("focus");
       }
     }
@@ -2032,7 +2272,9 @@
       updateStepAnswer();
       updateFormulaPanel();
       renderSigmoidLab();
+      drawOutlierDemo();
       syncThresholdControl();
+      syncOutlierControl();
       updateFocusCards();
       updatePathState();
       renderTimeline();
@@ -2081,6 +2323,7 @@
       state.threshold = 0.50;
       state.logitB0 = -3;
       state.logitB1 = 0.2;
+      state.outlierStrength = 3.0;
       state.predictionIndex = 0;
       state.stepIndex = 0;
       state.quizReady = false;
@@ -2088,6 +2331,7 @@
       thresholdInput.value = state.threshold.toFixed(2);
       sigmoidB0Input.value = String(state.logitB0);
       sigmoidB1Input.value = String(state.logitB1);
+      outlierStrengthInput.value = String(state.outlierStrength);
       selfExplainInputEl.value = "";
       selfExplainFeedbackEl.textContent = "";
       selfExplainSolutionEl.hidden = true;
@@ -2113,6 +2357,11 @@
     sigmoidB1Input.addEventListener("input", (event) => {
       state.logitB1 = Number(event.target.value);
       renderSigmoidLab();
+    });
+
+    outlierStrengthInput.addEventListener("input", (event) => {
+      state.outlierStrength = Number(event.target.value);
+      drawOutlierDemo();
     });
 
     document.getElementById("check-prediction").addEventListener("click", gradePredictionQuestion);
@@ -2149,6 +2398,7 @@
     window.addEventListener("resize", () => {
       renderCaseTable();
       drawSigmoidLab();
+      drawOutlierDemo();
     });
 
     renderPredictionQuestion();
