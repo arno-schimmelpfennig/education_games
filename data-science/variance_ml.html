@@ -1180,11 +1180,11 @@
                       <div class="metric-card"><strong>Trainingsfehler</strong><div id="split-train-error">0.00</div></div>
                       <div class="metric-card"><strong>Testfehler</strong><div id="split-test-error">0.00</div></div>
                     </div>
-                    <div class="helper-note">x-Achse: Sonnenstunden. y-Achse: verkaufte Kugeln Eis. Blau = Training, Grün = Test.</div>
+                    <div class="helper-note">x-Achse: Sonnenstunden. y-Achse: verkaufte Kugeln Eis. Blau = Training, Grün = Test. „Neue Daten“ meint hier meist nicht magische Zusatzdaten, sondern den bewusst zurückgehaltenen Test-Teil derselben Tabelle.</div>
                   </div>
                   <div class="chart-shell">
                     <canvas id="split-chart" aria-label="Trainings- und Testpunkte beim Daten-Split" role="img"></canvas>
-                    <div class="chart-caption">Die Linie wird auf dem Trainingsanteil gelernt. Danach wird gemessen, wie gut sie auf beiden Teilen liegt.</div>
+                    <div class="chart-caption">Die Linie wird auf dem Trainingsanteil gelernt. Danach wird mit predict auf Training und Test geprüft, wie gut sie passt. Genau dieser Vergleich zeigt, ob ein Modell nur auswendig lernt oder wirklich verallgemeinert.</div>
                   </div>
                 </div>
                 <div class="chart-shell small">
@@ -1566,8 +1566,8 @@
             <article class="card">
               <div class="card-kicker">Theorie-Karte</div>
               <div class="theory-copy">
-                <p>Eine <button type="button" class="glossary-term" data-term="Lernkurve" data-definition="Diagramm, das zeigt, wie sich Trainings- und Testfehler verändern, wenn die Datenmenge wächst.">Lernkurve</button> hat auf der x-Achse die Trainingsgröße und auf der y-Achse den Fehler, hier vereinfacht als RMSE. Underfitting zeigt zwei hohe, nahe Kurven. Overfitting zeigt eine große Lücke zwischen Training und Test.</p>
-                <p>Ein guter Fit führt beide Kurven auf niedrigerem Niveau zusammen. Das ist oft ein starkes Diagnosewerkzeug, bevor man hektisch am Modell herumdreht.</p>
+                <p>Eine <button type="button" class="glossary-term" data-term="Lernkurve" data-definition="Diagramm, das zeigt, wie sich Trainings- und Testfehler verändern, wenn die Datenmenge wächst.">Lernkurve</button> hat auf der x-Achse die Trainingsgröße und auf der y-Achse den Fehler, hier vereinfacht als RMSE. Trainingsgröße heißt hier einfach: Wie viele Zeilen aus den verfügbaren Daten gerade wirklich zum Lernen benutzt werden. Underfitting zeigt zwei hohe, nahe Kurven. Overfitting zeigt eine große Lücke zwischen Training und Test.</p>
+                <p>Ein guter Fit führt beide Kurven auf niedrigerem Niveau zusammen. Kleine Wellen oder Mini-Zacken sind normal, weil jeder zusätzliche Datenteil die Schätzung etwas verändert. Wichtig ist das Gesamtmuster, nicht jeder einzelne Buckel.</p>
               </div>
               <div class="formula-block">
                 <div><strong>In einfacher Sprache:</strong> Mehr Daten helfen nur dann wirklich, wenn das Modell grundsätzlich passend gebaut ist.</div>
@@ -1585,22 +1585,22 @@
                     <div class="button-row">
                       <button class="mode-btn is-active" id="toggle-good-fit" type="button">Guten Fit einblenden</button>
                     </div>
-                    <div class="helper-note">Links siehst du Underfitting, rechts Overfitting. Der zusätzliche gute Fit kann per Knopfdruck eingeblendet werden.</div>
+                    <div class="helper-note">Links siehst du Underfitting, rechts Overfitting. Der zusätzliche gute Fit kann per Knopfdruck eingeblendet werden. Achte mehr auf den Abstand und das Niveau der Kurven als auf kleine Zacken zwischen zwei Nachbarpunkten.</div>
                   </div>
                   <div class="curve-layout">
                     <div class="chart-shell">
                       <canvas id="learning-underfit-chart" aria-label="Lernkurve für Underfitting" role="img"></canvas>
-                      <div class="chart-caption">Beide Kurven bleiben relativ hoch und nahe beieinander.</div>
+                      <div class="chart-caption">Beide Kurven bleiben relativ hoch und nahe beieinander. Das Modell ist zu simpel, nicht zu nervös.</div>
                     </div>
                     <div class="chart-shell">
                       <canvas id="learning-overfit-chart" aria-label="Lernkurve für Overfitting" role="img"></canvas>
-                      <div class="chart-caption">Trainingsfehler niedrig, Testfehler deutlich höher: die klassische Lücke.</div>
+                      <div class="chart-caption">Trainingsfehler niedrig, Testfehler deutlich höher: die klassische Lücke. Genau diese dauerhafte Lücke ist wichtiger als kleine Wellen in der Linie.</div>
                     </div>
                   </div>
                 </div>
                 <div class="chart-shell small" id="good-fit-shell" hidden>
                   <canvas id="learning-goodfit-chart" aria-label="Lernkurve für guten Fit" role="img"></canvas>
-                  <div class="chart-caption">Hier nähern sich Trainings- und Testkurve sinnvoll auf niedrigem Niveau an.</div>
+                  <div class="chart-caption">Hier nähern sich Trainings- und Testkurve sinnvoll auf niedrigem Niveau an. Das ist der Bereich, in dem man oft vom Sweet Spot spricht.</div>
                 </div>
               </div>
             </article>

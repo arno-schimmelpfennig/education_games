@@ -1155,7 +1155,7 @@
         ].join("\n"),
         codeExplain: [
           "Der Code ist die Formel eins zu eins in Python. Mehr steckt dahinter am Anfang nicht.",
-          "Wenn du b0 oder b1 veränderst, verändert sich die gesamte Gerade. Genau das siehst du im Diagramm daneben sofort."
+          "Wichtig für den Einstieg: x ist hier ein einzelner Eingabewert pro Zeile, y ist der passende Zielwert dazu. Wenn du b0 oder b1 veränderst, verändert sich die gesamte Gerade."
         ],
         exercise: {
           title: "Steigung und Achsenabschnitt selbst auslesen",
@@ -1213,7 +1213,7 @@
         formula: "$$e_i = y_i - \\hat{y}_i \\qquad SSR = \\sum_{i=1}^{n}(y_i-\\hat{y}_i)^2$$",
         theory: [
           "Ein <button type=\"button\" class=\"glossary-term\" data-term=\"Residuum\" data-definition=\"Abstand zwischen beobachtetem Wert und Modellvorhersage. Ein positives Residuum heißt: Die Vorhersage lag zu niedrig.\">Residuum</button> ist die Differenz zwischen echtem Wert und Vorhersage. Positive Residuen bedeuten: Das Modell lag zu niedrig. Negative Residuen bedeuten: Das Modell lag zu hoch.",
-          "Quadrate sind praktisch, weil sich positive und negative Fehler sonst gegenseitig aufheben würden. OLS sucht die Kombination aus Steigung und Achsenabschnitt mit dem kleinsten Gesamtfehler."
+          "Quadrate sind praktisch, weil sich positive und negative Fehler sonst gegenseitig aufheben würden. Gleichzeitig zählen große Fehler dadurch stärker als kleine. OLS sucht die Kombination aus Steigung und Achsenabschnitt mit dem kleinsten Gesamtfehler."
         ],
         theoryNote: "Alltagssprache: Residuen sind die roten Luftlinien zwischen Wirklichkeit und Modell.",
         code: [
@@ -1294,6 +1294,8 @@
           "# Trainingsdaten",
           "X = np.arange(1, 11).reshape(-1, 1)",
           "y = np.array([0.8, 1.5, 1.7, 2.1, 2.8, 3.2, 3.5, 4.0, 4.3, 5.1])",
+          "print(X.shape)  # 10 Zeilen, 1 Feature-Spalte",
+          "print(y.shape)  # 10 Zielwerte",
           "",
           "modell = LinearRegression()",
           "modell.fit(X, y)",
@@ -1305,8 +1307,8 @@
           "print(f\"RMSE: {rmse:.3f} Liter\")"
         ].join("\n"),
         codeExplain: [
-          "sklearn trainiert das Modell mit fit und gibt danach Vorhersagen mit predict aus.",
-          "Anschließend messen wir Qualität mit zwei Blickwinkeln: Anteil erklärter Varianz und durchschnittlicher Fehler in Litern."
+          "sklearn trainiert das Modell mit fit und gibt danach Vorhersagen mit predict aus. Bei X stehen die Zeilen für Beobachtungen und die Spalten für Features.",
+          "reshape(-1, 1) macht aus einer langen Liste bewusst eine Tabelle mit 10 Zeilen und genau 1 Feature-Spalte. y enthält dazu 10 Zielwerte. Danach messen wir Qualität mit R² und RMSE."
         ],
         demoType: "metrics",
         badgeHint: "Badge für dieses Modul: 📊 Daten-Detektiv",
@@ -1334,9 +1336,9 @@
         formula: "$$y = b_0 + b_1x_1 + b_2x_2 + \\dots + b_kx_k \\qquad R^2_{adj}=1-(1-R^2)\\frac{n-1}{n-p-1}$$",
         theory: [
           "Jeder Koeffizient beschreibt, wie sich y ändert, wenn genau dieses Merkmal um eins steigt und die anderen konstant bleiben. Das ist ein ganz wichtiger Satz für die Interpretation.",
-          "Mit zwei Merkmalen wird aus der Geraden eine Ebene, mit mehr Merkmalen eine Hyperebene. Die Mathematik skaliert, die Grundidee bleibt dieselbe."
+          "Mit zwei Merkmalen wird aus der Geraden eine Ebene, mit mehr Merkmalen eine Hyperebene. Die Mathematik skaliert, die Grundidee bleibt dieselbe. Wichtig: Features sind die Eingangsspalten wie PS oder Gewicht, die Zielvariable ist das, was du vorhersagen willst, hier mpg."
         ],
-        theoryNote: "Alltagssprache: Mehrere Regler ziehen gleichzeitig am Ergebnis. Jeder Regler wirkt, während die anderen festgehalten werden.",
+        theoryNote: "Alltagssprache: Mehrere Regler ziehen gleichzeitig am Ergebnis. Jeder Regler wirkt, während die anderen festgehalten werden. Im Adjusted R² ist n die Zahl der Zeilen und p die Zahl der Feature-Spalten.",
         code: [
           "from sklearn.linear_model import LinearRegression",
           "import pandas as pd",
@@ -1359,7 +1361,7 @@
         ].join("\n"),
         codeExplain: [
           "Hier werden zwei Eingangsspalten gleichzeitig verwendet. Das Modell lernt also nicht nur eine Linie, sondern eine Ebene.",
-          "Mit predict schätzt du danach den Verbrauch für ein neues Auto auf Basis beider Merkmale."
+          "X ist jetzt eine kleine Tabelle mit zwei Feature-Spalten. y ist weiter nur eine Zielspalte. Mit predict schätzt du danach den Verbrauch für ein neues Auto auf Basis beider Merkmale."
         ],
         exercise: {
           title: "Mehrere Features korrekt auswählen",
@@ -1417,9 +1419,9 @@
         formula: "$$y = b_0 + b_1\\cdot\\text{PS} + b_2\\cdot\\text{Gewicht} + b_3\\cdot\\text{EU} + b_4\\cdot\\text{USA}$$",
         theory: [
           "One-Hot-Encoding erstellt für jede Kategorie eine eigene 0/1-Spalte. Genau eine dieser Spalten ist dann pro Beobachtung aktiv, während die anderen null bleiben.",
-          "Bei linearen Modellen lässt man eine Kategorie weg. Diese ausgelassene Kategorie wird zur Referenz und verhindert perfekte Multikollinearität."
+          "Bei linearen Modellen lässt man eine Kategorie weg. Diese ausgelassene Kategorie wird zur Referenz und verhindert perfekte Multikollinearität. Die Referenz ist dabei nicht NaN, sondern einfach der Fall, in dem alle gezeigten Dummy-Spalten 0 sind."
         ],
-        theoryNote: "Alltagssprache: Statt einer großen Schublade mit Zahlen baust du mehrere kleine Lichtschalter: an oder aus.",
+        theoryNote: "Alltagssprache: Statt einer großen Schublade mit Zahlen baust du mehrere kleine Lichtschalter: an oder aus. In pandas verhalten sich True und False in Rechenmodellen dabei wie 1 und 0.",
         code: [
           "import pandas as pd",
           "",
@@ -1436,8 +1438,8 @@
           "print(dummies)"
         ].join("\n"),
         codeExplain: [
-          "drop_first=True lässt eine Kategorie bewusst weg. Diese weggelassene Kategorie ist der Vergleichspunkt für die anderen.",
-          "So kann das Modell Unterschiede sauber lesen, ohne dass sich Spalten perfekt gegenseitig erklären."
+          "drop_first=True lässt eine Kategorie bewusst weg. Diese weggelassene Kategorie ist der Vergleichspunkt für die anderen. Wenn in einer Zeile alle Dummy-Spalten 0 sind, bedeutet das also: Referenzkategorie.",
+          "So kann das Modell Unterschiede sauber lesen, ohne dass sich Spalten perfekt gegenseitig erklären. Der Achsenabschnitt b0 gehört dann automatisch zur Referenzkategorie."
         ],
         exercise: {
           title: "Dummy-Encoding mit Referenzkategorie",

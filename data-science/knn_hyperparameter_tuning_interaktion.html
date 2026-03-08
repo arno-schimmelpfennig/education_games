@@ -343,7 +343,7 @@
 
       <div class="card">
         <strong>Formel-Leseschluessel</strong>
-        <p>Validierungswahl: k* = argmin_k Fehler_val(k). Kleines k fuehrt oft zu Overfitting, grosses k eher zu Underfitting. Hyperparameter werden vor dem Training gesetzt und empirisch getestet.</p>
+        <p>Validierungswahl: k* = argmin_k Fehler_val(k). Kleines k fuehrt oft zu Overfitting, grosses k eher zu Underfitting. Hyperparameter werden vor dem Training gesetzt und empirisch getestet. Wichtig: Der Validierungsfehler hilft beim Auswaehlen, der Testfehler ist erst die spaetere Abschlusspruefung.</p>
       </div>
 
       <div class="step-box">
@@ -366,7 +366,7 @@
 
       <div class="usage-box">
         <strong>Praxis-Uebertrag:</strong><br>
-        Kern-Logik: Hyperparameter (`k`, `metric`, `weights`) immer ueber Validierungs-/Testfehler waehlen, nie nur nach Bauchgefuehl.
+        Kern-Logik: Hyperparameter (`k`, `metric`, `weights`) immer ueber Validierungs-/Testfehler waehlen, nie nur nach Bauchgefuehl. Sonst optimierst du leicht auf eine huebsche Einzelbeobachtung statt auf robuste Generalisierung.
       </div>
 
       <div class="path-box">

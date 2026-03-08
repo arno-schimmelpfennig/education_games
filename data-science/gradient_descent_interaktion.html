@@ -1113,8 +1113,8 @@ print("Iterativ:", b.round(2))</code></pre>
             <article class="card">
               <div class="card-kicker">Theorie-Karte</div>
               <div class="theory-copy">
-                <p>Bei einem einzelnen Parameter sieht die MSE-Kostenfunktion oft wie eine Schüssel aus. Das ist günstig, weil es nur ein globales Minimum gibt.</p>
-                <p>Die Ableitung sagt dir an jeder Stelle, ob du nach links oder rechts gehen solltest und wie steil der Hang gerade ist.</p>
+                <p>Bei einem einzelnen Parameter sieht die MSE-Kostenfunktion oft wie eine Schüssel aus. Das ist günstig, weil es nur ein globales Minimum gibt. Wichtig dabei: Die Kostenfunktion fällt nicht vom Himmel. Wir wählen sie bewusst, damit wir messen können, wie schlecht ein Modell gerade ist. Bei linearer Regression ist das oft MSE, bei logistischer Regression später eher Log-Loss.</p>
+                <p>Die Ableitung sagt dir an jeder Stelle, ob du nach links oder rechts gehen solltest und wie steil der Hang gerade ist. Erst Kostenfunktion, dann Ableitung, dann Update-Schritt: so greift alles ineinander.</p>
               </div>
               <div class="formula-block">
                 <div id="formula-step-2"></div>
@@ -1794,7 +1794,7 @@ plt.show()</code></pre>
               </div>
               <div class="theory-copy">
                 <p><strong>StandardScaler</strong> verschiebt ein Merkmal auf Mittelwert 0 und typische Streuung 1. <strong>MinMaxScaler</strong> drückt Werte meist in einen festen Bereich wie 0 bis 1. <strong>Keine Skalierung</strong> heißt: Das Modell muss mit sehr unterschiedlich großen Zahlen direkt klarkommen.</p>
-                <p>Für SGD ist das wichtig, weil die Schritte sonst in einer Richtung zu groß und in einer anderen zu klein werden. Genau das schaust du dir in der nächsten Demo an.</p>
+                <p>Für SGD ist das wichtig, weil die Schritte sonst in einer Richtung zu groß und in einer anderen zu klein werden. Faustregel: StandardScaler ist oft der robuste Standard für lineare Modelle und Gradient Descent. MinMaxScaler ist eher praktisch, wenn du bewusst einen festen Wertebereich brauchst. Genau das schaust du dir in der nächsten Demo an.</p>
               </div>
             </article>
             <article class="card full">

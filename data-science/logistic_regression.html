@@ -945,7 +945,7 @@ print(round(sigmoid(score), 3))</code></pre>
             </div>
             <div class="callout">
               <h3>ML-Sprache</h3>
-              <p>Mit zwei Merkmalen ist die <button class="glossary-term" type="button" data-term="Decision Boundary" data-definition="Die Entscheidungsgrenze ist die Linie oder Fläche, auf der das Modell gerade zwischen zwei Klassen kippt. Auf der einen Seite sagt es Klasse 0, auf der anderen Klasse 1.">Decision Boundary</button> eine Gerade. Sie hängt nur von den Modellparametern ab, nicht von einer einzelnen Beobachtung.</p>
+              <p>Mit zwei Merkmalen ist die <button class="glossary-term" type="button" data-term="Decision Boundary" data-definition="Die Entscheidungsgrenze ist die Linie oder Fläche, auf der das Modell gerade zwischen zwei Klassen kippt. Auf der einen Seite sagt es Klasse 0, auf der anderen Klasse 1.">Decision Boundary</button> eine Gerade. Sie hängt nur von den Modellparametern ab, nicht von einer einzelnen Beobachtung. Die Grenze liegt also nicht fertig in den Daten, sondern entsteht erst durch die gelernten Gewichte.</p>
             </div>
           </div>
           <div class="formula-block">
@@ -963,7 +963,7 @@ y_pred = (proba &gt;= 0.5).astype(int)
 
 print(proba[:3])
 print(y_pred[:3])</code></pre>
-            <div class="helper-note code-explain">Was passiert hier? <code>predict_proba</code> liefert die Wahrscheinlichkeit für Klasse 1. Erst der gewählte Threshold macht daraus eine 0 oder 1.</div>
+            <div class="helper-note code-explain">Was passiert hier? <code>predict_proba</code> liefert die Wahrscheinlichkeit für Klasse 1. Erst der gewählte Threshold macht daraus eine 0 oder 1. Wichtig: Das Modell selbst bleibt dabei gleich, nur die Entscheidungsregel danach ändert sich.</div>
           </div>
           <div class="plot-card">
             <h3>Interaktive Demo: Grenze verschieben</h3>
@@ -1039,7 +1039,7 @@ print(y_pred.tolist())</code></pre>
             </div>
             <div class="callout">
               <h3>ML-Sprache</h3>
-              <p>Bei der logistischen Regression wollen wir Wahrscheinlichkeiten lernen, die zu den echten Klassen passen. Ein Modell soll besonders dann hohe Strafen bekommen, wenn es mit großer Sicherheit falsch liegt.</p>
+              <p>Bei der logistischen Regression wollen wir Wahrscheinlichkeiten lernen, die zu den echten Klassen passen. Ein Modell soll besonders dann hohe Strafen bekommen, wenn es mit großer Sicherheit falsch liegt. Log-Loss bewertet also nicht nur richtig oder falsch, sondern auch, wie selbstsicher die Vorhersage war.</p>
             </div>
           </div>
           <div class="formula-block">
@@ -1162,7 +1162,7 @@ b1 = b1 - alpha * gradient_b1</code></pre>
             </div>
             <div class="callout">
               <h3>ML-Sprache</h3>
-              <p>Im Workflow trennst du zuerst Merkmale und Zielvariable, teilst in Train und Test, trainierst das Modell und prüfst anschließend die Ergebnisse mit einer Konfusionsmatrix.</p>
+              <p>Im Workflow trennst du zuerst Merkmale und Zielvariable, teilst in Train und Test, trainierst das Modell und prüfst anschließend die Ergebnisse mit einer Konfusionsmatrix. Merkmale sind hier die Eingangsspalten in <code>X</code>, die Zielvariable ist die Ja/Nein-Spalte in <code>y</code>.</p>
             </div>
           </div>
           <div class="formula-block">
@@ -1187,7 +1187,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 print(confusion_matrix(y_test, y_pred))</code></pre>
-            <div class="helper-note code-explain">Was passiert hier? Das ist die kompakte sklearn-Kette direkt aus dem Notebook: Daten vorbereiten, Modell fitten, Vorhersagen erzeugen und anschließend die Fehlerarten zählen.</div>
+            <div class="helper-note code-explain">Was passiert hier? Das ist die kompakte sklearn-Kette direkt aus dem Notebook: Daten vorbereiten, Modell fitten, Vorhersagen erzeugen und anschließend die Fehlerarten zählen. <code>fit()</code> lernt die Gewichte auf dem Trainingssatz, <code>predict()</code> wendet sie auf neue Zeilen an.</div>
           </div>
           <div class="plot-card">
             <h3>Interaktive Demo: Workflow zum Anklicken</h3>
@@ -1394,7 +1394,7 @@ print(y_pred.tolist())</code></pre>
             </div>
             <div class="callout">
               <h3>ML-Sprache</h3>
-              <p>Bei One-vs-Rest bekommt jede Klasse ihr eigenes binäres Modell. Alle Modelle liefern Wahrscheinlichkeiten. Gewonnen hat die Klasse mit dem höchsten Wert.</p>
+              <p>Bei One-vs-Rest bekommt jede Klasse ihr eigenes binäres Modell. Alle Modelle liefern Wahrscheinlichkeiten. Gewonnen hat die Klasse mit dem höchsten Wert. Für drei Klassen heißt das praktisch: drei getrennte Ja/Nein-Fragen und am Ende ein Vergleich der drei Scores.</p>
             </div>
           </div>
           <div class="formula-block">

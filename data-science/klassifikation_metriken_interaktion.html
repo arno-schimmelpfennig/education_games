@@ -825,7 +825,7 @@ print(f"Accuracy: {accuracy_score(actual, predicted):.2f}")</code></pre>
               <div class="card-kicker">Theorie-Karte</div>
               <div class="theory-copy">
                 <p><button type="button" class="glossary-term" data-term="Precision" data-definition="Anteil echter Treffer unter allen positiven Vorhersagen. Hohe Precision heißt: Wenig falscher Alarm."><strong>Precision</strong></button> teilt die echten Treffer durch alle positiven Vorhersagen: TP / (TP + FP).</p>
-                <p>Sie ist besonders wichtig, wenn falscher Alarm teuer oder lästig ist, etwa bei Kreditkartenbetrug, Spam oder unnötigen Eingriffen. Der <button type="button" class="glossary-term" data-term="Threshold" data-definition="Schwellenwert, ab dem ein Modell eine Wahrscheinlichkeit als positiv einstuft.">Threshold</button> ist dabei der Regler, der festlegt, ab wann ein Fall als positiv zählt.</p>
+                <p>Sie ist besonders wichtig, wenn falscher Alarm teuer oder lästig ist, etwa bei Kreditkartenbetrug, Spam oder unnötigen Eingriffen. Der <button type="button" class="glossary-term" data-term="Threshold" data-definition="Schwellenwert, ab dem ein Modell eine Wahrscheinlichkeit als positiv einstuft.">Threshold</button> ist dabei der Regler, der festlegt, ab wann ein Fall als positiv zählt. Wichtig: Das hat nichts mit „positiv formuliert“ oder „negativ formuliert“ in Alltagssprache zu tun, sondern nur mit der internen Entscheidungsgrenze des Modells.</p>
               </div>
               <div class="formula-block">
                 <div id="formula-step-3"></div>
@@ -1270,7 +1270,7 @@ print(f"RMSE: {rmse:.3f}")</code></pre>
               <div class="card-kicker">Theorie-Karte</div>
               <div class="theory-copy">
                 <p>Bei Klassifikation stehen Precision, Recall, F1 und AUC im Vordergrund. Bei Regression eher MAE, RMSE und R².</p>
-                <p>Unbalancierte Klassen, teure False Positives oder gefährliche False Negatives verändern die Wahl der Metrik oft deutlich.</p>
+                <p>Unbalancierte Klassen, teure False Positives oder gefährliche False Negatives verändern die Wahl der Metrik oft deutlich. Deshalb kannst du einen Recall von 0.90 aus zwei verschiedenen Projekten nicht sinnvoll direkt vergleichen, wenn die positive Klasse oder die Fehlerkosten fachlich ganz anders definiert sind.</p>
               </div>
               <div class="formula-block">
                 <div><strong>Merksatz:</strong> Nicht die schönste Kennzahl gewinnt, sondern die Kennzahl, die dein reales Risiko am besten abbildet.</div>

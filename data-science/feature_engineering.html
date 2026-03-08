@@ -1530,7 +1530,7 @@ X_train, X_test, y_train, y_test = train_test_split(
             </div>
             <div class="callout danger" style="margin-top:10px;">
               <strong>Data Leakage</strong><br>
-              <code>.fit()</code> nur auf Trainingsdaten. Auf Testdaten nur <code>.transform()</code>.
+              <code>.fit()</code> nur auf Trainingsdaten. Auf Testdaten nur <code>.transform()</code>. Sonst landet Wissen aus der Pruefung schon heimlich in der Vorbereitung.
             </div>
           </div>
 
@@ -1538,8 +1538,8 @@ X_train, X_test, y_train, y_test = train_test_split(
             <h3>SimpleImputer in Worten</h3>
             <div class="formula-words">
               <p><strong><code>.fit()</code></strong> = Der Imputer schaut auf Trainingsdaten und merkt sich den Ersatzwert.</p>
-              <p><strong><code>.transform()</code></strong> = Der gemerkte Wert wird spaeter eingesetzt.</p>
-              <p><strong><code>.fit_transform()</code></strong> = Beides zusammen, aber nur auf Trainingsdaten sinnvoll.</p>
+              <p><strong><code>.transform()</code></strong> = Der gemerkte Wert wird spaeter eingesetzt. Auf Testdaten willst du genau das: anwenden, aber nichts Neues lernen.</p>
+              <p><strong><code>.fit_transform()</code></strong> = Beides zusammen, aber nur auf Trainingsdaten sinnvoll. Sonst lernt dein Verfahren schon etwas ueber den Testsatz.</p>
             </div>
             <details>
               <summary>Median-Formel oeffnen</summary>
@@ -1703,7 +1703,7 @@ X_train[["flipper_length_mm", "bill_depth_mm"]] = num_imputer.transform(
               <button class="button" type="button" id="run-encoding">Encodieren</button>
               <button class="ghost-button" type="button" id="reset-encoding">Reset</button>
             </div>
-            <div class="demo-note" id="encoding-note">Mit <code>drop='first'</code> erkennt man Adelie daran, dass beide neuen Spalten 0 sind.</div>
+            <div class="demo-note" id="encoding-note">Mit <code>drop='first'</code> erkennt man Adelie daran, dass beide neuen Spalten 0 sind. Die Referenzkategorie ist also nicht leer, sondern der Fall ohne aktiven Dummy.</div>
           </div>
         </div>
 
@@ -1831,7 +1831,7 @@ edu_encoder = OrdinalEncoder(
           <div class="workflow-card">
             <h3>Wann ist Scaling wichtig?</h3>
             <div class="callout">
-              Distanzbasierte Verfahren wie KNN und SVM reagieren sehr direkt auf Groessenordnungen. Auch Regularisierung wird unfair, wenn manche Merkmale riesige Skalen haben.
+              Distanzbasierte Verfahren wie KNN und SVM reagieren sehr direkt auf Groessenordnungen. Auch Regularisierung wird unfair, wenn manche Merkmale riesige Skalen haben. Skalierung aendert dabei nicht die Bedeutung eines Merkmals, sondern nur seine numerische Groessenordnung.
             </div>
             <div class="callout warn" style="margin-top:10px;">
               Ein Ausreisser wie 300 mm Schnabellaenge kann MinMax und StandardScaler deutlich mitziehen. RobustScaler bleibt gelassener.
@@ -2090,7 +2090,7 @@ poly = PolynomialFeatures(
               <strong>ColumnTransformer</strong> arbeitet parallel auf unterschiedlichen Spaltenlisten. Ideal, wenn Textspalten anders behandelt werden als Zahlen.
             </div>
             <div class="callout" style="margin-top:10px;">
-              <strong>Pipeline</strong> fuehrt Schritte nacheinander aus. Ideal, wenn auf derselben Spalte erst imputiert und dann skaliert werden soll.
+              <strong>Pipeline</strong> fuehrt Schritte nacheinander aus. Ideal, wenn auf derselben Spalte erst imputiert und dann skaliert werden soll. Denk an ein festes Fliessband: dieselben Stationen in derselben Reihenfolge.
             </div>
             <div class="callout danger" style="margin-top:10px;">
               Genau diese Kapselung schuetzt vor versehentlichen <code>fit()</code>-Aufrufen auf Testdaten.

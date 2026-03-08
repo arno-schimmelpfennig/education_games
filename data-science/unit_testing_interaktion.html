@@ -621,7 +621,7 @@
               <button class="choice-btn" type="button" data-m1-answer="wrong-a"><code>from tests.example import add_one</code></button>
               <button class="choice-btn" type="button" data-m1-answer="wrong-b"><code>import add_one from src</code></button>
             </div>
-            <div id="module-1-feedback" class="quiz-feedback" data-i18n-de="Wähle die Importzeile, die zum Packaging-Notebook passt." data-i18n-en="Choose the import line that matches the packaging notebook.">Wähle die Importzeile, die zum Packaging-Notebook passt.</div>
+            <div id="module-1-feedback" class="quiz-feedback" data-i18n-de="Wähle die Importzeile, die zum Packaging-Notebook passt. Wichtig: Importiert wird aus dem Quellpaket unter src, nicht aus dem Ordner tests." data-i18n-en="Choose the import line that matches the packaging notebook. Important: you import from the source package under src, not from the tests folder.">Wähle die Importzeile, die zum Packaging-Notebook passt. Wichtig: Importiert wird aus dem Quellpaket unter src, nicht aus dem Ordner tests.</div>
           </article>
           <article class="exercise-card full">
             <h4 data-i18n-de="🏋️ Übung: add_one importieren" data-i18n-en="🏋️ Exercise: import add_one">🏋️ Übung: add_one importieren</h4>
@@ -631,7 +631,7 @@
 print(add_one(1))</code></pre>
             <details class="hint">
               <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
-              <p data-i18n-de="Im Notebook liegt die Funktion in <code>src.example.example_file</code>." data-i18n-html-en="In the notebook, the function lives in <code>src.example.example_file</code>.">Im Notebook liegt die Funktion in <code>src.example.example_file</code>.</p>
+              <p data-i18n-de="Im Notebook liegt die Funktion in <code>src.example.example_file</code>. Der Import folgt also dem Paketpfad der Quelldatei, nicht dem Speicherort des Notebooks." data-i18n-html-en="In the notebook, the function lives in <code>src.example.example_file</code>. So the import follows the package path of the source file, not the storage location of the notebook.">Im Notebook liegt die Funktion in <code>src.example.example_file</code>. Der Import folgt also dem Paketpfad der Quelldatei, nicht dem Speicherort des Notebooks.</p>
             </details>
             <details class="solution">
               <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
@@ -671,7 +671,7 @@ print(add_one(1))</code></pre>
     if y == 0:
         return "Can not divide by zero"
     return x / y</code></pre>
-            <p data-i18n-de="Aus genau so einer kleinen Funktion baust du zuerst einzelne Prüfungen auf. Später übernimmt pytest diese Routine automatisch." data-i18n-en="From exactly such a small function, you first build individual checks. Later pytest takes over this routine automatically.">Aus genau so einer kleinen Funktion baust du zuerst einzelne Prüfungen auf. Später übernimmt pytest diese Routine automatisch.</p>
+            <p data-i18n-de="Aus genau so einer kleinen Funktion baust du zuerst einzelne Prüfungen auf. <code>assert</code> ist dabei nur eine einzelne Behauptung. <code>pytest</code> ist das Werkzeug, das viele solcher Tests automatisch findet, startet und auswertet." data-i18n-html-en="From exactly such a small function, you first build individual checks. An <code>assert</code> is just one single claim. <code>pytest</code> is the tool that automatically finds, runs, and evaluates many such tests.">Aus genau so einer kleinen Funktion baust du zuerst einzelne Prüfungen auf. <code>assert</code> ist dabei nur eine einzelne Behauptung. <code>pytest</code> ist das Werkzeug, das viele solcher Tests automatisch findet, startet und auswertet.</p>
           </article>
           <article class="exercise-card full">
             <h4 data-i18n-de="🏋️ Übung: Dein erster pytest-Test" data-i18n-en="🏋️ Exercise: Your first pytest test">🏋️ Übung: Dein erster pytest-Test</h4>
@@ -686,7 +686,7 @@ def test_divide():
     # ??? DEINE LÖSUNG ???</code></pre>
             <details class="hint">
               <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
-              <p data-i18n-de="Ein pytest-Test enthält meist ein klares <code>assert</code> mit Soll und Ist." data-i18n-html-en="A pytest test usually contains a clear <code>assert</code> with expected and actual behavior.">Ein pytest-Test enthält meist ein klares <code>assert</code> mit Soll und Ist.</p>
+              <p data-i18n-de="Ein pytest-Test enthält meist ein klares <code>assert</code> mit Soll und Ist. Der Funktionsname startet oft mit <code>test_</code>, damit pytest ihn automatisch einsammelt." data-i18n-html-en="A pytest test usually contains a clear <code>assert</code> with expected and actual behavior. The function name often starts with <code>test_</code> so that pytest collects it automatically.">Ein pytest-Test enthält meist ein klares <code>assert</code> mit Soll und Ist. Der Funktionsname startet oft mit <code>test_</code>, damit pytest ihn automatisch einsammelt.</p>
             </details>
             <details class="solution">
               <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
@@ -730,7 +730,7 @@ def test_divide():
     assert format_data_for_display(people) == [
         "Alfonsa Ruiz: Senior Software Engineer"
     ]</code></pre>
-            <p data-i18n-de="Der Test beschreibt zuerst, was die Funktion liefern soll. Danach wird die Funktion so klein wie möglich gebaut, bis der Test grün ist." data-i18n-en="The test first describes what the function should return. Then the function is built as small as possible until the test turns green.">Der Test beschreibt zuerst, was die Funktion liefern soll. Danach wird die Funktion so klein wie möglich gebaut, bis der Test grün ist.</p>
+            <p data-i18n-de="Der Test beschreibt zuerst, was die Funktion liefern soll. Danach wird die Funktion so klein wie möglich gebaut, bis der Test grün ist. TDD heißt also nicht: erst fertig programmieren und dann prüfen, sondern Verhalten zuerst festzurren." data-i18n-en="The test first describes what the function should return. Then the function is built as small as possible until the test turns green. So TDD does not mean: finish coding first and test later, but define the behavior first.">Der Test beschreibt zuerst, was die Funktion liefern soll. Danach wird die Funktion so klein wie möglich gebaut, bis der Test grün ist. TDD heißt also nicht: erst fertig programmieren und dann prüfen, sondern Verhalten zuerst festzurren.</p>
           </article>
         </div>
       </section>
@@ -747,7 +747,7 @@ def test_divide():
               <button class="choice-btn" type="button" data-m4-kind="fixture" data-i18n-de="Fixture = Prüfprotokoll-Vorlage" data-i18n-en="Fixture = standard inspection form">Fixture = Prüfprotokoll-Vorlage</button>
               <button class="choice-btn" type="button" data-m4-kind="parametrize" data-i18n-de="Parametrize = Checkliste für viele Fälle" data-i18n-en="Parametrize = checklist for many cases">Parametrize = Checkliste für viele Fälle</button>
             </div>
-            <div id="module-4-feedback" class="quiz-feedback" data-i18n-de="Klicke erst Fixture, dann Parametrize. Beide Begriffe gehören zusammen, meinen aber nicht dasselbe." data-i18n-en="Click fixture first, then parametrize. The two terms belong together, but they do not mean the same thing.">Klicke erst Fixture, dann Parametrize. Beide Begriffe gehören zusammen, meinen aber nicht dasselbe.</div>
+            <div id="module-4-feedback" class="quiz-feedback" data-i18n-de="Klicke erst Fixture, dann Parametrize. Beide Begriffe gehören zusammen, meinen aber nicht dasselbe: Fixture liefert wiederverwendbare Ausgangsdaten, Parametrize wiederholt denselben Test mit vielen Fällen." data-i18n-en="Click fixture first, then parametrize. The two terms belong together, but they do not mean the same thing: a fixture provides reusable starting data, parametrization repeats the same test with many cases.">Klicke erst Fixture, dann Parametrize. Beide Begriffe gehören zusammen, meinen aber nicht dasselbe: Fixture liefert wiederverwendbare Ausgangsdaten, Parametrize wiederholt denselben Test mit vielen Fällen.</div>
           </article>
           <article class="callout">
             <h3 data-i18n-de="Notebook-Code" data-i18n-en="Notebook code">Notebook-Code</h3>
@@ -802,7 +802,7 @@ def test_is_palindrome(word, expected_result):
         <div class="module-grid">
           <article class="callout">
             <h3 data-i18n-de="Supermarkt-Analogie" data-i18n-en="Supermarket analogy">Supermarkt-Analogie</h3>
-            <p data-i18n-de="Wenn an Jeans im Regal Preisschilder fehlen, fällt das in der Qualitätskontrolle sofort auf. In pandas ist ein fehlender Preis ein <code>NaN</code>. Auch das musst du testen." data-i18n-html-en="If price tags are missing from jeans on the shelf, quality control spots it immediately. In pandas, a missing price is a <code>NaN</code>. You have to test that as well.">Wenn an Jeans im Regal Preisschilder fehlen, fällt das in der Qualitätskontrolle sofort auf. In pandas ist ein fehlender Preis ein <code>NaN</code>. Auch das musst du testen.</p>
+            <p data-i18n-de="Wenn an Jeans im Regal Preisschilder fehlen, fällt das in der Qualitätskontrolle sofort auf. In pandas ist ein fehlender Preis ein <code>NaN</code>. Auch das musst du testen. <code>assert_series_equal</code> vergleicht dabei nicht nur einen einzelnen Wert, sondern die komplette Serie inklusive Reihenfolge und Datentyp." data-i18n-html-en="If price tags are missing from jeans on the shelf, quality control spots it immediately. In pandas, a missing price is a <code>NaN</code>. You have to test that as well. <code>assert_series_equal</code> does not just compare one value, but the full series including order and data type.">Wenn an Jeans im Regal Preisschilder fehlen, fällt das in der Qualitätskontrolle sofort auf. In pandas ist ein fehlender Preis ein <code>NaN</code>. Auch das musst du testen. <code>assert_series_equal</code> vergleicht dabei nicht nur einen einzelnen Wert, sondern die komplette Serie inklusive Reihenfolge und Datentyp.</p>
           </article>
           <article class="result-box">
             <h3 data-i18n-de="Imputation live" data-i18n-en="Imputation live">Imputation live</h3>

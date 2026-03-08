@@ -341,7 +341,7 @@
 
       <div class="card">
         <strong>Formel-Leseschluessel</strong>
-        <p>Euklidisch: d = sqrt((x1-x2)^2 + (y1-y2)^2). Manhattan: d = |x1-x2| + |y1-y2|. Minkowski verallgemeinert beide mit p. Cosinus vergleicht Richtung statt absolute Distanz.</p>
+        <p>Euklidisch: d = sqrt((x1-x2)^2 + (y1-y2)^2). Manhattan: d = |x1-x2| + |y1-y2|. Minkowski verallgemeinert beide mit p. Cosinus vergleicht Richtung statt absolute Distanz. Wichtig: Cosinus fragt eher nach Aehnlichkeit der Richtung als nach echter Entfernung.</p>
       </div>
 
       <div class="step-box">
@@ -364,7 +364,7 @@
 
       <div class="usage-box">
         <strong>Praxis-Uebertrag:</strong><br>
-        Bei KNN und anderen distanzbasierten Verfahren entscheidet die Metrik plus Skalierung direkt ueber Nachbarschaften.
+        Bei KNN und anderen distanzbasierten Verfahren entscheidet die Metrik plus Skalierung direkt ueber Nachbarschaften. Skalierung veraendert dabei nicht die Geschichte der Daten, sondern nur, welche Achse die Distanz dominieren darf.
       </div>
 
       <div class="path-box">
@@ -522,7 +522,7 @@
       },
       {
         title: "Schritt 7: Bruecke zu Decision Trees",
-        text: "Jetzt sind Metrik und Skalierung klar. Als naechstes schauen wir auf ein Modell, das gar keine Distanz braucht, sondern mit Ja/Nein-Fragen arbeitet: Decision Trees.",
+        text: "Jetzt sind Metrik und Skalierung klar. Als naechstes schauen wir auf ein Modell, das gar keine Distanz braucht, sondern mit Ja/Nein-Fragen arbeitet: Decision Trees. Genau daran siehst du spaeter gut, wann Distanzmodelle sinnvoll sind und wann nicht.",
         action: "Fuehre den Mini-Check aus und schalte das Kapitel Decision Trees frei.",
         chat: "Warum ist nach Distanzlogik ein Baum-Modell als Vergleich spannend?",
         answer: "Weil du so zwei sehr unterschiedliche Modellideen direkt vergleichen kannst: Nachbarschaft ueber Distanz versus Regeln ueber Splits."

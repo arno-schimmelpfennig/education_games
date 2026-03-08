@@ -1192,8 +1192,8 @@
               <div class="card-kicker">ML-Sprache</div>
               <div class="theory-copy">
                 <p>Bei einer <strong>harten Schranke</strong> wird die Summe der Gewichte direkt begrenzt.</p>
-                <p><strong>L1</strong> nutzt Beträge: <code>Σ |βⱼ| ≤ t</code>. <strong>L2</strong> nutzt Quadrate: <code>Σ βⱼ² ≤ t</code>.</p>
-                <p>Die Form der erlaubten Region ist wichtig: Beim Diamanten von L1 liegen Ecken auf den Achsen. Dort landen Lösungen leichter exakt auf null.</p>
+                <p><strong>L1</strong> nutzt Beträge: <code>Σ |βⱼ| ≤ t</code>. <strong>L2</strong> nutzt Quadrate: <code>Σ βⱼ² ≤ t</code>. Das Quadrat heißt hier einfach: Koeffizient mal sich selbst. Große Gewichte werden dadurch viel stärker bestraft als kleine.</p>
+                <p>Die Form der erlaubten Region ist wichtig: Beim Diamanten von L1 liegen Ecken auf den Achsen. Dieser Diamant entsteht in zwei Dimensionen durch <code>|β₁| + |β₂| ≤ t</code>. Dort landen Lösungen leichter exakt auf null.</p>
               </div>
               <div class="formula-block">
                 <div><strong>Einfach gesagt:</strong> <code>t</code> ist dein Einkaufsbudget. Kleines <code>t</code> = strenge Diät. Großes <code>t</code> = fast freie Auswahl.</div>
@@ -1350,7 +1350,7 @@
                   </div>
                   <div class="chart-shell">
                     <canvas id="ridge-chart" role="img" aria-label="Ridge-Koeffizienten als Balkendiagramm"></canvas>
-                    <div class="chart-caption">Ridge schrumpft die Balken gemeinsam. Sie werden kleiner, verschwinden aber praktisch nicht ganz.</div>
+                    <div class="chart-caption">Ridge schrumpft die Balken gemeinsam. Sie werden kleiner, verschwinden aber praktisch nicht ganz. Bei kleinen Alpha-Änderungen kann das visuell erst einmal subtil aussehen.</div>
                   </div>
                 </div>
               </div>
@@ -1726,7 +1726,7 @@ model = RidgeCV(alphas=alphas, cv=3)
 model.fit(X_train, y_train)
 
 print(model.alpha_)  # Bestes Alpha aus der Suche</code></pre>
-                <div class="code-note"><strong>Was passiert hier?</strong> `cv=5` teilt die Trainingsdaten mehrfach neu auf. So wird Alpha robuster gewählt als mit einem einzigen Zufallssplit.</div>
+                <div class="code-note"><strong>Was passiert hier?</strong> `cv=3` teilt die Trainingsdaten mehrfach neu auf. So wird Alpha robuster gewählt als mit einem einzigen Zufallssplit.</div>
               </div>
             </article>
             <article class="card full">
@@ -1762,7 +1762,7 @@ print(model.alpha_)  # Bestes Alpha aus der Suche</code></pre>
               <div class="card-kicker">ML-Sprache</div>
               <div class="theory-copy">
                 <p>Eine Pipeline macht den Ablauf reproduzierbar. Gerade bei Regularisierung ist <strong>Skalierung</strong> wichtig, weil die Strafe sonst große Skalen bevorzugt oder benachteiligt.</p>
-                <p>Für polynomiale Regression folgt oft diese Reihenfolge: Features erweitern, skalieren, regularisiertes Modell trainieren. Die Bewertung bleibt außerhalb der Pipeline mit Testdaten.</p>
+                <p>Für Einsteiger hilft dieses Bild: Eine Pipeline ist wie ein Fließband. Die Daten laufen immer durch dieselben Stationen, zum Beispiel Features erweitern, skalieren, regularisiertes Modell trainieren. Die Bewertung bleibt außerhalb der Pipeline mit Testdaten.</p>
               </div>
               <div class="formula-block">
                 <div><strong>Einfach gesagt:</strong> erst Zutaten vorbereiten, dann mischen, dann backen, dann probieren.</div>
