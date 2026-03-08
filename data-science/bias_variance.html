@@ -1,0 +1,2539 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bias &amp; Bias-Variance im Machine Learning</title>
+  <meta name="description" content="Interaktives Kapitel zu Bias, Varianz, Underfitting und Overfitting im Machine Learning für Einsteiger in der Erwachsenenbildung.">
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --text: #231A24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning-soft: #f7f1ee;
+      --warning-line: #d8c9c4;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 920px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 36%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 42%, #f3f1f4 100%);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    #stage {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card {
+      padding: 14px;
+      margin-top: 14px;
+    }
+
+    .sidebar-card p,
+    .module p,
+    .module li {
+      line-height: 1.58;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      margin-top: 8px;
+      font-size: 1.92rem;
+      color: var(--primary);
+      line-height: 1.08;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    h4 {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .lead {
+      margin-top: 10px;
+      font-size: 0.96rem;
+      color: var(--text-light);
+    }
+
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .meta-grid,
+    .chip-row,
+    .badge-grid,
+    .footer-links,
+    .module-grid,
+    .target-button-row,
+    .curve-buttons {
+      display: grid;
+      gap: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .quiz-feedback,
+    .formula-block,
+    .callout,
+    .storage-note,
+    .helper-note {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      text-align: center;
+      font-size: 0.84rem;
+    }
+
+    .btn,
+    .sidebar-toggle,
+    .quiz-option,
+    .choice-btn,
+    .tab-btn {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .choice-btn,
+    .quiz-option,
+    .tab-btn {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .quiz-option:hover,
+    .choice-btn:hover,
+    .tab-btn:hover {
+      filter: brightness(1.03);
+      transform: translateY(-1px);
+    }
+
+    .sticky-shell {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      padding: 12px 14px;
+      margin: 0 auto 16px;
+      max-width: calc(var(--content-max) + 2px);
+      display: grid;
+      gap: 10px;
+      background:
+        linear-gradient(135deg, rgba(99, 24, 50, 0.08), rgba(255, 255, 255, 0.96)),
+        #fff;
+      backdrop-filter: blur(10px);
+    }
+
+    .sticky-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sticky-title {
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #ede6eb;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.25s ease;
+    }
+
+    .hero {
+      max-width: var(--content-max);
+      margin: 0 auto 16px;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .hero-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--primary-light);
+      color: var(--secondary);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 16px;
+      background: linear-gradient(150deg, #ffffff 0%, #f5f8fe 100%);
+      border: 1px solid #ddc8d1;
+    }
+
+    #content {
+      max-width: var(--content-max);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .module {
+      padding: 14px;
+      scroll-margin-top: 120px;
+    }
+
+    .module.is-complete {
+      border-color: rgba(79, 122, 106, 0.35);
+      box-shadow: 0 18px 36px rgba(79, 122, 106, 0.1);
+    }
+
+    .module-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .module-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .module-title {
+      margin-top: 6px;
+      font-size: 1.42rem;
+      color: var(--primary);
+    }
+
+    .module-subtitle {
+      margin-top: 8px;
+      color: var(--text-light);
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 14px;
+      box-shadow: 0 10px 22px rgba(35, 26, 36, 0.05);
+    }
+
+    .card.full {
+      grid-column: 1 / -1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .story-copy p + p,
+    .transfer-copy p + p,
+    .theory-copy p + p,
+    .reflection + p {
+      margin-top: 10px;
+    }
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(99,24,50,0.05), rgba(23,50,98,0.04));
+    }
+    .exercise-instruction, .exercise-context {
+      margin: 0;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+    .exercise-context {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+    }
+    .hint, .solution {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .hint summary, .solution summary {
+      cursor: pointer;
+      font-weight: 700;
+      padding: 11px 12px;
+      color: var(--text);
+      list-style: none;
+    }
+    .hint summary::-webkit-details-marker, .solution summary::-webkit-details-marker {
+      display: none;
+    }
+    .hint p, .solution p {
+      padding: 0 12px 12px;
+      margin: 0;
+      color: var(--text-light);
+    }
+    .exercise-card pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 14px;
+      overflow: auto;
+      background: #231a24;
+      color: #f8fafc;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .solution pre {
+      margin: 0 12px 12px;
+    }
+    .expected-output {
+      padding-top: 0;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .formula-block {
+      background: linear-gradient(180deg, var(--primary-light), #f6f1f4);
+      color: var(--text);
+      overflow-x: auto;
+    }
+
+    .formula-block code {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .status-note.ok,
+    .quiz-feedback.ok,
+    .helper-note.ok {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: #3c5d51;
+    }
+
+    .status-note.fail,
+    .quiz-feedback.fail,
+    .helper-note.fail {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: #72303d;
+    }
+
+    .status-note.warn,
+    .quiz-feedback.warn,
+    .helper-note.warn,
+    .storage-note.warn {
+      background: var(--warning-soft);
+      border-color: var(--warning-line);
+      color: var(--primary);
+    }
+
+    .reflection {
+      font-weight: 800;
+      color: var(--secondary);
+    }
+
+    .quiz-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .quiz-question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .quiz-question legend,
+    .quiz-question h4 {
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .quiz-option,
+    .choice-btn,
+    .tab-btn {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.9rem;
+      border-radius: 14px;
+    }
+
+    .quiz-option.is-correct,
+    .choice-btn.is-correct {
+      border-color: var(--success-line);
+      background: var(--success-soft);
+      color: #3c5d51;
+    }
+
+    .quiz-option.is-wrong,
+    .choice-btn.is-wrong {
+      border-color: var(--danger-line);
+      background: var(--danger-soft);
+      color: #72303d;
+    }
+
+    .answer-note {
+      margin-top: 8px;
+      font-size: 0.86rem;
+      color: var(--text-light);
+    }
+
+    .target-wrap {
+      display: grid;
+      gap: 12px;
+    }
+
+    .target-board {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(44px, 1fr));
+      gap: 8px;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .target-cell {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      border: 1px solid #d9d1d6;
+      background:
+        radial-gradient(circle at center, transparent 0 30%, rgba(23, 50, 98, 0.06) 31% 32%, transparent 33% 58%, rgba(99, 24, 50, 0.08) 59% 60%, transparent 61% 100%),
+        #fff;
+      position: relative;
+    }
+
+    .target-cell.center::before {
+      content: "";
+      position: absolute;
+      inset: 36%;
+      border-radius: 999px;
+      background: rgba(23, 50, 98, 0.15);
+    }
+
+    .target-cell.hit::after {
+      content: "";
+      position: absolute;
+      inset: 26%;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.72);
+    }
+
+    .target-button-row,
+    .curve-buttons {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .matrix-table,
+    .diagnosis-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .matrix-table th,
+    .matrix-table td,
+    .diagnosis-table th,
+    .diagnosis-table td {
+      border: 1px solid var(--line);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .matrix-table th,
+    .diagnosis-table th {
+      background: #f3f7fd;
+      color: var(--secondary);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .radio-stack {
+      display: grid;
+      gap: 7px;
+      min-width: 220px;
+    }
+
+    .radio-option,
+    .select-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .select-row {
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    select {
+      min-width: 180px;
+      border: 1px solid #d5c7cf;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .curve-stage {
+      display: grid;
+      gap: 10px;
+    }
+
+    .curve-figure {
+      width: 100%;
+      min-height: 240px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #faf7f9 100%);
+      padding: 10px;
+    }
+
+    .curve-figure svg {
+      width: 100%;
+      height: 240px;
+      display: block;
+    }
+
+    .curve-label {
+      font-size: 0.88rem;
+      color: var(--text-light);
+    }
+
+    .recommendation-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .recommendation-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+      display: grid;
+      gap: 10px;
+    }
+
+    .recommendation-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      text-decoration: none;
+      color: var(--text-light);
+    }
+
+    .nav-link.is-active {
+      border-color: #b39aa8;
+      background: #f6f1f4;
+      color: var(--secondary);
+    }
+
+    .nav-status {
+      width: 24px;
+      flex: 0 0 24px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .nav-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .nav-copy strong {
+      color: var(--secondary);
+      font-size: 0.92rem;
+    }
+
+    .nav-copy span {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      line-height: 1.3;
+    }
+
+    .badge-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .badge-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fbfdff;
+      min-height: 126px;
+    }
+
+    .badge-item.is-earned {
+      background: linear-gradient(180deg, #fff9ef 0%, #fffef9 100%);
+      border-color: #e6d4b7;
+    }
+
+    .badge-icon {
+      width: 42px;
+      height: 42px;
+      margin-bottom: 8px;
+      color: var(--secondary);
+    }
+
+    .badge-item.is-earned .badge-icon {
+      color: var(--primary);
+    }
+
+    .footer-card {
+      max-width: var(--content-max);
+      margin: 0 auto 20px;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .show-mobile {
+      display: none;
+    }
+
+    .hide-mobile {
+      display: inline-flex;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .print-solution {
+      display: none;
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 980px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(88vw, 340px);
+        transform: translateX(-102%);
+        transition: transform 0.24s ease;
+        box-shadow: 14px 0 32px rgba(35, 26, 36, 0.16);
+      }
+
+      body.sidebar-open #sidebar {
+        transform: translateX(0);
+      }
+
+      body.sidebar-open::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(35, 26, 36, 0.38);
+        z-index: 25;
+      }
+
+      #stage {
+        padding: 14px;
+      }
+
+      .show-mobile {
+        display: inline-flex;
+      }
+
+      .hide-mobile {
+        display: none;
+      }
+
+      .hero-grid,
+      .module-grid,
+      .meta-grid,
+      .chip-row,
+      .badge-grid,
+      .footer-links,
+      .target-button-row,
+      .curve-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .module-head,
+      .sticky-top,
+      .select-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .button-row,
+      .recommendation-actions {
+        flex-direction: column;
+      }
+
+      .btn,
+      .sidebar-toggle {
+        width: 100%;
+      }
+
+      .recommendation-actions {
+        display: flex;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      #sidebar,
+      .sticky-shell,
+      .btn,
+      .sidebar-toggle,
+      .choice-btn,
+      .tab-btn,
+      .quiz-option,
+      select,
+      .storage-note {
+        display: none !important;
+      }
+
+      #app {
+        display: block;
+      }
+
+      #stage,
+      #content,
+      .hero,
+      .footer-card,
+      .module {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border: 0;
+      }
+
+      .module {
+        page-break-inside: avoid;
+        margin: 0 0 20px;
+      }
+
+      .print-solution {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Bias &amp; Bias-Variance</h1>
+      <p class="lead">Dieses Kapitel knüpft direkt an die lineare Regression an und zeigt dir, warum einfache Modelle oft zu grob und sehr komplexe Modelle oft zu nervös reagieren.</p>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Kontext</div>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Zielgruppe</strong>Erwachsenenbildung, VHS, Karrierewechsler, Einsteiger</div>
+          <div class="meta-card"><strong>Format</strong>Webinar plus Selbststudium ohne Gruppenarbeit</div>
+          <div class="meta-card"><strong>Vorwissen</strong>Lineare Regression und grundlegende Modellidee</div>
+          <div class="meta-card"><strong>Nächstes Kapitel</strong><a href="variance_ml.html">Varianz im Machine Learning</a></div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Bias-Detektiv</div>
+        <div class="progress-label">
+          <span id="sidebar-progress-label">0 von 6 Modulen erledigt</span>
+          <span id="sidebar-points-label">0 Punkte</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="sidebar-progress-fill" class="progress-fill"></div>
+        </div>
+        <p class="lead" style="margin-top:10px;">Rang: <strong id="sidebar-rank">Anfänger</strong>. Jede richtige Diagnose gibt 10 Punkte. Falsche Antworten werden erklärt, kosten aber keine Punkte.</p>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Schritte 1 bis 6</div>
+        <nav id="module-nav" class="nav-list" aria-label="Schritte im Kapitel"></nav>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Badges</div>
+        <div id="sidebar-badges" class="badge-grid"></div>
+      </div>
+
+      <div id="storage-note" class="sidebar-card storage-note" hidden></div>
+    </aside>
+
+    <main id="stage">
+      <header class="sticky-shell">
+        <div class="sticky-top">
+          <button id="sidebar-toggle" class="sidebar-toggle show-mobile" type="button" aria-label="Navigation ein- oder ausblenden">☰ Schritte</button>
+          <div>
+            <div class="card-kicker">Aktiver Abschnitt</div>
+            <div id="sticky-title" class="sticky-title">Schritt 1 startet hier</div>
+          </div>
+          <div class="hide-mobile" style="text-align:right;">
+            <div class="card-kicker">Leitbild</div>
+            <div class="sticky-title">Bias-Detektiv</div>
+          </div>
+        </div>
+        <div class="progress-label">
+          <span id="stage-progress-label">0 Prozent abgeschlossen</span>
+          <span id="stage-points-label">0 Punkte gesammelt</span>
+        </div>
+        <div class="progress-track" aria-label="Gesamtfortschritt">
+          <div id="stage-progress-fill" class="progress-fill"></div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-banner">6 Module · reine HTML/CSS/JS-Datei · lokale Fortschrittsspeicherung</div>
+            <h2 style="margin-top:10px;">Worum geht es in diesem Kapitel?</h2>
+            <p class="lead">Du lernst, warum ein Modell manchmal dauerhaft in die falsche Richtung schätzt, warum es manchmal auf neue Daten überreagiert und wie du beides im Alltag und im Machine Learning erkennst.</p>
+            <div class="chip-row">
+              <div class="chip"><strong>Alltag</strong>Uhren, Backöfen, Eisverkauf, Wohnungssuche und Prüfungsvorbereitung statt trockener Theorie</div>
+              <div class="chip"><strong>Didaktik</strong>Erst Geschichte, dann ML-Sprache, dann einfache Formel, dann Mini-Interaktion</div>
+              <div class="chip"><strong>Transfer</strong>Du verstehst, warum Bias, Varianz und Regularisierung im Modellbau zusammengehören</div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <h3>Dein Bias-Detektiv-Rang</h3>
+            <div class="status-note">Punkte aktuell: <strong id="hero-points">0</strong></div>
+            <div class="status-note">Rang aktuell: <strong id="hero-rank">Anfänger</strong></div>
+            <div class="status-note">Tipp: Bias ist der systematische Fehler. Varianz ist die Nervosität des Modells gegenüber neuen Trainingsdaten.</div>
+            <div class="button-row">
+              <button id="jump-first-open" class="btn" type="button">Zum nächsten offenen Modul</button>
+              <button id="reset-progress" class="btn ghost" type="button">Fortschritt zurücksetzen</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="content">
+        <section id="module-1" class="module lesson-step" data-module-id="module-1">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 1 · Bias-Grundidee</div>
+              <h2 class="module-title">Was ist Bias?</h2>
+              <p class="module-subtitle">Systematischer Fehler: Das Modell liegt nicht zufällig daneben, sondern immer mit derselben Tendenz.</p>
+            </div>
+            <div id="module-1-status" class="status-note">Noch offen. Löse die drei Alltagssituationen, um den Kernbegriff zu sichern.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsszene</div>
+              <div class="story-copy">
+                <p>Stell dir eine Uhr vor, die immer zehn Minuten nachgeht. Sie springt nicht wild hin und her, sondern ist konsequent daneben. Genau deshalb kannst du schon fast vorhersagen, wie sie falsch liegt.</p>
+                <p>Oder denk an einen Backofen, der dauerhaft 20 Grad zu heiß ist. Auch hier gibt es keine Laune des Geräts, sondern einen festen Versatz. Das Ergebnis: Dein Kuchen ist regelmäßig dunkler als geplant.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="transfer-copy">
+                <p>Im Machine Learning nennen wir so etwas <button type="button" class="glossary-term" data-term="Bias" data-definition="Systematischer Fehler eines Modells. Es liegt im Durchschnitt dauerhaft in eine bestimmte Richtung daneben."><strong>Bias</strong></button>. Gemeint ist die systematische Abweichung zwischen der durchschnittlichen Modellvorhersage und der echten Realität.</p>
+                <p>Bei der linearen Regression taucht hoher Bias oft dann auf, wenn du einen gekrümmten Zusammenhang mit einer einzigen Geraden beschreiben willst. Das Modell ist dann zu schlicht für die eigentliche Form der Daten.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">Formel in einfacher Sprache</div>
+              <div class="formula-block">
+                <code>MSE = Bias² + Varianz + Noise</code>
+              </div>
+              <div class="theory-copy">
+                <p>Der Bias-Term beschreibt den Teil des Fehlers, der durch eine falsche oder zu einfache Modellannahme entsteht. Bias wird quadriert, damit große systematische Fehler besonders deutlich ins Gewicht fallen.</p>
+                <p>Du musst hier nichts herleiten. Wichtig ist nur: Bias meint nicht Zufall, sondern eine dauerhafte Schlagseite im Modell.</p>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Interaktive Übung</div>
+                  <h3>Hoher Bias, hohe Varianz oder weder noch?</h3>
+                </div>
+              </div>
+              <div class="interaction">
+                <div class="quiz-list" id="module-1-quiz">
+                  <fieldset class="quiz-question">
+                    <legend>1. Eine Wanduhr geht jeden Tag exakt zehn Minuten nach.</legend>
+                    <div class="quiz-options">
+                      <label class="radio-option"><input type="radio" name="m1-q1" value="variance"> Hohe Varianz</label>
+                      <label class="radio-option"><input type="radio" name="m1-q1" value="bias"> Hoher Bias</label>
+                      <label class="radio-option"><input type="radio" name="m1-q1" value="none"> Weder noch</label>
+                    </div>
+                    <div class="answer-note" id="m1-note-1"></div>
+                  </fieldset>
+                  <fieldset class="quiz-question">
+                    <legend>2. Eine Wetter-App springt jeden Tag zwischen viel zu warm und viel zu kalt hin und her, obwohl das echte Wetter ähnlich bleibt.</legend>
+                    <div class="quiz-options">
+                      <label class="radio-option"><input type="radio" name="m1-q2" value="none"> Weder noch</label>
+                      <label class="radio-option"><input type="radio" name="m1-q2" value="variance"> Hohe Varianz</label>
+                      <label class="radio-option"><input type="radio" name="m1-q2" value="bias"> Hoher Bias</label>
+                    </div>
+                    <div class="answer-note" id="m1-note-2"></div>
+                  </fieldset>
+                  <fieldset class="quiz-question">
+                    <legend>3. Ein Thermometer liegt im Alltag mal leicht drüber, mal leicht drunter, im Durchschnitt aber ziemlich richtig.</legend>
+                    <div class="quiz-options">
+                      <label class="radio-option"><input type="radio" name="m1-q3" value="variance"> Hohe Varianz</label>
+                      <label class="radio-option"><input type="radio" name="m1-q3" value="bias"> Hoher Bias</label>
+                      <label class="radio-option"><input type="radio" name="m1-q3" value="none"> Weder noch</label>
+                    </div>
+                    <div class="answer-note" id="m1-note-3"></div>
+                  </fieldset>
+                </div>
+                <div class="button-row" style="margin-top:12px;">
+                  <button id="module-1-submit" class="btn" type="button" aria-label="Antworten zu Bias prüfen">Prüfen</button>
+                </div>
+                <div id="module-1-feedback" class="quiz-feedback" style="margin-top:12px;">Wähle pro Situation eine Diagnose und klicke auf <em>Prüfen</em>.</div>
+              </div>
+              <div class="print-solution"><strong>Lösungen:</strong> 1 = hoher Bias, 2 = hohe Varianz, 3 = weder noch.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Bias ist wie eine Uhr, die immer in dieselbe falsche Richtung geht. Wenn ein Modell dauerhaft zu grob oder zu simpel ist, steckt oft genau dieser systematische Fehler dahinter.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="module-2" class="module lesson-step" data-module-id="module-2">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 2 · Modell-Nervosität</div>
+              <h2 class="module-title">Was ist Varianz?</h2>
+              <p class="module-subtitle">Varianz zeigt, wie empfindlich ein Modell auf neue Trainingsdaten reagiert.</p>
+            </div>
+            <div id="module-2-status" class="status-note">Noch offen. Erkenne drei Zielscheiben-Muster und lies die Rückmeldung.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsszene</div>
+              <div class="story-copy">
+                <p>Denk an Dartpfeile. Wenn alle Pfeile eng beieinander, aber links neben der Mitte landen, ist der Wurf systematisch verzogen. Wenn sie weit verstreut über die Scheibe gehen, ist dein Wurf unruhig und schwer vorhersehbar.</p>
+                <p>Das Bild hilft enorm: Bias ist die dauerhafte Verschiebung, Varianz ist die Streuung. Beides kann getrennt oder gleichzeitig auftreten.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="transfer-copy">
+                <p><button type="button" class="glossary-term" data-term="Varianz" data-definition="Maß dafür, wie stark sich Vorhersagen ändern, wenn das Modell mit leicht anderen Trainingsdaten neu gelernt wird.">Varianz</button> beschreibt, wie stark sich die Modellvorhersage ändert, wenn du das Modell mit einem etwas anderen Trainingsdatensatz neu trainierst.</p>
+                <p>Sehr komplexe Modelle reagieren oft empfindlich auf Zufallsrauschen. Dann sehen sie im Training brillant aus, verlieren aber auf neuen Daten schnell an Stabilität. Genau das ist der klassische Weg Richtung Overfitting.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">Merkbild</div>
+              <div class="formula-block">
+                <code>Wenig Varianz = ruhig · Viel Varianz = nervös</code>
+              </div>
+              <div class="theory-copy">
+                <p>Viele Pfeile dicht beieinander, aber neben der Mitte: hoher Bias, niedrige Varianz. Viele Pfeile weit verstreut um die Mitte: niedriger Bias, hohe Varianz.</p>
+                <p>Das Ziel im Modellbau ist nicht bloß wenig Bias oder bloß wenig Varianz, sondern ein brauchbares Gleichgewicht.</p>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Interaktive Zielscheibe</div>
+                  <h3>Welche Diagnose passt zum Muster?</h3>
+                </div>
+              </div>
+              <div class="target-wrap">
+                <div class="helper-note" id="module-2-round-note">Runde 1 von 3. Schau auf die Verteilung der Treffer und entscheide dann.</div>
+                <div id="module-2-target" class="target-board" aria-label="Vereinfachte Zielscheibe mit Trefferpunkten"></div>
+                <div class="target-button-row">
+                  <button class="choice-btn" type="button" data-m2-choice="high-bias" aria-label="Aktuelles Muster als hoher Bias einordnen">Hoher Bias</button>
+                  <button class="choice-btn" type="button" data-m2-choice="high-variance" aria-label="Aktuelles Muster als hohe Varianz einordnen">Hohe Varianz</button>
+                  <button class="choice-btn" type="button" data-m2-choice="low-both" aria-label="Aktuelles Muster als beides niedrig einordnen">Beides niedrig</button>
+                </div>
+                <div id="module-2-feedback" class="quiz-feedback">Die Zielscheibe wird gleich eingeblendet. Dann entscheidest du über die passende Diagnose.</div>
+                <div class="button-row">
+                  <button id="module-2-next" class="btn secondary" type="button" aria-label="Nächstes Zielscheiben-Muster anzeigen">Nächstes Muster</button>
+                </div>
+              </div>
+              <div class="print-solution"><strong>Lösungsidee:</strong> Enger Cluster neben dem Zentrum = hoher Bias. Weit verstreute Treffer rund um das Zentrum = hohe Varianz. Enger Cluster im Zentrum = beides niedrig.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Varianz ist die Unruhe eines Modells. Wenn kleine Änderungen in den Trainingsdaten zu stark wechselnden Vorhersagen führen, ist das Modell zu nervös eingestellt.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="module-3" class="module lesson-step" data-module-id="module-3">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 3 · Zusammenspiel</div>
+              <h2 class="module-title">Bias, Varianz &amp; Noise zusammen</h2>
+              <p class="module-subtitle">Warum Fehler in echten Daten fast nie nur eine einzige Ursache haben.</p>
+            </div>
+            <div id="module-3-status" class="status-note">Noch offen. Ordne die drei Eisverkaufs-Modelle den typischen Fehlerbildern zu.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsszene</div>
+              <div class="story-copy">
+                <p>Stell dir einen Eisladen in Köln vor. Je wärmer es wird, desto mehr Kugeln gehen meistens über die Theke. Aber das ist nicht die ganze Geschichte: Ferien, Regen, Stadtfest, ein plötzlicher Gewitterschauer oder ein Feiertag verändern den Verkauf zusätzlich.</p>
+                <p>Du kannst also einen klaren Trend haben und trotzdem nie alles perfekt erklären. Genau an dieser Stelle kommt der Begriff <button type="button" class="glossary-term" data-term="Noise" data-definition="Unvermeidbares Rauschen in den Daten. Gemeint sind Einflüsse, die selbst ein gutes Modell nicht vollständig erklären kann."><strong>Noise</strong></button> ins Spiel.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="transfer-copy">
+                <p>Noise ist der Teil der Realität, den dein Modell selbst mit den besten Absichten nicht vollständig erfassen kann. Es bleibt immer ein Rest an unvorhersehbaren Einflüssen.</p>
+                <p>Ein Modell mit hohem Bias ignoriert wichtige Struktur. Ein Modell mit hoher Varianz jagt jedem kleinen Zucken in den Daten hinterher. Ein gutes Modell findet einen vernünftigen Mittelweg.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">Formel verbal gedeutet</div>
+              <div class="formula-block">
+                <code>MSE = Bias² + Varianz + Noise</code>
+              </div>
+              <div class="theory-copy">
+                <p>Der mittlere quadratische Fehler setzt sich gedanklich aus drei Bausteinen zusammen: systematischer Fehler, Empfindlichkeit auf Trainingsdaten und unvermeidbares Rauschen.</p>
+                <p>Wenn du ein Modell verbessern willst, solltest du immer überlegen, welcher Teil gerade das Hauptproblem ist.</p>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Mini-Lernspiel</div>
+                  <h3>Rate den Hauptfehler der Modelle</h3>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="matrix-table">
+                  <thead>
+                    <tr>
+                      <th>Modell</th>
+                      <th>Beschreibung</th>
+                      <th>Deine Einordnung</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Modell A</strong></td>
+                      <td>Sagt unabhängig vom Wetter jeden Tag einfach 50 Kugeln voraus.</td>
+                      <td>
+                        <div class="radio-stack">
+                          <label class="radio-option"><input type="radio" name="m3-a" value="variance"> Hohe Varianz</label>
+                          <label class="radio-option"><input type="radio" name="m3-a" value="tradeoff"> Guter Trade-off</label>
+                          <label class="radio-option"><input type="radio" name="m3-a" value="bias"> Hoher Bias</label>
+                        </div>
+                        <div class="answer-note" id="m3-note-a"></div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Modell B</strong></td>
+                      <td>Folgt jedem einzelnen Datenpunkt aus dem Training fast perfekt und knickt bei jedem kleinen Ausreißer stark ab.</td>
+                      <td>
+                        <div class="radio-stack">
+                          <label class="radio-option"><input type="radio" name="m3-b" value="tradeoff"> Guter Trade-off</label>
+                          <label class="radio-option"><input type="radio" name="m3-b" value="variance"> Hohe Varianz</label>
+                          <label class="radio-option"><input type="radio" name="m3-b" value="bias"> Hoher Bias</label>
+                        </div>
+                        <div class="answer-note" id="m3-note-b"></div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Modell C</strong></td>
+                      <td>Erkennt den Temperatur-Trend, reagiert aber nicht auf jeden kleinen Ausschlag durch Feiertage oder Regen.</td>
+                      <td>
+                        <div class="radio-stack">
+                          <label class="radio-option"><input type="radio" name="m3-c" value="tradeoff"> Guter Trade-off</label>
+                          <label class="radio-option"><input type="radio" name="m3-c" value="bias"> Hoher Bias</label>
+                          <label class="radio-option"><input type="radio" name="m3-c" value="variance"> Hohe Varianz</label>
+                        </div>
+                        <div class="answer-note" id="m3-note-c"></div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="button-row" style="margin-top:12px;">
+                <button id="module-3-submit" class="btn" type="button" aria-label="Modellfehler im Eisverkaufs-Beispiel prüfen">Lösung anzeigen</button>
+              </div>
+              <div id="module-3-feedback" class="quiz-feedback" style="margin-top:12px;">Wähle für jedes Modell die wahrscheinlichste Hauptschwäche.</div>
+              <div class="print-solution"><strong>Lösungen:</strong> Modell A = hoher Bias, Modell B = hohe Varianz, Modell C = guter Trade-off.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Nicht jeder Fehler ist gleich. Mal ist das Modell zu grob, mal zu empfindlich, und selbst dann bleibt in echten Daten oft noch Noise übrig, den du nicht einfach wegzaubern kannst.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="module-4" class="module lesson-step" data-module-id="module-4">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 4 · Diagnose</div>
+              <h2 class="module-title">Underfitting und Overfitting im Alltag erkennen</h2>
+              <p class="module-subtitle">Trainingsfehler und Testfehler verraten, ob dein Modell zu simpel oder zu spezialisiert ist.</p>
+            </div>
+            <div id="module-4-status" class="status-note">Noch offen. Ordne die drei Fehlerbilder richtig zu.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsszene</div>
+              <div class="story-copy">
+                <p>Overfitting ist wie Prüfungsvorbereitung mit nur einer alten Klausur: Du merkst dir jede Kleinigkeit auswendig. In einer neuen Prüfung hilft dir das plötzlich kaum weiter.</p>
+                <p>Underfitting ist das andere Extrem: Du lernst nur Überschriften oder gar nicht richtig. Dann bist du schon bei den alten Aufgaben schwach und bei neuen erst recht.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="transfer-copy">
+                <p><button type="button" class="glossary-term" data-term="Underfitting" data-definition="Das Modell ist zu simpel und verfehlt schon auf den Trainingsdaten wichtige Struktur. Typisch sind hoher Bias und geringe Flexibilität."><strong>Underfitting</strong></button> bedeutet meist hoher Bias und geringe Varianz. Das Modell ist so simpel, dass es nicht einmal die Trainingsdaten gut trifft.</p>
+                <p><button type="button" class="glossary-term" data-term="Overfitting" data-definition="Das Modell passt sich zu stark an Trainingsdetails und Zufall an. Auf neuen Daten wird es dadurch oft instabil."><strong>Overfitting</strong></button> bedeutet oft niedrigen Trainingsfehler, aber hohe Varianz auf neuen Daten. Das Modell passt sich dem Training zu genau an und generalisiert schlecht.</p>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Modell-Diagnose</div>
+                  <h3>Welche Diagnose passt zu welchem Fehlerbild?</h3>
+                </div>
+              </div>
+              <div class="interaction">
+                <div class="select-row">
+                  <div>
+                    <strong>Fall A</strong>
+                    <p style="margin:6px 0 0;">Trainingsfehler hoch, Testfehler hoch, beide ziemlich nah beieinander.</p>
+                  </div>
+                  <select id="m4-case-a" aria-label="Diagnose für Fall A">
+                    <option value="">Bitte wählen</option>
+                    <option value="okay">Okay</option>
+                    <option value="underfitting">Underfitting</option>
+                    <option value="overfitting">Overfitting</option>
+                  </select>
+                </div>
+                <div id="m4-note-a" class="answer-note"></div>
+
+                <div class="select-row">
+                  <div>
+                    <strong>Fall B</strong>
+                    <p style="margin:6px 0 0;">Trainingsfehler sehr niedrig, Testfehler deutlich höher.</p>
+                  </div>
+                  <select id="m4-case-b" aria-label="Diagnose für Fall B">
+                    <option value="">Bitte wählen</option>
+                    <option value="overfitting">Overfitting</option>
+                    <option value="okay">Okay</option>
+                    <option value="underfitting">Underfitting</option>
+                  </select>
+                </div>
+                <div id="m4-note-b" class="answer-note"></div>
+
+                <div class="select-row">
+                  <div>
+                    <strong>Fall C</strong>
+                    <p style="margin:6px 0 0;">Trainingsfehler moderat, Testfehler ähnlich und leicht höher, aber ohne große Lücke.</p>
+                  </div>
+                  <select id="m4-case-c" aria-label="Diagnose für Fall C">
+                    <option value="">Bitte wählen</option>
+                    <option value="overfitting">Overfitting</option>
+                    <option value="okay">Okay</option>
+                    <option value="underfitting">Underfitting</option>
+                  </select>
+                </div>
+                <div id="m4-note-c" class="answer-note"></div>
+
+                <div id="module-4-feedback" class="quiz-feedback" style="margin-top:12px;">Die Rückmeldung erscheint direkt nach deiner Auswahl.</div>
+              </div>
+              <div class="print-solution"><strong>Lösungen:</strong> A = Underfitting, B = Overfitting, C = okay.</div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Ein bewusst zu simples Modell bauen</h4>
+                <p class="exercise-instruction">Setze den Polynomgrad absichtlich auf <code>1</code> und prüfe, wie wenig zusätzliche Flexibilität das Modell dann bekommt. So verknüpfst du die Idee von Underfitting direkt mit einer konkreten Modellwahl.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre><code>from sklearn.preprocessing import PolynomialFeatures
+
+X = [[2], [3], [4]]
+poly = PolynomialFeatures(degree=# ??? DEINE LÖSUNG ???, include_bias=False)
+X_poly = poly.fit_transform(X)
+
+print(X_poly[0].tolist())</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Ein Grad von 1 erzeugt nur die ursprüngliche Eingabe und keine Krümmung.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre><code>from sklearn.preprocessing import PolynomialFeatures
+
+X = [[2], [3], [4]]
+poly = PolynomialFeatures(degree=1, include_bias=False)
+X_poly = poly.fit_transform(X)
+
+print(X_poly[0].tolist())</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `[2.0]`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Trainingsfehler und Testfehler zusammen sind oft aussagekräftiger als ein einzelner Wert. Die Lücke zwischen beiden erzählt dir viel über Bias und Varianz.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="module-5" class="module lesson-step" data-module-id="module-5">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 5 · Lernkurven</div>
+              <h2 class="module-title">Lernkurven – Bias und Varianz sichtbar machen</h2>
+              <p class="module-subtitle">Mit Lernkurven erkennst du, ob mehr Daten helfen oder ob dein Modell grundlegend zu schlicht bleibt.</p>
+            </div>
+            <div id="module-5-status" class="status-note">Noch offen. Vergleiche alle drei Kurvenbilder.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsszene</div>
+              <div class="story-copy">
+                <p>Wenn du für einen Test lernst, kannst du nach und nach mehr Übungsaufgaben bearbeiten. Beobachte dabei: Wirst du auf neuen Aufgaben besser oder bleibt dein Niveau trotz mehr Material fast gleich?</p>
+                <p>Genau das macht eine <button type="button" class="glossary-term" data-term="Lernkurve" data-definition="Diagramm, das zeigt, wie sich Trainings- und Testfehler verändern, wenn mehr Trainingsdaten dazukommen.">Lernkurve</button> in der Modellwelt sichtbar. Sie zeigt, wie sich Trainings- und Testfehler verändern, wenn mehr Trainingsdaten hinzukommen.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="transfer-copy">
+                <p>Bei Underfitting bleiben beide Kurven eher hoch und liegen nahe zusammen. Das Modell ist selbst mit viel mehr Daten zu unflexibel.</p>
+                <p>Bei Overfitting ist der Trainingsfehler sehr niedrig, der Testfehler aber deutlich höher. Ein guter Fit zeigt zwei brauchbare Kurven, die sich annähern, ohne völlig auseinanderzufallen.</p>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Kurven anschauen</div>
+                  <h3>Wechsle zwischen drei typischen Szenarien</h3>
+                </div>
+              </div>
+              <div class="curve-stage">
+                <div class="curve-buttons">
+                  <button class="tab-btn" type="button" data-curve="underfitting" aria-label="Lernkurve für Underfitting anzeigen">Underfitting anzeigen</button>
+                  <button class="tab-btn" type="button" data-curve="overfitting" aria-label="Lernkurve für Overfitting anzeigen">Overfitting anzeigen</button>
+                  <button class="tab-btn" type="button" data-curve="good-fit" aria-label="Lernkurve für guten Fit anzeigen">Guten Fit anzeigen</button>
+                </div>
+                <div class="curve-figure" id="module-5-figure" aria-live="polite"></div>
+                <div id="module-5-curve-note" class="quiz-feedback">Klicke auf ein Szenario. Die Kurve und die Erklärung wechseln sofort.</div>
+                <p class="curve-label" id="module-5-curve-label">Noch offen: Vergleiche alle drei Szenarien, um Muster im Kopf zu verankern.</p>
+              </div>
+              <div class="print-solution"><strong>Merksatz:</strong> Underfitting = beide Kurven hoch. Overfitting = große Lücke. Guter Fit = beide Kurven brauchbar und näher beieinander.</div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Ein sehr flexibles Modell vorbereiten</h4>
+                <p class="exercise-instruction">Setze den Polynomgrad jetzt bewusst sehr hoch. Die Ausgabe zeigt dir, wie schnell aus einem einzigen Merkmal viele neue Terme werden und warum Overfitting damit wahrscheinlicher wird.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre><code>from sklearn.preprocessing import PolynomialFeatures
+
+X = [[2], [3], [4]]
+poly = PolynomialFeatures(degree=# ??? DEINE LÖSUNG ???, include_bias=False)
+X_poly = poly.fit_transform(X)
+
+print(X_poly.shape[1])</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Im Notebook war genau ein sehr hoher Grad das klassische Overfitting-Beispiel.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre><code>from sklearn.preprocessing import PolynomialFeatures
+
+X = [[2], [3], [4]]
+poly = PolynomialFeatures(degree=15, include_bias=False)
+X_poly = poly.fit_transform(X)
+
+print(X_poly.shape[1])</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `15`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Lernkurven helfen dir bei der Entscheidung, ob du eher mehr Daten brauchst, ein flexibleres Modell oder eine stärkere Kontrolle gegen Overfitting.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="module-6" class="module lesson-step" data-module-id="module-6">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 6 · Handlungsoptionen</div>
+              <h2 class="module-title">Bias reduzieren – aber wie?</h2>
+              <p class="module-subtitle">Bessere Features und passendere Modelle können Bias senken, erhöhen aber oft die Varianz.</p>
+            </div>
+            <div id="module-6-status" class="status-note">Noch offen. Wähle pro Situation den sinnvolleren Schwerpunkt.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsszene</div>
+              <div class="story-copy">
+                <p>Wenn du Mietpreise nur mit Quadratmetern schätzt, fehlt dir ein großer Teil der Geschichte. Lage, Zustand, Balkon, Baujahr oder Energieklasse können den Preis stark verändern.</p>
+                <p>Bias senkst du oft, indem du das Modell oder die Eingaben realistischer machst. Aber Vorsicht: Mit jedem Extra-Detail wächst auch die Gefahr, dass das Modell auf Zufall überreagiert.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="transfer-copy">
+                <p>Typische Hebel gegen hohen Bias sind: mehr relevante Features, ein flexibleres Modell und passendere Annahmen über den Zusammenhang.</p>
+                <p>Genau hier entsteht die Brücke zur Regularisierung. Denn mehr Komplexität kann Varianz erhöhen. Ridge und Lasso helfen später dabei, diesen Anstieg zu zähmen.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">Konkrete Maßnahmen</div>
+              <div class="formula-block">
+                <code>Bias senken = besser erklären · Varianz senken = robuster werden</code>
+              </div>
+              <ul style="margin:10px 0 0; padding-left:18px;">
+                <li>Modell komplexer machen, wenn eine Gerade zu grob ist.</li>
+                <li>Relevante Features ergänzen, damit das Modell nicht blind für wichtige Einflussfaktoren bleibt.</li>
+                <li>Falsche Annahmen korrigieren, etwa wenn ein Zusammenhang nicht linear ist.</li>
+              </ul>
+            </article>
+            <article class="card full">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Interaktive Checkliste</div>
+                  <h3>Würdest du eher Bias oder Varianz senken?</h3>
+                </div>
+              </div>
+              <div class="recommendation-grid">
+                <div class="recommendation-card">
+                  <strong>Situation A: Mietpreis-Schätzung</strong>
+                  <p>Das Modell nutzt bisher nur Quadratmeter und verfehlt Altbauwohnungen in guter Lage systematisch.</p>
+                  <div class="recommendation-actions">
+                    <button class="choice-btn" type="button" data-m6-case="a" data-m6-choice="bias">Bias senken</button>
+                    <button class="choice-btn" type="button" data-m6-case="a" data-m6-choice="variance">Varianz senken</button>
+                  </div>
+                  <div id="m6-note-a" class="answer-note"></div>
+                </div>
+                <div class="recommendation-card">
+                  <strong>Situation B: Haushaltsbudget-Prognose</strong>
+                  <p>Dein Modell hat extrem viele Details aus einem kleinen Trainingssatz gelernt. Im Training top, auf neuen Monaten schwach.</p>
+                  <div class="recommendation-actions">
+                    <button class="choice-btn" type="button" data-m6-case="b" data-m6-choice="bias">Bias senken</button>
+                    <button class="choice-btn" type="button" data-m6-case="b" data-m6-choice="variance">Varianz senken</button>
+                  </div>
+                  <div id="m6-note-b" class="answer-note"></div>
+                </div>
+                <div class="recommendation-card">
+                  <strong>Situation C: Stromverbrauch im Büro</strong>
+                  <p>Das Modell nimmt nur eine lineare Beziehung an, obwohl der Verbrauch an sehr kalten und sehr heißen Tagen deutlich ansteigt.</p>
+                  <div class="recommendation-actions">
+                    <button class="choice-btn" type="button" data-m6-case="c" data-m6-choice="bias">Bias senken</button>
+                    <button class="choice-btn" type="button" data-m6-case="c" data-m6-choice="variance">Varianz senken</button>
+                  </div>
+                  <div id="m6-note-c" class="answer-note"></div>
+                </div>
+              </div>
+              <div id="module-6-feedback" class="quiz-feedback" style="margin-top:12px;">Wähle pro Alltagssituation den sinnvolleren Schwerpunkt. Danach bekommst du sofort eine Empfehlung.</div>
+              <div class="print-solution"><strong>Lösungen:</strong> A = Bias senken, B = Varianz senken, C = Bias senken.</div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Den Sweet Spot aus Validierungswerten finden</h4>
+                <p class="exercise-instruction">Drei Modellgrade wurden mit Cross-Validation verglichen. Ergänze die Zeile, die den Grad mit dem besten Durchschnittsscore auswählt, statt nur nach Bauchgefühl zu entscheiden.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre><code>cv_scores = {1: 0.62, 3: 0.84, 15: 0.51}
+
+best_degree = # ??? DEINE LÖSUNG ???
+print(best_degree)</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Gesucht ist der Schlüssel mit dem größten Score, nicht der größte Grad.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre><code>cv_scores = {1: 0.62, 3: 0.84, 15: 0.51}
+
+best_degree = max(cv_scores, key=cv_scores.get)
+print(best_degree)</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `3`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Bias zu senken heißt oft: realistischer modellieren. Aber genau dann wird Regularisierung wichtig, damit das Modell auf neuen Daten nicht zu nervös wird. Das ist die Brücke zum nächsten Kapitel.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer-card">
+        <div>
+          <div class="card-kicker">Teil des Gesamtlehrpfads</div>
+          <h2>Bias verstanden, jetzt folgt die Kontrolle der Modellkomplexität</h2>
+          <p class="lead">Bias ist die systematische Schlagseite. Im nächsten Schritt geht es mit <strong>Varianz im Machine Learning</strong> weiter: Train/Test-Split, Stichproben-Schwankungen, Lernkurven und Gegenmaßnahmen gegen Overfitting.</p>
+        </div>
+        <div class="footer-links">
+          <a class="btn" href="variance_ml.html">Weiter zu Varianz im Machine Learning</a>
+          <a class="btn secondary" href="linear_regression.html">Zurück zur linearen Regression</a>
+        </div>
+        <p style="margin:0; color:var(--text-light);">Teil des Gesamtlehrpfads zu linearen Modellen, Bias, Varianz und Regularisierung.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const MODULES = [
+      { id: "module-1", short: "Was ist Bias?", badge: "Zeitgefühl", badgeKey: "clock", desc: "Systematischen Fehler erkannt" },
+      { id: "module-2", short: "Was ist Varianz?", badge: "Zielscheibe", badgeKey: "target", desc: "Treffermuster gedeutet" },
+      { id: "module-3", short: "Bias + Varianz + Noise", badge: "Eisblick", badgeKey: "ice", desc: "Fehlerquellen getrennt" },
+      { id: "module-4", short: "Under- vs. Overfitting", badge: "Diagnose", badgeKey: "lens", desc: "Fehlerbilder zugeordnet" },
+      { id: "module-5", short: "Lernkurven", badge: "Kurvenleser", badgeKey: "curve", desc: "Kurvenmuster verglichen" },
+      { id: "module-6", short: "Bias reduzieren", badge: "Werkzeugkiste", badgeKey: "tools", desc: "Hebel für bessere Modelle gewählt" }
+    ];
+
+    // Kapselt localStorage und fällt bei gesperrtem Speicher sauber auf In-Memory-Daten zurück.
+    const storageWrapper = (() => {
+      let fallback = {};
+      try {
+        const key = "__bias_variance_storage_test__";
+        window.localStorage.setItem(key, "1");
+        window.localStorage.removeItem(key);
+        return {
+          available: true,
+          getItem: (key) => window.localStorage.getItem(key),
+          setItem: (key, value) => window.localStorage.setItem(key, value),
+          removeItem: (key) => window.localStorage.removeItem(key)
+        };
+      } catch (error) {
+        return {
+          available: false,
+          getItem: (key) => fallback[key] ?? null,
+          setItem: (key, value) => { fallback[key] = value; },
+          removeItem: (key) => { delete fallback[key]; }
+        };
+      }
+    })();
+
+    function refreshLanguage() {
+      if (window.DataScienceI18n && typeof window.DataScienceI18n.refresh === "function") {
+        window.requestAnimationFrame(() => window.DataScienceI18n.refresh());
+      }
+    }
+
+    // Steuert Punkte, Rang, Badges, Modulstatus und alle Modul-Interaktionen.
+    const BiasGame = {
+      storageKey: "asdm-bias-variance-progress-v1",
+      state: {
+        points: 0,
+        completed: {},
+        badges: [],
+        pointEvents: {},
+        moduleData: {}
+      },
+
+      // Lädt den gespeicherten Stand und initialisiert die komplette Seite.
+      init() {
+        this.loadState();
+        this.renderSidebar();
+        this.renderHeader();
+        this.bindGlobalUi();
+        this.initModule1();
+        this.initModule2();
+        this.initModule3();
+        this.initModule4();
+        this.initModule5();
+        this.initModule6();
+        this.observeSections();
+        this.refreshModuleCards();
+
+        if (!storageWrapper.available) {
+          const note = document.getElementById("storage-note");
+          note.hidden = false;
+          note.classList.add("warn");
+          note.innerHTML = "<strong>Hinweis:</strong> localStorage ist in diesem Browser nicht verfügbar. Die Seite bleibt nutzbar, speichert den Fortschritt aber nur bis zum Neuladen.";
+        }
+      },
+
+      // Liest den letzten Spiel- und Lernstand aus dem Browser.
+      loadState() {
+        const raw = storageWrapper.getItem(this.storageKey);
+        if (!raw) {
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          this.state = {
+            ...this.state,
+            ...parsed,
+            completed: parsed.completed || {},
+            badges: Array.isArray(parsed.badges) ? parsed.badges : [],
+            pointEvents: parsed.pointEvents || {},
+            moduleData: parsed.moduleData || {}
+          };
+        } catch (error) {
+          this.saveState();
+        }
+      },
+
+      saveState() {
+        storageWrapper.setItem(this.storageKey, JSON.stringify(this.state));
+      },
+
+      reset() {
+        this.state = {
+          points: 0,
+          completed: {},
+          badges: [],
+          pointEvents: {},
+          moduleData: {}
+        };
+        storageWrapper.removeItem(this.storageKey);
+      },
+
+      getModuleData(moduleId, defaults = {}) {
+        return {
+          ...defaults,
+          ...(this.state.moduleData[moduleId] || {})
+        };
+      },
+
+      setModuleData(moduleId, nextData) {
+        this.state.moduleData[moduleId] = {
+          ...(this.state.moduleData[moduleId] || {}),
+          ...nextData
+        };
+        this.saveState();
+        refreshLanguage();
+      },
+
+      updateProgress(moduleId, isCompleted) {
+        if (isCompleted) {
+          this.state.completed[moduleId] = true;
+        } else {
+          delete this.state.completed[moduleId];
+        }
+
+        const badgeConfig = MODULES.find((module) => module.id === moduleId);
+        if (isCompleted && badgeConfig && !this.state.badges.includes(moduleId)) {
+          this.state.badges.push(moduleId);
+        }
+
+        this.saveState();
+        this.renderSidebar();
+        this.renderHeader();
+        this.refreshModuleCards();
+        refreshLanguage();
+      },
+
+      addPoints(points, eventId) {
+        if (this.state.pointEvents[eventId]) {
+          return false;
+        }
+        this.state.pointEvents[eventId] = points;
+        this.state.points += points;
+        this.saveState();
+        this.renderSidebar();
+        this.renderHeader();
+        refreshLanguage();
+        return true;
+      },
+
+      getRank() {
+        if (this.state.points > 70) {
+          return "Profi";
+        }
+        if (this.state.points > 30) {
+          return "Fortgeschritten";
+        }
+        return "Anfänger";
+      },
+
+      // Baut Navigation, Fortschritt und Badge-Status aus dem aktuellen Zustand neu auf.
+      renderSidebar() {
+        const activeModuleId = this.activeModuleId || "module-1";
+        const completedCount = Object.keys(this.state.completed).length;
+        const percent = Math.round((completedCount / MODULES.length) * 100);
+        const nav = document.getElementById("module-nav");
+
+        nav.innerHTML = MODULES.map((module, index) => {
+          const completed = Boolean(this.state.completed[module.id]);
+          const active = module.id === activeModuleId;
+          const status = completed ? "✅" : active ? "🔵" : "⚪";
+          const copy = completed ? "erledigt" : "offen";
+          return `
+            <a class="nav-link${active ? " is-active" : ""}" href="#${module.id}" data-nav-target="${module.id}">
+              <span class="nav-status">${status}</span>
+              <span class="nav-copy">
+                <strong>${index + 1}. ${module.short}</strong>
+                <span>${copy}</span>
+              </span>
+            </a>
+          `;
+        }).join("");
+
+        nav.querySelectorAll("[data-nav-target]").forEach((link) => {
+          link.addEventListener("click", () => {
+            if (window.innerWidth <= 980) {
+              document.body.classList.remove("sidebar-open");
+            }
+          });
+        });
+
+        document.getElementById("sidebar-progress-label").textContent = `${completedCount} von ${MODULES.length} Modulen erledigt`;
+        document.getElementById("sidebar-points-label").textContent = `${this.state.points} Punkte`;
+        document.getElementById("sidebar-progress-fill").style.width = `${percent}%`;
+        document.getElementById("sidebar-rank").textContent = this.getRank();
+
+        const badgeRoot = document.getElementById("sidebar-badges");
+        badgeRoot.innerHTML = MODULES.map((module) => {
+          const earned = this.state.badges.includes(module.id);
+          return `
+            <div class="badge-item${earned ? " is-earned" : ""}">
+              <div class="badge-icon" aria-hidden="true">${this.getBadgeSvg(module.badgeKey, earned)}</div>
+              <strong>${module.badge}</strong>
+              <div>${earned ? module.desc : "Noch nicht freigeschaltet"}</div>
+            </div>
+          `;
+        }).join("");
+      },
+
+      // Synchronisiert die globalen Punkte- und Fortschrittsanzeigen.
+      renderHeader() {
+        const completedCount = Object.keys(this.state.completed).length;
+        const percent = Math.round((completedCount / MODULES.length) * 100);
+        document.getElementById("stage-progress-label").textContent = `${percent} Prozent abgeschlossen`;
+        document.getElementById("stage-points-label").textContent = `${this.state.points} Punkte gesammelt`;
+        document.getElementById("stage-progress-fill").style.width = `${percent}%`;
+        document.getElementById("hero-points").textContent = String(this.state.points);
+        document.getElementById("hero-rank").textContent = this.getRank();
+      },
+
+      refreshModuleCards() {
+        MODULES.forEach((module) => {
+          const section = document.getElementById(module.id);
+          if (!section) {
+            return;
+          }
+          section.classList.toggle("is-complete", Boolean(this.state.completed[module.id]));
+        });
+      },
+
+      setActiveModule(moduleId) {
+        this.activeModuleId = moduleId;
+        const current = MODULES.find((module) => module.id === moduleId);
+        if (current) {
+          document.getElementById("sticky-title").textContent = `${current.short}`;
+        }
+        this.renderSidebar();
+      },
+
+      // Verknüpft die globale Navigation mit Sidebar, Sprunglink und Reset.
+      bindGlobalUi() {
+        document.getElementById("sidebar-toggle").addEventListener("click", () => {
+          document.body.classList.toggle("sidebar-open");
+        });
+
+        document.getElementById("jump-first-open").addEventListener("click", () => {
+          const targetModule = MODULES.find((module) => !this.state.completed[module.id]) || MODULES[MODULES.length - 1];
+          document.getElementById(targetModule.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        document.getElementById("reset-progress").addEventListener("click", () => {
+          this.reset();
+          window.location.reload();
+        });
+      },
+
+      // Hebt im Scrollverlauf das gerade sichtbare Modul hervor.
+      observeSections() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.setActiveModule(entry.target.id);
+            }
+          });
+        }, {
+          rootMargin: "-35% 0px -45% 0px",
+          threshold: 0.2
+        });
+
+        MODULES.forEach((module) => {
+          const section = document.getElementById(module.id);
+          if (section) {
+            observer.observe(section);
+          }
+        });
+      },
+
+      markModuleState(moduleId, passed, message, tone = "ok") {
+        const note = document.getElementById(`${moduleId}-status`);
+        if (!note) {
+          return;
+        }
+        note.className = `status-note ${tone}`;
+        note.innerHTML = message;
+        if (passed) {
+          this.updateProgress(moduleId, true);
+        }
+      },
+
+      getBadgeSvg(type, earned) {
+        const color = earned ? "#631832" : "#173262";
+        const stroke = earned ? "#4f7a6a" : "#9aa6bc";
+        const icons = {
+          clock: `<svg viewBox="0 0 48 48" width="42" height="42" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="${color}" stroke-width="3"/><path d="M24 14v11l8 4" fill="none" stroke="${stroke}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+          target: `<svg viewBox="0 0 48 48" width="42" height="42" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="${color}" stroke-width="3"/><circle cx="24" cy="24" r="9" fill="none" stroke="${stroke}" stroke-width="3"/><circle cx="24" cy="24" r="3.5" fill="${color}"/></svg>`,
+          ice: `<svg viewBox="0 0 48 48" width="42" height="42" aria-hidden="true"><path d="M18 19c0-4 3-7 7-7s7 3 7 7" fill="none" stroke="${color}" stroke-width="3"/><path d="M14 23h20l-10 16z" fill="none" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/><circle cx="19" cy="18" r="3" fill="${color}"/><circle cx="24" cy="15" r="3" fill="${stroke}"/><circle cx="29" cy="18" r="3" fill="${color}"/></svg>`,
+          lens: `<svg viewBox="0 0 48 48" width="42" height="42" aria-hidden="true"><circle cx="21" cy="21" r="11" fill="none" stroke="${color}" stroke-width="3"/><path d="M29 29l9 9" fill="none" stroke="${stroke}" stroke-width="3" stroke-linecap="round"/><path d="M17 21h8" fill="none" stroke="${stroke}" stroke-width="3" stroke-linecap="round"/></svg>`,
+          curve: `<svg viewBox="0 0 48 48" width="42" height="42" aria-hidden="true"><path d="M8 34h32" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"/><path d="M10 30c5-16 10-12 14-9s9 8 14-8" fill="none" stroke="${stroke}" stroke-width="3" stroke-linecap="round"/></svg>`,
+          tools: `<svg viewBox="0 0 48 48" width="42" height="42" aria-hidden="true"><path d="M13 12l9 9-4 4-9-9z" fill="none" stroke="${color}" stroke-width="3" stroke-linejoin="round"/><path d="M28 14a7 7 0 0 0 7 7l-11 11a5 5 0 0 1-7-7l11-11z" fill="none" stroke="${stroke}" stroke-width="3" stroke-linejoin="round"/></svg>`
+        };
+        return icons[type] || icons.clock;
+      },
+
+      // Modul 1: Alltagssituationen als Bias-Varianz-Grundübung.
+      initModule1() {
+        const answers = {
+          "m1-q1": { correct: "bias", explanation: "Die Uhr liegt systematisch in derselben Richtung daneben. Genau das ist hoher Bias." },
+          "m1-q2": { correct: "variance", explanation: "Die Vorhersage springt nervös hin und her. Das passt zu hoher Varianz." },
+          "m1-q3": { correct: "none", explanation: "Leichte Schwankungen um den richtigen Mittelwert sind weder klar hoher Bias noch klar hohe Varianz." }
+        };
+        const stored = this.getModuleData("module-1", { submitted: false, selected: {} });
+
+        Object.entries(stored.selected).forEach(([name, value]) => {
+          const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+          if (input) {
+            input.checked = true;
+          }
+        });
+
+        document.getElementById("module-1-submit").addEventListener("click", () => {
+          let score = 0;
+          const selected = {};
+
+          Object.entries(answers).forEach(([name, config], index) => {
+            const picked = document.querySelector(`input[name="${name}"]:checked`);
+            const note = document.getElementById(`m1-note-${index + 1}`);
+            if (!picked) {
+              note.textContent = "Bitte triff eine Auswahl, damit du eine Rückmeldung bekommst.";
+              return;
+            }
+
+            selected[name] = picked.value;
+            const isCorrect = picked.value === config.correct;
+            if (isCorrect) {
+              score += 1;
+              this.addPoints(10, `module-1-${name}`);
+            }
+            note.textContent = config.explanation;
+            note.style.color = isCorrect ? "#3c5d51" : "#72303d";
+          });
+
+          this.setModuleData("module-1", { submitted: true, selected, score });
+
+          const feedback = document.getElementById("module-1-feedback");
+          const passed = score === 3;
+          feedback.className = `quiz-feedback ${passed ? "ok" : "warn"}`;
+          feedback.innerHTML = passed
+            ? `<strong>Gut erkannt.</strong> Du hast alle 3 Situationen sinnvoll eingeordnet. Bias ist für dich jetzt greifbar.`
+            : `<strong>Noch nicht stabil.</strong> Du hast ${score} von 3 Situationen richtig. Lies die Erklärungen noch einmal und prüfe, ob eher Systematik oder Nervosität vorliegt. Danach kannst du direkt erneut prüfen.`;
+
+          this.markModuleState("module-1", passed, passed
+            ? "Erledigt. Du erkennst systematische Fehler im Alltag."
+            : "Fast geschafft. Schau noch einmal auf den Unterschied zwischen systematisch und nervös.", passed ? "ok" : "warn");
+        });
+
+        if (stored.submitted) {
+          document.getElementById("module-1-submit").click();
+        }
+      },
+
+      // Modul 2: Zielscheiben-Diagnose mit drei Muster-Runden.
+      initModule2() {
+        const patterns = [
+          {
+            key: "high-bias",
+            label: "Hoher Bias",
+            hits: [[0, 0], [0, 1], [1, 0], [1, 1], [0, 2]],
+            explanation: "Die Treffer kleben eng zusammen, aber deutlich neben der Mitte. Das ist hoher Bias bei eher niedriger Varianz."
+          },
+          {
+            key: "high-variance",
+            label: "Hohe Varianz",
+            hits: [[0, 4], [1, 1], [2, 3], [3, 0], [4, 2]],
+            explanation: "Die Treffer liegen weit auseinander. Im Mittel ist das Zentrum nicht völlig verfehlt, aber die Streuung ist groß."
+          },
+          {
+            key: "low-both",
+            label: "Beides niedrig",
+            hits: [[2, 2], [2, 1], [2, 3], [1, 2], [3, 2]],
+            explanation: "Die Treffer liegen dicht um die Mitte. Das ist das ruhige und zugleich gut ausgerichtete Muster."
+          }
+        ];
+
+        const stored = this.getModuleData("module-2", {
+          round: 0,
+          score: 0,
+          answeredCurrent: false,
+          currentPattern: patterns[0].key
+        });
+
+        const target = document.getElementById("module-2-target");
+        const feedback = document.getElementById("module-2-feedback");
+        const roundNote = document.getElementById("module-2-round-note");
+        const nextButton = document.getElementById("module-2-next");
+
+        const renderTarget = () => {
+          const activePattern = patterns.find((pattern) => pattern.key === stored.currentPattern) || patterns[0];
+          target.innerHTML = "";
+          for (let row = 0; row < 5; row += 1) {
+            for (let col = 0; col < 5; col += 1) {
+              const cell = document.createElement("div");
+              cell.className = "target-cell";
+              if (row === 2 && col === 2) {
+                cell.classList.add("center");
+              }
+              if (activePattern.hits.some(([hitRow, hitCol]) => hitRow === row && hitCol === col)) {
+                cell.classList.add("hit");
+              }
+              target.appendChild(cell);
+            }
+          }
+
+          roundNote.textContent = `Runde ${Math.min(stored.round + 1, 3)} von 3. Achte darauf, ob die Treffer eher verschoben oder eher verstreut sind.`;
+        };
+
+        const finishRounds = () => {
+          const passed = stored.score === 3;
+          feedback.className = `quiz-feedback ${passed ? "ok" : "warn"}`;
+          feedback.innerHTML = passed
+            ? `<strong>Treffermuster verstanden.</strong> Du hast alle 3 Muster richtig eingeordnet.`
+            : `<strong>Fast da.</strong> Du hast ${stored.score} von 3 richtig. Denk noch einmal an den Unterschied zwischen Verschiebung und Streuung und starte die Runde danach erneut.`;
+          this.setModuleData("module-2", stored);
+          this.markModuleState("module-2", passed, passed
+            ? "Erledigt. Du kannst Bias und Varianz auf der Zielscheibe unterscheiden."
+            : "Noch offen. Starte die Übung noch einmal und prüfe vor allem, ob die Treffer verschoben oder gestreut sind.", passed ? "ok" : "warn");
+          nextButton.disabled = false;
+          nextButton.dataset.mode = "restart";
+          nextButton.textContent = "Neu starten";
+        };
+
+        const resetRounds = () => {
+          stored.round = 0;
+          stored.score = 0;
+          stored.answeredCurrent = false;
+          stored.currentPattern = patterns[0].key;
+          nextButton.dataset.mode = "next";
+          nextButton.textContent = "Nächstes Muster";
+          nextButton.disabled = true;
+          feedback.className = "quiz-feedback";
+          feedback.textContent = "Die Zielscheibe wurde zurückgesetzt. Welche Diagnose passt jetzt?";
+          this.setModuleData("module-2", stored);
+          renderTarget();
+        };
+
+        const nextPattern = () => {
+          if (stored.round >= patterns.length - 1) {
+            finishRounds();
+            return;
+          }
+          stored.round += 1;
+          stored.currentPattern = patterns[stored.round].key;
+          stored.answeredCurrent = false;
+          nextButton.dataset.mode = "next";
+          nextButton.textContent = "Nächstes Muster";
+          nextButton.disabled = true;
+          feedback.className = "quiz-feedback";
+          feedback.textContent = "Neues Muster geladen. Welche Diagnose passt jetzt?";
+          this.setModuleData("module-2", stored);
+          renderTarget();
+        };
+
+        document.querySelectorAll("[data-m2-choice]").forEach((button) => {
+          button.addEventListener("click", () => {
+            if (stored.answeredCurrent) {
+              return;
+            }
+            const choice = button.dataset.m2Choice;
+            const activePattern = patterns.find((pattern) => pattern.key === stored.currentPattern);
+            const isCorrect = choice === activePattern.key;
+            stored.answeredCurrent = true;
+            if (isCorrect) {
+              stored.score += 1;
+              this.addPoints(10, `module-2-round-${stored.round}`);
+            }
+            feedback.className = `quiz-feedback ${isCorrect ? "ok" : "fail"}`;
+            feedback.innerHTML = `<strong>${activePattern.label}.</strong> ${activePattern.explanation}`;
+            nextButton.disabled = false;
+            this.setModuleData("module-2", stored);
+          });
+        });
+
+        nextButton.addEventListener("click", () => {
+          if (nextButton.dataset.mode === "restart") {
+            resetRounds();
+            return;
+          }
+          nextPattern();
+        });
+        nextButton.dataset.mode = "next";
+        nextButton.disabled = !stored.answeredCurrent;
+
+        renderTarget();
+
+        if (stored.round >= patterns.length - 1 && stored.answeredCurrent) {
+          finishRounds();
+        }
+      },
+
+      // Modul 3: Drei Modellbeschreibungen den Fehlerquellen zuordnen.
+      initModule3() {
+        const correct = {
+          "m3-a": { value: "bias", explanation: "Wenn ein Modell immer denselben groben Wert sagt, ignoriert es Struktur. Das ist hoher Bias." },
+          "m3-b": { value: "variance", explanation: "Wer jedem Datenpunkt blind folgt, reagiert zu empfindlich. Das ist hohe Varianz." },
+          "m3-c": { value: "tradeoff", explanation: "Dieses Modell findet einen brauchbaren Mittelweg zwischen grob und übernervös." }
+        };
+
+        const stored = this.getModuleData("module-3", { submitted: false, selected: {} });
+        Object.entries(stored.selected).forEach(([name, value]) => {
+          const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+          if (input) {
+            input.checked = true;
+          }
+        });
+
+        document.getElementById("module-3-submit").addEventListener("click", () => {
+          let score = 0;
+          const selected = {};
+          Object.entries(correct).forEach(([name, config]) => {
+            const picked = document.querySelector(`input[name="${name}"]:checked`);
+            const suffix = name.split("-").pop();
+            const note = document.getElementById(`m3-note-${suffix}`);
+            if (!picked) {
+              note.textContent = "Bitte wähle eine Einordnung.";
+              return;
+            }
+            selected[name] = picked.value;
+            const isCorrect = picked.value === config.value;
+            if (isCorrect) {
+              score += 1;
+              this.addPoints(10, `module-3-${name}`);
+            }
+            note.textContent = config.explanation;
+            note.style.color = isCorrect ? "#3c5d51" : "#72303d";
+          });
+
+          this.setModuleData("module-3", { submitted: true, selected, score });
+          const passed = score === 3;
+          const feedback = document.getElementById("module-3-feedback");
+          feedback.className = `quiz-feedback ${passed ? "ok" : "warn"}`;
+          feedback.innerHTML = passed
+            ? `<strong>Sauber getrennt.</strong> Du hast alle 3 Modelle richtig eingeordnet.`
+            : `<strong>Noch nicht ganz.</strong> Du hast ${score} von 3 richtig. Achte darauf, ob das Modell zu grob oder zu empfindlich reagiert und prüfe danach noch einmal.`;
+          this.markModuleState("module-3", passed, passed
+            ? "Erledigt. Du kannst Bias, Varianz und vernünftigen Mittelweg unterscheiden."
+            : "Noch offen. Prüfe noch einmal, welches Modell Struktur ignoriert und welches jeden Ausschlag verfolgt.", passed ? "ok" : "warn");
+        });
+
+        if (stored.submitted) {
+          document.getElementById("module-3-submit").click();
+        }
+      },
+
+      // Modul 4: Underfitting und Overfitting direkt an Fehlerwerten erkennen.
+      initModule4() {
+        const cases = {
+          a: {
+            correct: "underfitting",
+            explanation: "Hoher Trainingsfehler und hoher Testfehler bei kleiner Lücke sprechen für ein zu simples Modell: Underfitting."
+          },
+          b: {
+            correct: "overfitting",
+            explanation: "Sehr guter Trainingsfehler, aber deutlich schlechterer Testfehler: Das Modell generalisiert schlecht. Das ist Overfitting."
+          },
+          c: {
+            correct: "okay",
+            explanation: "Eine kleine Lücke ist normal. Wenn beide Fehler moderat und nah beieinander liegen, ist das oft ein brauchbarer Zustand."
+          }
+        };
+
+        const stored = this.getModuleData("module-4", { answers: {} });
+
+        Object.entries(stored.answers).forEach(([key, value]) => {
+          const select = document.getElementById(`m4-case-${key}`);
+          if (select) {
+            select.value = value;
+          }
+        });
+
+        const evaluateModule = () => {
+          const values = Object.keys(cases).map((key) => stored.answers[key]).filter(Boolean);
+          if (values.length < 3) {
+            return;
+          }
+          const score = Object.keys(cases).reduce((sum, key) => sum + (stored.answers[key] === cases[key].correct ? 1 : 0), 0);
+          const passed = score === 3;
+          const feedback = document.getElementById("module-4-feedback");
+          feedback.className = `quiz-feedback ${passed ? "ok" : "warn"}`;
+          feedback.innerHTML = passed
+            ? `<strong>Diagnose sitzt.</strong> Du hast alle 3 Fehlerbilder sauber erkannt.`
+            : `<strong>Noch einmal hinschauen.</strong> Du hast ${score} von 3 richtig. Vor allem die Lücke zwischen Training und Test ist entscheidend. Die Auswahl kannst du direkt korrigieren.`;
+          this.markModuleState("module-4", passed, passed
+            ? "Erledigt. Du erkennst Underfitting und Overfitting an den Fehlerwerten."
+            : "Noch offen. Vergleiche vor allem die Lücke zwischen Trainings- und Testfehler.", passed ? "ok" : "warn");
+        };
+
+        Object.keys(cases).forEach((key) => {
+          const select = document.getElementById(`m4-case-${key}`);
+          const note = document.getElementById(`m4-note-${key}`);
+          select.addEventListener("change", () => {
+            const value = select.value;
+            if (!value) {
+              note.textContent = "";
+              return;
+            }
+            stored.answers[key] = value;
+            this.setModuleData("module-4", stored);
+            const isCorrect = value === cases[key].correct;
+            if (isCorrect) {
+              this.addPoints(10, `module-4-${key}`);
+            }
+            note.textContent = cases[key].explanation;
+            note.style.color = isCorrect ? "#3c5d51" : "#72303d";
+            evaluateModule();
+          });
+        });
+
+        evaluateModule();
+      },
+
+      // Modul 5: Lernkurven als visuelle Diagnose für Bias und Varianz.
+      initModule5() {
+        const curves = {
+          underfitting: {
+            title: "Underfitting",
+            text: "Beide Kurven bleiben relativ hoch und liegen nah beieinander. Mehr Daten allein lösen das Problem oft nicht, weil das Modell zu simpel bleibt.",
+            training: "M 50 62 C 150 78, 250 88, 350 92",
+            test: "M 50 52 C 150 66, 250 78, 350 84"
+          },
+          overfitting: {
+            title: "Overfitting",
+            text: "Der Trainingsfehler ist sehr niedrig, der Testfehler deutlich höher. Die große Lücke zeigt: Das Modell passt zu genau auf das Training.",
+            training: "M 50 88 C 140 42, 230 28, 350 18",
+            test: "M 50 42 C 140 54, 230 62, 350 66"
+          },
+          "good-fit": {
+            title: "Guter Fit",
+            text: "Die Kurven kommen sich an und liegen auf einem brauchbaren Niveau. Das Modell lernt genug, ohne auf jedes kleine Detail überzureagieren.",
+            training: "M 50 84 C 140 56, 230 42, 350 34",
+            test: "M 50 62 C 140 54, 230 47, 350 39"
+          }
+        };
+
+        const stored = this.getModuleData("module-5", { active: "underfitting", seen: [] });
+        const figure = document.getElementById("module-5-figure");
+        const note = document.getElementById("module-5-curve-note");
+        const label = document.getElementById("module-5-curve-label");
+
+        const renderCurve = (key) => {
+          const curve = curves[key];
+          figure.innerHTML = `
+            <svg viewBox="0 0 400 240" role="img" aria-label="${curve.title} als stilisierte Lernkurve">
+              <rect x="38" y="16" width="332" height="184" rx="16" fill="#ffffff" stroke="#ddd1d8"></rect>
+              <line x1="52" y1="190" x2="350" y2="190" stroke="#bfaeb8" stroke-width="2"></line>
+              <line x1="52" y1="190" x2="52" y2="28" stroke="#bfaeb8" stroke-width="2"></line>
+              <text x="72" y="214" fill="#695f68" font-size="13">mehr Trainingsdaten</text>
+              <text x="10" y="34" fill="#695f68" font-size="13" transform="rotate(-90 10 34)">Fehler</text>
+              <path d="${curve.training}" fill="none" stroke="#631832" stroke-width="4" stroke-linecap="round"></path>
+              <path d="${curve.test}" fill="none" stroke="#173262" stroke-width="4" stroke-linecap="round"></path>
+              <circle cx="310" cy="32" r="5" fill="#631832"></circle>
+              <text x="322" y="36" fill="#231A24" font-size="13">Training</text>
+              <circle cx="310" cy="56" r="5" fill="#173262"></circle>
+              <text x="322" y="60" fill="#231A24" font-size="13">Test</text>
+            </svg>
+          `;
+          note.className = "quiz-feedback ok";
+          note.innerHTML = `<strong>${curve.title}.</strong> ${curve.text}`;
+          label.textContent = `Aktives Szenario: ${curve.title}`;
+        };
+
+        document.querySelectorAll("[data-curve]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const key = button.dataset.curve;
+            stored.active = key;
+            if (!stored.seen.includes(key)) {
+              stored.seen.push(key);
+            }
+            if (stored.seen.length === 3) {
+              this.addPoints(10, "module-5-complete");
+              this.markModuleState("module-5", true, "Erledigt. Du hast alle drei Lernkurvenbilder verglichen.", "ok");
+            } else {
+              this.markModuleState("module-5", false, `Noch offen. Du hast ${stored.seen.length} von 3 Kurvenbildern verglichen.`, "warn");
+            }
+            this.setModuleData("module-5", stored);
+            renderCurve(key);
+          });
+        });
+
+        renderCurve(stored.active);
+
+        if (stored.seen.length === 3) {
+          this.markModuleState("module-5", true, "Erledigt. Du hast alle drei Lernkurvenbilder verglichen.", "ok");
+        }
+      },
+
+      // Modul 6: Maßnahmen wählen und den Übergang zur Regularisierung herstellen.
+      initModule6() {
+        const cases = {
+          a: {
+            correct: "bias",
+            text: "Hier fehlt dem Modell relevante Information. Du senkst also zuerst den Bias, etwa mit Lage und Zustand als zusätzliche Features."
+          },
+          b: {
+            correct: "variance",
+            text: "Das Modell ist schon sehr komplex und reagiert auf Zufall. Hier solltest du Varianz senken, zum Beispiel mit weniger Komplexität oder später Regularisierung."
+          },
+          c: {
+            correct: "bias",
+            text: "Die lineare Annahme ist zu grob. Du musst den Bias senken, etwa mit einem flexibleren Zusammenhang oder besseren Features."
+          }
+        };
+
+        const stored = this.getModuleData("module-6", { answers: {} });
+
+        const evaluate = () => {
+          const answered = Object.keys(stored.answers).length;
+          if (answered < 3) {
+            return;
+          }
+          const score = Object.keys(cases).reduce((sum, key) => sum + (stored.answers[key] === cases[key].correct ? 1 : 0), 0);
+          const passed = score === 3;
+          const feedback = document.getElementById("module-6-feedback");
+          feedback.className = `quiz-feedback ${passed ? "ok" : "warn"}`;
+          feedback.innerHTML = passed
+            ? `<strong>Saubere Priorisierung.</strong> Du hast alle 3 Situationen passend eingeschätzt.`
+            : `<strong>Noch einmal abwägen.</strong> Du hast ${score} von 3 richtig. Frage dich immer: Fehlt Erklärungskraft oder fehlt Robustheit? Danach kannst du die offenen Fälle direkt korrigieren.`;
+          this.markModuleState("module-6", passed, passed
+            ? "Erledigt. Du kannst abwägen, ob eher Bias oder eher Varianz gesenkt werden sollte."
+            : "Noch offen. Trenne fehlende Erklärungskraft von fehlender Robustheit.", passed ? "ok" : "warn");
+        };
+
+        const setAnswer = (caseKey, choice, button) => {
+          stored.answers[caseKey] = choice;
+          this.setModuleData("module-6", stored);
+          const isCorrect = choice === cases[caseKey].correct;
+          if (isCorrect) {
+            this.addPoints(10, `module-6-${caseKey}`);
+          }
+          const note = document.getElementById(`m6-note-${caseKey}`);
+          note.textContent = `${cases[caseKey].text}${isCorrect ? "" : " Deine Wahl war verständlich, aber hier liegt das Hauptproblem auf der anderen Seite."}`;
+          note.style.color = isCorrect ? "#3c5d51" : "#72303d";
+
+          document.querySelectorAll(`[data-m6-case="${caseKey}"]`).forEach((choiceButton) => {
+            choiceButton.classList.remove("is-correct", "is-wrong");
+          });
+          button.classList.add(isCorrect ? "is-correct" : "is-wrong");
+          evaluate();
+        };
+
+        document.querySelectorAll("[data-m6-choice]").forEach((button) => {
+          button.addEventListener("click", () => {
+            setAnswer(button.dataset.m6Case, button.dataset.m6Choice, button);
+          });
+        });
+
+        Object.entries(stored.answers).forEach(([caseKey, value]) => {
+          const button = document.querySelector(`[data-m6-case="${caseKey}"][data-m6-choice="${value}"]`);
+          if (button) {
+            setAnswer(caseKey, value, button);
+          }
+        });
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      BiasGame.init();
+    });
+  </script>
+  <script>
+    window.DataSciencePageI18n = Object.assign({}, window.DataSciencePageI18n || {}, {
+      title: {
+        de: "Bias & Bias-Variance im Machine Learning",
+        en: "Bias & Bias-Variance in Machine Learning"
+      },
+      description: {
+        de: "Interaktives Kapitel zu Bias, Varianz, Underfitting und Overfitting im Machine Learning für Einsteiger in der Erwachsenenbildung.",
+        en: "Interactive chapter on bias, variance, underfitting and overfitting in machine learning for adult education beginners."
+      },
+      exact: Object.assign({}, (window.DataSciencePageI18n && window.DataSciencePageI18n.exact) || {}, {
+        "Bias & Bias-Variance": "Bias & bias-variance",
+        "Dieses Kapitel knüpft direkt an die lineare Regression an und zeigt dir, warum einfache Modelle oft zu grob und sehr komplexe Modelle oft zu nervös reagieren.": "This chapter follows directly after linear regression and shows why simple models are often too coarse while very complex models often become too nervous.",
+        "Kontext": "Context",
+        "Zielgruppe": "Target group",
+        "Erwachsenenbildung, VHS, Karrierewechsler, Einsteiger": "Adult education, community college learners, career changers, beginners",
+        "Format": "Format",
+        "Webinar plus Selbststudium ohne Gruppenarbeit": "Webinar plus self-study without group work",
+        "Vorwissen": "Prior knowledge",
+        "Lineare Regression und grundlegende Modellidee": "Linear regression and the basic model idea",
+        "Nächstes Kapitel": "Next chapter",
+        "Varianz im Machine Learning": "Variance in machine learning",
+        "Bias-Detektiv": "Bias detective",
+        "0 von 6 Modulen erledigt": "0 of 6 modules completed",
+        "0 Punkte": "0 points",
+        ". Jede richtige Diagnose gibt 10 Punkte. Falsche Antworten werden erklärt, kosten aber keine Punkte.": ". Every correct diagnosis gives 10 points. Wrong answers are explained but do not cost points.",
+        "Schritte 1 bis 6": "Steps 1 to 6",
+        "Badges": "Badges",
+        "☰ Schritte": "☰ Steps",
+        "Aktiver Abschnitt": "Active section",
+        "Schritt 1 startet hier": "Step 1 starts here",
+        "Leitbild": "Guiding idea",
+        "0 Prozent abgeschlossen": "0 percent completed",
+        "0 Punkte gesammelt": "0 points collected",
+        "6 Module · reine HTML/CSS/JS-Datei · lokale Fortschrittsspeicherung": "6 modules · pure HTML/CSS/JS file · local progress storage",
+        "Worum geht es in diesem Kapitel?": "What is this chapter about?",
+        "Du lernst, warum ein Modell manchmal dauerhaft in die falsche Richtung schätzt, warum es manchmal auf neue Daten überreagiert und wie du beides im Alltag und im Machine Learning erkennst.": "You learn why a model sometimes consistently predicts in the wrong direction, why it sometimes overreacts to new data, and how to recognize both in everyday life and in machine learning.",
+        "Alltag": "Everyday life",
+        "Uhren, Backöfen, Eisverkauf, Wohnungssuche und Prüfungsvorbereitung statt trockener Theorie": "Clocks, ovens, ice cream sales, apartment hunting and exam prep instead of dry theory",
+        "Didaktik": "Didactics",
+        "Erst Geschichte, dann ML-Sprache, dann einfache Formel, dann Mini-Interaktion": "First the story, then ML language, then a simple formula, then a mini interaction",
+        "Transfer": "Transfer",
+        "Du verstehst, warum Bias, Varianz und Regularisierung im Modellbau zusammengehören": "You understand why bias, variance and regularization belong together in model building",
+        "Dein Bias-Detektiv-Rang": "Your bias detective rank",
+        "Punkte aktuell:": "Current points:",
+        "Rang aktuell:": "Current rank:",
+        "Tipp: Bias ist der systematische Fehler. Varianz ist die Nervosität des Modells gegenüber neuen Trainingsdaten.": "Tip: Bias is the systematic error. Variance is the model's nervousness toward new training data.",
+        "Zum nächsten offenen Modul": "Go to the next open module",
+        "Fortschritt zurücksetzen": "Reset progress",
+        "Schritt 1 · Bias-Grundidee": "Step 1 · Basic idea of bias",
+        "Was ist Bias?": "What is bias?",
+        "Systematischer Fehler: Das Modell liegt nicht zufällig daneben, sondern immer mit derselben Tendenz.": "Systematic error: the model is not randomly off, but consistently wrong in the same direction.",
+        "Noch offen. Löse die drei Alltagssituationen, um den Kernbegriff zu sichern.": "Still open. Solve the three everyday situations to secure the core concept.",
+        "Alltagsszene": "Everyday scene",
+        "Stell dir eine Uhr vor, die immer zehn Minuten nachgeht. Sie springt nicht wild hin und her, sondern ist konsequent daneben. Genau deshalb kannst du schon fast vorhersagen, wie sie falsch liegt.": "Imagine a clock that always runs ten minutes slow. It does not jump wildly back and forth, it is consistently off. That is why you can almost predict how it will be wrong.",
+        "Oder denk an einen Backofen, der dauerhaft 20 Grad zu heiß ist. Auch hier gibt es keine Laune des Geräts, sondern einen festen Versatz. Das Ergebnis: Dein Kuchen ist regelmäßig dunkler als geplant.": "Or think of an oven that is permanently 20 degrees too hot. Here too there is no mood swing of the device, but a fixed offset. The result: your cake is regularly darker than planned.",
+        "ML-Sprache": "ML language",
+        "Im Machine Learning nennen wir so etwas": "In machine learning we call something like this",
+        "Bias": "Bias",
+        ". Gemeint ist die systematische Abweichung zwischen der durchschnittlichen Modellvorhersage und der echten Realität.": ". It means the systematic deviation between the average model prediction and the true reality.",
+        "Bei der linearen Regression taucht hoher Bias oft dann auf, wenn du einen gekrümmten Zusammenhang mit einer einzigen Geraden beschreiben willst. Das Modell ist dann zu schlicht für die eigentliche Form der Daten.": "In linear regression, high bias often appears when you try to describe a curved relationship with a single straight line. The model is then too simple for the true shape of the data.",
+        "Formel in einfacher Sprache": "Formula in simple language",
+        "MSE = Bias² + Varianz + Noise": "MSE = bias² + variance + noise",
+        "Der Bias-Term beschreibt den Teil des Fehlers, der durch eine falsche oder zu einfache Modellannahme entsteht. Bias wird quadriert, damit große systematische Fehler besonders deutlich ins Gewicht fallen.": "The bias term describes the part of the error that comes from a wrong or overly simple model assumption. Bias is squared so that large systematic errors weigh more heavily.",
+        "Du musst hier nichts herleiten. Wichtig ist nur: Bias meint nicht Zufall, sondern eine dauerhafte Schlagseite im Modell.": "You do not have to derive anything here. What matters is this: bias does not mean chance, but a permanent tilt in the model.",
+        "Interaktive Übung": "Interactive exercise",
+        "Hoher Bias, hohe Varianz oder weder noch?": "High bias, high variance, or neither?",
+        "Prüfen": "Check",
+        "Lösungen:": "Solutions:",
+        "1 = hoher Bias, 2 = hohe Varianz, 3 = weder noch.": "1 = high bias, 2 = high variance, 3 = neither.",
+        "Was nimmst du mit?": "What do you take away?",
+        "Bias ist wie eine Uhr, die immer in dieselbe falsche Richtung geht. Wenn ein Modell dauerhaft zu grob oder zu simpel ist, steckt oft genau dieser systematische Fehler dahinter.": "Bias is like a clock that always goes wrong in the same direction. If a model is permanently too coarse or too simple, this systematic error is often the reason.",
+        "Schritt 2 · Modell-Nervosität": "Step 2 · Model nervousness",
+        "Was ist Varianz?": "What is variance?",
+        "Varianz zeigt, wie empfindlich ein Modell auf neue Trainingsdaten reagiert.": "Variance shows how sensitive a model is to new training data.",
+        "Noch offen. Erkenne drei Zielscheiben-Muster und lies die Rückmeldung.": "Still open. Recognize three dartboard patterns and read the feedback.",
+        "Varianz": "Variance",
+        "beschreibt, wie stark sich die Modellvorhersage ändert, wenn du das Modell mit einem etwas anderen Trainingsdatensatz neu trainierst.": "describes how much the model prediction changes when you retrain the model on a slightly different training set.",
+        "Sehr komplexe Modelle reagieren oft empfindlich auf Zufallsrauschen. Dann sehen sie im Training brillant aus, verlieren aber auf neuen Daten schnell an Stabilität. Genau das ist der klassische Weg Richtung Overfitting.": "Very complex models often react sensitively to random noise. Then they look brilliant in training, but quickly lose stability on new data. That is the classic road toward overfitting.",
+        "Merkbild": "Mental picture",
+        "Wenig Varianz = ruhig · Viel Varianz = nervös": "Low variance = calm · high variance = nervous",
+        "Interaktive Zielscheibe": "Interactive target",
+        "Welche Diagnose passt zum Muster?": "Which diagnosis fits the pattern?",
+        "Beides niedrig": "Both low",
+        "Nächstes Muster": "Next pattern",
+        "Varianz ist die Unruhe eines Modells. Wenn kleine Änderungen in den Trainingsdaten zu stark wechselnden Vorhersagen führen, ist das Modell zu nervös eingestellt.": "Variance is the restlessness of a model. If small changes in the training data lead to strongly changing predictions, the model is set too nervously.",
+        "Schritt 3 · Zusammenspiel": "Step 3 · Interaction",
+        "Bias, Varianz & Noise zusammen": "Bias, variance & noise together",
+        "Warum Fehler in echten Daten fast nie nur eine einzige Ursache haben.": "Why errors in real data almost never have only one cause.",
+        "Noise": "Noise",
+        "Rate den Hauptfehler der Modelle": "Guess the main error of the models",
+        "Modell": "Model",
+        "Beschreibung": "Description",
+        "Deine Einordnung": "Your classification",
+        "Modell A": "Model A",
+        "Modell B": "Model B",
+        "Modell C": "Model C",
+        "Guter Trade-off": "Good trade-off",
+        "Lösung anzeigen": "Show solution",
+        "Modell A = hoher Bias, Modell B = hohe Varianz, Modell C = guter Trade-off.": "Model A = high bias, Model B = high variance, Model C = good trade-off.",
+        "Schritt 4 · Diagnose": "Step 4 · Diagnosis",
+        "Underfitting und Overfitting im Alltag erkennen": "Recognize underfitting and overfitting in everyday life",
+        "Trainingsfehler und Testfehler verraten, ob dein Modell zu simpel oder zu spezialisiert ist.": "Training error and test error reveal whether your model is too simple or too specialized.",
+        "Underfitting": "Underfitting",
+        "Overfitting": "Overfitting",
+        "Modell-Diagnose": "Model diagnosis",
+        "Bitte wählen": "Please choose",
+        "Okay": "Okay",
+        "A = Underfitting, B = Overfitting, C = okay.": "A = underfitting, B = overfitting, C = okay.",
+        "🏋️ Übung: Ein bewusst zu simples Modell bauen": "🏋️ Exercise: Build a deliberately too simple model",
+        "💡 Tipp anzeigen": "💡 Show hint",
+        "✅ Lösung anzeigen": "✅ Show solution",
+        "Erwartete Ausgabe: `[2.0]`": "Expected output: `[2.0]`",
+        "Schritt 5 · Lernkurven": "Step 5 · Learning curves",
+        "Lernkurven – Bias und Varianz sichtbar machen": "Learning curves – making bias and variance visible",
+        "Underfitting anzeigen": "Show underfitting",
+        "Overfitting anzeigen": "Show overfitting",
+        "Guten Fit anzeigen": "Show good fit",
+        "Merksatz:": "Rule of thumb:",
+        "Underfitting = beide Kurven hoch. Overfitting = große Lücke. Guter Fit = beide Kurven brauchbar und näher beieinander.": "Underfitting = both curves high. Overfitting = large gap. Good fit = both curves useful and closer together.",
+        "Erwartete Ausgabe: `15`": "Expected output: `15`",
+        "Schritt 6 · Handlungsoptionen": "Step 6 · Actions",
+        "Bias reduzieren – aber wie?": "Reduce bias – but how?",
+        "Bessere Features und passendere Modelle können Bias senken, erhöhen aber oft die Varianz.": "Better features and better-fitting models can reduce bias, but they often increase variance.",
+        "Konkrete Maßnahmen": "Concrete actions",
+        "Bias senken = besser erklären · Varianz senken = robuster werden": "Reduce bias = explain better · reduce variance = become more robust",
+        "Bias senken": "Reduce bias",
+        "Varianz senken": "Reduce variance",
+        "Erwartete Ausgabe: `3`": "Expected output: `3`",
+        "Teil des Gesamtlehrpfads": "Part of the overall learning path",
+        "Bias verstanden, jetzt folgt die Kontrolle der Modellkomplexität": "Bias understood, now comes control of model complexity",
+        "Weiter zu Varianz im Machine Learning": "Continue to variance in machine learning",
+        "Zurück zur linearen Regression": "Back to linear regression",
+        "Teil des Gesamtlehrpfads zu linearen Modellen, Bias, Varianz und Regularisierung.": "Part of the overall learning path on linear models, bias, variance and regularization."
+      })
+    });
+  </script>
+  <script defer src="lernstand_manager.js"></script>
+</body>
+</html>

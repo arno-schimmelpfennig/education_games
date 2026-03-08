@@ -369,8 +369,9 @@
 
       <div class="path-box">
         <strong>Naechste Schritte</strong>
-        <div class="path-status" id="path-status">Nach Schritt 7 und Mini-Check wird Thema 8 (Matrix) freigeschaltet.</div>
-        <a id="to-next-link" class="path-link disabled" href="matrix_interaktion.html" aria-disabled="true">Weiter zu Thema 8: Matrix verstehen</a>
+        <div class="path-status" id="path-status">Nach Schritt 7 und Mini-Check wird das Kapitel Decision Trees freigeschaltet.</div>
+        <a class="path-link" href="feature_engineering.html">Optional davor: Thema 7a Feature Engineering</a>
+        <a id="to-next-link" class="path-link disabled" href="decision_trees_interaktion.html" aria-disabled="true">Weiter zu Decision Trees</a>
         <a class="path-link" href="knn_hyperparameter_tuning_interaktion.html">Zurueck zu Thema 6: KNN Hyperparameter-Tuning</a>
       </div>
 
@@ -520,11 +521,11 @@
         answer: "Die y-Differenz ueberdeckt fast den gesamten Distanzbeitrag."
       },
       {
-        title: "Schritt 7: Bruecke zu Matrix",
-        text: "Jetzt sind Metrik und Skalierung klar. Als naechstes organisieren wir mehrere Features als Matrix fuer skalierbare Modellrechnung.",
-        action: "Fuehre den Mini-Check aus und schalte Thema 8 frei.",
-        chat: "Warum kommt nach Distanzlogik jetzt Matrixdarstellung?",
-        answer: "Weil mehrere Merkmale nur in strukturierter Form (X) sauber weiterverarbeitet werden."
+        title: "Schritt 7: Bruecke zu Decision Trees",
+        text: "Jetzt sind Metrik und Skalierung klar. Als naechstes schauen wir auf ein Modell, das gar keine Distanz braucht, sondern mit Ja/Nein-Fragen arbeitet: Decision Trees.",
+        action: "Fuehre den Mini-Check aus und schalte das Kapitel Decision Trees frei.",
+        chat: "Warum ist nach Distanzlogik ein Baum-Modell als Vergleich spannend?",
+        answer: "Weil du so zwei sehr unterschiedliche Modellideen direkt vergleichen kannst: Nachbarschaft ueber Distanz versus Regeln ueber Splits."
       }
     ];
 
@@ -766,11 +767,11 @@
       if (unlocked) {
         toNextLink.classList.remove("disabled");
         toNextLink.setAttribute("aria-disabled", "false");
-        pathStatusEl.textContent = "Freigeschaltet: Weiter zu Thema 8 (Matrix verstehen).";
+        pathStatusEl.textContent = "Freigeschaltet: Weiter zu Decision Trees.";
       } else {
         toNextLink.classList.add("disabled");
         toNextLink.setAttribute("aria-disabled", "true");
-        pathStatusEl.textContent = "Nach Schritt 7 und Mini-Check wird Thema 8 (Matrix) freigeschaltet.";
+        pathStatusEl.textContent = "Nach Schritt 7 und Mini-Check wird das Kapitel Decision Trees freigeschaltet.";
       }
     }
 
@@ -873,15 +874,16 @@
       const q2 = document.querySelector('input[name="q2"]:checked')?.value;
       const q3 = document.querySelector('input[name="q3"]:checked')?.value;
       let score = 0;
-      if (q1 === "a") score += 1;
-      if (q2 === "a") score += 1;
-      if (q3 === "a") score += 1;
+      const wrongQuestions = [];
+      if (q1 === "a") score += 1; else wrongQuestions.push(1);
+      if (q2 === "a") score += 1; else wrongQuestions.push(2);
+      if (q3 === "a") score += 1; else wrongQuestions.push(3);
 
-      if (score >= 2) {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Gut - Thema 8 kann freigeschaltet werden.`;
+      if (score === 3) {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Thema 8 kann freigeschaltet werden.`;
         quizFeedbackEl.className = "feedback ok";
       } else {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Kurz wiederholen und erneut pruefen.`;
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Pruefe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
         quizFeedbackEl.className = "feedback warn";
       }
     });
@@ -898,5 +900,6 @@
     renderStep();
     refresh();
   </script>
+  <script defer src="lernstand_manager.js"></script>
 </body>
 </html>

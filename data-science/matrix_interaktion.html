@@ -965,7 +965,7 @@
     <div id="quiz-backdrop"></div>
     <section id="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <h3 id="quiz-title">Zwischen-Quiz: Matrizen</h3>
-      <p>4 Fragen, mindestens 3 richtig zum Freischalten von "Matrizenmultiplikation".</p>
+      <p>4 Fragen. "Matrizenmultiplikation" wird freigeschaltet, sobald alle Antworten korrekt sind.</p>
       <form id="matrix-quiz-form">
         <fieldset class="quiz-question">
           <legend>1) Was bedeutet eine Zeile in der Datenmatrix X?</legend>
@@ -1018,8 +1018,8 @@
       <p class="lead">Jetzt erweitern wir das Heizkosten-Beispiel: von einer x-Achse auf mehrere Einflussfaktoren gleichzeitig.</p>
 
       <div class="story-box">
-        <strong>Brücke aus Thema 5, Thema 6 und Thema 7:</strong>
-        Nach KNN-Grundlagen (Thema 5), K-Tuning (Thema 6) und Distanz/Scaling (Thema 7) organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix.
+        <strong>Brücke aus Ensemble Methods:</strong>
+        Nach dem Kapitel zu Ensemble Methods organisieren wir jetzt mehrere Merkmale gleichzeitig als Matrix und schauen auf die algebraische Seite von Modellrechnung.
       </div>
 
       <div class="step-box">
@@ -1082,16 +1082,16 @@
           <div class="path-status" id="matrix-quiz-status">Zwischen-Quiz wird nach Schritt 6 angeboten. Danach wird die Navigation freigeschaltet.</div>
           <button id="open-matrix-quiz" class="secondary" hidden>Zwischen-Quiz starten</button>
           <a id="to-matmul-link" class="path-link disabled" href="matrizenmultiplikation_interaktion.html" aria-disabled="true">Weiter zu Thema 9: Matrizenmultiplikation</a>
-          <a class="path-link" href="distanzmetriken_und_scaling_interaktion.html">Zurueck zu Thema 7: Distanzmetriken und Scaling</a>
+          <a class="path-link" href="ensemble_methods_interaktion.html">Zurück zu Ensemble Methods</a>
           <button id="replay-matrix" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
         </div>
       </div>
 
       <div class="extension-box">
-        <div class="extension-kicker">Erweiterung</div>
-        <strong>Jetzt in Python umsetzen</strong>
-        <p>Direkt nach der Theorie: trainieren und interpretieren mit `scikit-learn` und `statsmodels` auf Einsteiger-Niveau.</p>
-        <a class="extension-link" href="lineare_regression_code_praxis.html">Code-Praxis (Python) im Popup öffnen</a>
+        <div class="extension-kicker">Vertiefung</div>
+        <strong>Zurück in Kapitel mit Übungen</strong>
+        <p>Wenn du Python parallel üben willst, springe in die neu aufgebauten Kapitel mit eingebetteten Aufgaben und Lösungen.</p>
+        <a class="extension-link" href="lineare_regression_interaktion.html">Zu Linearer Regression mit Übungen</a>
       </div>
 
       <div class="ctrl-group">
@@ -1105,25 +1105,25 @@
       <section class="codepath-bar" aria-label="Codepfad Navigation">
         <div class="codepath-title">
           <span class="label-with-tip">
-            Codepfad
+            Übungspfad
             <span class="tip-wrap">
               <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
-              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier lernt ihr, wie Merkmale als Matrix strukturiert und als gewichtete Summe interpretiert werden.</span>
+              <span class="tip-text">Übungspfad = die Kapitel des neuen Lernpfads mit eingebetteten Python-Aufgaben. Dort könnt ihr die Theorie direkt mit kleinen Code-Snippets nachbauen.</span>
             </span>
           </span>
         </div>
         <div class="codepath-steps">
-          <a class="codepath-step active" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step" href="lineare_regression_interaktion.html">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
+          <a class="codepath-step" href="gradient_descent_interaktion.html">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step is-disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true" tabindex="-1">
+          <a class="codepath-step" href="regularization_ml.html">
             <span class="codepath-index">3</span>
-            <span>Predictive Modeling</span>
+            <span>Regularisierung</span>
           </a>
         </div>
       </section>
@@ -1667,7 +1667,7 @@
       }
 
       if (toMatmulLink.classList.contains("disabled")) {
-        matrixQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Zwischen-Quiz starten (3 von 4 richtig).";
+        matrixQuizStatusEl.textContent = "Letzter Schritt erreicht: Jetzt Zwischen-Quiz starten und alle 4 Antworten korrekt lösen.";
         matrixQuizStatusEl.style.borderColor = "rgba(99, 24, 50, 0.28)";
         matrixQuizStatusEl.style.background = "#fff7fa";
         matrixQuizStatusEl.style.color = "#6f2d45";
@@ -1715,18 +1715,23 @@
     function gradeQuiz() {
       const form = document.getElementById("matrix-quiz-form");
       let score = 0;
+      const wrongQuestions = [];
       Object.keys(quizAnswers).forEach((qid) => {
         const checked = form.querySelector(`input[name="${qid}"]:checked`);
-        if (checked && checked.value === quizAnswers[qid]) score += 1;
+        if (checked && checked.value === quizAnswers[qid]) {
+          score += 1;
+        } else {
+          wrongQuestions.push(qid.replace("q", ""));
+        }
       });
 
       const feedback = document.getElementById("quiz-feedback");
-      if (score >= 3) {
+      if (score === 4) {
         feedback.textContent = `Ergebnis: ${score}/4 richtig. Stark - Thema 9 ist freigeschaltet.`;
         feedback.style.color = "#1f8b4c";
         unlockNextTopic();
       } else {
-        feedback.textContent = `Ergebnis: ${score}/4 richtig. Noch nicht freigeschaltet - bitte erneut versuchen.`;
+        feedback.textContent = `Ergebnis: ${score}/4 richtig. Noch offen. Pruefe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
         feedback.style.color = "#9a324d";
       }
     }
@@ -1804,5 +1809,6 @@
 
     updateStepContent();
   </script>
+  <script defer src="lernstand_manager.js"></script>
 </body>
 </html>

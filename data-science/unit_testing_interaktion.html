@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unit Testing | Data Science</title>
+  <meta name="description" content="Interaktives Kapitel zu Unit Testing und TDD im Data-Science-Kontext mit pytest, Fixtures, Data-Testing und lokalem Fortschritt.">
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --text: #231A24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning-soft: #f7f1ee;
+      --warning-line: #d8c9c4;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 960px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 36%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 42%, #f3f1f4 100%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    #stage { min-width: 0; padding: 16px; }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card { padding: 14px; margin-top: 14px; }
+    .sidebar-card p, .module p, .module li { line-height: 1.6; }
+
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.02em; }
+    h1 { margin-top: 8px; font-size: 1.92rem; line-height: 1.08; color: var(--primary); }
+    h2 { font-size: 1.35rem; color: var(--primary); }
+    h3 { font-size: 1rem; color: var(--primary); }
+    h4 { font-size: 0.95rem; color: var(--text); }
+
+    .lead { margin-top: 10px; font-size: 0.96rem; color: var(--text-light); }
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .meta-grid,
+    .chip-row,
+    .badge-grid,
+    .footer-links,
+    .module-grid,
+    .button-row,
+    .quiz-options,
+    .timeline,
+    .mini-metrics {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .button-row,
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .quiz-feedback,
+    .formula-block,
+    .callout,
+    .exercise-card,
+    .helper-note,
+    .timeline-item,
+    .result-box {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .chip { text-align: center; font-size: 0.84rem; }
+
+    .btn,
+    .sidebar-toggle,
+    .choice-btn,
+    .quiz-option {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .choice-btn,
+    .quiz-option {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .choice-btn:hover,
+    .quiz-option:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #ede4e9;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    .nav-link {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      background: rgba(23, 50, 98, 0.06);
+      border-color: rgba(23, 50, 98, 0.14);
+      transform: translateX(2px);
+    }
+
+    .nav-copy strong { display: block; color: var(--text); }
+    .nav-copy span { color: var(--text-light); font-size: 0.84rem; }
+
+    .badge-grid { grid-template-columns: 1fr; margin-top: 12px; }
+    .badge-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #d8c9cf;
+      border-radius: 16px;
+      background: #fffafc;
+    }
+
+    .badge-item.is-earned {
+      border-color: rgba(23, 50, 98, 0.22);
+      background: #fffbf3;
+    }
+
+    .badge-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.12), rgba(23, 50, 98, 0.14));
+    }
+
+    .hero,
+    .footer-card {
+      max-width: var(--content-max);
+      margin: 0 auto 14px;
+      padding: 16px;
+    }
+
+    .sticky-shell {
+      position: sticky;
+      top: 14px;
+      max-width: var(--content-max);
+      margin: 0 auto 14px;
+      padding: 12px 14px;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .sticky-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .sticky-title {
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .module {
+      max-width: var(--content-max);
+      margin: 0 auto 14px;
+      padding: 16px;
+      scroll-margin-top: 120px;
+    }
+
+    .module.is-complete {
+      border-color: rgba(79, 122, 106, 0.35);
+      box-shadow: 0 18px 36px rgba(79, 122, 106, 0.12);
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+
+    .module-grid .full { grid-column: 1 / -1; }
+
+    .status-note.ok,
+    .quiz-feedback.ok {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: #3c5d51;
+    }
+
+    .status-note.warn,
+    .quiz-feedback.warn {
+      background: var(--warning-soft);
+      border-color: var(--warning-line);
+      color: #704b33;
+    }
+
+    .quiz-feedback.fail {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: #72303d;
+    }
+
+    .choice-btn.is-active,
+    .quiz-option.is-correct {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: #36594b;
+    }
+
+    .quiz-option.is-wrong {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: #72303d;
+    }
+
+    .timeline {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .timeline-item.is-on {
+      border-color: rgba(23, 50, 98, 0.24);
+      background: #edf2fb;
+      color: #173262;
+      font-weight: 700;
+    }
+
+    .timeline-item.is-done {
+      border-color: rgba(79, 122, 106, 0.28);
+      background: var(--success-soft);
+      color: #3c5d51;
+      font-weight: 700;
+    }
+
+    .mini-metrics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .quiz-question {
+      border: 0;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .quiz-question legend {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .exercise-card h4 { margin-bottom: 8px; }
+    .exercise-instruction,
+    .exercise-context,
+    .expected-output {
+      margin: 0 0 10px;
+      line-height: 1.55;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #211b24;
+      color: #f8fafc;
+      overflow-x: auto;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .reflection {
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-toggle { display: none; width: 100%; margin-top: 12px; }
+    .hide-mobile { display: inline-flex; }
+
+    @media (max-width: 980px) {
+      #app { grid-template-columns: 1fr; }
+      #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(88vw, 340px);
+        transform: translateX(-102%);
+        transition: transform 0.2s ease;
+        box-shadow: 0 18px 36px rgba(35, 26, 36, 0.18);
+      }
+      body.sidebar-open #sidebar { transform: translateX(0); }
+      #stage { padding: 12px; }
+      .sidebar-toggle { display: inline-flex; }
+      .hide-mobile { display: none; }
+    }
+
+    @media (max-width: 760px) {
+      .meta-grid,
+      .chip-row,
+      .module-grid,
+      .mini-metrics,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+      .sticky-top { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <div class="brandline" data-i18n-de="AS Digital Marketing | Data Science Lernpfad" data-i18n-en="AS Digital Marketing | Data Science learning path">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1 data-i18n-de="Unit Testing" data-i18n-en="Unit testing">Unit Testing</h1>
+      <p class="lead" data-i18n-de="TÜV für Code: Du lernst, wie du Funktionen prüfst, mit pytest strukturierst und im Data-Science-Alltag sicherer arbeitest." data-i18n-en="MOT for code: you learn how to test functions, structure tests with pytest and work more safely in day-to-day data science.">TÜV für Code: Du lernst, wie du Funktionen prüfst, mit pytest strukturierst und im Data-Science-Alltag sicherer arbeitest.</p>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Kontext" data-i18n-en="Context">Kontext</div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong data-i18n-de="Leitbild" data-i18n-en="Guiding idea">Leitbild</strong>
+            <span data-i18n-de="TÜV-Prüfung, Ampelspiel und Qualitätskontrolle" data-i18n-en="Vehicle inspection, traffic light game and quality control">TÜV-Prüfung, Ampelspiel und Qualitätskontrolle</span>
+          </div>
+          <div class="meta-card">
+            <strong data-i18n-de="Notebook-Basis" data-i18n-en="Notebook basis">Notebook-Basis</strong>
+            <span data-i18n-de="Packaging, pytest, pandas testing, Taschenrechner" data-i18n-en="Packaging, pytest, pandas testing, calculator project">Packaging, pytest, pandas testing, Taschenrechner</span>
+          </div>
+          <div class="meta-card">
+            <strong data-i18n-de="Vorher" data-i18n-en="Before">Vorher</strong>
+            <a href="../index.html" data-i18n-de="Data-Science-Übersicht" data-i18n-en="Data science overview">Data-Science-Übersicht</a>
+          </div>
+          <div class="meta-card">
+            <strong data-i18n-de="Danach" data-i18n-en="After">Danach</strong>
+            <a href="lineare_regression_interaktion.html" data-i18n-de="Kernpfad starten" data-i18n-en="Start the core path">Kernpfad starten</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Fortschritt" data-i18n-en="Progress">Fortschritt</div>
+        <div class="progress-track" aria-hidden="true"><div id="sidebar-progress-fill" class="progress-fill"></div></div>
+        <div class="progress-label">
+          <span id="sidebar-progress-label">0 von 7 Modulen erledigt</span>
+          <span id="sidebar-points-label">0 Punkte</span>
+        </div>
+        <p class="lead" style="margin-top:10px;">
+          <span data-i18n-de="Rang:" data-i18n-en="Rank:">Rang:</span>
+          <strong id="sidebar-rank">TÜV-Azubi</strong>.
+          <span data-i18n-de="Richtige Antworten geben Punkte. Falsche Antworten kosten nichts und lassen sich sofort korrigieren." data-i18n-en="Correct answers give points. Wrong answers cost nothing and can be corrected immediately.">Richtige Antworten geben Punkte. Falsche Antworten kosten nichts und lassen sich sofort korrigieren.</span>
+        </p>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Schritte 0 bis 6" data-i18n-en="Steps 0 to 6">Schritte 0 bis 6</div>
+        <nav id="module-nav"></nav>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Badges" data-i18n-en="Badges">Badges</div>
+        <div id="badge-grid" class="badge-grid"></div>
+      </div>
+
+      <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Navigation ein- oder ausblenden" data-i18n-aria-label-de="Navigation ein- oder ausblenden" data-i18n-aria-label-en="Toggle navigation">
+        <span data-i18n-de="☰ Schritte" data-i18n-en="☰ Steps">☰ Schritte</span>
+      </button>
+    </aside>
+
+    <main id="stage">
+      <section class="hero">
+        <div class="card-kicker" data-i18n-de="Was lernst du in diesem Kapitel?" data-i18n-en="What will you learn in this chapter?">Was lernst du in diesem Kapitel?</div>
+        <h2 data-i18n-de="Von der TÜV-Idee bis zu pytest im Data-Science-Alltag" data-i18n-en="From the vehicle inspection idea to pytest in day-to-day data science">Von der TÜV-Idee bis zu pytest im Data-Science-Alltag</h2>
+        <p class="lead" data-i18n-de="Du gehst von Motivation über erste Tests, Red-Green-Refactor, Fixtures und Parametrisierung bis zu pandas-Tests und einem testbaren Taschenrechner." data-i18n-en="You move from motivation through first tests, red-green-refactor, fixtures and parametrization to pandas tests and a testable calculator.">Du gehst von Motivation über erste Tests, Red-Green-Refactor, Fixtures und Parametrisierung bis zu pandas-Tests und einem testbaren Taschenrechner.</p>
+        <div class="chip-row">
+          <div class="chip"><strong data-i18n-de="Alltag" data-i18n-en="Everyday life">Alltag</strong><span data-i18n-de="TÜV, IKEA, Kuchen, Supermarkt, Ampel" data-i18n-en="Vehicle inspection, IKEA, cake, supermarket, traffic light">TÜV, IKEA, Kuchen, Supermarkt, Ampel</span></div>
+          <div class="chip"><strong data-i18n-de="Didaktik" data-i18n-en="Didactics">Didaktik</strong><span data-i18n-de="Erst Bild, dann Code, dann Übung, dann Quiz" data-i18n-en="First the picture, then code, then exercise, then quiz">Erst Bild, dann Code, dann Übung, dann Quiz</span></div>
+          <div class="chip"><strong data-i18n-de="Transfer" data-i18n-en="Transfer">Transfer</strong><span data-i18n-de="pytest, pandas testing und testbare Projekte" data-i18n-en="pytest, pandas testing and testable projects">pytest, pandas testing und testbare Projekte</span></div>
+        </div>
+      </section>
+
+      <section class="sticky-shell">
+        <div class="sticky-top">
+          <div class="sticky-title">
+            <span class="brandline" data-i18n-de="Aktiver Abschnitt" data-i18n-en="Active section">Aktiver Abschnitt</span>
+            <span id="sticky-title" data-i18n-de="Modul 0 startet hier" data-i18n-en="Module 0 starts here">Modul 0 startet hier</span>
+          </div>
+          <div class="button-row">
+            <a class="btn ghost hide-mobile" href="../index.html" data-i18n-de="← Zurück zur Übersicht" data-i18n-en="← Back to overview">← Zurück zur Übersicht</a>
+            <button id="jump-first-open" class="btn secondary" type="button" data-i18n-de="Zum nächsten offenen Modul" data-i18n-en="Go to the next open module">Zum nächsten offenen Modul</button>
+            <button id="reset-progress" class="btn ghost" type="button" data-i18n-de="Fortschritt zurücksetzen" data-i18n-en="Reset progress">Fortschritt zurücksetzen</button>
+          </div>
+        </div>
+        <div class="progress-track" aria-hidden="true"><div id="stage-progress-fill" class="progress-fill"></div></div>
+        <div class="progress-label">
+          <span id="stage-progress-label">0 Prozent abgeschlossen</span>
+          <strong id="rank-label">Rang: TÜV-Azubi</strong>
+        </div>
+      </section>
+
+      <section id="module-0" class="module lesson-step" data-step="0">
+        <div class="card-kicker" data-i18n-de="Modul 0 · Warm-up" data-i18n-en="Module 0 · Warm-up">Modul 0 · Warm-up</div>
+        <h2 data-i18n-de="Warum testen wir überhaupt?" data-i18n-en="Why do we test at all?">Warum testen wir überhaupt?</h2>
+        <p class="lead" data-i18n-de="Unit Tests sind wie eine TÜV-Prüfung für Code: Jedes Teil wird einzeln gecheckt, bevor das ganze System auf die Straße darf." data-i18n-en="Unit tests are like a vehicle inspection for code: every part is checked individually before the whole system is allowed onto the road.">Unit Tests sind wie eine TÜV-Prüfung für Code: Jedes Teil wird einzeln gecheckt, bevor das ganze System auf die Straße darf.</p>
+        <div id="status-0" class="status-note warn" data-i18n-de="Noch offen. Wähle drei Prüfpunkte aus dem Alltag und sichere damit die Grundidee." data-i18n-en="Still open. Choose three checkpoints from everyday life and secure the core idea.">Noch offen. Wähle drei Prüfpunkte aus dem Alltag und sichere damit die Grundidee.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Alltagsgeschichte" data-i18n-en="Everyday story">Alltagsgeschichte</h3>
+            <p data-i18n-de="Beim TÜV wird nicht nur geschaut, ob das Auto irgendwie fährt. Bremsen, Licht, Reifen und Abgas werden einzeln geprüft. Genau so denkst du beim Testen: Erst die kleinen Bauteile, dann das große Ganze." data-i18n-en="During a vehicle inspection, nobody only checks whether the car somehow moves. Brakes, lights, tires and emissions are checked one by one. Testing works the same way: first the small parts, then the larger whole.">Beim TÜV wird nicht nur geschaut, ob das Auto irgendwie fährt. Bremsen, Licht, Reifen und Abgas werden einzeln geprüft. Genau so denkst du beim Testen: Erst die kleinen Bauteile, dann das große Ganze.</p>
+          </article>
+          <article class="formula-block">
+            <h3 data-i18n-de="Übertragung auf Code" data-i18n-en="Transfer to code">Übertragung auf Code</h3>
+            <p data-i18n-de="Eine Funktion wie <code>divide()</code> oder <code>impute()</code> ist ein einzelnes Bauteil. Ein Unit Test prüft: Liefert diese eine Funktion das, was sie soll?" data-i18n-html-en="A function like <code>divide()</code> or <code>impute()</code> is a single component. A unit test asks: does this one function return what it should?">Eine Funktion wie <code>divide()</code> oder <code>impute()</code> ist ein einzelnes Bauteil. Ein Unit Test prüft: Liefert diese eine Funktion das, was sie soll?</p>
+          </article>
+          <article class="result-box full">
+            <h3 data-i18n-de="TÜV-Inspektor" data-i18n-en="Inspection game">TÜV-Inspektor</h3>
+            <p class="lead" data-i18n-de="Wähle die drei Prüfpunkte, die du VOR Vertrauen kontrollieren würdest." data-i18n-en="Choose the three checkpoints you would verify before trusting the result.">Wähle die drei Prüfpunkte, die du VOR Vertrauen kontrollieren würdest.</p>
+            <div class="button-row">
+              <button class="choice-btn" type="button" data-m0-choice="brakes" data-i18n-de="Bremsen am Auto" data-i18n-en="Brakes on a car">Bremsen am Auto</button>
+              <button class="choice-btn" type="button" data-m0-choice="cake" data-i18n-de="Rezept und Backzeit einer Hochzeitstorte" data-i18n-en="Recipe and baking time of a wedding cake">Rezept und Backzeit einer Hochzeitstorte</button>
+              <button class="choice-btn" type="button" data-m0-choice="flight" data-i18n-de="Sicherheitscheck vor dem Flug" data-i18n-en="Safety check before a flight">Sicherheitscheck vor dem Flug</button>
+              <button class="choice-btn" type="button" data-m0-choice="random" data-i18n-de="Einfach hoffen, dass alles gut wird" data-i18n-en="Just hope everything works out">Einfach hoffen, dass alles gut wird</button>
+            </div>
+            <div id="module-0-feedback" class="quiz-feedback" data-i18n-de="Wähle drei sinnvolle Prüfpunkte. Danach siehst du die Parallele zu Unit Tests." data-i18n-en="Choose three sensible checkpoints. Then you will see the parallel to unit tests.">Wähle drei sinnvolle Prüfpunkte. Danach siehst du die Parallele zu Unit Tests.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-1" class="module lesson-step" data-step="1">
+        <div class="card-kicker" data-i18n-de="Modul 1 · Packaging" data-i18n-en="Module 1 · Packaging">Modul 1 · Packaging</div>
+        <h2 data-i18n-de="Code ordentlich verpacken" data-i18n-en="Package code neatly">Code ordentlich verpacken</h2>
+        <p class="lead" data-i18n-de="Wie bei einem IKEA-Regal hilft eine klare Struktur: Python-Pakete, Module und Tests liegen sauber sortiert." data-i18n-en="As with an IKEA shelf, a clear structure helps: Python packages, modules and tests are neatly organized.">Wie bei einem IKEA-Regal hilft eine klare Struktur: Python-Pakete, Module und Tests liegen sauber sortiert.</p>
+        <div id="status-1" class="status-note warn" data-i18n-de="Noch offen. Wähle den richtigen Import und verstehe, warum das Paket sauber strukturiert sein muss." data-i18n-en="Still open. Choose the correct import and understand why the package must be structured cleanly.">Noch offen. Wähle den richtigen Import und verstehe, warum das Paket sauber strukturiert sein muss.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Projektstruktur" data-i18n-en="Project structure">Projektstruktur</h3>
+            <pre><code>ds-unit-testing/
+├── src/
+│   ├── example/
+│   │   ├── __init__.py
+│   │   └── example_file.py
+├── tests/
+└── notebooks/</code></pre>
+          </article>
+          <article class="result-box">
+            <h3 data-i18n-de="Welcher Import passt?" data-i18n-en="Which import fits?">Welcher Import passt?</h3>
+            <div class="button-row">
+              <button class="choice-btn" type="button" data-m1-answer="correct"><code>from src.example.example_file import add_one</code></button>
+              <button class="choice-btn" type="button" data-m1-answer="wrong-a"><code>from tests.example import add_one</code></button>
+              <button class="choice-btn" type="button" data-m1-answer="wrong-b"><code>import add_one from src</code></button>
+            </div>
+            <div id="module-1-feedback" class="quiz-feedback" data-i18n-de="Wähle die Importzeile, die zum Packaging-Notebook passt." data-i18n-en="Choose the import line that matches the packaging notebook.">Wähle die Importzeile, die zum Packaging-Notebook passt.</div>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: add_one importieren" data-i18n-en="🏋️ Exercise: import add_one">🏋️ Übung: add_one importieren</h4>
+            <p class="exercise-instruction" data-i18n-de="Der Startercode kommt direkt aus dem Packaging-Notebook. Ergänze die Importzeile und prüfe danach, ob die Funktion aus 1 eine 2 macht." data-i18n-en="The starter code comes directly from the packaging notebook. Complete the import line and then check whether the function turns 1 into 2.">Der Startercode kommt direkt aus dem Packaging-Notebook. Ergänze die Importzeile und prüfe danach, ob die Funktion aus 1 eine 2 macht.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code># ??? DEINE LÖSUNG ???
+print(add_one(1))</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="Im Notebook liegt die Funktion in <code>src.example.example_file</code>." data-i18n-html-en="In the notebook, the function lives in <code>src.example.example_file</code>.">Im Notebook liegt die Funktion in <code>src.example.example_file</code>.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>from src.example.example_file import add_one
+print(add_one(1))</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: `2`" data-i18n-en="Expected output: `2`">Erwartete Ausgabe: `2`</p>
+            </details>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-2" class="module lesson-step" data-step="2">
+        <div class="card-kicker" data-i18n-de="Modul 2 · Erster Test" data-i18n-en="Module 2 · First test">Modul 2 · Erster Test</div>
+        <h2 data-i18n-de="Vom print zu pytest" data-i18n-en="From print to pytest">Vom print zu pytest</h2>
+        <p class="lead" data-i18n-de="Wie bei einem Kuchenrezept werden Prüfungen immer professioneller: erst hinschauen, dann dokumentieren, dann automatisch testen." data-i18n-en="As with a cake recipe, checks become more professional step by step: first look manually, then document, then test automatically.">Wie bei einem Kuchenrezept werden Prüfungen immer professioneller: erst hinschauen, dann dokumentieren, dann automatisch testen.</p>
+        <div id="status-2" class="status-note warn" data-i18n-de="Noch offen. Gehe die vier Stufen durch und sichere die richtige Reihenfolge." data-i18n-en="Still open. Go through the four stages and secure the right order.">Noch offen. Gehe die vier Stufen durch und sichere die richtige Reihenfolge.</div>
+        <div class="module-grid">
+          <article class="result-box">
+            <h3 data-i18n-de="Vier Stufen" data-i18n-en="Four stages">Vier Stufen</h3>
+            <div class="timeline">
+              <div class="timeline-item" data-stage="print">print()</div>
+              <div class="timeline-item" data-stage="doctest">doctest</div>
+              <div class="timeline-item" data-stage="assert">assert</div>
+              <div class="timeline-item" data-stage="pytest">pytest</div>
+            </div>
+            <div class="button-row">
+              <button class="btn secondary" type="button" data-stage-btn="print">1</button>
+              <button class="btn secondary" type="button" data-stage-btn="doctest">2</button>
+              <button class="btn secondary" type="button" data-stage-btn="assert">3</button>
+              <button class="btn secondary" type="button" data-stage-btn="pytest">4</button>
+            </div>
+            <div id="module-2-note" class="quiz-feedback" data-i18n-de="Klicke die Stufen in sinnvoller Reihenfolge an." data-i18n-en="Click the stages in a sensible order.">Klicke die Stufen in sinnvoller Reihenfolge an.</div>
+          </article>
+          <article class="callout">
+            <h3 data-i18n-de="divide()-Beispiel" data-i18n-en="divide() example">divide()-Beispiel</h3>
+            <pre><code>def divide(x, y):
+    if y == 0:
+        return "Can not divide by zero"
+    return x / y</code></pre>
+            <p data-i18n-de="Aus genau so einer kleinen Funktion baust du zuerst einzelne Prüfungen auf. Später übernimmt pytest diese Routine automatisch." data-i18n-en="From exactly such a small function, you first build individual checks. Later pytest takes over this routine automatically.">Aus genau so einer kleinen Funktion baust du zuerst einzelne Prüfungen auf. Später übernimmt pytest diese Routine automatisch.</p>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: Dein erster pytest-Test" data-i18n-en="🏋️ Exercise: Your first pytest test">🏋️ Übung: Dein erster pytest-Test</h4>
+            <p class="exercise-instruction" data-i18n-de="Die Funktion ist schon da. Ergänze jetzt die Zeile, die prüft, ob <code>divide(6, 2)</code> wirklich 3 ergibt." data-i18n-html-en="The function already exists. Now complete the line that checks whether <code>divide(6, 2)</code> really returns 3.">Die Funktion ist schon da. Ergänze jetzt die Zeile, die prüft, ob <code>divide(6, 2)</code> wirklich 3 ergibt.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code>def divide(x, y):
+    if y == 0:
+        return "Can not divide by zero"
+    return x / y
+
+def test_divide():
+    # ??? DEINE LÖSUNG ???</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="Ein pytest-Test enthält meist ein klares <code>assert</code> mit Soll und Ist." data-i18n-html-en="A pytest test usually contains a clear <code>assert</code> with expected and actual behavior.">Ein pytest-Test enthält meist ein klares <code>assert</code> mit Soll und Ist.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>def divide(x, y):
+    if y == 0:
+        return "Can not divide by zero"
+    return x / y
+
+def test_divide():
+    assert divide(6, 2) == 3</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: `1 passed`" data-i18n-en="Expected output: `1 passed`">Erwartete Ausgabe: `1 passed`</p>
+            </details>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-3" class="module lesson-step" data-step="3">
+        <div class="card-kicker" data-i18n-de="Modul 3 · TDD" data-i18n-en="Module 3 · TDD">Modul 3 · TDD</div>
+        <h2 data-i18n-de="Red-Green-Refactor als Ampelspiel" data-i18n-en="Red-green-refactor as a traffic-light game">Red-Green-Refactor als Ampelspiel</h2>
+        <p class="lead" data-i18n-de="TDD plant das Verhalten zuerst. Der Test wird rot, dann grün, dann wird der Code sauberer gemacht." data-i18n-en="TDD plans the behavior first. The test goes red, then green, and then the code is cleaned up.">TDD plant das Verhalten zuerst. Der Test wird rot, dann grün, dann wird der Code sauberer gemacht.</p>
+        <div id="status-3" class="status-note warn" data-i18n-de="Noch offen. Spiele die Ampelrunde einmal vollständig durch." data-i18n-en="Still open. Play through the traffic-light round once completely.">Noch offen. Spiele die Ampelrunde einmal vollständig durch.</div>
+        <div class="module-grid">
+          <article class="result-box">
+            <h3 data-i18n-de="Ampelrunde" data-i18n-en="Traffic-light round">Ampelrunde</h3>
+            <div class="timeline">
+              <div id="rg-step-red" class="timeline-item">🔴 Red</div>
+              <div id="rg-step-green" class="timeline-item">🟢 Green</div>
+              <div id="rg-step-refactor" class="timeline-item">🟡 Refactor</div>
+            </div>
+            <div class="button-row">
+              <button class="btn secondary" type="button" data-rg-step="red">1</button>
+              <button class="btn secondary" type="button" data-rg-step="green">2</button>
+              <button class="btn secondary" type="button" data-rg-step="refactor">3</button>
+            </div>
+            <div id="module-3-feedback" class="quiz-feedback" data-i18n-de="Starte mit Rot: erst Verhalten beschreiben, dann Code schreiben." data-i18n-en="Start with red: describe the behavior first, then write the code.">Starte mit Rot: erst Verhalten beschreiben, dann Code schreiben.</div>
+          </article>
+          <article class="callout">
+            <h3 data-i18n-de="Beispiel aus dem Notebook" data-i18n-en="Example from the notebook">Beispiel aus dem Notebook</h3>
+            <pre><code>def test_format_data_for_display():
+    people = [{"given_name": "Alfonsa", "family_name": "Ruiz", "title": "Senior Software Engineer"}]
+    assert format_data_for_display(people) == [
+        "Alfonsa Ruiz: Senior Software Engineer"
+    ]</code></pre>
+            <p data-i18n-de="Der Test beschreibt zuerst, was die Funktion liefern soll. Danach wird die Funktion so klein wie möglich gebaut, bis der Test grün ist." data-i18n-en="The test first describes what the function should return. Then the function is built as small as possible until the test turns green.">Der Test beschreibt zuerst, was die Funktion liefern soll. Danach wird die Funktion so klein wie möglich gebaut, bis der Test grün ist.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-4" class="module lesson-step" data-step="4">
+        <div class="card-kicker" data-i18n-de="Modul 4 · Fixtures & Parametrize" data-i18n-en="Module 4 · Fixtures & parametrization">Modul 4 · Fixtures & Parametrize</div>
+        <h2 data-i18n-de="Testdaten sauber organisieren" data-i18n-en="Organize test data cleanly">Testdaten sauber organisieren</h2>
+        <p class="lead" data-i18n-de="Fixtures sind wiederverwendbare Testvorlagen. Parametrize ist deine Prüfliste für viele ähnliche Fälle." data-i18n-en="Fixtures are reusable test templates. Parametrize is your checklist for many similar cases.">Fixtures sind wiederverwendbare Testvorlagen. Parametrize ist deine Prüfliste für viele ähnliche Fälle.</p>
+        <div id="status-4" class="status-note warn" data-i18n-de="Noch offen. Ordne Fixture und Parametrize den richtigen Alltagsbildern zu." data-i18n-en="Still open. Match fixture and parametrize to the correct everyday images.">Noch offen. Ordne Fixture und Parametrize den richtigen Alltagsbildern zu.</div>
+        <div class="module-grid">
+          <article class="result-box">
+            <h3 data-i18n-de="Zuordnung" data-i18n-en="Matching">Zuordnung</h3>
+            <div class="button-row">
+              <button class="choice-btn" type="button" data-m4-kind="fixture" data-i18n-de="Fixture = Prüfprotokoll-Vorlage" data-i18n-en="Fixture = standard inspection form">Fixture = Prüfprotokoll-Vorlage</button>
+              <button class="choice-btn" type="button" data-m4-kind="parametrize" data-i18n-de="Parametrize = Checkliste für viele Fälle" data-i18n-en="Parametrize = checklist for many cases">Parametrize = Checkliste für viele Fälle</button>
+            </div>
+            <div id="module-4-feedback" class="quiz-feedback" data-i18n-de="Klicke erst Fixture, dann Parametrize. Beide Begriffe gehören zusammen, meinen aber nicht dasselbe." data-i18n-en="Click fixture first, then parametrize. The two terms belong together, but they do not mean the same thing.">Klicke erst Fixture, dann Parametrize. Beide Begriffe gehören zusammen, meinen aber nicht dasselbe.</div>
+          </article>
+          <article class="callout">
+            <h3 data-i18n-de="Notebook-Code" data-i18n-en="Notebook code">Notebook-Code</h3>
+            <pre><code>@pytest.fixture
+def example_people_data():
+    return [{"given_name": "Alfonsa", "family_name": "Ruiz"}]
+
+@pytest.mark.parametrize("palindrome", ["", "Bob", "Never odd or even"])
+def test_is_palindrome(palindrome):
+    assert is_palindrome(palindrome)</code></pre>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: Parametrize ergänzen" data-i18n-en="🏋️ Exercise: complete parametrize">🏋️ Übung: Parametrize ergänzen</h4>
+            <p class="exercise-instruction" data-i18n-de="Baue aus mehreren Einzeltests eine parametrisierte Version. Ergänze die fehlende Deko-Zeile und den erwarteten Wert." data-i18n-en="Turn several single tests into a parametrized version. Complete the missing decorator line and the expected value.">Baue aus mehreren Einzeltests eine parametrisierte Version. Ergänze die fehlende Deko-Zeile und den erwarteten Wert.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code>import pytest
+
+def is_palindrome(s):
+    return s == s[::-1]
+
+# ??? DEINE LÖSUNG ???
+def test_is_palindrome(word, expected_result):
+    assert is_palindrome(word) == # ??? DEINE LÖSUNG ???</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="Die Notebook-Variante nutzt <code>@pytest.mark.parametrize</code> mit zwei Spalten: Eingabe und erwartetes Ergebnis." data-i18n-html-en="The notebook version uses <code>@pytest.mark.parametrize</code> with two columns: input and expected result.">Die Notebook-Variante nutzt <code>@pytest.mark.parametrize</code> mit zwei Spalten: Eingabe und erwartetes Ergebnis.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>import pytest
+
+def is_palindrome(s):
+    return s == s[::-1]
+
+@pytest.mark.parametrize("word, expected_result", [
+    ("Bob", True),
+    ("abc", False),
+])
+def test_is_palindrome(word, expected_result):
+    assert is_palindrome(word) == expected_result</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: `2 passed`" data-i18n-en="Expected output: `2 passed`">Erwartete Ausgabe: `2 passed`</p>
+            </details>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-5" class="module lesson-step" data-step="5">
+        <div class="card-kicker" data-i18n-de="Modul 5 · Data Science" data-i18n-en="Module 5 · Data science">Modul 5 · Data Science</div>
+        <h2 data-i18n-de="Daten testen mit pandas" data-i18n-en="Test data with pandas">Daten testen mit pandas</h2>
+        <p class="lead" data-i18n-de="Im Data-Science-Alltag testest du nicht nur Logik, sondern auch Datenqualität, Imputation und Transformationen." data-i18n-en="In day-to-day data science, you do not only test logic, but also data quality, imputation and transformations.">Im Data-Science-Alltag testest du nicht nur Logik, sondern auch Datenqualität, Imputation und Transformationen.</p>
+        <div id="status-5" class="status-note warn" data-i18n-de="Noch offen. Ergänze die Imputation sinnvoll und lies die DataFrame-Rückmeldung." data-i18n-en="Still open. Complete the imputation sensibly and read the DataFrame feedback.">Noch offen. Ergänze die Imputation sinnvoll und lies die DataFrame-Rückmeldung.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Supermarkt-Analogie" data-i18n-en="Supermarket analogy">Supermarkt-Analogie</h3>
+            <p data-i18n-de="Wenn an Jeans im Regal Preisschilder fehlen, fällt das in der Qualitätskontrolle sofort auf. In pandas ist ein fehlender Preis ein <code>NaN</code>. Auch das musst du testen." data-i18n-html-en="If price tags are missing from jeans on the shelf, quality control spots it immediately. In pandas, a missing price is a <code>NaN</code>. You have to test that as well.">Wenn an Jeans im Regal Preisschilder fehlen, fällt das in der Qualitätskontrolle sofort auf. In pandas ist ein fehlender Preis ein <code>NaN</code>. Auch das musst du testen.</p>
+          </article>
+          <article class="result-box">
+            <h3 data-i18n-de="Imputation live" data-i18n-en="Imputation live">Imputation live</h3>
+            <div class="mini-metrics">
+              <div class="chip"><strong data-i18n-de="Fehlende Werte" data-i18n-en="Missing values">Fehlende Werte</strong><span id="missing-before">2</span></div>
+              <div class="chip"><strong data-i18n-de="Methode" data-i18n-en="Method">Methode</strong><span id="impute-method">Mittelwert</span></div>
+              <div class="chip"><strong data-i18n-de="Nach dem Test" data-i18n-en="After the test">Nach dem Test</strong><span id="missing-after">2</span></div>
+            </div>
+            <div class="button-row">
+              <button class="choice-btn" type="button" data-impute="mean" data-i18n-de="Mit Mittelwert testen" data-i18n-en="Test with mean">Mit Mittelwert testen</button>
+              <button class="choice-btn" type="button" data-impute="min" data-i18n-de="Mit Minimum testen" data-i18n-en="Test with minimum">Mit Minimum testen</button>
+              <button class="choice-btn" type="button" data-impute="max" data-i18n-de="Mit Maximum testen" data-i18n-en="Test with maximum">Mit Maximum testen</button>
+            </div>
+            <div id="module-5-feedback" class="quiz-feedback" data-i18n-de="Starte mit dem Mittelwert. Das ist die Notebook-Variante der Grundfunktion." data-i18n-en="Start with the mean. That is the notebook version of the basic function.">Starte mit dem Mittelwert. Das ist die Notebook-Variante der Grundfunktion.</div>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: impute() testen" data-i18n-en="🏋️ Exercise: test impute()">🏋️ Übung: impute() testen</h4>
+            <p class="exercise-instruction" data-i18n-de="Dieser Test ist direkt aus dem Data-Science-Notebook vereinfacht. Ergänze die erwartete Serie für die Mittelwert-Imputation." data-i18n-en="This test is a simplified version of the one from the data-science notebook. Complete the expected series for mean imputation.">Dieser Test ist direkt aus dem Data-Science-Notebook vereinfacht. Ergänze die erwartete Serie für die Mittelwert-Imputation.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code>import pandas as pd
+from pandas.testing import assert_series_equal
+
+def impute(series):
+    return series.fillna(series.mean())
+
+input_series = pd.Series([1.0, None, 3.0])
+expected_result = pd.Series(# ??? DEINE LÖSUNG ???)
+assert_series_equal(impute(input_series), expected_result)</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="Der Mittelwert von 1.0 und 3.0 ist 2.0. Genau dieser Wert ersetzt die Lücke." data-i18n-en="The mean of 1.0 and 3.0 is 2.0. That value replaces the gap.">Der Mittelwert von 1.0 und 3.0 ist 2.0. Genau dieser Wert ersetzt die Lücke.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>import pandas as pd
+from pandas.testing import assert_series_equal
+
+def impute(series):
+    return series.fillna(series.mean())
+
+input_series = pd.Series([1.0, None, 3.0])
+expected_result = pd.Series([1.0, 2.0, 3.0])
+assert_series_equal(impute(input_series), expected_result)</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: kein Fehler, der Test läuft grün durch" data-i18n-en="Expected output: no error, the test passes green">Erwartete Ausgabe: kein Fehler, der Test läuft grün durch</p>
+            </details>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-6" class="module lesson-step" data-step="6">
+        <div class="card-kicker" data-i18n-de="Modul 6 · Abschlussprojekt" data-i18n-en="Module 6 · Final project">Modul 6 · Abschlussprojekt</div>
+        <h2 data-i18n-de="Ein testbarer Taschenrechner" data-i18n-en="A testable calculator">Ein testbarer Taschenrechner</h2>
+        <p class="lead" data-i18n-de="Zum Schluss führst du alles zusammen: Tests zuerst, Funktionen danach, dann ein kleines CLI-Projekt." data-i18n-en="At the end, you bring everything together: tests first, functions afterwards, then a small CLI project.">Zum Schluss führst du alles zusammen: Tests zuerst, Funktionen danach, dann ein kleines CLI-Projekt.</p>
+        <div id="status-6" class="status-note warn" data-i18n-de="Noch offen. Löse das Abschlussquiz vollständig, damit das Kapitel wirklich sitzt." data-i18n-en="Still open. Solve the final quiz completely so that the chapter really sticks.">Noch offen. Löse das Abschlussquiz vollständig, damit das Kapitel wirklich sitzt.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Projekt-Checkliste" data-i18n-en="Project checklist">Projekt-Checkliste</h3>
+            <ul>
+              <li data-i18n-de="Tests zuerst schreiben" data-i18n-en="Write tests first">Tests zuerst schreiben</li>
+              <li data-i18n-de="Rechenfunktionen implementieren" data-i18n-en="Implement arithmetic functions">Rechenfunktionen implementieren</li>
+              <li data-i18n-de="Division durch Null absichern" data-i18n-en="Protect against division by zero">Division durch Null absichern</li>
+              <li data-i18n-de="CLI mit typer anschließen" data-i18n-en="Attach a CLI with typer">CLI mit typer anschließen</li>
+            </ul>
+          </article>
+          <article class="result-box">
+            <h3 data-i18n-de="TDD-Reihenfolge" data-i18n-en="TDD order">TDD-Reihenfolge</h3>
+            <div class="button-row">
+              <button class="choice-btn" type="button" data-m6-step="test" data-i18n-de="1. Test beschreiben" data-i18n-en="1. Describe the test">1. Test beschreiben</button>
+              <button class="choice-btn" type="button" data-m6-step="code" data-i18n-de="2. Minimalen Code schreiben" data-i18n-en="2. Write minimal code">2. Minimalen Code schreiben</button>
+              <button class="choice-btn" type="button" data-m6-step="refactor" data-i18n-de="3. Aufräumen" data-i18n-en="3. Refactor">3. Aufräumen</button>
+            </div>
+            <div id="module-6-sequence" class="quiz-feedback" data-i18n-de="Klicke die Reihenfolge einmal bewusst durch." data-i18n-en="Click through the sequence once consciously.">Klicke die Reihenfolge einmal bewusst durch.</div>
+          </article>
+          <article class="result-box full">
+            <h3 data-i18n-de="Abschlussquiz" data-i18n-en="Final quiz">Abschlussquiz</h3>
+            <div id="final-quiz"></div>
+          </article>
+          <article class="callout full">
+            <p class="reflection" data-i18n-de="Was nimmst du mit?" data-i18n-en="What do you take away?">Was nimmst du mit?</p>
+            <p data-i18n-de="Unit Tests geben dir Sicherheit. Sie helfen dir beim Umbauen, beim Datenprüfen und beim gemeinsamen Arbeiten an Projekten." data-i18n-en="Unit tests give you confidence. They help you when refactoring, when checking data and when working on projects with others.">Unit Tests geben dir Sicherheit. Sie helfen dir beim Umbauen, beim Datenprüfen und beim gemeinsamen Arbeiten an Projekten.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer-card">
+        <div>
+          <div class="card-kicker" data-i18n-de="Teil des Gesamtlehrpfads" data-i18n-en="Part of the overall learning path">Teil des Gesamtlehrpfads</div>
+          <h2 data-i18n-de="Testing sitzt, jetzt zurück in den Kernpfad" data-i18n-en="Testing is in place, now back to the core path">Testing sitzt, jetzt zurück in den Kernpfad</h2>
+          <p class="lead" data-i18n-de="Du kennst jetzt Motivation, pytest-Grundlagen, TDD, Fixtures und Data-Testing. Als Nächstes kannst du in den Data-Science-Kernpfad einsteigen oder zur Übersicht zurückgehen." data-i18n-en="You now know the motivation, pytest basics, TDD, fixtures and data testing. Next you can enter the core data-science path or return to the overview.">Du kennst jetzt Motivation, pytest-Grundlagen, TDD, Fixtures und Data-Testing. Als Nächstes kannst du in den Data-Science-Kernpfad einsteigen oder zur Übersicht zurückgehen.</p>
+        </div>
+        <div class="footer-links">
+          <a class="btn" href="lineare_regression_interaktion.html" data-i18n-de="Zum Kernpfad: Lineare Regression" data-i18n-en="Core path: linear regression">Zum Kernpfad: Lineare Regression</a>
+          <a class="btn secondary" href="../index.html" data-i18n-de="Zurück zur Übersicht" data-i18n-en="Back to overview">Zurück zur Übersicht</a>
+        </div>
+        <p style="margin:0; color:var(--text-light);" data-i18n-de="Querschnittskapitel zu Qualität, pytest und Data-Science-Workflows." data-i18n-en="Cross-cutting chapter on quality, pytest and data-science workflows.">Querschnittskapitel zu Qualität, pytest und Data-Science-Workflows.</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const MODULES = [
+      { id: "module-0", short: { de: "Warum testen?", en: "Why test?" }, badge: { de: "TÜV-Blick", en: "Inspection eye" }, desc: { de: "Motivation verstanden", en: "Understood the motivation" } },
+      { id: "module-1", short: { de: "Packaging", en: "Packaging" }, badge: { de: "Werkbank", en: "Workbench" }, desc: { de: "Struktur erkannt", en: "Recognized structure" } },
+      { id: "module-2", short: { de: "Erster Test", en: "First test" }, badge: { de: "Prüfpunkt", en: "Checkpoint" }, desc: { de: "pytest-Einstieg geschafft", en: "Made the pytest start" } },
+      { id: "module-3", short: { de: "TDD", en: "TDD" }, badge: { de: "Ampel", en: "Traffic light" }, desc: { de: "Red-Green-Refactor verstanden", en: "Understood red-green-refactor" } },
+      { id: "module-4", short: { de: "Fixtures", en: "Fixtures" }, badge: { de: "Checkliste", en: "Checklist" }, desc: { de: "Testdaten organisiert", en: "Organized test data" } },
+      { id: "module-5", short: { de: "Daten testen", en: "Test data" }, badge: { de: "Qualitätskontrolle", en: "Quality control" }, desc: { de: "pandas-Tests gelesen", en: "Read pandas tests" } },
+      { id: "module-6", short: { de: "Abschlussprojekt", en: "Final project" }, badge: { de: "Steuerberater", en: "Tax adviser" }, desc: { de: "Projektlogik gesichert", en: "Secured project logic" } }
+    ];
+
+    const FINAL_QUIZ = [
+      {
+        q: { de: "Wofür ist ein Unit Test in erster Linie da?", en: "What is a unit test primarily for?" },
+        options: [
+          { de: "Um eine einzelne Funktion oder Einheit gezielt zu prüfen", en: "To check a single function or unit in a targeted way" },
+          { de: "Um alle Projekte in ein Paket zu verwandeln", en: "To turn all projects into one package" },
+          { de: "Um Daten immer automatisch zu skalieren", en: "To always scale data automatically" }
+        ],
+        correct: 0,
+        explanation: {
+          de: "Ein Unit Test prüft ein einzelnes Bauteil gezielt und reproduzierbar.",
+          en: "A unit test checks a single component in a targeted and reproducible way."
+        }
+      },
+      {
+        q: { de: "Was beschreibt TDD richtig?", en: "What correctly describes TDD?" },
+        options: [
+          { de: "Erst Code schreiben, dann hoffen, dass nichts kaputtgeht", en: "Write code first, then hope nothing breaks" },
+          { de: "Erst Test schreiben, dann minimalen Code, dann aufräumen", en: "Write the test first, then minimal code, then refactor" },
+          { de: "Nur noch mit print() prüfen", en: "Only check with print() from then on" }
+        ],
+        correct: 1,
+        explanation: {
+          de: "TDD folgt dem Zyklus Red → Green → Refactor.",
+          en: "TDD follows the cycle red → green → refactor."
+        }
+      },
+      {
+        q: { de: "Wann hilft dir assert_series_equal?", en: "When does assert_series_equal help you?" },
+        options: [
+          { de: "Wenn du zwei pandas-Serien exakt vergleichen willst", en: "When you want to compare two pandas series exactly" },
+          { de: "Wenn du Python-Pakete installierst", en: "When you install Python packages" },
+          { de: "Wenn du eine CLI-Doku schreibst", en: "When you write CLI documentation" }
+        ],
+        correct: 0,
+        explanation: {
+          de: "In Data Science ist das hilfreich, um echte Ergebnisserien sauber gegen erwartete Serien zu prüfen.",
+          en: "In data science, this is helpful for checking real result series cleanly against expected series."
+        }
+      }
+    ];
+
+    const storageWrapper = (() => {
+      let fallback = {};
+      try {
+        const key = "__unit_testing_progress_test__";
+        window.localStorage.setItem(key, "1");
+        window.localStorage.removeItem(key);
+        return {
+          available: true,
+          getItem: (key) => window.localStorage.getItem(key),
+          setItem: (key, value) => window.localStorage.setItem(key, value),
+          removeItem: (key) => window.localStorage.removeItem(key)
+        };
+      } catch (error) {
+        return {
+          available: false,
+          getItem: (key) => fallback[key] ?? null,
+          setItem: (key, value) => { fallback[key] = value; },
+          removeItem: (key) => { delete fallback[key]; }
+        };
+      }
+    })();
+
+    function currentLang() {
+      return document.documentElement.lang === "en" ? "en" : "de";
+    }
+
+    function t(de, en) {
+      return currentLang() === "en" ? en : de;
+    }
+
+    function localized(entry) {
+      return currentLang() === "en" ? entry.en : entry.de;
+    }
+
+    function refreshLanguage() {
+      if (window.DataScienceI18n && typeof window.DataScienceI18n.refresh === "function") {
+        window.requestAnimationFrame(() => window.DataScienceI18n.refresh());
+      }
+    }
+
+    const TestingGame = {
+      storageKey: "asdm-unit-testing-progress-v1",
+      state: {
+        points: 0,
+        completed: {},
+        badges: [],
+        pointEvents: {},
+        module0: [],
+        module2Sequence: [],
+        module3Sequence: [],
+        module4Sequence: [],
+        module5Method: "",
+        module6Sequence: [],
+        finalQuiz: { answers: {}, correctSet: {}, correctCount: 0 }
+      },
+
+      init() {
+        this.load();
+        this.renderSidebar();
+        this.renderHeader();
+        this.bindGlobalUi();
+        this.bindModule0();
+        this.bindModule1();
+        this.bindModule2();
+        this.bindModule3();
+        this.bindModule4();
+        this.bindModule5();
+        this.bindModule6Sequence();
+        this.renderFinalQuiz();
+        this.observeSections();
+        this.refreshModuleCards();
+      },
+
+      load() {
+        const raw = storageWrapper.getItem(this.storageKey);
+        if (!raw) {
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          this.state = { ...this.state, ...parsed };
+        } catch (error) {
+          this.save();
+        }
+      },
+
+      save() {
+        storageWrapper.setItem(this.storageKey, JSON.stringify(this.state));
+      },
+
+      reset() {
+        storageWrapper.removeItem(this.storageKey);
+        window.location.reload();
+      },
+
+      addPoints(points, eventId) {
+        if (this.state.pointEvents[eventId]) {
+          return false;
+        }
+        this.state.pointEvents[eventId] = points;
+        this.state.points += points;
+        this.save();
+        this.renderSidebar();
+        this.renderHeader();
+        refreshLanguage();
+        return true;
+      },
+
+      getRank() {
+        if (this.state.points >= 90) return t("Test-Profi", "Test pro");
+        if (this.state.points >= 45) return t("pytest-Fortgeschritten", "pytest advanced");
+        return t("TÜV-Azubi", "Inspection rookie");
+      },
+
+      updateProgress(moduleId, done) {
+        if (done) {
+          this.state.completed[moduleId] = true;
+          if (!this.state.badges.includes(moduleId)) {
+            this.state.badges.push(moduleId);
+          }
+        } else {
+          delete this.state.completed[moduleId];
+        }
+        this.save();
+        this.renderSidebar();
+        this.renderHeader();
+        this.refreshModuleCards();
+        refreshLanguage();
+      },
+
+      renderSidebar() {
+        const completed = Object.keys(this.state.completed).length;
+        const percent = Math.round((completed / MODULES.length) * 100);
+        document.getElementById("sidebar-progress-label").textContent = t(
+          `${completed} von ${MODULES.length} Modulen erledigt`,
+          `${completed} of ${MODULES.length} modules completed`
+        );
+        document.getElementById("sidebar-points-label").textContent = t(`${this.state.points} Punkte`, `${this.state.points} points`);
+        document.getElementById("sidebar-progress-fill").style.width = `${percent}%`;
+        document.getElementById("sidebar-rank").textContent = this.getRank();
+
+        document.getElementById("module-nav").innerHTML = MODULES.map((module, index) => {
+          const active = this.activeModuleId === module.id;
+          const done = Boolean(this.state.completed[module.id]);
+          const status = done ? "✅" : active ? "🔵" : "⚪";
+          return `
+            <a class="nav-link${active ? " is-active" : ""}" href="#${module.id}">
+              <span>${status}</span>
+              <span class="nav-copy">
+                <strong>${index}. ${localized(module.short)}</strong>
+                <span>${done ? t("erledigt", "done") : t("offen", "open")}</span>
+              </span>
+            </a>
+          `;
+        }).join("");
+
+        document.getElementById("badge-grid").innerHTML = MODULES.map((module) => {
+          const earned = this.state.badges.includes(module.id);
+          return `
+            <div class="badge-item${earned ? " is-earned" : ""}">
+              <div class="badge-icon">${earned ? "★" : "○"}</div>
+              <div>
+                <strong>${localized(module.badge)}</strong>
+                <div>${earned ? localized(module.desc) : t("Noch nicht freigeschaltet", "Not unlocked yet")}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      },
+
+      renderHeader() {
+        const completed = Object.keys(this.state.completed).length;
+        const percent = Math.round((completed / MODULES.length) * 100);
+        document.getElementById("stage-progress-fill").style.width = `${percent}%`;
+        document.getElementById("stage-progress-label").textContent = t(`${percent} Prozent abgeschlossen`, `${percent} percent completed`);
+        document.getElementById("rank-label").textContent = t(`Rang: ${this.getRank()}`, `Rank: ${this.getRank()}`);
+      },
+
+      refreshModuleCards() {
+        MODULES.forEach((module) => {
+          const section = document.getElementById(module.id);
+          if (section) {
+            section.classList.toggle("is-complete", Boolean(this.state.completed[module.id]));
+          }
+        });
+      },
+
+      bindGlobalUi() {
+        document.getElementById("sidebar-toggle").addEventListener("click", () => {
+          document.body.classList.toggle("sidebar-open");
+        });
+        document.getElementById("jump-first-open").addEventListener("click", () => {
+          const target = MODULES.find((entry) => !this.state.completed[entry.id]) || MODULES[MODULES.length - 1];
+          document.getElementById(target.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        document.getElementById("reset-progress").addEventListener("click", () => this.reset());
+      },
+
+      observeSections() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.activeModuleId = entry.target.id;
+              const module = MODULES.find((item) => item.id === entry.target.id);
+              if (module) {
+                document.getElementById("sticky-title").textContent = localized(module.short);
+              }
+              this.renderSidebar();
+            }
+          });
+        }, { rootMargin: "-35% 0px -45% 0px", threshold: 0.2 });
+
+        document.querySelectorAll(".lesson-step").forEach((section) => observer.observe(section));
+      },
+
+      bindModule0() {
+        document.querySelectorAll("[data-m0-choice]").forEach((button) => {
+          if (this.state.module0.includes(button.dataset.m0Choice)) {
+            button.classList.add("is-active");
+          }
+          button.addEventListener("click", () => {
+            const key = button.dataset.m0Choice;
+            if (this.state.module0.includes(key)) {
+              this.state.module0 = this.state.module0.filter((item) => item !== key);
+              button.classList.remove("is-active");
+            } else if (this.state.module0.length < 3) {
+              this.state.module0.push(key);
+              button.classList.add("is-active");
+            }
+            const correct = ["brakes", "cake", "flight"].every((item) => this.state.module0.includes(item));
+            document.getElementById("module-0-feedback").className = `quiz-feedback ${correct ? "ok" : "warn"}`;
+            document.getElementById("module-0-feedback").textContent = correct
+              ? t("Genau. Wir prüfen im Alltag ständig einzelne Risiken. Unit Tests machen das Gleiche mit Code.", "Exactly. In everyday life, we constantly check individual risks. Unit tests do the same for code.")
+              : t("Noch nicht komplett. Wähle die drei Situationen, in denen du vor Vertrauen wirklich prüfen würdest.", "Not complete yet. Choose the three situations in which you would really verify before trusting.");
+            this.save();
+            if (correct) {
+              this.addPoints(10, "module-0-complete");
+              this.updateProgress("module-0", true);
+            }
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule1() {
+        document.querySelectorAll("[data-m1-answer]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const correct = button.dataset.m1Answer === "correct";
+            document.querySelectorAll("[data-m1-answer]").forEach((node) => node.classList.remove("is-correct", "is-wrong"));
+            button.classList.add(correct ? "is-correct" : "is-wrong");
+            document.getElementById("module-1-feedback").className = `quiz-feedback ${correct ? "ok" : "fail"}`;
+            document.getElementById("module-1-feedback").textContent = correct
+              ? t("Richtig. So greifst du im Notebook auf das Modul im Paket zu.", "Correct. That is how you access the module in the package from the notebook.")
+              : t("Noch nicht. Tests liegen nicht im Importpfad der Quellfunktion, und die Python-Syntax muss exakt stimmen.", "Not yet. Tests are not the import path of the source function, and the Python syntax has to be exact.");
+            if (correct) {
+              this.addPoints(10, "module-1-answer");
+              this.updateProgress("module-1", true);
+            }
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule2() {
+        const order = ["print", "doctest", "assert", "pytest"];
+        document.querySelectorAll("[data-stage-btn]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.module2Sequence.push(button.dataset.stageBtn);
+            const nextIndex = this.state.module2Sequence.length - 1;
+            document.querySelector(`[data-stage="${button.dataset.stageBtn}"]`)?.classList.add(order[nextIndex] === button.dataset.stageBtn ? "is-done" : "is-on");
+            const correct = order.slice(0, this.state.module2Sequence.length).every((value, index) => value === this.state.module2Sequence[index]);
+            if (!correct) {
+              this.state.module2Sequence = [];
+              document.querySelectorAll("[data-stage]").forEach((item) => item.classList.remove("is-on", "is-done"));
+              document.getElementById("module-2-note").className = "quiz-feedback fail";
+              document.getElementById("module-2-note").textContent = t("Nicht ganz. Die Reihenfolge geht von manuell nach automatisch: print → doctest → assert → pytest.", "Not quite. The sequence goes from manual to automatic: print → doctest → assert → pytest.");
+            } else if (this.state.module2Sequence.length === order.length) {
+              document.getElementById("module-2-note").className = "quiz-feedback ok";
+              document.getElementById("module-2-note").textContent = t("Genau. pytest ist die professionellste Stufe, weil viele Prüfungen automatisiert zusammenlaufen.", "Exactly. pytest is the most professional stage because many checks run together automatically.");
+              this.addPoints(10, "module-2-sequence");
+              this.updateProgress("module-2", true);
+            } else {
+              document.getElementById("module-2-note").className = "quiz-feedback warn";
+              document.getElementById("module-2-note").textContent = t("Gut. Geh weiter zur nächsten Prüf-Stufe.", "Good. Move on to the next testing stage.");
+            }
+            this.save();
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule3() {
+        const order = ["red", "green", "refactor"];
+        document.querySelectorAll("[data-rg-step]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.module3Sequence.push(button.dataset.rgStep);
+            const correct = order.slice(0, this.state.module3Sequence.length).every((value, index) => value === this.state.module3Sequence[index]);
+            if (!correct) {
+              this.state.module3Sequence = [];
+              document.querySelectorAll("#rg-step-red, #rg-step-green, #rg-step-refactor").forEach((item) => item.classList.remove("is-on", "is-done"));
+              document.getElementById("module-3-feedback").className = "quiz-feedback fail";
+              document.getElementById("module-3-feedback").textContent = t("Noch nicht. TDD startet rot mit einem fehlschlagenden Test, nicht mit Refactor.", "Not yet. TDD starts red with a failing test, not with refactor.");
+            } else {
+              document.getElementById(`rg-step-${button.dataset.rgStep}`).classList.add("is-done");
+              if (this.state.module3Sequence.length === order.length) {
+                document.getElementById("module-3-feedback").className = "quiz-feedback ok";
+                document.getElementById("module-3-feedback").textContent = t("Perfekt. Erst Verhalten festnageln, dann minimal lösen, dann sauber machen.", "Perfect. First pin down behavior, then solve it minimally, then clean it up.");
+                this.addPoints(10, "module-3-sequence");
+                this.updateProgress("module-3", true);
+              } else {
+                document.getElementById("module-3-feedback").className = "quiz-feedback warn";
+                document.getElementById("module-3-feedback").textContent = t("Weiter so. Noch ein Schritt bis zur kompletten Ampelrunde.", "Keep going. One more step until the full traffic-light round is complete.");
+              }
+            }
+            this.save();
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule4() {
+        const expected = ["fixture", "parametrize"];
+        document.querySelectorAll("[data-m4-kind]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.module4Sequence.push(button.dataset.m4Kind);
+            const correct = expected.slice(0, this.state.module4Sequence.length).every((value, index) => value === this.state.module4Sequence[index]);
+            if (!correct) {
+              this.state.module4Sequence = [];
+              document.querySelectorAll("[data-m4-kind]").forEach((node) => node.classList.remove("is-active"));
+              document.getElementById("module-4-feedback").className = "quiz-feedback fail";
+              document.getElementById("module-4-feedback").textContent = t("Fast. Fixture ist die wiederverwendbare Vorlage, Parametrize die Liste vieler Fälle.", "Almost. A fixture is the reusable template, parametrize is the list of many cases.");
+            } else {
+              button.classList.add("is-active");
+              if (this.state.module4Sequence.length === expected.length) {
+                document.getElementById("module-4-feedback").className = "quiz-feedback ok";
+                document.getElementById("module-4-feedback").textContent = t("Richtig. Damit sparst du Wiederholung und hältst Tests trotzdem klar lesbar.", "Correct. That saves repetition and still keeps tests clearly readable.");
+                this.addPoints(10, "module-4-sequence");
+                this.updateProgress("module-4", true);
+              } else {
+                document.getElementById("module-4-feedback").className = "quiz-feedback warn";
+                document.getElementById("module-4-feedback").textContent = t("Gut. Jetzt fehlt noch die Rolle von Parametrize.", "Good. Now what is missing is the role of parametrize.");
+              }
+            }
+            this.save();
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule5() {
+        document.querySelectorAll("[data-impute]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const method = button.dataset.impute;
+            this.state.module5Method = method;
+            document.getElementById("impute-method").textContent = method === "mean" ? t("Mittelwert", "Mean") : method === "min" ? t("Minimum", "Minimum") : t("Maximum", "Maximum");
+            document.getElementById("missing-after").textContent = "0";
+            document.getElementById("module-5-feedback").className = `quiz-feedback ${method === "mean" ? "ok" : "warn"}`;
+            document.getElementById("module-5-feedback").textContent = method === "mean"
+              ? t("Genau. Das Notebook startet mit Mean-Imputation. Danach kannst du min und max als Varianten testen.", "Exactly. The notebook starts with mean imputation. Afterwards you can test min and max as variants.")
+              : t("Das kann als Variante sinnvoll sein, ist aber nicht die Notebook-Grundlösung. Für den Einstieg prüfen wir zuerst den Mittelwert.", "That can be a useful variant, but it is not the notebook's base solution. For the introduction, we first test the mean.");
+            this.save();
+            if (method === "mean") {
+              this.addPoints(10, "module-5-mean");
+              this.updateProgress("module-5", true);
+            }
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule6Sequence() {
+        const order = ["test", "code", "refactor"];
+        document.querySelectorAll("[data-m6-step]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.module6Sequence.push(button.dataset.m6Step);
+            const correct = order.slice(0, this.state.module6Sequence.length).every((value, index) => value === this.state.module6Sequence[index]);
+            if (!correct) {
+              this.state.module6Sequence = [];
+              document.querySelectorAll("[data-m6-step]").forEach((node) => node.classList.remove("is-active"));
+              document.getElementById("module-6-sequence").className = "quiz-feedback fail";
+              document.getElementById("module-6-sequence").textContent = t("Noch nicht. Beim Abschlussprojekt gilt weiter: Test zuerst, dann Code, dann Refactor.", "Not yet. The final project still follows: test first, then code, then refactor.");
+            } else {
+              button.classList.add("is-active");
+              if (this.state.module6Sequence.length === order.length) {
+                document.getElementById("module-6-sequence").className = "quiz-feedback ok";
+                document.getElementById("module-6-sequence").textContent = t("Richtig. Genau diese Reihenfolge macht das Projekt kontrollierbar.", "Correct. Exactly this order makes the project controllable.");
+                this.addPoints(10, "module-6-sequence");
+              } else {
+                document.getElementById("module-6-sequence").className = "quiz-feedback warn";
+                document.getElementById("module-6-sequence").textContent = t("Gut. Jetzt folgt der nächste Schritt der TDD-Reihenfolge.", "Good. Now comes the next step in the TDD sequence.");
+              }
+            }
+            this.save();
+            refreshLanguage();
+          });
+        });
+      },
+
+      renderFinalQuiz() {
+        const root = document.getElementById("final-quiz");
+        const quizState = this.state.finalQuiz;
+        root.innerHTML = "";
+
+        FINAL_QUIZ.forEach((question, index) => {
+          const fieldset = document.createElement("fieldset");
+          fieldset.className = "quiz-question";
+          const legend = document.createElement("legend");
+          legend.textContent = `${index + 1}. ${localized(question.q)}`;
+          fieldset.appendChild(legend);
+
+          const options = document.createElement("div");
+          options.className = "quiz-options";
+          question.options.forEach((option, optionIndex) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "quiz-option";
+            button.textContent = localized(option);
+            const solved = Boolean(quizState.correctSet[index]);
+            if (solved) {
+              button.disabled = true;
+              if (optionIndex === question.correct) {
+                button.classList.add("is-correct");
+              }
+            } else if (quizState.answers[index] === optionIndex) {
+              button.classList.add("is-wrong");
+            }
+            button.addEventListener("click", () => {
+              if (quizState.correctSet[index]) {
+                return;
+              }
+              quizState.answers[index] = optionIndex;
+              if (optionIndex === question.correct) {
+                quizState.correctSet[index] = true;
+                quizState.correctCount = Object.keys(quizState.correctSet).length;
+                this.addPoints(10, `final-quiz-${index}`);
+              }
+              this.state.finalQuiz = quizState;
+              this.save();
+              if (quizState.correctCount === FINAL_QUIZ.length && this.state.module6Sequence.length === 3) {
+                this.updateProgress("module-6", true);
+                document.getElementById("status-6").className = "status-note ok";
+                document.getElementById("status-6").textContent = t(
+                  "Erledigt. Du hast das Abschlussmodul sauber gelöst.",
+                  "Done. You solved the final module cleanly."
+                );
+              }
+              this.renderFinalQuiz();
+            });
+            options.appendChild(button);
+          });
+
+          const note = document.createElement("div");
+          note.className = "quiz-feedback";
+          if (quizState.answers[index] !== undefined) {
+            const solved = Boolean(quizState.correctSet[index]);
+            note.classList.add(solved ? "ok" : "fail");
+            note.textContent = solved
+              ? t(`Richtig. ${localized(question.explanation)}`, `Correct. ${localized(question.explanation)}`)
+              : t(`Noch nicht. ${localized(question.explanation)}`, `Not yet. ${localized(question.explanation)}`);
+          } else {
+            note.textContent = t("Wähle eine Antwort. Falsche Antworten kannst du direkt verbessern.", "Choose an answer. You can improve wrong answers immediately.");
+          }
+
+          fieldset.appendChild(options);
+          fieldset.appendChild(note);
+          root.appendChild(fieldset);
+        });
+
+        const summary = document.createElement("div");
+        summary.className = `quiz-feedback ${quizState.correctCount === FINAL_QUIZ.length && this.state.module6Sequence.length === 3 ? "ok" : "warn"}`;
+        summary.textContent = quizState.correctCount === FINAL_QUIZ.length && this.state.module6Sequence.length === 3
+          ? t(`Perfekt. Alle ${FINAL_QUIZ.length} von ${FINAL_QUIZ.length} Antworten sind korrekt.`, `Perfect. All ${FINAL_QUIZ.length} of ${FINAL_QUIZ.length} answers are correct.`)
+          : t(`Aktuell sitzen ${quizState.correctCount} von ${FINAL_QUIZ.length} Antworten.`, `You currently have ${quizState.correctCount} of ${FINAL_QUIZ.length} answers correct.`);
+        root.appendChild(summary);
+        refreshLanguage();
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      TestingGame.init();
+    });
+  </script>
+  <script>
+    window.DataSciencePageI18n = Object.assign({}, window.DataSciencePageI18n || {}, {
+      title: {
+        de: "Unit Testing | Data Science",
+        en: "Unit testing | Data Science"
+      },
+      description: {
+        de: "Interaktives Kapitel zu Unit Testing und TDD im Data-Science-Kontext mit pytest, Fixtures, Data-Testing und lokalem Fortschritt.",
+        en: "Interactive chapter on unit testing and TDD in a data-science context with pytest, fixtures, data testing and local progress."
+      }
+    });
+  </script>
+  <script defer src="lernstand_manager.js"></script>
+</body>
+</html>

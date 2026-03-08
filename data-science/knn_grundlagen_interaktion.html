@@ -3,821 +3,1543 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KNN Grundlagen | Data Science</title>
+  <title>KNN-Grundlagen | Data Science</title>
+  <meta name="description" content="Interaktives KNN-Kapitel für Einsteiger mit Alltagsszenen, Mehrheitsentscheid, Regression, Notebook-Code und lokalem Fortschritt.">
   <style>
     :root {
-      --bg: #edf3fb;
-      --panel: #ffffff;
-      --ink: #1f2a3c;
-      --muted: #5e6d86;
-      --brand: #173262;
-      --accent: #6f2d45;
-      --line: #d7dfed;
-      --ok: #1f8b4c;
-      --warn: #b76a20;
-      --shadow: 0 14px 28px rgba(20, 39, 74, 0.12);
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --text: #231A24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning-soft: #f7f1ee;
+      --warning-line: #d8c9c4;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 940px;
     }
 
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: var(--ink);
-      background: radial-gradient(circle at 88% 0%, #f8fbff 0%, var(--bg) 46%, #e7eef8 100%);
-      min-height: 100vh;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 36%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 42%, #f3f1f4 100%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
     }
 
     #app {
       display: grid;
-      grid-template-columns: minmax(330px, 430px) minmax(0, 1fr);
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
       min-height: 100vh;
     }
 
     #sidebar {
-      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
-      border-right: 1px solid var(--line);
-      padding: 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
       overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
     }
 
     #stage {
+      min-width: 0;
       padding: 16px;
-      overflow-y: auto;
-      display: grid;
-      gap: 12px;
-      align-content: start;
     }
-
-    h1 {
-      margin: 8px 0 6px;
-      color: var(--brand);
-      font-size: 1.62rem;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-    }
-
-    h3 {
-      margin: 0 0 8px;
-      color: var(--brand);
-      font-size: 1rem;
-    }
-
-    p { margin: 0; line-height: 1.48; }
 
     .brandline {
-      color: #667691;
-      font-size: 0.75rem;
+      font-size: 0.76rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-weight: 700;
+      font-weight: 800;
+      color: var(--text-light);
     }
 
-    .lead {
-      color: #4a5b75;
-      margin-bottom: 12px;
-      font-size: 0.92rem;
-    }
-
-    .card,
-    .step-box,
-    .chat-box,
-    .answer-box,
-    .path-box,
-    .usage-box,
-    .chart-card,
-    .ctrl-card,
-    .neighbors-card,
-    .quiz-box {
-      background: var(--panel);
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card {
+      background: var(--card-bg);
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
 
-    .card,
-    .step-box,
-    .chat-box,
-    .answer-box,
-    .path-box,
-    .usage-box,
-    .quiz-box { padding: 11px; margin-bottom: 10px; }
+    .sidebar-card { padding: 14px; margin-top: 14px; }
+    .sidebar-card p, .module p, .module li { line-height: 1.6; }
 
-    .step-action {
-      margin-top: 9px;
-      border: 1px dashed #b9c8de;
-      background: #f8fbff;
-      border-radius: 10px;
-      padding: 8px;
-      font-size: 0.86rem;
-      color: #385078;
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.02em; }
+    h1 { margin-top: 8px; font-size: 1.92rem; line-height: 1.08; color: var(--primary); }
+    h2 { font-size: 1.35rem; color: var(--primary); }
+    h3 { font-size: 1rem; color: var(--primary); }
+    h4 { font-size: 0.95rem; color: var(--text); }
+
+    .lead { margin-top: 10px; font-size: 0.96rem; color: var(--text-light); }
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
     }
 
-    .timeline {
+    .meta-grid,
+    .chip-row,
+    .badge-grid,
+    .footer-links,
+    .module-grid,
+    .button-row,
+    .k-buttons,
+    .quiz-options {
       display: grid;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .timeline-item {
-      border: 1px solid #d5deed;
-      background: #fbfdff;
-      border-radius: 10px;
-      padding: 7px 9px;
-      font-size: 0.82rem;
-      color: #52627b;
-    }
-
-    .timeline-item.active {
-      border-color: #a9bcdf;
-      background: #eef4ff;
-      color: #1f3e6a;
-      font-weight: 700;
-    }
-
-    .timeline-item.done {
-      border-color: #b8d6bf;
-      background: #f2fbf4;
-      color: #2f6944;
-    }
-
-    .path-box {
-      border-color: rgba(111, 45, 69, 0.24);
-      background: linear-gradient(180deg, #fff9fb 0%, #ffffff 100%);
-    }
-
-    .path-status {
-      border: 1px dashed #c9d3e5;
-      border-radius: 10px;
-      background: #fff;
-      color: #56657e;
-      font-size: 0.82rem;
-      padding: 8px;
-      margin-bottom: 8px;
-    }
-
-    .path-link,
-    .ctrl-group button,
-    .mini-btn,
-    .mode-btn {
-      border: 0;
-      border-radius: 10px;
-      padding: 9px 11px;
-      font-size: 0.86rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .path-link {
-      width: 100%;
-      color: #fff;
-      background: linear-gradient(135deg, #173262, #2d4f84);
-      margin-bottom: 8px;
-    }
-
-    .path-link.disabled {
-      opacity: 0.45;
-      pointer-events: none;
-      filter: grayscale(0.2);
-    }
-
-    .ctrl-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-
-    .ctrl-group button,
-    .mini-btn,
-    .mode-btn {
-      color: #fff;
-      background: linear-gradient(135deg, #173262, #345a95);
-    }
-
-    .ctrl-group .secondary,
-    .mini-btn.secondary,
-    .mode-btn.secondary {
-      background: #eef3fb;
-      color: #27426d;
-      border: 1px solid #c6d3e9;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
       gap: 12px;
     }
 
-    .chart-card,
-    .ctrl-card,
-    .neighbors-card { padding: 12px; }
-
-    .chart-wrap {
-      border: 1px solid #d8e0ee;
-      border-radius: 12px;
-      background: #f9fbff;
-      padding: 8px;
-      margin-top: 8px;
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
     }
 
-    canvas {
-      width: 100%;
-      height: 340px;
-      border-radius: 10px;
-      background: #fff;
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .button-row,
+    .k-buttons,
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .quiz-feedback,
+    .formula-block,
+    .callout,
+    .exercise-card,
+    .helper-note,
+    .storage-note {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong {
       display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
     }
 
-    .legend {
+    .chip { text-align: center; font-size: 0.84rem; }
+
+    .btn,
+    .sidebar-toggle,
+    .choice-btn,
+    .quiz-option {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .choice-btn,
+    .quiz-option {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .choice-btn:hover,
+    .quiz-option:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #ede4e9;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
       margin-top: 8px;
-      font-size: 0.82rem;
-      color: #53637d;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    .nav-link {
       display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      background: rgba(23, 50, 98, 0.06);
+      border-color: rgba(23, 50, 98, 0.14);
+      transform: translateX(2px);
+    }
+
+    .nav-copy strong { display: block; color: var(--text); }
+    .nav-copy span { color: var(--text-light); font-size: 0.84rem; }
+
+    .badge-grid { grid-template-columns: 1fr; margin-top: 12px; }
+    .badge-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #d8c9cf;
+      border-radius: 16px;
+      background: #fffafc;
+    }
+
+    .badge-item.is-earned {
+      border-color: rgba(23, 50, 98, 0.22);
+      background: #fffbf3;
+    }
+
+    .badge-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.12), rgba(23, 50, 98, 0.14));
+    }
+
+    .hero,
+    .footer-card {
+      max-width: var(--content-max);
+      margin: 0 auto 14px;
+      padding: 16px;
+    }
+
+    .sticky-shell {
+      position: sticky;
+      top: 14px;
+      max-width: var(--content-max);
+      margin: 0 auto 14px;
+      padding: 12px 14px;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .sticky-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .sticky-title {
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
       gap: 4px;
     }
 
-    .ctrl-row { margin-bottom: 10px; }
+    .module {
+      max-width: var(--content-max);
+      margin: 0 auto 14px;
+      padding: 16px;
+      scroll-margin-top: 120px;
+    }
 
-    .ctrl-row label {
+    .module.is-complete {
+      border-color: rgba(79, 122, 106, 0.35);
+      box-shadow: 0 18px 36px rgba(79, 122, 106, 0.12);
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+
+    .module-grid .full { grid-column: 1 / -1; }
+
+    .status-note.ok,
+    .quiz-feedback.ok {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: #3c5d51;
+    }
+
+    .status-note.warn,
+    .quiz-feedback.warn {
+      background: var(--warning-soft);
+      border-color: var(--warning-line);
+      color: #704b33;
+    }
+
+    .quiz-feedback.fail {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: #72303d;
+    }
+
+    .canvas-card,
+    .result-card,
+    .exercise-card {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .canvas-wrap {
+      border: 1px solid #d7c9cf;
+      border-radius: 16px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at center, rgba(23, 50, 98, 0.05), transparent 65%),
+        linear-gradient(180deg, #fafcff, #f4f6fa);
+      min-height: 360px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .legend {
+      display: grid;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 10px;
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      border-radius: 999px;
+      vertical-align: middle;
+    }
+
+    .legend .cl-a::before { background: var(--primary); }
+    .legend .cl-b::before { background: var(--secondary); }
+    .legend .cl-q::before { background: var(--success); }
+
+    .mini-metric {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mini-metric .chip {
+      background: #fff;
+      border: 1px solid #d9cbd1;
+    }
+
+    .range-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .range-row label {
       display: flex;
       justify-content: space-between;
-      font-size: 0.84rem;
-      color: #475773;
-      margin-bottom: 5px;
+      gap: 12px;
+      color: var(--text-light);
+      font-size: 0.88rem;
     }
 
     input[type="range"] { width: 100%; }
 
-    .mode-row {
+    .choice-btn.is-active,
+    .quiz-option.is-correct {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: #36594b;
+    }
+
+    .quiz-option.is-wrong {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: #72303d;
+    }
+
+    .quiz-question {
+      border: 0;
+      padding: 0;
+      margin: 0;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 10px;
     }
 
-    .mode-btn.active {
-      background: linear-gradient(135deg, #6f2d45, #8c4561);
-      color: #fff;
-    }
-
-    .chips {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .chip {
-      border: 1px solid #d4deee;
-      border-radius: 10px;
-      background: #fbfdff;
-      padding: 8px;
-      font-size: 0.82rem;
-      color: #4f5f79;
-      text-align: center;
-    }
-
-    .chip b { display: block; margin-top: 4px; color: #213f69; }
-
-    .neighbors-list {
-      margin: 8px 0 0;
-      padding-left: 18px;
-      font-size: 0.83rem;
-      color: #4a5b75;
-      line-height: 1.42;
-      display: grid;
-      gap: 4px;
-      max-height: 230px;
-      overflow: auto;
-    }
-
-    .formula-box {
-      margin-top: 8px;
-      border: 1px dashed #c8d4e8;
-      background: #f8fbff;
-      border-radius: 10px;
-      padding: 8px;
-      color: #3e4f69;
-      font-size: 0.83rem;
-      line-height: 1.42;
-    }
-
-    .quiz-box label {
-      display: block;
-      margin: 5px 0;
-      font-size: 0.84rem;
-      color: #4a5a74;
-    }
-
-    .quiz-box .feedback {
-      margin-top: 8px;
-      font-size: 0.83rem;
+    .quiz-question legend {
       font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
     }
 
-    .feedback.ok { color: var(--ok); }
-    .feedback.warn { color: var(--warn); }
+    .exercise-card h4 { margin-bottom: 8px; }
+    .exercise-instruction,
+    .exercise-context,
+    .expected-output {
+      margin: 0 0 10px;
+      line-height: 1.55;
+    }
 
-    @media (max-width: 1020px) {
+    pre {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #211b24;
+      color: #f8fafc;
+      overflow-x: auto;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .reflection {
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-toggle { display: none; width: 100%; margin-top: 12px; }
+
+    .storage-note[hidden] { display: none; }
+    .hide-mobile { display: inline-flex; }
+
+    @media (max-width: 980px) {
       #app { grid-template-columns: 1fr; }
-      #sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
-      .grid { grid-template-columns: 1fr; }
-      .ctrl-group { grid-template-columns: 1fr 1fr; }
+      #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(88vw, 340px);
+        transform: translateX(-102%);
+        transition: transform 0.2s ease;
+        box-shadow: 0 18px 36px rgba(35, 26, 36, 0.18);
+      }
+      body.sidebar-open #sidebar { transform: translateX(0); }
+      #stage { padding: 12px; }
+      .sidebar-toggle { display: inline-flex; }
+      .hide-mobile { display: none; }
+    }
+
+    @media (max-width: 760px) {
+      .meta-grid,
+      .chip-row,
+      .module-grid,
+      .mini-metric {
+        grid-template-columns: 1fr;
+      }
+      .sticky-top { align-items: flex-start; }
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <aside id="sidebar">
-      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
-      <h1>Thema 5: KNN Grundlagen</h1>
-      <p class="lead">Aehnlichkeit statt Formelzwang: KNN ist ueberwachtes Lernen und ordnet neue Faelle nach naechsten Nachbarn ein.</p>
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <div class="brandline" data-i18n-de="AS Digital Marketing | Data Science Lernpfad" data-i18n-en="AS Digital Marketing | Data Science learning path">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1 data-i18n-de="KNN-Grundlagen" data-i18n-en="KNN fundamentals">KNN-Grundlagen</h1>
+      <p class="lead" data-i18n-de="Ähnlichkeit statt Formel: Du lernst, wie K-Nearest Neighbors neue Fälle über ihre Nachbarschaft einordnet und warum die Wahl von k so entscheidend ist." data-i18n-en="Similarity instead of a fixed formula: you learn how K-nearest neighbors classifies new cases through their neighborhood and why the choice of k matters so much.">Ähnlichkeit statt Formel: Du lernst, wie K-Nearest Neighbors neue Fälle über ihre Nachbarschaft einordnet und warum die Wahl von k so entscheidend ist.</p>
 
-      <div class="card">
-        <strong>Story</strong>
-        <p>Mira sortiert ein neues Produkt in ein Regal ein. Sie fragt: Welche vorhandenen Produkte sehen am aehnlichsten aus?</p>
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Kontext" data-i18n-en="Context">Kontext</div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong data-i18n-de="Alltag" data-i18n-en="Everyday life">Alltag</strong>
+            <span data-i18n-de="Wohnungssuche, Eisdiele, ähnliche Kundengruppen" data-i18n-en="Apartment search, ice cream shop, similar customer groups">Wohnungssuche, Eisdiele, ähnliche Kundengruppen</span>
+          </div>
+          <div class="meta-card">
+            <strong data-i18n-de="Vorher" data-i18n-en="Before">Vorher</strong>
+            <a href="feature_engineering.html" data-i18n-de="Feature Engineering" data-i18n-en="Feature engineering">Feature Engineering</a>
+          </div>
+          <div class="meta-card">
+            <strong data-i18n-de="Danach" data-i18n-en="After">Danach</strong>
+            <a href="knn_hyperparameter_tuning_interaktion.html" data-i18n-de="KNN-Hyperparameter" data-i18n-en="KNN hyperparameters">KNN-Hyperparameter</a>
+          </div>
+          <div class="meta-card">
+            <strong data-i18n-de="Format" data-i18n-en="Format">Format</strong>
+            <span data-i18n-de="Webinar plus Selbststudium, komplett im Browser" data-i18n-en="Webinar plus self-study, fully in the browser">Webinar plus Selbststudium, komplett im Browser</span>
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <strong>Formel-Leseschluessel</strong>
-        <p>Distanz (2D): d = sqrt((x1-x2)^2 + (y1-y2)^2). Klassifikation: Mehrheitsvotum der k naechsten Nachbarn. Regression: Mittelwert der Zielwerte der k naechsten Nachbarn.</p>
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Fortschritt" data-i18n-en="Progress">Fortschritt</div>
+        <div class="progress-track" aria-hidden="true"><div id="sidebar-progress-fill" class="progress-fill"></div></div>
+        <div class="progress-label">
+          <span id="sidebar-progress-label">0 von 6 Modulen erledigt</span>
+          <span id="sidebar-points-label">0 Punkte</span>
+        </div>
+        <p class="lead" style="margin-top:10px;">
+          <span data-i18n-de="Rang:" data-i18n-en="Rank:">Rang:</span>
+          <strong id="sidebar-rank">Nachbarschafts-Neuling</strong>.
+          <span data-i18n-de="Jede richtige Antwort gibt 10 Punkte. Falsche Antworten kosten nichts und lassen sich sofort korrigieren." data-i18n-en="Each correct answer gives 10 points. Wrong answers cost nothing and can be corrected immediately.">Jede richtige Antwort gibt 10 Punkte. Falsche Antworten kosten nichts und lassen sich sofort korrigieren.</span>
+        </p>
       </div>
 
-      <div class="step-box">
-        <h3 id="step-title"></h3>
-        <p id="step-text"></p>
-        <div class="step-action"><strong>Aktion jetzt:</strong> <span id="step-action"></span></div>
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Schritte 1 bis 6" data-i18n-en="Steps 1 to 6">Schritte 1 bis 6</div>
+        <nav id="module-nav"></nav>
       </div>
 
-      <div class="chat-box">
-        <strong>Diskussionsfrage</strong>
-        <p id="chat-question"></p>
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Badges" data-i18n-en="Badges">Badges</div>
+        <div id="badge-grid" class="badge-grid"></div>
       </div>
 
-      <div class="answer-box">
-        <strong>Aufloesung</strong>
-        <p id="answer-text"></p>
-      </div>
-
-      <div class="timeline" id="timeline"></div>
-
-      <div class="usage-box">
-        <strong>Praxis-Uebertrag:</strong><br>
-        KNN ist ein nicht-parametrisches Verfahren mit kaum Verteilungsannahmen. Es funktioniert fuer Klassifikation (Modus) und Regression (Mittelwert).
-      </div>
-
-      <div class="path-box">
-        <strong>Naechste Schritte</strong>
-        <div class="path-status" id="path-status">Nach Schritt 6 und Mini-Check wird Thema 6 (KNN Tuning) freigeschaltet.</div>
-        <a id="to-next-link" class="path-link disabled" href="knn_hyperparameter_tuning_interaktion.html" aria-disabled="true">Weiter zu Thema 6: KNN Hyperparameter-Tuning</a>
-        <a class="path-link" href="klassifikation_metriken_interaktion.html">Zurueck zu Thema 4: Klassifikation und Metriken</a>
-      </div>
-
-      <div class="ctrl-group">
-        <button id="prev-step" class="secondary" hidden>Vorheriger Schritt</button>
-        <button id="next-step">Naechster Schritt</button>
-        <button id="reset-session" class="secondary">Reset</button>
-      </div>
+      <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Navigation ein- oder ausblenden" data-i18n-aria-label-de="Navigation ein- oder ausblenden" data-i18n-aria-label-en="Toggle navigation">
+        <span data-i18n-de="☰ Schritte" data-i18n-en="☰ Steps">☰ Schritte</span>
+      </button>
     </aside>
 
     <main id="stage">
-      <section class="grid">
-        <article class="chart-card">
-          <h3>KNN-Feld (2 Merkmale)</h3>
-          <p>x = Merkmal 1, y = Merkmal 2. Schwarzer Stern = neuer Fall.</p>
-          <div class="chart-wrap">
-            <canvas id="knn-canvas" width="760" height="480" aria-label="KNN Visualisierung mit Nachbarn"></canvas>
-          </div>
-          <div class="legend">
-            <span>Blau = Klasse Katze, Orange = Klasse Huehner.</span>
-            <span>Punktgroesse zeigt Distanzgewicht der gewaehlt-naechsten Nachbarn.</span>
-            <span>Gestrichelter Kreis markiert die Distanz zum k-ten Nachbarn.</span>
-          </div>
-        </article>
-
-        <article class="ctrl-card">
-          <h3>Steuerung</h3>
-          <div class="mode-row">
-            <button id="mode-class" class="mode-btn active" type="button">Klassifikation</button>
-            <button id="mode-reg" class="mode-btn secondary" type="button">Regression</button>
-          </div>
-          <div class="ctrl-row">
-            <label for="k-slider">Nachbarn k <output id="k-value" for="k-slider">3</output></label>
-            <input id="k-slider" type="range" min="1" max="9" step="2" value="3">
-          </div>
-          <div class="ctrl-row">
-            <label for="x-slider">Neuer Punkt x <output id="x-value" for="x-slider">54</output></label>
-            <input id="x-slider" type="range" min="8" max="92" step="1" value="54">
-          </div>
-          <div class="ctrl-row">
-            <label for="y-slider">Neuer Punkt y <output id="y-value" for="y-slider">58</output></label>
-            <input id="y-slider" type="range" min="8" max="92" step="1" value="58">
-          </div>
-
-          <div class="chips">
-            <div class="chip">Vorhersage<b id="chip-pred">-</b></div>
-            <div class="chip">KNN-Ausgabe<b id="chip-stat">-</b></div>
-            <div class="chip">Annahmecheck<b id="chip-assume">Aehnlich = nah</b></div>
-          </div>
-
-          <div class="formula-box" id="formula-box">Klassifikation: wir nehmen den Modus der k naechsten Nachbarn.</div>
-        </article>
-      </section>
-
-      <section class="neighbors-card">
-        <h3>Naechste Nachbarn (sortiert)</h3>
-        <p>So wird aus Distanz eine Entscheidung.</p>
-        <ol id="neighbors-list" class="neighbors-list"></ol>
-      </section>
-
-      <section class="quiz-box">
-        <h3>Mini-Check (3 Fragen)</h3>
-        <label><input type="radio" name="q1" value="a"> Bei KNN-Klassifikation wird meist der Modus der Nachbarn verwendet.</label>
-        <label><input type="radio" name="q1" value="b"> Bei KNN-Klassifikation wird immer der Median verwendet.</label>
-        <label><input type="radio" name="q2" value="a"> KNN ist typischerweise nicht-parametrisch und macht wenige Verteilungsannahmen.</label>
-        <label><input type="radio" name="q2" value="b"> KNN braucht strenge Normalverteilungsannahmen wie OLS-Tests.</label>
-        <label><input type="radio" name="q3" value="a"> Bei KNN-Regression wird aus Nachbarwerten meist ein Mittelwert gebildet.</label>
-        <label><input type="radio" name="q3" value="b"> Bei KNN-Regression wird immer eine Klasse ausgegeben.</label>
-        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button id="grade-quiz" class="mini-btn" type="button">Mini-Check auswerten</button>
-          <button id="unlock-next" class="mini-btn secondary" type="button">Weiterlink freischalten</button>
+      <section class="hero">
+        <div class="card-kicker" data-i18n-de="Was lernst du in diesem Kapitel?" data-i18n-en="What will you learn in this chapter?">Was lernst du in diesem Kapitel?</div>
+        <h2 data-i18n-de="KNN ordnet neue Fälle über Ähnlichkeit ein" data-i18n-en="KNN classifies new cases through similarity">KNN ordnet neue Fälle über Ähnlichkeit ein</h2>
+        <p class="lead" data-i18n-de="Du siehst, wie Distanz, Nachbarschaft und die Wahl von k zusammenhängen. Außerdem trainierst du den Unterschied zwischen Klassifikation und Regression mit derselben Methode." data-i18n-en="You see how distance, neighborhood and the choice of k fit together. You also practice the difference between classification and regression with the same method.">Du siehst, wie Distanz, Nachbarschaft und die Wahl von k zusammenhängen. Außerdem trainierst du den Unterschied zwischen Klassifikation und Regression mit derselben Methode.</p>
+        <div class="chip-row">
+          <div class="chip"><strong data-i18n-de="Alltag" data-i18n-en="Everyday life">Alltag</strong><span data-i18n-de="Wohnungssuche statt abstrakter Punktwolken" data-i18n-en="Apartment hunting instead of abstract point clouds">Wohnungssuche statt abstrakter Punktwolken</span></div>
+          <div class="chip"><strong data-i18n-de="Didaktik" data-i18n-en="Didactics">Didaktik</strong><span data-i18n-de="Erst Intuition, dann Demo, dann Python" data-i18n-en="First intuition, then demo, then Python">Erst Intuition, dann Demo, dann Python</span></div>
+          <div class="chip"><strong data-i18n-de="Transfer" data-i18n-en="Transfer">Transfer</strong><span data-i18n-de="Brücke zu Tuning, Distanzmetriken und Scaling" data-i18n-en="Bridge to tuning, distance metrics and scaling">Brücke zu Tuning, Distanzmetriken und Scaling</span></div>
         </div>
-        <div id="quiz-feedback" class="feedback"></div>
       </section>
+
+      <section class="sticky-shell">
+        <div class="sticky-top">
+          <div class="sticky-title">
+            <span class="brandline" data-i18n-de="Aktiver Abschnitt" data-i18n-en="Active section">Aktiver Abschnitt</span>
+            <span id="sticky-title" data-i18n-de="Schritt 1 startet hier" data-i18n-en="Step 1 starts here">Schritt 1 startet hier</span>
+          </div>
+          <div class="button-row">
+            <a class="btn ghost hide-mobile" href="feature_engineering.html" data-i18n-de="← Zurück zu Feature Engineering" data-i18n-en="← Back to feature engineering">← Zurück zu Feature Engineering</a>
+            <button id="jump-first-open" class="btn secondary" type="button" data-i18n-de="Zum nächsten offenen Modul" data-i18n-en="Go to the next open module">Zum nächsten offenen Modul</button>
+            <button id="reset-progress" class="btn ghost" type="button" data-i18n-de="Fortschritt zurücksetzen" data-i18n-en="Reset progress">Fortschritt zurücksetzen</button>
+          </div>
+        </div>
+        <div class="progress-track" aria-hidden="true"><div id="stage-progress-fill" class="progress-fill"></div></div>
+        <div class="progress-label">
+          <span id="stage-progress-label">0 Prozent abgeschlossen</span>
+          <strong id="rank-label">Rang: Nachbarschafts-Neuling</strong>
+        </div>
+      </section>
+
+      <section id="module-1" class="module lesson-step" data-step="1">
+        <div class="card-kicker" data-i18n-de="Schritt 1 · Die Idee" data-i18n-en="Step 1 · The idea">Schritt 1 · Die Idee</div>
+        <h2 data-i18n-de="Was macht KNN überhaupt?" data-i18n-en="What does KNN actually do?">Was macht KNN überhaupt?</h2>
+        <p class="lead" data-i18n-de="KNN entscheidet nicht über eine feste Formel, sondern fragt: Welche bekannten Fälle liegen dem neuen Fall am nächsten?" data-i18n-en="KNN does not decide with a fixed formula. It asks: which known cases are closest to the new case?">KNN entscheidet nicht über eine feste Formel, sondern fragt: Welche bekannten Fälle liegen dem neuen Fall am nächsten?</p>
+        <div id="status-1" class="status-note warn" data-i18n-de="Noch offen. Ordne die Alltagsszene ein und prüfe danach die zwei Aussagen." data-i18n-en="Still open. Interpret the everyday scene and then check the two statements.">Noch offen. Ordne die Alltagsszene ein und prüfe danach die zwei Aussagen.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+            <p data-i18n-de="Stell dir vor, du suchst in Köln eine neue Wohnung. Eine freie Wohnung ist 68 m² groß, hat einen Balkon und liegt acht Minuten von der Bahn entfernt. Du fragst dich: Gehört sie eher in die Gruppe 'eher teuer' oder 'eher bezahlbar'?" data-i18n-en="Imagine you are looking for a new apartment in Cologne. One open apartment has 68 square meters, a balcony and is eight minutes from the train. You wonder: does it belong more to the group 'rather expensive' or 'rather affordable'?">Stell dir vor, du suchst in Köln eine neue Wohnung. Eine freie Wohnung ist 68 m² groß, hat einen Balkon und liegt acht Minuten von der Bahn entfernt. Du fragst dich: Gehört sie eher in die Gruppe 'eher teuer' oder 'eher bezahlbar'?</p>
+            <p data-i18n-de="KNN schaut nicht zuerst auf eine Gleichung, sondern auf ähnliche Wohnungen, die du schon kennst. Es nimmt also Nachbarschaft als Abkürzung für Entscheidung." data-i18n-en="KNN does not look at an equation first. It looks at similar apartments you already know. It uses neighborhood as a shortcut for decision making.">KNN schaut nicht zuerst auf eine Gleichung, sondern auf ähnliche Wohnungen, die du schon kennst. Es nimmt also Nachbarschaft als Abkürzung für Entscheidung.</p>
+          </article>
+          <article class="formula-block">
+            <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+            <p data-i18n-de="Die Merkmale sind zum Beispiel Größe, Balkon und Entfernung. Die Zielvariable ist hier die Klasse 'teuer' oder 'bezahlbar'. KNN vergleicht den neuen Punkt mit vorhandenen Trainingspunkten." data-i18n-en="The features are, for example, size, balcony and distance. The target variable here is the class 'expensive' or 'affordable'. KNN compares the new point with existing training points.">Die Merkmale sind zum Beispiel Größe, Balkon und Entfernung. Die Zielvariable ist hier die Klasse 'teuer' oder 'bezahlbar'. KNN vergleicht den neuen Punkt mit vorhandenen Trainingspunkten.</p>
+            <p><button class="glossary-term" type="button" data-term="k" data-term-en="k" data-definition="k ist die Anzahl der Nachbarn, die in die Entscheidung einbezogen werden." data-definition-en="k is the number of neighbors used for the decision.">k</button> <span data-i18n-de="gibt an, wie viele dieser Nachbarn mitzählen." data-i18n-en="tells us how many of those neighbors are counted.">gibt an, wie viele dieser Nachbarn mitzählen.</span></p>
+          </article>
+          <article class="canvas-card full">
+            <h3 data-i18n-de="Mini-Interaktion" data-i18n-en="Mini interaction">Mini-Interaktion</h3>
+            <p class="lead" data-i18n-de="Welche Beschreibung passt am besten zu KNN?" data-i18n-en="Which description fits KNN best?">Welche Beschreibung passt am besten zu KNN?</p>
+            <div class="button-row">
+              <button class="choice-btn" type="button" data-m1-choice="neighbors" data-i18n-de="KNN schaut zuerst auf ähnliche bekannte Fälle" data-i18n-en="KNN first looks at similar known cases">KNN schaut zuerst auf ähnliche bekannte Fälle</button>
+              <button class="choice-btn" type="button" data-m1-choice="formula" data-i18n-de="KNN braucht immer zuerst eine Gerade" data-i18n-en="KNN always needs a line first">KNN braucht immer zuerst eine Gerade</button>
+              <button class="choice-btn" type="button" data-m1-choice="probability" data-i18n-de="KNN gibt immer nur Wahrscheinlichkeiten aus" data-i18n-en="KNN always outputs probabilities only">KNN gibt immer nur Wahrscheinlichkeiten aus</button>
+            </div>
+            <div id="module-1-feedback" class="quiz-feedback" data-i18n-de="Wähle eine Aussage. Du bekommst sofort Feedback und kannst falsche Antworten direkt korrigieren." data-i18n-en="Choose one statement. You get immediate feedback and can correct wrong answers right away.">Wähle eine Aussage. Du bekommst sofort Feedback und kannst falsche Antworten direkt korrigieren.</div>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: Ein KNN-Modell mit sklearn vorbereiten" data-i18n-en="🏋️ Exercise: Prepare a KNN model with sklearn">🏋️ Übung: Ein KNN-Modell mit sklearn vorbereiten</h4>
+            <p class="exercise-instruction" data-i18n-de="Dieser Startercode basiert auf dem KNN-sklearn-Notebook. Ergänze die Modellzeile so, dass ein Klassifikator mit fünf Nachbarn erstellt wird." data-i18n-en="This starter code is based on the KNN sklearn notebook. Complete the model line so that a classifier with five neighbors is created.">Dieser Startercode basiert auf dem KNN-sklearn-Notebook. Ergänze die Modellzeile so, dass ein Klassifikator mit fünf Nachbarn erstellt wird.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code>from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, random_state=1
+)
+knn = # ??? DEINE LÖSUNG ???</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="Im Notebook heißt die Klasse genau wie das Verfahren. Nur die Zahl der Nachbarn musst du hier setzen." data-i18n-en="In the notebook, the class has the same name as the method. Here you only need to set the number of neighbors.">Im Notebook heißt die Klasse genau wie das Verfahren. Nur die Zahl der Nachbarn musst du hier setzen.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, random_state=1
+)
+knn = KNeighborsClassifier(n_neighbors=5)</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: `KNeighborsClassifier()`" data-i18n-en="Expected output: `KNeighborsClassifier()`">Erwartete Ausgabe: `KNeighborsClassifier()`</p>
+            </details>
+          </article>
+          <article class="callout full">
+            <p class="reflection" data-i18n-de="Was nimmst du mit?" data-i18n-en="What do you take away?">Was nimmst du mit?</p>
+            <p data-i18n-de="KNN lebt von Ähnlichkeit. Das Modell braucht keine globale Formel, sondern gute Vergleichsfälle." data-i18n-en="KNN lives from similarity. The model does not need a global formula, but good comparison cases.">KNN lebt von Ähnlichkeit. Das Modell braucht keine globale Formel, sondern gute Vergleichsfälle.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-2" class="module lesson-step" data-step="2">
+        <div class="card-kicker" data-i18n-de="Schritt 2 · Distanz" data-i18n-en="Step 2 · Distance">Schritt 2 · Distanz</div>
+        <h2 data-i18n-de="Wer ist dem neuen Fall am nächsten?" data-i18n-en="Who is closest to the new case?">Wer ist dem neuen Fall am nächsten?</h2>
+        <p class="lead" data-i18n-de="Die Wahl der Nachbarn hängt von der Distanz ab. Im ersten KNN-Schritt musst du deshalb sehen, welche Punkte wirklich nah sind." data-i18n-en="The choice of neighbors depends on distance. In the first KNN step, you therefore have to see which points are truly close.">Die Wahl der Nachbarn hängt von der Distanz ab. Im ersten KNN-Schritt musst du deshalb sehen, welche Punkte wirklich nah sind.</p>
+        <div id="status-2" class="status-note warn" data-i18n-de="Noch offen. Verschiebe den Zielpunkt und finde die drei nächsten Nachbarn." data-i18n-en="Still open. Move the target point and identify the three nearest neighbors.">Noch offen. Verschiebe den Zielpunkt und finde die drei nächsten Nachbarn.</div>
+        <div class="module-grid">
+          <article class="canvas-card">
+            <h3 data-i18n-de="Interaktive Nachbarschaft" data-i18n-en="Interactive neighborhood">Interaktive Nachbarschaft</h3>
+            <div class="canvas-wrap">
+              <svg id="knn-scatter" viewBox="0 0 600 360" role="img" aria-label="KNN-Streudiagramm"></svg>
+            </div>
+            <div class="legend">
+              <span class="cl-a" data-i18n-de="Bordeaux = eher teuer" data-i18n-en="Bordeaux = rather expensive">Bordeaux = eher teuer</span>
+              <span class="cl-b" data-i18n-de="Blau = eher bezahlbar" data-i18n-en="Blue = rather affordable">Blau = eher bezahlbar</span>
+              <span class="cl-q" data-i18n-de="Grün = neuer Fall" data-i18n-en="Green = new case">Grün = neuer Fall</span>
+            </div>
+          </article>
+          <article class="result-card">
+            <h3 data-i18n-de="Steuerung" data-i18n-en="Controls">Steuerung</h3>
+            <div class="range-row">
+              <label for="query-x"><span data-i18n-de="Größe" data-i18n-en="Size">Größe</span><output id="query-x-output">63</output></label>
+              <input id="query-x" type="range" min="35" max="95" step="1" value="63">
+            </div>
+            <div class="range-row">
+              <label for="query-y"><span data-i18n-de="Entfernung zur Bahn" data-i18n-en="Distance to train">Entfernung zur Bahn</span><output id="query-y-output">10</output></label>
+              <input id="query-y" type="range" min="2" max="18" step="1" value="10">
+            </div>
+            <div class="mini-metric">
+              <div class="chip"><strong data-i18n-de="Nächster Nachbar" data-i18n-en="Nearest neighbor">Nächster Nachbar</strong><span id="nearest-label">B-03</span></div>
+              <div class="chip"><strong data-i18n-de="Mittlere Nähe" data-i18n-en="Average distance">Mittlere Nähe</strong><span id="distance-label">8.2</span></div>
+              <div class="chip"><strong data-i18n-de="Hinweis" data-i18n-en="Hint">Hinweis</strong><span id="distance-hint" data-i18n-de="Nah an der Grenze" data-i18n-en="Close to the border">Nah an der Grenze</span></div>
+            </div>
+            <div class="formula-block" id="module-2-note" data-i18n-de="Beobachte, wie sich die drei hervorgehobenen Nachbarn ändern, wenn du den grünen Punkt verschiebst." data-i18n-en="Watch how the three highlighted neighbors change as you move the green point.">Beobachte, wie sich die drei hervorgehobenen Nachbarn ändern, wenn du den grünen Punkt verschiebst.</div>
+          </article>
+          <article class="formula-block full">
+            <h3 data-i18n-de="Formel in Alltagssprache" data-i18n-en="Formula in everyday language">Formel in Alltagssprache</h3>
+            <p><code>d = √((x₁ - x₂)² + (y₁ - y₂)²)</code></p>
+            <p data-i18n-de="Die Distanz sagt: Wie weit liegen zwei Wohnungen im Merkmalsraum auseinander? Je kleiner der Abstand, desto stärker zählt ein Fall als Nachbar." data-i18n-en="Distance says: how far apart are two apartments in feature space? The smaller the distance, the more strongly a case counts as a neighbor.">Die Distanz sagt: Wie weit liegen zwei Wohnungen im Merkmalsraum auseinander? Je kleiner der Abstand, desto stärker zählt ein Fall als Nachbar.</p>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: Manhattan-Distanz aus dem Notebook" data-i18n-en="🏋️ Exercise: Manhattan distance from the notebook">🏋️ Übung: Manhattan-Distanz aus dem Notebook</h4>
+            <p class="exercise-instruction" data-i18n-de="Die KNN-Notebooks arbeiten zuerst mit einfachen Distanzbeispielen. Ergänze die fehlende Zeile, damit die Manhattan-Distanz zwischen zwei Punkten berechnet wird." data-i18n-en="The KNN notebooks start with simple distance examples. Fill in the missing line so that the Manhattan distance between two points is calculated.">Die KNN-Notebooks arbeiten zuerst mit einfachen Distanzbeispielen. Ergänze die fehlende Zeile, damit die Manhattan-Distanz zwischen zwei Punkten berechnet wird.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code>point_1 = (2, 3, 5)
+point_2 = (1, -1, 3)
+manhattan_distance = 0
+
+for i in range(3):
+    manhattan_distance += # ??? DEINE LÖSUNG ???
+
+print(manhattan_distance)</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="Bei Manhattan zählst du pro Dimension die absolute Differenz und addierst alles auf." data-i18n-en="For Manhattan distance, you add the absolute difference in each dimension.">Bei Manhattan zählst du pro Dimension die absolute Differenz und addierst alles auf.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>point_1 = (2, 3, 5)
+point_2 = (1, -1, 3)
+manhattan_distance = 0
+
+for i in range(3):
+    manhattan_distance += abs(point_1[i] - point_2[i])
+
+print(manhattan_distance)</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: `7`" data-i18n-en="Expected output: `7`">Erwartete Ausgabe: `7`</p>
+            </details>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-3" class="module lesson-step" data-step="3">
+        <div class="card-kicker" data-i18n-de="Schritt 3 · Entscheidung" data-i18n-en="Step 3 · Decision">Schritt 3 · Entscheidung</div>
+        <h2 data-i18n-de="Was macht k mit der Vorhersage?" data-i18n-en="What does k do to the prediction?">Was macht k mit der Vorhersage?</h2>
+        <p class="lead" data-i18n-de="Mit kleinem k zählt die unmittelbare Umgebung stark. Mit größerem k wird die Entscheidung ruhiger, aber oft auch grober." data-i18n-en="With small k, the immediate neighborhood matters a lot. With larger k, the decision becomes calmer, but often also coarser.">Mit kleinem k zählt die unmittelbare Umgebung stark. Mit größerem k wird die Entscheidung ruhiger, aber oft auch grober.</p>
+        <div id="status-3" class="status-note warn" data-i18n-de="Noch offen. Vergleiche k = 1, 3 und 7 und beantworte danach die Quizfrage." data-i18n-en="Still open. Compare k = 1, 3 and 7 and then answer the quiz question.">Noch offen. Vergleiche k = 1, 3 und 7 und beantworte danach die Quizfrage.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Mehrheitsentscheid" data-i18n-en="Majority vote">Mehrheitsentscheid</h3>
+            <p data-i18n-de="Bei der Klassifikation entscheidet meist der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term=&quot;Modus&quot; data-term-en=&quot;Mode&quot; data-definition=&quot;Der Modus ist die häufigste Klasse unter den gezählten Nachbarn.&quot; data-definition-en=&quot;The mode is the most frequent class among the counted neighbors.&quot;>Modus</button>. Das ist einfach gesagt die Klasse, die unter den k Nachbarn am häufigsten vorkommt." data-i18n-html-en="In classification, the <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term=&quot;Mode&quot; data-term-en=&quot;Mode&quot; data-definition=&quot;Der Modus ist die häufigste Klasse unter den gezählten Nachbarn.&quot; data-definition-en=&quot;The mode is the most frequent class among the counted neighbors.&quot;>mode</button> usually decides. Put simply, it is the class that appears most often among the k neighbors.">Bei der Klassifikation entscheidet meist der <button class="glossary-term" type="button" data-term="Modus" data-term-en="Mode" data-definition="Der Modus ist die häufigste Klasse unter den gezählten Nachbarn." data-definition-en="The mode is the most frequent class among the counted neighbors.">Modus</button>. Das ist einfach gesagt die Klasse, die unter den k Nachbarn am häufigsten vorkommt.</p>
+            <p data-i18n-de="Bei KNN-Regression wird statt einer Klasse ein Mittelwert aus den Zielwerten der Nachbarn gebildet." data-i18n-en="In KNN regression, an average of the neighbors' target values is used instead of a class.">Bei KNN-Regression wird statt einer Klasse ein Mittelwert aus den Zielwerten der Nachbarn gebildet.</p>
+          </article>
+          <article class="result-card">
+            <h3 data-i18n-de="k live ändern" data-i18n-en="Change k live">k live ändern</h3>
+            <div class="k-buttons">
+              <button class="choice-btn" type="button" data-k-value="1">k = 1</button>
+              <button class="choice-btn" type="button" data-k-value="3">k = 3</button>
+              <button class="choice-btn" type="button" data-k-value="7">k = 7</button>
+            </div>
+            <div class="mini-metric" style="margin-top:12px;">
+              <div class="chip"><strong>k</strong><span id="k-readout">3</span></div>
+              <div class="chip"><strong data-i18n-de="Prognose" data-i18n-en="Prediction">Prognose</strong><span id="class-readout">eher teuer</span></div>
+              <div class="chip"><strong data-i18n-de="Mehrheit" data-i18n-en="Majority">Mehrheit</strong><span id="majority-readout">2 zu 1</span></div>
+            </div>
+            <div id="module-3-note" class="quiz-feedback warn" data-i18n-de="Starte mit k = 3. Danach beobachte, wie die Entscheidung bei k = 1 nervöser und bei k = 7 grober wird." data-i18n-en="Start with k = 3. Then watch how the decision becomes more nervous with k = 1 and coarser with k = 7.">Starte mit k = 3. Danach beobachte, wie die Entscheidung bei k = 1 nervöser und bei k = 7 grober wird.</div>
+          </article>
+          <article class="canvas-card full">
+            <h3 data-i18n-de="Quiz" data-i18n-en="Quiz">Quiz</h3>
+            <fieldset class="quiz-question">
+              <legend data-i18n-de="Was ist der häufigste Grund, warum k = 1 besonders empfindlich ist?" data-i18n-en="What is the most common reason why k = 1 is especially sensitive?">Was ist der häufigste Grund, warum k = 1 besonders empfindlich ist?</legend>
+              <div class="quiz-options">
+                <button class="quiz-option" type="button" data-m3-answer="correct" data-i18n-de="Weil ein einzelner zufälliger Nachbar die Entscheidung sofort kippen kann" data-i18n-en="Because a single random neighbor can immediately flip the decision">Weil ein einzelner zufälliger Nachbar die Entscheidung sofort kippen kann</button>
+                <button class="quiz-option" type="button" data-m3-answer="wrong-a" data-i18n-de="Weil k = 1 automatisch skaliert" data-i18n-en="Because k = 1 automatically scales the data">Weil k = 1 automatisch skaliert</button>
+                <button class="quiz-option" type="button" data-m3-answer="wrong-b" data-i18n-de="Weil KNN dann keine Distanz mehr nutzt" data-i18n-en="Because KNN then stops using distance">Weil KNN dann keine Distanz mehr nutzt</button>
+              </div>
+            </fieldset>
+            <div id="module-3-feedback" class="quiz-feedback" data-i18n-de="Wähle eine Antwort. Du kannst direkt erneut prüfen." data-i18n-en="Choose an answer. You can try again immediately.">Wähle eine Antwort. Du kannst direkt erneut prüfen.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-4" class="module lesson-step" data-step="4">
+        <div class="card-kicker" data-i18n-de="Schritt 4 · Regression" data-i18n-en="Step 4 · Regression">Schritt 4 · Regression</div>
+        <h2 data-i18n-de="KNN kann auch Zahlen vorhersagen" data-i18n-en="KNN can also predict numbers">KNN kann auch Zahlen vorhersagen</h2>
+        <p class="lead" data-i18n-de="Dieselbe Nachbarschaftsidee funktioniert nicht nur für Klassen, sondern auch für stetige Zielwerte wie Preis, Stromverbrauch oder Eisverkauf." data-i18n-en="The same neighborhood idea works not only for classes, but also for continuous target values such as price, electricity use or ice cream sales.">Dieselbe Nachbarschaftsidee funktioniert nicht nur für Klassen, sondern auch für stetige Zielwerte wie Preis, Stromverbrauch oder Eisverkauf.</p>
+        <div id="status-4" class="status-note warn" data-i18n-de="Noch offen. Wechsle zwischen Klassifikation und Regression und erkläre den Unterschied." data-i18n-en="Still open. Switch between classification and regression and explain the difference.">Noch offen. Wechsle zwischen Klassifikation und Regression und erkläre den Unterschied.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+            <p data-i18n-de="In einer Eisdiele willst du nicht nur wissen, ob morgen 'viel' oder 'wenig' los ist. Oft willst du eine Zahl: etwa 320 verkaufte Kugeln. Dann ist KNN-Regresssion praktisch." data-i18n-en="In an ice cream shop, you often want more than 'busy' or 'quiet' tomorrow. You want a number, such as 320 scoops sold. That is where KNN regression becomes useful.">In einer Eisdiele willst du nicht nur wissen, ob morgen 'viel' oder 'wenig' los ist. Oft willst du eine Zahl: etwa 320 verkaufte Kugeln. Dann ist KNN-Regresssion praktisch.</p>
+          </article>
+          <article class="result-card">
+            <h3 data-i18n-de="Modus wechseln" data-i18n-en="Switch mode">Modus wechseln</h3>
+            <div class="button-row">
+              <button class="choice-btn is-active" type="button" data-mode="classification" data-i18n-de="Klassifikation" data-i18n-en="Classification">Klassifikation</button>
+              <button class="choice-btn" type="button" data-mode="regression" data-i18n-de="Regression" data-i18n-en="Regression">Regression</button>
+            </div>
+            <div class="mini-metric" style="margin-top:12px;">
+              <div class="chip"><strong data-i18n-de="Entscheidungsregel" data-i18n-en="Decision rule">Entscheidungsregel</strong><span id="mode-rule">Modus</span></div>
+              <div class="chip"><strong data-i18n-de="Ausgabe" data-i18n-en="Output">Ausgabe</strong><span id="mode-output">eher teuer</span></div>
+              <div class="chip"><strong data-i18n-de="Bedeutung" data-i18n-en="Meaning">Bedeutung</strong><span id="mode-meaning">Klasse</span></div>
+            </div>
+            <div id="module-4-note" class="formula-block" data-i18n-de="Klassifikation gibt eine Klasse aus. Regression gibt einen Mittelwert aus." data-i18n-en="Classification returns a class. Regression returns an average.">Klassifikation gibt eine Klasse aus. Regression gibt einen Mittelwert aus.</div>
+          </article>
+          <article class="canvas-card full">
+            <h3 data-i18n-de="Reflexionsfrage" data-i18n-en="Reflection question">Reflexionsfrage</h3>
+            <fieldset class="quiz-question">
+              <legend data-i18n-de="Wann passt KNN-Regression besser als KNN-Klassifikation?" data-i18n-en="When does KNN regression fit better than KNN classification?">Wann passt KNN-Regression besser als KNN-Klassifikation?</legend>
+              <div class="quiz-options">
+                <button class="quiz-option" type="button" data-m4-answer="wrong-a" data-i18n-de="Wenn du Kategorien wie 'Spam' und 'kein Spam' vorhersagen willst" data-i18n-en="When you want to predict categories like 'spam' and 'not spam'">Wenn du Kategorien wie 'Spam' und 'kein Spam' vorhersagen willst</button>
+                <button class="quiz-option" type="button" data-m4-answer="correct" data-i18n-de="Wenn die Zielvariable ein Zahlenwert wie Preis oder Verbrauch ist" data-i18n-en="When the target variable is a numeric value such as price or consumption">Wenn die Zielvariable ein Zahlenwert wie Preis oder Verbrauch ist</button>
+                <button class="quiz-option" type="button" data-m4-answer="wrong-b" data-i18n-de="Wenn du überhaupt keine Nachbarn vergleichen willst" data-i18n-en="When you do not want to compare neighbors at all">Wenn du überhaupt keine Nachbarn vergleichen willst</button>
+              </div>
+            </fieldset>
+            <div id="module-4-feedback" class="quiz-feedback" data-i18n-de="Wähle eine Antwort und lies die Begründung." data-i18n-en="Choose an answer and read the explanation.">Wähle eine Antwort und lies die Begründung.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-5" class="module lesson-step" data-step="5">
+        <div class="card-kicker" data-i18n-de="Schritt 5 · Python" data-i18n-en="Step 5 · Python">Schritt 5 · Python</div>
+        <h2 data-i18n-de="Der sklearn-Workflow aus dem Notebook" data-i18n-en="The sklearn workflow from the notebook">Der sklearn-Workflow aus dem Notebook</h2>
+        <p class="lead" data-i18n-de="Jetzt verbindest du die Idee mit echtem Python-Code. Der Ablauf ist derselbe wie in den Notebooks: Daten laden, splitten, Modell fitten, vorhersagen, auswerten." data-i18n-en="Now you connect the idea with real Python code. The workflow is the same as in the notebooks: load data, split data, fit the model, predict, evaluate.">Jetzt verbindest du die Idee mit echtem Python-Code. Der Ablauf ist derselbe wie in den Notebooks: Daten laden, splitten, Modell fitten, vorhersagen, auswerten.</p>
+        <div id="status-5" class="status-note warn" data-i18n-de="Noch offen. Lies das Codebeispiel und ergänze danach die Vorhersagezeile in der Übung." data-i18n-en="Still open. Read the code example and then complete the prediction line in the exercise.">Noch offen. Lies das Codebeispiel und ergänze danach die Vorhersagezeile in der Übung.</div>
+        <div class="module-grid">
+          <article class="exercise-card">
+            <h3 data-i18n-de="Code-Beispiel" data-i18n-en="Code example">Code-Beispiel</h3>
+            <pre><code>from sklearn.datasets import load_breast_cancer
+from sklearn.metrics import accuracy_score, recall_score
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, random_state=1
+)
+
+knn = KNeighborsClassifier(n_neighbors=5, metric="euclidean")
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
+
+print("Accuracy:", round(accuracy_score(y_test, y_pred), 2))
+print("Recall:", round(recall_score(y_test, y_pred), 2))</code></pre>
+          </article>
+          <article class="callout">
+            <h3 data-i18n-de="Was passiert hier?" data-i18n-en="What happens here?">Was passiert hier?</h3>
+            <p data-i18n-de="Das Beispiel stammt aus dem sklearn-KNN-Notebook und ist auf den Kern gekürzt. Neu ist hier vor allem die Modellzeile: Dort werden die Anzahl der Nachbarn und die Distanzmetrik festgelegt." data-i18n-en="This example comes from the sklearn KNN notebook and is reduced to the core. The main new piece is the model line: that is where the number of neighbors and the distance metric are set.">Das Beispiel stammt aus dem sklearn-KNN-Notebook und ist auf den Kern gekürzt. Neu ist hier vor allem die Modellzeile: Dort werden die Anzahl der Nachbarn und die Distanzmetrik festgelegt.</p>
+            <p data-i18n-de="Danach läuft KNN wie andere sklearn-Modelle: <code>fit()</code>, <code>predict()</code>, dann eine Metrik wie Accuracy oder Recall." data-i18n-html-en="After that, KNN behaves like other sklearn models: <code>fit()</code>, <code>predict()</code>, then a metric such as accuracy or recall.">Danach läuft KNN wie andere sklearn-Modelle: <code>fit()</code>, <code>predict()</code>, dann eine Metrik wie Accuracy oder Recall.</p>
+          </article>
+          <article class="exercise-card full">
+            <h4 data-i18n-de="🏋️ Übung: Vorhersage aus dem Notebook ergänzen" data-i18n-en="🏋️ Exercise: Complete the prediction line from the notebook">🏋️ Übung: Vorhersage aus dem Notebook ergänzen</h4>
+            <p class="exercise-instruction" data-i18n-de="Die Trainingsphase ist schon erledigt. Ergänze jetzt die Zeile, die Vorhersagen für den Testsatz berechnet." data-i18n-en="The training phase is already done. Now complete the line that computes predictions for the test set.">Die Trainingsphase ist schon erledigt. Ergänze jetzt die Zeile, die Vorhersagen für den Testsatz berechnet.</p>
+            <p class="exercise-context" data-i18n-de="📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="📓 Open your Jupyter notebook or Google Colab and try it yourself.">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre><code>from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, random_state=1
+)
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+y_pred = # ??? DEINE LÖSUNG ???</code></pre>
+            <details class="hint">
+              <summary data-i18n-de="💡 Tipp anzeigen" data-i18n-en="💡 Show hint">💡 Tipp anzeigen</summary>
+              <p data-i18n-de="In sklearn fragt die Vorhersage immer das trainierte Modell nach neuen Daten." data-i18n-en="In sklearn, prediction always asks the trained model to process new data.">In sklearn fragt die Vorhersage immer das trainierte Modell nach neuen Daten.</p>
+            </details>
+            <details class="solution">
+              <summary data-i18n-de="✅ Lösung anzeigen" data-i18n-en="✅ Show solution">✅ Lösung anzeigen</summary>
+              <pre><code>from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, random_state=1
+)
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: ein Array mit Klassen 0 und 1" data-i18n-en="Expected output: an array with classes 0 and 1">Erwartete Ausgabe: ein Array mit Klassen 0 und 1</p>
+            </details>
+          </article>
+          <article class="canvas-card full">
+            <h3 data-i18n-de="Kurz-Check" data-i18n-en="Quick check">Kurz-Check</h3>
+            <p class="lead" data-i18n-de="Wenn dir der sklearn-Ablauf klar ist, bestätige das hier. Damit wird das Modul abgeschlossen." data-i18n-en="If the sklearn workflow is clear to you, confirm it here. That completes the module.">Wenn dir der sklearn-Ablauf klar ist, bestätige das hier. Damit wird das Modul abgeschlossen.</p>
+            <div class="button-row">
+              <button id="module-5-complete" class="btn secondary" type="button" data-i18n-de="Code verstanden" data-i18n-en="I understood the code">Code verstanden</button>
+            </div>
+            <div id="module-5-feedback" class="quiz-feedback" data-i18n-de="Bestätige den Ablauf, wenn fit, predict und Auswertung für dich zusammenpassen." data-i18n-en="Confirm the workflow once fit, predict and evaluation fit together for you.">Bestätige den Ablauf, wenn fit, predict und Auswertung für dich zusammenpassen.</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="module-6" class="module lesson-step" data-step="6">
+        <div class="card-kicker" data-i18n-de="Schritt 6 · Grenzen & Übergang" data-i18n-en="Step 6 · Limits & transition">Schritt 6 · Grenzen & Übergang</div>
+        <h2 data-i18n-de="Wann wird KNN schwierig?" data-i18n-en="When does KNN become difficult?">Wann wird KNN schwierig?</h2>
+        <p class="lead" data-i18n-de="KNN wirkt intuitiv, hat aber drei klassische Stolperstellen: falsches k, ungeeignete Distanzmetrik und unskalierte Merkmale." data-i18n-en="KNN feels intuitive, but it has three classic stumbling blocks: the wrong k, an unsuitable distance metric and unscaled features.">KNN wirkt intuitiv, hat aber drei klassische Stolperstellen: falsches k, ungeeignete Distanzmetrik und unskalierte Merkmale.</p>
+        <div id="status-6" class="status-note warn" data-i18n-de="Noch offen. Löse das Abschlussquiz vollständig, um das Kapitel sicher abzuschließen." data-i18n-en="Still open. Solve the final quiz completely to finish the chapter with confidence.">Noch offen. Löse das Abschlussquiz vollständig, um das Kapitel sicher abzuschließen.</div>
+        <div class="module-grid">
+          <article class="callout">
+            <h3 data-i18n-de="Drei typische Grenzen" data-i18n-en="Three common limits">Drei typische Grenzen</h3>
+            <ul>
+              <li data-i18n-de="Zu kleines k: Das Modell reagiert zu nervös auf einzelne Ausreißer." data-i18n-en="k too small: the model reacts too nervously to single outliers.">Zu kleines k: Das Modell reagiert zu nervös auf einzelne Ausreißer.</li>
+              <li data-i18n-de="Zu großes k: Das Modell mittelt zu stark und verliert lokale Struktur." data-i18n-en="k too large: the model averages too much and loses local structure.">Zu großes k: Das Modell mittelt zu stark und verliert lokale Struktur.</li>
+              <li data-i18n-de="Unskalierte Merkmale: Eine große Skala dominiert dann die Distanz unfair." data-i18n-en="Unscaled features: a large scale then dominates the distance unfairly.">Unskalierte Merkmale: Eine große Skala dominiert dann die Distanz unfairly.</li>
+            </ul>
+          </article>
+          <article class="formula-block">
+            <h3 data-i18n-de="Brücke zum nächsten Kapitel" data-i18n-en="Bridge to the next chapter">Brücke zum nächsten Kapitel</h3>
+            <p data-i18n-de="Als Nächstes geht es genau um diese Stellschrauben: Wie wählst du k systematisch? Wann hilft Distanzgewichtung? Und wie erkennst du Overfitting bei KNN?" data-i18n-en="Next, we focus exactly on these levers: how do you choose k systematically? When does distance weighting help? And how do you spot overfitting in KNN?">Als Nächstes geht es genau um diese Stellschrauben: Wie wählst du k systematisch? Wann hilft Distanzgewichtung? Und wie erkennst du Overfitting bei KNN?</p>
+          </article>
+          <article class="canvas-card full">
+            <h3 data-i18n-de="Abschlussquiz" data-i18n-en="Final quiz">Abschlussquiz</h3>
+            <div id="final-quiz"></div>
+          </article>
+          <article class="callout full">
+            <p class="reflection" data-i18n-de="Was nimmst du mit?" data-i18n-en="What do you take away?">Was nimmst du mit?</p>
+            <p data-i18n-de="KNN ist stark, wenn Ähnlichkeit eine gute Abkürzung ist. Damit es in der Praxis sauber funktioniert, musst du als Nächstes k, Distanz und Gewichtung bewusst abstimmen." data-i18n-en="KNN is strong when similarity is a good shortcut. For it to work cleanly in practice, you next need to tune k, distance and weighting deliberately.">KNN ist stark, wenn Ähnlichkeit eine gute Abkürzung ist. Damit es in der Praxis sauber funktioniert, musst du als Nächstes k, Distanz und Gewichtung bewusst abstimmen.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer-card">
+        <div>
+          <div class="card-kicker" data-i18n-de="Teil des Gesamtlehrpfads" data-i18n-en="Part of the overall learning path">Teil des Gesamtlehrpfads</div>
+          <h2 data-i18n-de="KNN verstanden, jetzt folgt das Tuning" data-i18n-en="KNN understood, tuning comes next">KNN verstanden, jetzt folgt das Tuning</h2>
+          <p class="lead" data-i18n-de="Du kennst jetzt die Grundidee, den Einfluss von k und den Unterschied zwischen Klassifikation und Regression. Im nächsten Kapitel geht es um die systematische Wahl von k, Gewichtung und Validierung." data-i18n-en="You now know the basic idea, the effect of k and the difference between classification and regression. The next chapter is about choosing k, weighting and validation systematically.">Du kennst jetzt die Grundidee, den Einfluss von k und den Unterschied zwischen Klassifikation und Regression. Im nächsten Kapitel geht es um die systematische Wahl von k, Gewichtung und Validierung.</p>
+        </div>
+        <div class="footer-links">
+          <a class="btn" href="knn_hyperparameter_tuning_interaktion.html" data-i18n-de="Weiter zu KNN-Hyperparameter" data-i18n-en="Continue to KNN hyperparameters">Weiter zu KNN-Hyperparameter</a>
+          <a class="btn secondary" href="feature_engineering.html" data-i18n-de="Zurück zu Feature Engineering" data-i18n-en="Back to feature engineering">Zurück zu Feature Engineering</a>
+        </div>
+        <p style="margin:0; color:var(--text-light);" data-i18n-de="Teil des Gesamtlehrpfads zu Klassifikation, KNN, Distanzmetriken und Feature Engineering." data-i18n-en="Part of the overall learning path on classification, KNN, distance metrics and feature engineering.">Teil des Gesamtlehrpfads zu Klassifikation, KNN, Distanzmetriken und Feature Engineering.</p>
+      </footer>
     </main>
   </div>
 
   <script>
-    const data = [
-      { id: "K1", x: 18, y: 26, cls: "Katze", value: 4.1 },
-      { id: "K2", x: 24, y: 44, cls: "Katze", value: 4.7 },
-      { id: "K3", x: 30, y: 20, cls: "Katze", value: 3.9 },
-      { id: "K4", x: 36, y: 36, cls: "Katze", value: 4.3 },
-      { id: "K5", x: 44, y: 24, cls: "Katze", value: 4.9 },
-      { id: "H1", x: 60, y: 66, cls: "Huehner", value: 8.7 },
-      { id: "H2", x: 68, y: 54, cls: "Huehner", value: 8.1 },
-      { id: "H3", x: 74, y: 72, cls: "Huehner", value: 9.0 },
-      { id: "H4", x: 82, y: 60, cls: "Huehner", value: 8.5 },
-      { id: "H5", x: 56, y: 80, cls: "Huehner", value: 8.9 }
+    const MODULES = [
+      { id: "module-1", short: { de: "KNN-Idee", en: "KNN idea" }, badge: { de: "Nachbarschaft", en: "Neighborhood" }, desc: { de: "Grundidee verstanden", en: "Understood the basic idea" } },
+      { id: "module-2", short: { de: "Distanz", en: "Distance" }, badge: { de: "Abstandsblick", en: "Distance eye" }, desc: { de: "Nahe Fälle erkannt", en: "Recognized nearby cases" } },
+      { id: "module-3", short: { de: "k-Entscheidung", en: "k decision" }, badge: { de: "Mehrheit", en: "Majority" }, desc: { de: "k sinnvoll gedeutet", en: "Interpreted k correctly" } },
+      { id: "module-4", short: { de: "Regression", en: "Regression" }, badge: { de: "Zahlenblick", en: "Number view" }, desc: { de: "Klasse und Zahl getrennt", en: "Separated class and value" } },
+      { id: "module-5", short: { de: "Python-Workflow", en: "Python workflow" }, badge: { de: "Notebook", en: "Notebook" }, desc: { de: "sklearn gelesen", en: "Read sklearn workflow" } },
+      { id: "module-6", short: { de: "Grenzen", en: "Limits" }, badge: { de: "Tuning-Brücke", en: "Tuning bridge" }, desc: { de: "Grenzen erkannt", en: "Recognized the limits" } }
     ];
 
-    const steps = [
-      {
-        title: "Schritt 1: Idee von KNN",
-        text: "KNN ist ein ueberwachtes Lernverfahren. Es fragt nicht zuerst nach einer Formel, sondern nach Naehe: Welche bekannten Punkte liegen am dichtesten am neuen Fall?",
-        action: "Lass den Modus auf Klassifikation und beobachte die k-naechsten Punkte.",
-        chat: "Warum kann Naehe in vielen Alltagsfaellen ein guter Start sein?",
-        answer: "Weil aehnliche Faelle oft aehnliche Ergebnisse haben - zum Beispiel Produktgruppen oder Kundensegmente."
-      },
-      {
-        title: "Schritt 2: k = 1 vs k = 3",
-        text: "Mit k=1 entscheidet genau ein Nachbar. Mit k=3 entsteht eine stabilere Mehrheitsentscheidung.",
-        action: "Schiebe k von 1 auf 3 und vergleiche Vorhersage und Nachbarliste.",
-        chat: "Welche Version wirkt robuster gegen einzelne Ausreisser?",
-        answer: "k=3 ist meist robuster als k=1, weil nicht ein einzelner Punkt alles bestimmt."
-      },
-      {
-        title: "Schritt 3: Klassifikation und Modus",
-        text: "Im Klassifikationsmodus zaehlt KNN die Klassen der naechsten Nachbarn. Die haeufigste Klasse gewinnt (Modus).",
-        action: "Beobachte, wie die Klasse im Chip bei veraendertem Punkt umschaltet.",
-        chat: "Was passiert bei Gleichstand?",
-        answer: "Dann braucht man eine Tie-Break-Regel (z. B. naehere Distanz priorisieren oder ungerades k waehlen)."
-      },
-      {
-        title: "Schritt 4: Regression und Mittelwert",
-        text: "KNN kann auch numerische Zielwerte vorhersagen. Dann wird aus den Nachbarn ein Mittelwert gebildet (Regression statt Klassifikation).",
-        action: "Wechsle auf Regression und vergleiche den Mittelwert der Nachbarwerte.",
-        chat: "Warum ist die Ausgabe jetzt eine Zahl statt Klasse?",
-        answer: "Weil das Ziel in der Regression kontinuierlich ist, nicht Ja/Nein."
-      },
-      {
-        title: "Schritt 5: Nicht-parametrisch",
-        text: "KNN ist nicht-parametrisch: Es nimmt keine starre globale Funktionsform an. Das ist flexibel, braucht aber gute Distanz- und k-Wahl.",
-        action: "Verschiebe den neuen Punkt in Randbereiche und beobachte, wie lokal die Entscheidung bleibt.",
-        chat: "Welche Staerke hat dieser lokale Ansatz?",
-        answer: "Unregelmaessige Grenzen sind moeglich, wo lineare Grenzen zu grob waeren."
-      },
-      {
-        title: "Schritt 6: Bruecke zum Tuning",
-        text: "Die Kernfrage lautet jetzt: Welches k ist sinnvoll? Das loesen wir empirisch im naechsten Thema mit Fehlervergleich.",
-        action: "Fuehre den Mini-Check aus und schalte den Weiterlink zu Thema 6 frei.",
-        chat: "Warum gibt es hier kein magisches k ohne Testvergleich?",
-        answer: "Weil die passende Nachbarschaft von Datenstruktur, Distanzmetrik und Rauschen abhaengt."
-      }
-    ];
-
-    const state = {
-      stepIndex: 0,
-      mode: "class",
-      k: 3,
-      px: 54,
-      py: 58,
-      unlocked: false
+    const QUIZ_CONFIG = {
+      "module-6": [
+        {
+          q: {
+            de: "Wofür steht k bei KNN?",
+            en: "What does k stand for in KNN?"
+          },
+          options: [
+            { de: "Für die Anzahl der Nachbarn", en: "For the number of neighbors" },
+            { de: "Für die Zahl der Features", en: "For the number of features" },
+            { de: "Für die Anzahl der Klassen", en: "For the number of classes" }
+          ],
+          correct: 0,
+          explanation: {
+            de: "k legt fest, wie viele Nachbarn in die Entscheidung einfließen.",
+            en: "k determines how many neighbors are used in the decision."
+          }
+        },
+        {
+          q: {
+            de: "Wann ist KNN-Regression passender als KNN-Klassifikation?",
+            en: "When is KNN regression more suitable than KNN classification?"
+          },
+          options: [
+            { de: "Wenn du eine Klasse wie Spam oder Nicht-Spam vorhersagen willst", en: "When you want to predict a class such as spam or not spam" },
+            { de: "Wenn du einen Zahlenwert wie Preis oder Verbrauch schätzen willst", en: "When you want to estimate a numeric value such as price or consumption" },
+            { de: "Wenn du überhaupt keine Trainingsdaten hast", en: "When you have no training data at all" }
+          ],
+          correct: 1,
+          explanation: {
+            de: "Regression ist die passende KNN-Variante für stetige Zielwerte.",
+            en: "Regression is the right KNN variant for continuous target values."
+          }
+        },
+        {
+          q: {
+            de: "Was ist ein typisches Risiko von k = 1?",
+            en: "What is a typical risk of k = 1?"
+          },
+          options: [
+            { de: "Das Modell wird zu grob", en: "The model becomes too coarse" },
+            { de: "Ein einzelner Ausreißer kann die Entscheidung kippen", en: "A single outlier can flip the decision" },
+            { de: "Die Distanz wird nicht mehr berechnet", en: "Distance is no longer computed" }
+          ],
+          correct: 1,
+          explanation: {
+            de: "Mit k = 1 zählt genau ein Nachbar. Das macht die Vorhersage empfindlich.",
+            en: "With k = 1, exactly one neighbor counts. That makes the prediction sensitive."
+          }
+        }
+      ]
     };
 
-    const canvas = document.getElementById("knn-canvas");
-    const ctx = canvas.getContext("2d");
-    const kSlider = document.getElementById("k-slider");
-    const xSlider = document.getElementById("x-slider");
-    const ySlider = document.getElementById("y-slider");
-    const kValueEl = document.getElementById("k-value");
-    const xValueEl = document.getElementById("x-value");
-    const yValueEl = document.getElementById("y-value");
-
-    const stepTitleEl = document.getElementById("step-title");
-    const stepTextEl = document.getElementById("step-text");
-    const stepActionEl = document.getElementById("step-action");
-    const chatQuestionEl = document.getElementById("chat-question");
-    const answerTextEl = document.getElementById("answer-text");
-    const timelineEl = document.getElementById("timeline");
-    const prevStepBtn = document.getElementById("prev-step");
-    const nextStepBtn = document.getElementById("next-step");
-    const resetSessionBtn = document.getElementById("reset-session");
-
-    const neighborsListEl = document.getElementById("neighbors-list");
-    const chipPredEl = document.getElementById("chip-pred");
-    const chipStatEl = document.getElementById("chip-stat");
-    const formulaBoxEl = document.getElementById("formula-box");
-
-    const modeClassBtn = document.getElementById("mode-class");
-    const modeRegBtn = document.getElementById("mode-reg");
-
-    const toNextLink = document.getElementById("to-next-link");
-    const pathStatusEl = document.getElementById("path-status");
-    const quizFeedbackEl = document.getElementById("quiz-feedback");
-
-    function distance(a, b) {
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    function getNeighbors() {
-      const point = { x: state.px, y: state.py };
-      return data
-        .map((d) => ({ ...d, dist: distance(d, point) }))
-        .sort((a, b) => a.dist - b.dist)
-        .slice(0, state.k);
-    }
-
-    function getPrediction(neighbors) {
-      if (state.mode === "class") {
-        const counts = neighbors.reduce((acc, n) => {
-          acc[n.cls] = (acc[n.cls] || 0) + 1;
-          return acc;
-        }, {});
-        const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    const storageWrapper = (() => {
+      let fallback = {};
+      try {
+        const key = "__knn_progress_test__";
+        window.localStorage.setItem(key, "1");
+        window.localStorage.removeItem(key);
         return {
-          label: best[0],
-          stat: `Modus: ${best[0]} (${best[1]}/${neighbors.length})`
+          available: true,
+          getItem: (key) => window.localStorage.getItem(key),
+          setItem: (key, value) => window.localStorage.setItem(key, value),
+          removeItem: (key) => window.localStorage.removeItem(key)
+        };
+      } catch (error) {
+        return {
+          available: false,
+          getItem: (key) => fallback[key] ?? null,
+          setItem: (key, value) => { fallback[key] = value; },
+          removeItem: (key) => { delete fallback[key]; }
         };
       }
-      const mean = neighbors.reduce((sum, n) => sum + n.value, 0) / neighbors.length;
-      return {
-        label: `${mean.toFixed(2)}`,
-        stat: `Mittelwert: ${mean.toFixed(2)}`
-      };
+    })();
+
+    const dataPoints = [
+      { id: "A-01", x: 42, y: 6, label: "expensive", price: 1320 },
+      { id: "A-02", x: 48, y: 7, label: "expensive", price: 1380 },
+      { id: "A-03", x: 53, y: 5, label: "expensive", price: 1490 },
+      { id: "A-04", x: 58, y: 8, label: "expensive", price: 1560 },
+      { id: "A-05", x: 61, y: 6, label: "expensive", price: 1620 },
+      { id: "B-01", x: 66, y: 12, label: "affordable", price: 980 },
+      { id: "B-02", x: 71, y: 14, label: "affordable", price: 940 },
+      { id: "B-03", x: 75, y: 10, label: "affordable", price: 1010 },
+      { id: "B-04", x: 82, y: 13, label: "affordable", price: 930 },
+      { id: "B-05", x: 88, y: 15, label: "affordable", price: 890 }
+    ];
+
+    function currentLang() {
+      return document.documentElement.lang === "en" ? "en" : "de";
     }
 
-    function toCanvas(value, maxPx) {
-      return (value / 100) * maxPx;
+    function t(de, en) {
+      return currentLang() === "en" ? en : de;
     }
 
-    function draw() {
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.strokeStyle = "#e2e9f5";
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 10; i += 1) {
-        const x = (i / 10) * w;
-        const y = (i / 10) * h;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
+    function localized(entry) {
+      if (entry && typeof entry === "object" && "de" in entry) {
+        return currentLang() === "en" ? entry.en : entry.de;
       }
-
-      const neighbors = getNeighbors();
-      const kthDist = neighbors[neighbors.length - 1]?.dist || 0;
-
-      const pointX = toCanvas(state.px, w);
-      const pointY = h - toCanvas(state.py, h);
-
-      ctx.setLineDash([8, 6]);
-      ctx.strokeStyle = "#7f8faa";
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.arc(pointX, pointY, (kthDist / 100) * Math.min(w, h), 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      data.forEach((d) => {
-        const x = toCanvas(d.x, w);
-        const y = h - toCanvas(d.y, h);
-        const isNeighbor = neighbors.some((n) => n.id === d.id);
-        const r = isNeighbor ? 10 : 7;
-        ctx.beginPath();
-        ctx.fillStyle = d.cls === "Katze" ? "#2e5ea1" : "#d07b2f";
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = isNeighbor ? "#11294a" : "#ffffff";
-        ctx.lineWidth = isNeighbor ? 2 : 1;
-        ctx.stroke();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "12px Inter";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(d.id, x, y);
-      });
-
-      ctx.fillStyle = "#0f2037";
-      ctx.beginPath();
-      ctx.moveTo(pointX, pointY - 11);
-      ctx.lineTo(pointX + 11, pointY + 11);
-      ctx.lineTo(pointX - 11, pointY + 11);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(pointX, pointY - 8);
-      ctx.lineTo(pointX + 8, pointY + 8);
-      ctx.lineTo(pointX - 8, pointY + 8);
-      ctx.closePath();
-      ctx.stroke();
-
-      const prediction = getPrediction(neighbors);
-      chipPredEl.textContent = state.mode === "class" ? prediction.label : `${prediction.label} (numeric)`;
-      chipStatEl.textContent = prediction.stat;
-      formulaBoxEl.textContent = state.mode === "class"
-        ? "Klassifikation: Klasse = Modus der k-naechsten Nachbarn."
-        : "Regression: Vorhersage = Mittelwert der k-naechsten Nachbarwerte.";
-
-      neighborsListEl.innerHTML = "";
-      neighbors.forEach((n, idx) => {
-        const li = document.createElement("li");
-        const clsPart = state.mode === "class"
-          ? `Klasse ${n.cls}`
-          : `Wert ${n.value.toFixed(2)}`;
-        li.textContent = `${idx + 1}. ${n.id} | Distanz ${n.dist.toFixed(2)} | ${clsPart}`;
-        neighborsListEl.appendChild(li);
-      });
+      return entry;
     }
 
-    function renderTimeline() {
-      timelineEl.innerHTML = "";
-      steps.forEach((step, idx) => {
-        const item = document.createElement("div");
-        item.className = "timeline-item";
-        if (idx < state.stepIndex) {
-          item.classList.add("done");
-        } else if (idx === state.stepIndex) {
-          item.classList.add("active");
+    function refreshLanguage() {
+      if (window.DataScienceI18n && typeof window.DataScienceI18n.refresh === "function") {
+        window.requestAnimationFrame(() => window.DataScienceI18n.refresh());
+      }
+    }
+
+    const KNNGame = {
+      storageKey: "asdm-knn-basics-progress-v2",
+      state: {
+        points: 0,
+        completed: {},
+        badges: [],
+        pointEvents: {},
+        query: { x: 63, y: 10 },
+        k: 3,
+        mode: "classification",
+        finalQuiz: { answers: {}, correctSet: {}, correctCount: 0 }
+      },
+
+      init() {
+        this.load();
+        this.renderSidebar();
+        this.renderHeader();
+        this.bindGlobalUi();
+        this.renderScatter();
+        this.bindModule1();
+        this.bindModule3();
+        this.bindModule4();
+        this.bindModule5();
+        this.renderFinalQuiz();
+        this.observeSections();
+        this.refreshModuleCards();
+        if (!storageWrapper.available) {
+          const note = document.getElementById("storage-note");
+          if (note) {
+            note.hidden = false;
+          }
         }
-        item.textContent = step.title;
-        timelineEl.appendChild(item);
-      });
-    }
+      },
 
-    function setLinkUnlocked(unlocked) {
-      state.unlocked = unlocked;
-      if (unlocked) {
-        toNextLink.classList.remove("disabled");
-        toNextLink.setAttribute("aria-disabled", "false");
-        pathStatusEl.textContent = "Freigeschaltet: Weiter zu Thema 6 (KNN Hyperparameter-Tuning).";
-      } else {
-        toNextLink.classList.add("disabled");
-        toNextLink.setAttribute("aria-disabled", "true");
-        pathStatusEl.textContent = "Nach Schritt 6 und Mini-Check wird Thema 6 (KNN Tuning) freigeschaltet.";
+      load() {
+        const raw = storageWrapper.getItem(this.storageKey);
+        if (!raw) {
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          this.state = {
+            ...this.state,
+            ...parsed,
+            completed: parsed.completed || {},
+            badges: Array.isArray(parsed.badges) ? parsed.badges : [],
+            pointEvents: parsed.pointEvents || {},
+            query: parsed.query || this.state.query,
+            finalQuiz: parsed.finalQuiz || this.state.finalQuiz
+          };
+        } catch (error) {
+          this.save();
+        }
+      },
+
+      save() {
+        storageWrapper.setItem(this.storageKey, JSON.stringify(this.state));
+      },
+
+      reset() {
+        storageWrapper.removeItem(this.storageKey);
+        window.location.reload();
+      },
+
+      addPoints(points, eventId) {
+        if (this.state.pointEvents[eventId]) {
+          return false;
+        }
+        this.state.pointEvents[eventId] = points;
+        this.state.points += points;
+        this.save();
+        this.renderSidebar();
+        this.renderHeader();
+        refreshLanguage();
+        return true;
+      },
+
+      getRank() {
+        if (this.state.points >= 80) return t("Nachbarschafts-Profi", "Neighborhood pro");
+        if (this.state.points >= 40) return t("KNN-Fortgeschritten", "KNN advanced");
+        return t("Nachbarschafts-Neuling", "Neighborhood beginner");
+      },
+
+      updateProgress(moduleId, isComplete) {
+        if (isComplete) {
+          this.state.completed[moduleId] = true;
+          if (!this.state.badges.includes(moduleId)) {
+            this.state.badges.push(moduleId);
+          }
+        } else {
+          delete this.state.completed[moduleId];
+        }
+        this.save();
+        this.renderSidebar();
+        this.renderHeader();
+        this.refreshModuleCards();
+        refreshLanguage();
+      },
+
+      renderSidebar() {
+        const completedCount = Object.keys(this.state.completed).length;
+        const percent = Math.round((completedCount / MODULES.length) * 100);
+        document.getElementById("sidebar-progress-label").textContent = t(
+          `${completedCount} von ${MODULES.length} Modulen erledigt`,
+          `${completedCount} of ${MODULES.length} modules completed`
+        );
+        document.getElementById("sidebar-points-label").textContent = t(
+          `${this.state.points} Punkte`,
+          `${this.state.points} points`
+        );
+        document.getElementById("sidebar-progress-fill").style.width = `${percent}%`;
+        document.getElementById("sidebar-rank").textContent = this.getRank();
+
+        document.getElementById("module-nav").innerHTML = MODULES.map((module, index) => {
+          const done = Boolean(this.state.completed[module.id]);
+          const active = this.activeModuleId === module.id;
+          const status = done ? "✅" : active ? "🔵" : "⚪";
+          return `
+            <a class="nav-link${active ? " is-active" : ""}" href="#${module.id}">
+              <span>${status}</span>
+              <span class="nav-copy">
+                <strong>${index + 1}. ${localized(module.short)}</strong>
+                <span>${done ? t("erledigt", "done") : t("offen", "open")}</span>
+              </span>
+            </a>
+          `;
+        }).join("");
+
+        document.getElementById("badge-grid").innerHTML = MODULES.map((module) => {
+          const earned = this.state.badges.includes(module.id);
+          return `
+            <div class="badge-item${earned ? " is-earned" : ""}">
+              <div class="badge-icon" aria-hidden="true">${earned ? "★" : "○"}</div>
+              <div>
+                <strong>${localized(module.badge)}</strong>
+                <div>${earned ? localized(module.desc) : t("Noch nicht freigeschaltet", "Not unlocked yet")}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      },
+
+      renderHeader() {
+        const completedCount = Object.keys(this.state.completed).length;
+        const percent = Math.round((completedCount / MODULES.length) * 100);
+        document.getElementById("stage-progress-fill").style.width = `${percent}%`;
+        document.getElementById("stage-progress-label").textContent = t(
+          `${percent} Prozent abgeschlossen`,
+          `${percent} percent completed`
+        );
+        document.getElementById("rank-label").textContent = t(`Rang: ${this.getRank()}`, `Rank: ${this.getRank()}`);
+      },
+
+      refreshModuleCards() {
+        MODULES.forEach((module) => {
+          const section = document.getElementById(module.id);
+          if (section) {
+            section.classList.toggle("is-complete", Boolean(this.state.completed[module.id]));
+          }
+        });
+      },
+
+      setActiveModule(moduleId) {
+        this.activeModuleId = moduleId;
+        const module = MODULES.find((entry) => entry.id === moduleId);
+        if (module) {
+          document.getElementById("sticky-title").textContent = localized(module.short);
+        }
+        this.renderSidebar();
+      },
+
+      bindGlobalUi() {
+        document.getElementById("sidebar-toggle").addEventListener("click", () => {
+          document.body.classList.toggle("sidebar-open");
+        });
+        document.getElementById("jump-first-open").addEventListener("click", () => {
+          const target = MODULES.find((module) => !this.state.completed[module.id]) || MODULES[MODULES.length - 1];
+          document.getElementById(target.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        document.getElementById("reset-progress").addEventListener("click", () => this.reset());
+        document.getElementById("query-x").value = this.state.query.x;
+        document.getElementById("query-y").value = this.state.query.y;
+        document.getElementById("query-x").addEventListener("input", (event) => {
+          this.state.query.x = Number(event.target.value);
+          this.save();
+          this.renderScatter();
+          this.updateProgress("module-2", true);
+        });
+        document.getElementById("query-y").addEventListener("input", (event) => {
+          this.state.query.y = Number(event.target.value);
+          this.save();
+          this.renderScatter();
+          this.updateProgress("module-2", true);
+        });
+      },
+
+      observeSections() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.setActiveModule(entry.target.id);
+            }
+          });
+        }, { rootMargin: "-35% 0px -45% 0px", threshold: 0.2 });
+
+        document.querySelectorAll(".lesson-step").forEach((section) => observer.observe(section));
+      },
+
+      getNeighbors(k = this.state.k) {
+        const query = this.state.query;
+        return dataPoints
+          .map((point) => ({
+            ...point,
+            distance: Math.sqrt(((point.x - query.x) ** 2) + ((point.y - query.y) ** 2))
+          }))
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, k);
+      },
+
+      renderScatter() {
+        const svg = document.getElementById("knn-scatter");
+        const neighbors = this.getNeighbors(3);
+        const query = this.state.query;
+        const scaleX = (value) => 60 + ((value - 35) / 60) * 480;
+        const scaleY = (value) => 310 - ((value - 2) / 16) * 250;
+        const nearest = neighbors[0];
+        const avgDistance = neighbors.reduce((sum, item) => sum + item.distance, 0) / neighbors.length;
+
+        document.getElementById("query-x-output").textContent = String(query.x);
+        document.getElementById("query-y-output").textContent = String(query.y);
+        document.getElementById("nearest-label").textContent = nearest.id;
+        document.getElementById("distance-label").textContent = avgDistance.toFixed(1);
+        document.getElementById("distance-hint").textContent = avgDistance < 7
+          ? t("sehr nah", "very close")
+          : avgDistance < 11
+            ? t("Nah an der Grenze", "close to the border")
+            : t("weiter weg", "farther away");
+
+        svg.innerHTML = `
+          <rect x="40" y="30" width="520" height="290" rx="18" fill="#ffffff"></rect>
+          <line x1="60" y1="310" x2="540" y2="310" stroke="#d5c7cf" stroke-width="2"></line>
+          <line x1="60" y1="310" x2="60" y2="60" stroke="#d5c7cf" stroke-width="2"></line>
+          <text x="300" y="345" text-anchor="middle" fill="#695f68" font-size="14">${t("Größe der Wohnung", "Apartment size")}</text>
+          <text x="22" y="190" text-anchor="middle" transform="rotate(-90 22 190)" fill="#695f68" font-size="14">${t("Minuten zur Bahn", "Minutes to train")}</text>
+          ${dataPoints.map((point) => {
+            const selected = neighbors.some((item) => item.id === point.id);
+            return `
+              <circle cx="${scaleX(point.x)}" cy="${scaleY(point.y)}" r="${selected ? 10 : 7}"
+                fill="${point.label === "expensive" ? "#631832" : "#173262"}"
+                stroke="${selected ? "#4f7a6a" : "#ffffff"}" stroke-width="${selected ? 4 : 2}"></circle>
+              <text x="${scaleX(point.x) + 10}" y="${scaleY(point.y) - 8}" fill="#695f68" font-size="12">${point.id}</text>
+            `;
+          }).join("")}
+          ${neighbors.map((point) => `
+            <line x1="${scaleX(query.x)}" y1="${scaleY(query.y)}" x2="${scaleX(point.x)}" y2="${scaleY(point.y)}" stroke="#4f7a6a" stroke-width="2" stroke-dasharray="5 4"></line>
+          `).join("")}
+          <circle cx="${scaleX(query.x)}" cy="${scaleY(query.y)}" r="11" fill="#4f7a6a" stroke="#ffffff" stroke-width="4"></circle>
+        `;
+        refreshLanguage();
+      },
+
+      bindModule1() {
+        document.querySelectorAll("[data-m1-choice]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const correct = button.dataset.m1Choice === "neighbors";
+            document.querySelectorAll("[data-m1-choice]").forEach((node) => node.classList.remove("is-active"));
+            button.classList.add("is-active");
+            document.getElementById("module-1-feedback").className = `quiz-feedback ${correct ? "ok" : "fail"}`;
+            document.getElementById("module-1-feedback").textContent = correct
+              ? t("Genau. KNN schaut zuerst auf ähnliche bekannte Fälle und leitet daraus die Entscheidung ab.", "Exactly. KNN first looks at similar known cases and derives the decision from them.")
+              : t("Noch nicht. KNN arbeitet nicht mit einer festen Geraden als Startpunkt, sondern mit Nachbarschaft.", "Not yet. KNN does not start with a fixed line, but with neighborhood.");
+            if (correct) {
+              this.addPoints(10, "module-1-choice");
+              this.updateProgress("module-1", true);
+            }
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule3() {
+        document.querySelectorAll("[data-k-value]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.k = Number(button.dataset.kValue);
+            this.save();
+            document.querySelectorAll("[data-k-value]").forEach((node) => node.classList.toggle("is-active", node === button));
+            const neighbors = this.getNeighbors(this.state.k);
+            const expensiveCount = neighbors.filter((entry) => entry.label === "expensive").length;
+            const affordableCount = neighbors.length - expensiveCount;
+            const expensiveWins = expensiveCount > affordableCount;
+            document.getElementById("k-readout").textContent = String(this.state.k);
+            document.getElementById("class-readout").textContent = expensiveWins ? t("eher teuer", "rather expensive") : t("eher bezahlbar", "rather affordable");
+            document.getElementById("majority-readout").textContent = `${Math.max(expensiveCount, affordableCount)} ${t("zu", "to")} ${Math.min(expensiveCount, affordableCount)}`;
+            document.getElementById("module-3-note").className = "quiz-feedback ok";
+            document.getElementById("module-3-note").textContent = this.state.k === 1
+              ? t("Bei k = 1 kippt die Entscheidung schon durch einen einzigen Nachbarn. Das ist sehr lokal und dadurch nervös.", "With k = 1, the decision can flip because of a single neighbor. That is very local and therefore nervous.")
+              : this.state.k === 3
+                ? t("k = 3 ist hier ein brauchbarer Mittelweg: lokal genug, aber nicht sofort kippelig.", "k = 3 is a useful middle ground here: local enough, but not instantly unstable.")
+                : t("k = 7 glättet stark. Das macht die Entscheidung ruhiger, kann aber lokale Struktur wegmitteln.", "k = 7 smooths strongly. That makes the decision calmer, but it can wash away local structure.");
+            this.updateProgress("module-3", true);
+            this.addPoints(10, `module-3-k-${this.state.k}`);
+            refreshLanguage();
+          });
+        });
+
+        document.querySelectorAll("[data-m3-answer]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const correct = button.dataset.m3Answer === "correct";
+            document.querySelectorAll("[data-m3-answer]").forEach((node) => node.classList.remove("is-correct", "is-wrong"));
+            button.classList.add(correct ? "is-correct" : "is-wrong");
+            document.getElementById("module-3-feedback").className = `quiz-feedback ${correct ? "ok" : "fail"}`;
+            document.getElementById("module-3-feedback").textContent = correct
+              ? t("Richtig. k = 1 ist besonders empfindlich, weil genau ein Nachbar die komplette Entscheidung trägt.", "Correct. k = 1 is especially sensitive because exactly one neighbor carries the whole decision.")
+              : t("Noch nicht. Denk an den einen einzelnen Nachbarn, der bei k = 1 alles entscheidet.", "Not yet. Think about the single neighbor who decides everything when k = 1.");
+            if (correct) {
+              this.addPoints(10, "module-3-quiz");
+            }
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule4() {
+        document.querySelectorAll("[data-mode]").forEach((button) => {
+          button.addEventListener("click", () => {
+            this.state.mode = button.dataset.mode;
+            this.save();
+            document.querySelectorAll("[data-mode]").forEach((node) => node.classList.toggle("is-active", node === button));
+            const neighbors = this.getNeighbors(3);
+            const meanPrice = Math.round(neighbors.reduce((sum, entry) => sum + entry.price, 0) / neighbors.length);
+            if (this.state.mode === "classification") {
+              document.getElementById("mode-rule").textContent = t("Modus", "Mode");
+              document.getElementById("mode-output").textContent = t("eher teuer", "rather expensive");
+              document.getElementById("mode-meaning").textContent = t("Klasse", "Class");
+              document.getElementById("module-4-note").textContent = t("Klassifikation gibt eine Klasse aus. Hier entscheidet die häufigste Klasse der Nachbarn.", "Classification returns a class. Here the most common class among the neighbors decides.");
+            } else {
+              document.getElementById("mode-rule").textContent = t("Mittelwert", "Mean");
+              document.getElementById("mode-output").textContent = `${meanPrice} €`;
+              document.getElementById("mode-meaning").textContent = t("Zahlenwert", "Numeric value");
+              document.getElementById("module-4-note").textContent = t("Regression gibt einen Mittelwert aus. Hier wird aus den Nachbarpreisen ein Schätzwert gebildet.", "Regression returns an average. Here the neighbor prices are combined into an estimate.");
+            }
+            this.updateProgress("module-4", true);
+            this.addPoints(10, `module-4-${this.state.mode}`);
+            refreshLanguage();
+          });
+        });
+
+        document.querySelectorAll("[data-m4-answer]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const correct = button.dataset.m4Answer === "correct";
+            document.querySelectorAll("[data-m4-answer]").forEach((node) => node.classList.remove("is-correct", "is-wrong"));
+            button.classList.add(correct ? "is-correct" : "is-wrong");
+            document.getElementById("module-4-feedback").className = `quiz-feedback ${correct ? "ok" : "fail"}`;
+            document.getElementById("module-4-feedback").textContent = correct
+              ? t("Genau. KNN-Regression passt, wenn die Zielvariable eine Zahl ist, zum Beispiel Preis oder Verbrauch.", "Exactly. KNN regression fits when the target variable is numeric, for example price or consumption.")
+              : t("Noch nicht. Kategorien gehören zur Klassifikation. Zahlenwerte gehören zur Regression.", "Not yet. Categories belong to classification. Numeric values belong to regression.");
+            if (correct) {
+              this.addPoints(10, "module-4-quiz");
+            }
+            refreshLanguage();
+          });
+        });
+      },
+
+      bindModule5() {
+        const button = document.getElementById("module-5-complete");
+        if (!button) {
+          return;
+        }
+        button.addEventListener("click", () => {
+          this.updateProgress("module-5", true);
+          this.addPoints(10, "module-5-complete");
+          document.getElementById("module-5-feedback").className = "quiz-feedback ok";
+          document.getElementById("module-5-feedback").textContent = t(
+            "Stimmt. Du kannst den sklearn-Standardablauf jetzt einordnen: Daten splitten, Modell fitten, vorhersagen, Metrik prüfen.",
+            "Correct. You can now place the sklearn standard workflow: split the data, fit the model, predict, check a metric."
+          );
+          refreshLanguage();
+        });
+      },
+
+      renderFinalQuiz() {
+        const root = document.getElementById("final-quiz");
+        const quizState = this.state.finalQuiz;
+        root.innerHTML = "";
+        QUIZ_CONFIG["module-6"].forEach((question, index) => {
+          const fieldset = document.createElement("fieldset");
+          fieldset.className = "quiz-question";
+          const legend = document.createElement("legend");
+          legend.textContent = `${index + 1}. ${localized(question.q)}`;
+          fieldset.appendChild(legend);
+
+          const options = document.createElement("div");
+          options.className = "quiz-options";
+          question.options.forEach((option, optionIndex) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "quiz-option";
+            button.textContent = localized(option);
+            const solved = Boolean(quizState.correctSet[index]);
+            if (solved) {
+              button.disabled = true;
+              if (optionIndex === question.correct) {
+                button.classList.add("is-correct");
+              }
+            } else if (quizState.answers[index] === optionIndex) {
+              button.classList.add("is-wrong");
+            }
+            button.addEventListener("click", () => {
+              if (quizState.correctSet[index]) {
+                return;
+              }
+              quizState.answers[index] = optionIndex;
+              if (optionIndex === question.correct) {
+                quizState.correctSet[index] = true;
+                quizState.correctCount = Object.keys(quizState.correctSet).length;
+                this.addPoints(10, `module-6-question-${index}`);
+              }
+              this.state.finalQuiz = quizState;
+              this.save();
+              if (quizState.correctCount === QUIZ_CONFIG["module-6"].length) {
+                this.updateProgress("module-6", true);
+                document.getElementById("status-6").className = "status-note ok";
+                document.getElementById("status-6").textContent = t(
+                  "Erledigt. Du hast das Kapitel vollständig gelöst.",
+                  "Done. You completed the chapter successfully."
+                );
+              }
+              this.renderFinalQuiz();
+            });
+            options.appendChild(button);
+          });
+
+          const note = document.createElement("div");
+          note.className = "quiz-feedback";
+          if (quizState.answers[index] !== undefined) {
+            const solved = Boolean(quizState.correctSet[index]);
+            note.classList.add(solved ? "ok" : "fail");
+            note.textContent = solved
+              ? t(`Richtig. ${localized(question.explanation)}`, `Correct. ${localized(question.explanation)}`)
+              : t(`Noch nicht. ${localized(question.explanation)}`, `Not yet. ${localized(question.explanation)}`);
+          } else {
+            note.textContent = t("Wähle eine Antwort. Falsche Antworten kannst du direkt korrigieren.", "Choose an answer. You can correct wrong answers right away.");
+          }
+
+          fieldset.appendChild(options);
+          fieldset.appendChild(note);
+          root.appendChild(fieldset);
+        });
+
+        const summary = document.createElement("div");
+        summary.className = `quiz-feedback ${quizState.correctCount === QUIZ_CONFIG["module-6"].length ? "ok" : "warn"}`;
+        summary.textContent = quizState.correctCount === QUIZ_CONFIG["module-6"].length
+          ? t(`Perfekt. Alle ${QUIZ_CONFIG["module-6"].length} von ${QUIZ_CONFIG["module-6"].length} Antworten sind korrekt.`, `Perfect. All ${QUIZ_CONFIG["module-6"].length} of ${QUIZ_CONFIG["module-6"].length} answers are correct.`)
+          : t(`Aktuell sitzen ${quizState.correctCount} von ${QUIZ_CONFIG["module-6"].length} Antworten.`, `You currently have ${quizState.correctCount} of ${QUIZ_CONFIG["module-6"].length} answers correct.`);
+        root.appendChild(summary);
+        refreshLanguage();
       }
-    }
+    };
 
-    function renderStep() {
-      const step = steps[state.stepIndex];
-      stepTitleEl.textContent = step.title;
-      stepTextEl.textContent = step.text;
-      stepActionEl.textContent = step.action;
-      chatQuestionEl.textContent = step.chat;
-      answerTextEl.textContent = step.answer;
-      prevStepBtn.hidden = state.stepIndex === 0;
-      nextStepBtn.hidden = state.stepIndex >= steps.length - 1;
-      renderTimeline();
-
-      if (!state.unlocked && state.stepIndex < steps.length - 1) {
-        pathStatusEl.textContent = `Schritt ${state.stepIndex + 1}/${steps.length}: Noch ${steps.length - state.stepIndex - 1} Schritt(e) bis zur Freischaltung.`;
-      }
-    }
-
-    function setMode(mode) {
-      state.mode = mode;
-      modeClassBtn.classList.toggle("active", mode === "class");
-      modeRegBtn.classList.toggle("active", mode === "reg");
-      modeClassBtn.classList.toggle("secondary", mode !== "class");
-      modeRegBtn.classList.toggle("secondary", mode !== "reg");
-      draw();
-    }
-
-    function resetSession() {
-      state.stepIndex = 0;
-      state.mode = "class";
-      state.k = 3;
-      state.px = 54;
-      state.py = 58;
-      kSlider.value = "3";
-      xSlider.value = "54";
-      ySlider.value = "58";
-      kValueEl.textContent = "3";
-      xValueEl.textContent = "54";
-      yValueEl.textContent = "58";
-      setMode("class");
-      setLinkUnlocked(false);
-      quizFeedbackEl.textContent = "";
-      quizFeedbackEl.className = "feedback";
-      document.querySelectorAll('input[type="radio"]').forEach((input) => {
-        input.checked = false;
-      });
-      renderStep();
-      draw();
-    }
-
-    kSlider.addEventListener("input", () => {
-      state.k = Number(kSlider.value);
-      kValueEl.textContent = String(state.k);
-      draw();
+    document.addEventListener("DOMContentLoaded", () => {
+      KNNGame.init();
     });
-
-    xSlider.addEventListener("input", () => {
-      state.px = Number(xSlider.value);
-      xValueEl.textContent = String(state.px);
-      draw();
-    });
-
-    ySlider.addEventListener("input", () => {
-      state.py = Number(ySlider.value);
-      yValueEl.textContent = String(state.py);
-      draw();
-    });
-
-    modeClassBtn.addEventListener("click", () => setMode("class"));
-    modeRegBtn.addEventListener("click", () => setMode("reg"));
-
-    nextStepBtn.addEventListener("click", () => {
-      if (state.stepIndex < steps.length - 1) {
-        state.stepIndex += 1;
-        renderStep();
-      }
-    });
-
-    prevStepBtn.addEventListener("click", () => {
-      if (state.stepIndex > 0) {
-        state.stepIndex -= 1;
-        renderStep();
-      }
-    });
-
-    resetSessionBtn.addEventListener("click", resetSession);
-
-    document.getElementById("grade-quiz").addEventListener("click", () => {
-      const q1 = document.querySelector('input[name="q1"]:checked')?.value;
-      const q2 = document.querySelector('input[name="q2"]:checked')?.value;
-      const q3 = document.querySelector('input[name="q3"]:checked')?.value;
-      let score = 0;
-      if (q1 === "a") score += 1;
-      if (q2 === "a") score += 1;
-      if (q3 === "a") score += 1;
-
-      if (score >= 2) {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Gut - Thema 6 kann freigeschaltet werden.`;
-        quizFeedbackEl.className = "feedback ok";
-      } else {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Kurz wiederholen und erneut pruefen.`;
-        quizFeedbackEl.className = "feedback warn";
-      }
-    });
-
-    document.getElementById("unlock-next").addEventListener("click", () => {
-      if (state.stepIndex === steps.length - 1) {
-        setLinkUnlocked(true);
-      } else {
-        pathStatusEl.textContent = "Bitte erst bis Schritt 6 durchgehen, dann freischalten.";
-      }
-    });
-
-    setLinkUnlocked(false);
-    renderStep();
-    draw();
   </script>
+  <script defer src="lernstand_manager.js"></script>
 </body>
 </html>

@@ -23,26 +23,32 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 ### Einsteiger-Start (optional vor dem Kernpfad)
 0. `bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html` (ohne Mathe, Fokus auf Bias/Varianz-Grundintuition)
 0a. `lernkompass_notebook_und_toolhilfe_interaktion.html` (neu, niedrigschwellige Orientierung fuer Notebook-Aufgaben, Hilfekette und Begriffe)
+0b. `unit_testing_interaktion.html` (optional: pytest, TDD, Fixtures, Data-Testing als Querschnittskompetenz; kein Pflicht-Folgeschritt nach KNN)
 
 ### Kernpfad (an Sitzung 1 + Folgetermin ausgerichtet)
 1. `lineare_regression_interaktion.html`
-2. `gradient_descent_interaktion.html`
-3. `bias_variance_tradeoff_interaktion.html`
-4. `klassifikation_metriken_interaktion.html` (Gleichungen, Anteile, Konfusionsmatrix, Precision/Recall, Threshold, ROC/AUC)
-5. `knn_grundlagen_interaktion.html` (neu: KNN-Idee, Klassifikation/Regression, Mehrheitsentscheid)
-6. `knn_hyperparameter_tuning_interaktion.html` (neu: Wahl von `k`, Overfit/Underfit, Validierungslogik, Gewichtung)
-7. `distanzmetriken_und_scaling_interaktion.html` (neu: Euklidisch, Manhattan, Minkowski, Cosinus, Skalierung)
-8. `matrix_interaktion.html`
-9. `matrizenmultiplikation_interaktion.html`
-10. `regularization_interaktion.html`
+2. `bias_variance.html`
+3. `variance_ml.html`
+4. `regularization_ml.html`
+5. `gradient_descent_interaktion.html`
+6. `klassifikation_metriken_interaktion.html` (Evaluation Metrics: Konfusionsmatrix, Precision/Recall, Threshold, ROC/AUC, Regressionsmetriken)
+7. `logistic_regression.html` (neu: Sigmoid, Entscheidungsgrenze, Log-Loss, Threshold, Multiclass)
+8. `feature_engineering.html` (neu: Imputation, Encoding, Scaling, Binning, Feature Expansion, Pipeline als Browser-Kapitel; direkte Bruecke von Logistischer Regression zu KNN)
+9. `knn_grundlagen_interaktion.html` (neu: KNN-Idee, Klassifikation/Regression, Mehrheitsentscheid)
+10. `knn_hyperparameter_tuning_interaktion.html` (neu: Wahl von `k`, Overfit/Underfit, Validierungslogik, Gewichtung)
+11. `distanzmetriken_und_scaling_interaktion.html` (neu: Euklidisch, Manhattan, Minkowski, Cosinus, Skalierung)
+11a. `decision_trees_interaktion.html` (neu: Ja/Nein-Fragen, Purity, Gini, Rekursion, Pruning)
+11b. `ensemble_methods_interaktion.html` (neu: Voting, Bagging, Random Forest, Boosting, Stacking, Feature Importance)
+12. `matrix_interaktion.html`
+13. `matrizenmultiplikation_interaktion.html`
 
-### Code-Praxis-Erweiterungen (modulweise oder gesammelt)
-11. `lineare_regression_code_praxis.html` (fokussiert auf Regression + OLS)
-12. `gradient_descent_code_praxis.html` (fokussiert auf GD-Implementierung, Batch/Mini-Batch/SGD, Momentum)
-13. `predictive_modeling_code_praxis.html` (fokussiert auf Train/Test, Ridge/Lasso, Evaluation)
+### Archivierte Altseiten
+- Ersetzte Legacy-Seiten liegen unter `archive/legacy_lernpfad/`.
+- Dazu gehoeren die frueheren Bias-/Regularisierungsseiten und die alten Code-Praxis-Seiten.
+- Der aktive neue Lernpfad verlinkt nicht mehr auf diese Dateien.
 
-Hinweis: Erweiterungsseiten werden in den Interaktionsseiten als Popup geoeffnet.
 Hinweis: Die neuen Schritte 0a, 5, 6 und 7 wurden aus dem Transkript 03-04 abgeleitet und sind fachlich verpflichtend fuer den roten Faden.
+Hinweis zur Reihenfolge: Im aktiven Kernpfad fuehrt `Evaluation Metrics` zu `logistic_regression.html`, dann zu `feature_engineering.html` und erst danach zu `knn_grundlagen_interaktion.html`. `unit_testing_interaktion.html` ist ein optionaler Querschnittsbaustein und kein Standard-Nachfolger von KNN.
 
 ## Roter Faden (Pfadlogik mit Storytelling)
 Story-Figur fuer den Einstieg: **Mira (34), lebt in Koeln, pendelt, kauft ein, plant ihr Monatsbudget und will Daten "alltagstauglich" verstehen.**
@@ -53,26 +59,32 @@ Niedrigschwelliger Einstieg ueber Punktwolken: Bias = Schieflage, Varianz = Stre
 Mira lernt zuerst, wie sie Aufgaben in Notebooks liest, wo Hyperparameter stehen und welche Hilfe sie in welcher Reihenfolge nutzt.
 1. Lineare Regression:
 Mira schaetzt z. B. Stromkosten aus Verbrauch: ein Zusammenhang wird sichtbar und interpretierbar (`m`, `b`, Residuen).
-2. Gradient Descent:
-Was vorher manuell justiert wurde, wird als Optimierungsschritt automatisiert gelernt.
-3. Bias-Variance:
+2. Bias-Variance:
 Mehr Flexibilitaet ist nicht automatisch besser; Generalisierung, Signal und Rauschen muessen gegeneinander abgewogen werden.
-4. Klassifikation + Metriken:
-Vor Matrix werden Gleichungen/Anteile stabilisiert und Klassifikationsmetriken didaktisch aufgebaut.
-5. KNN-Grundlagen:
+3. Varianz im ML:
+Mira sieht an Wetterstationen und Eisverkauf, warum neue Stichproben zu ruhigen oder nervoesen Vorhersagen fuehren und wie Lernkurven beim Diagnostizieren helfen.
+4. Regularisierung:
+Mira lernt mit der Modell-Diaet, wie Ridge, Lasso und Elastic Net zu nervoese Modelle zuegeln und warum Alpha kein Ratespiel sein darf.
+5. Gradient Descent:
+Was vorher manuell justiert wurde, wird als Optimierungsschritt automatisiert gelernt.
+6. Evaluation Metrics:
+Mira lernt, warum Accuracy allein oft taeuscht, wie Konfusionsmatrix, Precision, Recall, F1 und AUC gelesen werden und welche Regressionsmetriken bei Prognosen sinnvoll sind.
+7. Logistische Regression:
+Mira sieht, wie aus einem Score ueber die Sigmoid-Funktion eine Wahrscheinlichkeit wird, wie Thresholds Entscheidungen verschieben und warum Log-Loss falsche Sicherheit hart bestraft.
+8. Feature Engineering:
+Mira merkt, dass Rohdaten noch keine verdaulichen Modell-Zutaten sind: fehlende Werte, Textspalten, Skalen und Pipelines muessen sauber vorbereitet werden.
+9. KNN-Grundlagen:
 Mira sortiert ein neues Produkt in die "aehnlichsten" Produktgruppen ein: Aehnlichkeit statt fester Formel.
-6. KNN-Hyperparameter:
+10. KNN-Hyperparameter:
 Mira sieht, wie `k=1` zu nervoes reagiert, `k=100` zu grob wird und ein mittleres `k` oft robuster ist.
-7. Distanzmetriken + Skalierung:
+11. Distanzmetriken + Skalierung:
 Berlin->Nuernberg als Luftlinie (euklidisch) vs. Strassennetz (manhattan) plus Skalierung, damit keine Achse unfair dominiert.
-8. Matrix:
+12. Matrix:
 Mehrere Einflussfaktoren werden als Eingabestruktur fuer Modelle organisiert.
-9. Matrizenmultiplikation:
+13. Matrizenmultiplikation:
 Die gleiche Logik wird als skalierbare Rechenform `X*w+b` gebuendelt.
-10. Regularization:
-Ridge/Lasso steuern die Komplexitaet gezielt (Stabilitaet vs. Detailtreue/Selektion).
-11. Predictive Modeling Praxis:
-Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residuen, Outlier).
+13. Praxis-Transfer:
+Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residuen, Outlier) und direkt in die Kapiteluebungen integriert.
 
 ## Neue Schritte aus dem Transkript 03-04 (didaktisch aufbereitet)
 | Neuer Schritt | Alltagsbeispiel (Europa) | Kern-Lernziel | Bewaehrte Methode | Konkrete Benutzerfuehrung |
@@ -81,6 +93,7 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
 | 5 KNN-Grundlagen | Neues Objekt zwischen Katzen/Huehnern einsortieren | KNN-Idee, `k` als Nachbarschaft, Modus/Mittelwert | Worked Example + Guided Discovery | Erst Vorhersage durch Lernende, dann Aufloesung mit Visual |
 | 6 KNN-Hyperparameter | Zu enge vs. zu grobe Nachbarschaft in Stadtteilen | Underfit/Overfit verstehen, `k` empirisch waehlen | Prediction-Observation-Explanation + Formative Assessment | k-Slider, Fehlklassifikationszaehler, Checkfrage pro aenderung |
 | 7 Distanz + Scaling | Berlin->Nuernberg Luftlinie vs. Strassenroute, Mannheim-Grid | Distanzmetrik bewusst waehlen und Skalierung begruenden | Contrasting Cases + Self-Explanation | Zwei Kartenbilder, "Welche Metrik passt?"-Entscheidungsbaum, kurzer Transfertask |
+| 7a Feature Engineering | Pinguin-Datensatz als Daten-Kueche | Imputation, Encoding, Scaling, neue Features und Pipeline logisch verbinden | Scaffolding + Teaching with Analogies + formative Quizzes | Modulnavigation, localStorage-Fortschritt, interaktive Tabellen, Drag-and-Drop, Pipeline-Abschlussaufgabe |
 
 ## Verbindliche UX-Regeln
 - Diagramme muessen Achsen klar benennen (inkl. Einheiten).
@@ -100,6 +113,10 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
   - Wo steht das im Notebook?
   - Wo finde ich es in der Bibliotheks-Doku?
   - Welche Frage kann ich im Support-Channel stellen?
+- Jede aktive Seite im neuen Lernpfad nutzt den gemeinsamen Sprachumschalter aus `lernstand_manager.js`.
+- Sprachwechsel erfolgt im Header ueber Flaggen fuer `DE` und `EN`.
+- Fuer neue Seiten immer `data-i18n-de` und `data-i18n-en` nutzen; bei HTML-Inhalten `data-i18n-html-de` und `data-i18n-html-en`.
+- Fuer ARIA-Labels und Platzhalter `data-i18n-aria-label-*`, `data-i18n-title-*` und `data-i18n-placeholder-*` verwenden.
 
 ## Curriculare Abdeckung
 ### Linear Regression
@@ -114,7 +131,7 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
 - Vergleich Batch, Mini-Batch und Stochastic Gradient Descent (Stabilitaet vs. Geschwindigkeit).
 - Momentum als zusaetzliches Optimierungskonzept zur Glattung/Beschleunigung.
 - End-of-topic Mini-Quiz mit Freischaltung des Bias-Variance-Themas.
-- Separate Code-Praxis-Seite mit reiner Python-Implementierung und Visualisierung (`gradient_descent_code_praxis.html`).
+- Praxisuebungen werden direkt in den neuen Kapitel-Seiten eingebettet.
 
 ### Klassifikation + Metriken (vor Matrix)
 - Problemwechsel klar machen: Regression (freie Zahlen) vs. Klassifikation (Ja/Nein mit 0/1).
@@ -142,7 +159,17 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
 - Euklidische, Manhattan- und Minkowski-Distanz verstehen und situativ vergleichen.
 - Cosinus-Aehnlichkeit als Bruecke zu Suchmaschinen und LLM-Vektorraum-Idee.
 - Skalierung (Normalisierung/Standardisierung) als Pflicht vor Distanz-basierten Modellen.
+- Feature Engineering als eigenstaendiger Workflow-Schritt: fehlende Werte, Kategorien, Skalierung, Binning, Interaktionen und Leakage-Vermeidung.
+- Unterschied zwischen `.fit`, `.transform` und `.fit_transform` wiederholt im Preprocessing-Kontext anwenden.
+- `ColumnTransformer` und `Pipeline` als reproduzierbare Kombination fuer gemischte Datentypen verstehen.
 - Tool-Kompass fuer Notebook-Aufgaben: Parameter auffinden, Fragen strukturieren, Supportkanal nutzen.
+
+### Unit Testing + TDD (optional, querschnittlich)
+- Unit Tests als "TÜV" für Code: kleine Funktionen gezielt und reproduzierbar prüfen.
+- pytest-Grundlagen: `assert`, Testfunktionen, Fixtures und `@pytest.mark.parametrize`.
+- Data-Science-Testing mit pandas: `assert_series_equal`, `assert_frame_equal`, Imputation und Transformationen prüfen.
+- TDD-Zyklus Red -> Green -> Refactor als praktische Denkweise für neue Funktionen und kleine Projekte.
+- Abschlussprojekt mit testbarem Taschenrechner als Brücke von Notebook-Übungen zu sauberer Projektstruktur.
 
 ### Bias-Variance + Regularization + Predictive Modeling
 - Underfitting/Overfitting und Bias-Variance-Tradeoff.
@@ -165,15 +192,19 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
 - Sichtbare Metrik-Chips.
 - Kontrollpanel mit Tooltips + Reset.
 - Sidebar-Block "Lernpfad danach" eingeklappt bis Schritt 5.
-- Sidebar-Block "Erweiterung" als auffaelliger Popup-Trigger zur passenden Code-Praxis-Seite.
+- Uebungen direkt im Kapitel zwischen Demo und Quiz einbetten.
 - Abschluss mit 3-Fragen-Quiz + klarer Empfehlung "Was als naechstes?".
 
 ## Pflegehinweise
-- Dateinamen im Stil `*_interaktion.html` oder `*_code_praxis.html` halten.
+- Dateinamen im Stil `*_interaktion.html` oder thematisch klaren Kapiteldateien wie `feature_engineering.html` halten.
 - Begriffe einheitlich verwenden: Steigung `m`, Intercept `b`, Gewichte `w`, Vorhersage `y-hat`.
+- Header keine Theme-Umschalter mehr geben. Der gemeinsame Header-Bereich ist fuer Navigation, Fortschritt und Sprachwechsel reserviert.
 - Bei curricularen Aenderungen zuerst dieses README aktualisieren, dann Seiteninhalte.
 - Ziel-Dateien fuer die neuen Schritte:
   - `lernkompass_notebook_und_toolhilfe_interaktion.html`
   - `knn_grundlagen_interaktion.html`
   - `knn_hyperparameter_tuning_interaktion.html`
   - `distanzmetriken_und_scaling_interaktion.html`
+  - `decision_trees_interaktion.html`
+  - `ensemble_methods_interaktion.html`
+  - `unit_testing_interaktion.html`

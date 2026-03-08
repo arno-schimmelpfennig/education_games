@@ -800,15 +800,16 @@
       const q2 = document.querySelector('input[name="q2"]:checked')?.value;
       const q3 = document.querySelector('input[name="q3"]:checked')?.value;
       let score = 0;
-      if (q1 === "a") score += 1;
-      if (q2 === "a") score += 1;
-      if (q3 === "a") score += 1;
+      const wrongQuestions = [];
+      if (q1 === "a") score += 1; else wrongQuestions.push(1);
+      if (q2 === "a") score += 1; else wrongQuestions.push(2);
+      if (q3 === "a") score += 1; else wrongQuestions.push(3);
 
-      if (score >= 2) {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Gut - Thema 7 kann freigeschaltet werden.`;
+      if (score === 3) {
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Thema 7 kann freigeschaltet werden.`;
         quizFeedbackEl.className = "feedback ok";
       } else {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Kurz wiederholen und erneut pruefen.`;
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Pruefe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
         quizFeedbackEl.className = "feedback warn";
       }
     });
@@ -825,5 +826,6 @@
     renderStep();
     setWeights("uniform");
   </script>
+  <script defer src="lernstand_manager.js"></script>
 </body>
 </html>

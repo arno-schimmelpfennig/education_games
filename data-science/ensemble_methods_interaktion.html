@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ensemble Methods | Data Science</title>
+  <meta name="description" content="Interaktives Kapitel zu Ensemble Methods mit Voting, Bagging, Random Forest, Boosting, Stacking und Feature Importance.">
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --text: #231a24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning: #9a6b4a;
+      --warning-soft: #f8f3ef;
+      --warning-line: #dfcdc1;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 960px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 36%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 42%, #f3f1f4 100%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    #stage { min-width: 0; padding: 16px; }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card { padding: 14px; margin-top: 14px; }
+    .sidebar-card p, .module p, .module li { line-height: 1.6; }
+
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.02em; }
+    h1 { margin-top: 8px; font-size: 1.92rem; line-height: 1.08; color: var(--primary); }
+    h2 { font-size: 1.35rem; color: var(--primary); }
+    h3 { font-size: 1rem; color: var(--primary); }
+    h4 { font-size: 0.95rem; color: var(--text); }
+
+    .lead { margin-top: 10px; font-size: 0.96rem; color: var(--text-light); }
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .meta-grid,
+    .chip-row,
+    .badge-grid,
+    .footer-links,
+    .module-grid,
+    .button-row,
+    .quiz-options,
+    .demo-grid,
+    .mini-grid,
+    .workflow-grid,
+    .vote-grid,
+    .case-grid,
+    .importance-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
+    .chip-row { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 12px; }
+    .button-row, .footer-links { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .quiz-feedback,
+    .formula-block,
+    .callout,
+    .exercise-card,
+    .helper-note,
+    .result-box {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong { display: block; color: var(--secondary); margin-bottom: 4px; }
+    .chip { text-align: center; font-size: 0.84rem; }
+
+    .btn,
+    .sidebar-toggle,
+    .quiz-option,
+    .vote-btn,
+    .case-btn,
+    .workflow-choice,
+    .scenario-btn {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .btn.ghost,
+    .quiz-option,
+    .vote-btn,
+    .case-btn,
+    .workflow-choice,
+    .scenario-btn {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn.ghost { background: transparent; color: var(--primary); }
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .quiz-option:hover,
+    .vote-btn:hover,
+    .case-btn:hover,
+    .workflow-choice:hover,
+    .scenario-btn:hover { transform: translateY(-1px); filter: brightness(1.02); }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #ede4e9;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    .nav-link {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      background: rgba(23, 50, 98, 0.06);
+      border-color: rgba(23, 50, 98, 0.14);
+      transform: translateX(2px);
+    }
+
+    .nav-index {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-light);
+      flex: 0 0 32px;
+    }
+
+    .nav-copy { display: grid; gap: 2px; min-width: 0; }
+    .nav-meta { color: var(--text-light); font-size: 0.8rem; font-weight: 700; }
+
+    .hero { padding: 20px; margin-bottom: 16px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr); gap: 16px; align-items: stretch; }
+
+    .hero-banner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.84rem;
+    }
+
+    .hero-side { display: grid; gap: 10px; align-content: start; }
+    #content { display: grid; gap: 16px; max-width: var(--content-max); }
+    .module { padding: 18px; scroll-margin-top: 120px; }
+
+    .module-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+    .module-index { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: var(--text-light); }
+    .module-summary { margin-top: 6px; color: var(--text-light); max-width: 56ch; }
+
+    .module-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--secondary);
+      background: var(--secondary-light);
+      white-space: nowrap;
+    }
+
+    .module-status.is-complete { color: var(--success); background: var(--success-soft); }
+    .module-grid, .demo-grid, .mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .vote-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .case-grid, .importance-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .workflow-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+    .formula-block code { font-size: 0.95rem; white-space: normal; }
+
+    .plot-card {
+      padding: 14px;
+      background: linear-gradient(180deg, #fff 0%, #faf7f9 100%);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .plot-shell {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      min-height: 240px;
+    }
+
+    .ensemble-svg { width: 100%; display: block; max-width: 100%; }
+
+    .control { display: grid; gap: 6px; margin-bottom: 10px; }
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--text-light);
+      font-size: 0.88rem;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--primary); }
+    pre {
+      margin: 0;
+      background: #1e293b;
+      color: #f8fafc;
+      border-radius: 16px;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      overflow: auto;
+      padding: 14px;
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    .exercise-card { display: grid; gap: 10px; margin-top: 14px; }
+    .exercise-instruction, .exercise-context, .expected-output { margin: 0; }
+
+    details.hint, details.solution {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+    details.hint summary, details.solution summary { cursor: pointer; font-weight: 700; color: var(--secondary); }
+
+    .quiz-shell { margin-top: 14px; display: grid; gap: 12px; }
+    .quiz-question { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #fbfdff; }
+    .quiz-question legend { font-weight: 800; color: var(--secondary); margin-bottom: 10px; }
+    .quiz-options { grid-template-columns: 1fr; }
+    .quiz-option { display: flex; align-items: center; gap: 10px; padding: 10px 12px; text-align: left; }
+    .quiz-option input { margin: 0; }
+    .quiz-option.is-correct { background: var(--success-soft); border-color: var(--success-line); color: var(--success); }
+    .quiz-option.is-wrong { background: var(--danger-soft); border-color: var(--danger-line); color: var(--danger); }
+    .quiz-feedback { display: none; margin-top: 10px; }
+    .quiz-feedback.is-visible { display: block; }
+    .quiz-feedback.is-success { background: var(--success-soft); border-color: var(--success-line); color: var(--success); }
+    .quiz-feedback.is-warning { background: var(--warning-soft); border-color: var(--warning-line); color: var(--warning); }
+
+    .reflection { margin-top: 14px; background: linear-gradient(180deg, #fff7ea 0%, #fff 100%); color: var(--text); }
+
+    .badge-grid { margin-top: 10px; grid-template-columns: 1fr; }
+    .badge-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 11px 12px;
+    }
+    .badge-item.is-earned { border-color: rgba(23, 50, 98, 0.22); background: linear-gradient(135deg, #fff7ea, #fff); }
+    .badge-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.14), rgba(23, 50, 98, 0.14));
+      color: var(--primary);
+      font-size: 1.2rem;
+      flex: 0 0 44px;
+    }
+
+    .vote-btn, .case-btn, .workflow-choice, .scenario-btn {
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .vote-btn.is-selected,
+    .case-btn.is-selected,
+    .workflow-choice.is-selected,
+    .scenario-btn.is-selected {
+      background: var(--secondary-light);
+      border-color: rgba(23, 50, 98, 0.22);
+      color: var(--secondary);
+    }
+    .workflow-choice.is-done { background: var(--success-soft); border-color: var(--success-line); color: var(--success); }
+    .scenario-btn.is-wrong { background: var(--danger-soft); border-color: var(--danger-line); color: var(--danger); }
+
+    .ensemble-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .ensemble-box {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.84rem;
+    }
+
+    .footer-card { padding: 18px; margin-top: 16px; max-width: var(--content-max); }
+    .sidebar-toggle { display: none; margin-bottom: 12px; width: 100%; }
+    .plot-caption { margin-top: 10px; font-size: 0.84rem; color: var(--text-light); }
+
+    @media (max-width: 980px) {
+      #app { grid-template-columns: 1fr; }
+      #sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .sidebar-toggle { display: inline-flex; }
+      #sidebar[data-collapsed="true"] .sidebar-inner { display: none; }
+      .hero-grid,
+      .module-grid,
+      .demo-grid,
+      .mini-grid,
+      .meta-grid,
+      .chip-row,
+      .workflow-grid,
+      .vote-grid,
+      .case-grid,
+      .importance-grid { grid-template-columns: 1fr; }
+      .ensemble-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="sidebar-inner" data-i18n-de="Kapitelübersicht ein-/ausklappen" data-i18n-en="Toggle chapter overview">Kapitelübersicht ein-/ausklappen</button>
+      <div class="sidebar-inner" id="sidebar-inner">
+        <div class="brandline" data-i18n-de="Data Science Lernpfad" data-i18n-en="Data Science learning path">Data Science Lernpfad</div>
+        <h1 data-i18n-de="Ensemble Methods" data-i18n-en="Ensemble methods">Ensemble Methods</h1>
+        <p class="lead" data-i18n-de="Der Modell-Rat zeigt dir, warum viele leicht unterschiedliche Modelle zusammen oft verlässlicher sind als ein einzelner Superstar." data-i18n-en="The model council shows why many slightly different models together are often more reliable than a single superstar.">Der Modell-Rat zeigt dir, warum viele leicht unterschiedliche Modelle zusammen oft verlässlicher sind als ein einzelner Superstar.</p>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Fortschritt" data-i18n-en="Progress">Fortschritt</div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="overall-progress"></div>
+          </div>
+          <div class="progress-label">
+            <span id="progress-steps">0 von 7 Modulen sicher</span>
+            <span id="progress-points">0 Punkte</span>
+          </div>
+          <p class="lead" style="margin-top:10px;" data-i18n-de="Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten darfst du direkt korrigieren." data-i18n-en="A module only counts as secure once all quiz questions have been answered correctly at least once. You can correct wrong answers immediately.">Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten darfst du direkt korrigieren.</p>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Ensemble-Rang" data-i18n-en="Ensemble rank">Ensemble-Rang</div>
+          <div id="sidebar-rank">Rang: Anfänger</div>
+          <p class="lead" id="rank-copy" data-i18n-de="Noch offen: verstehen, wann viele Modelle Stabilität bringen und wann sie sich nur wiederholen." data-i18n-en="Still open: understanding when many models bring stability and when they just repeat each other.">Noch offen: verstehen, wann viele Modelle Stabilität bringen und wann sie sich nur wiederholen.</p>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Module" data-i18n-en="Modules">Module</div>
+          <nav aria-label="Module">
+            <a class="nav-link" href="#module-1" data-module-link="module-1"><span class="nav-index">1</span><span class="nav-copy"><strong data-i18n-de="Warum viele Köpfe?" data-i18n-en="Why many heads?">Warum viele Köpfe?</strong><span class="nav-meta" data-module-status="module-1">offen</span></span></a>
+            <a class="nav-link" href="#module-2" data-module-link="module-2"><span class="nav-index">2</span><span class="nav-copy"><strong data-i18n-de="Voting" data-i18n-en="Voting">Voting</strong><span class="nav-meta" data-module-status="module-2">offen</span></span></a>
+            <a class="nav-link" href="#module-3" data-module-link="module-3"><span class="nav-index">3</span><span class="nav-copy"><strong data-i18n-de="Bagging & Random Forest" data-i18n-en="Bagging and random forest">Bagging & Random Forest</strong><span class="nav-meta" data-module-status="module-3">offen</span></span></a>
+            <a class="nav-link" href="#module-4" data-module-link="module-4"><span class="nav-index">4</span><span class="nav-copy"><strong data-i18n-de="Boosting" data-i18n-en="Boosting">Boosting</strong><span class="nav-meta" data-module-status="module-4">offen</span></span></a>
+            <a class="nav-link" href="#module-5" data-module-link="module-5"><span class="nav-index">5</span><span class="nav-copy"><strong data-i18n-de="Stacking" data-i18n-en="Stacking">Stacking</strong><span class="nav-meta" data-module-status="module-5">offen</span></span></a>
+            <a class="nav-link" href="#module-6" data-module-link="module-6"><span class="nav-index">6</span><span class="nav-copy"><strong data-i18n-de="Interpretation" data-i18n-en="Interpretation">Interpretation</strong><span class="nav-meta" data-module-status="module-6">offen</span></span></a>
+            <a class="nav-link" href="#module-7" data-module-link="module-7"><span class="nav-index">7</span><span class="nav-copy"><strong data-i18n-de="Praxisvergleich" data-i18n-en="Practical comparison">Praxisvergleich</strong><span class="nav-meta" data-module-status="module-7">offen</span></span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Badges" data-i18n-en="Badges">Badges</div>
+          <div class="badge-grid">
+            <div class="badge-item" id="badge-crowd"><div class="badge-icon" aria-hidden="true">🗳️</div><div><strong data-i18n-de="Crowd-Leser" data-i18n-en="Crowd reader">Crowd-Leser</strong><span data-i18n-de="Module 1 und 2 sicher gelöst" data-i18n-en="Modules 1 and 2 solved securely">Module 1 und 2 sicher gelöst</span></div></div>
+            <div class="badge-item" id="badge-forest"><div class="badge-icon" aria-hidden="true">🌲</div><div><strong data-i18n-de="Forest-Ranger" data-i18n-en="Forest ranger">Forest-Ranger</strong><span data-i18n-de="Modul 3 sicher gelöst" data-i18n-en="Module 3 solved securely">Modul 3 sicher gelöst</span></div></div>
+            <div class="badge-item" id="badge-boost"><div class="badge-icon" aria-hidden="true">🚀</div><div><strong data-i18n-de="Boost-Coach" data-i18n-en="Boost coach">Boost-Coach</strong><span data-i18n-de="Module 4 und 5 sicher gelöst" data-i18n-en="Modules 4 and 5 solved securely">Module 4 und 5 sicher gelöst</span></div></div>
+            <div class="badge-item" id="badge-analyst"><div class="badge-icon" aria-hidden="true">📊</div><div><strong data-i18n-de="Ensemble-Analyst" data-i18n-en="Ensemble analyst">Ensemble-Analyst</strong><span data-i18n-de="Module 6 und 7 sicher gelöst" data-i18n-en="Modules 6 and 7 solved securely">Module 6 und 7 sicher gelöst</span></div></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <div class="sticky-shell hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-banner" data-i18n-de="7 Module · Notebook-Übungen · lokaler Lernstand" data-i18n-en="7 modules · notebook exercises · local progress saving">7 Module · Notebook-Übungen · lokaler Lernstand</div>
+            <h2 style="margin-top:10px;" data-i18n-de="Was lernst du in 10 Minuten pro Abschnitt?" data-i18n-en="What will you learn in 10 minutes per section?">Was lernst du in 10 Minuten pro Abschnitt?</h2>
+            <p class="lead" data-i18n-de="Du verstehst, wie Voting, Random Forest, Boosting und Stacking aus mehreren Modellen ein robusteres Gesamturteil bauen und wie du diese Ensembles trotzdem noch erklären kannst." data-i18n-en="You will understand how voting, random forest, boosting and stacking build a more robust overall judgement from several models and how you can still explain these ensembles.">Du verstehst, wie Voting, Random Forest, Boosting und Stacking aus mehreren Modellen ein robusteres Gesamturteil bauen und wie du diese Ensembles trotzdem noch erklären kannst.</p>
+            <div class="chip-row">
+              <div class="chip"><strong data-i18n-de="Alltag" data-i18n-en="Everyday life">Alltag</strong><span data-i18n-de="Restauranttipps, Ärzte-Teams und Jury-Entscheidungen statt abstrakter Modellnamen." data-i18n-en="Restaurant tips, medical teams and jury decisions instead of abstract model names.">Restauranttipps, Ärzte-Teams und Jury-Entscheidungen statt abstrakter Modellnamen.</span></div>
+              <div class="chip"><strong data-i18n-de="Didaktik" data-i18n-en="Didactics">Didaktik</strong><span data-i18n-de="Erst Intuition, dann Aggregation, dann Python, dann Vergleich." data-i18n-en="First intuition, then aggregation, then Python, then comparison.">Erst Intuition, dann Aggregation, dann Python, dann Vergleich.</span></div>
+              <div class="chip"><strong data-i18n-de="Selbststudium" data-i18n-en="Self-study">Selbststudium</strong><span data-i18n-de="Jeder Schritt ist allein lösbar und bleibt nach dem Schließen des Browsers erhalten." data-i18n-en="Every step can be solved alone and remains available after closing the browser.">Jeder Schritt ist allein lösbar und bleibt nach dem Schließen des Browsers erhalten.</span></div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <div class="meta-card"><strong data-i18n-de="Davor" data-i18n-en="Before">Davor</strong><span data-i18n-de="Decision Trees" data-i18n-en="Decision trees">Decision Trees</span></div>
+            <div class="meta-card"><strong data-i18n-de="Leitbild" data-i18n-en="Guiding idea">Leitbild</strong><span data-i18n-de="Viele Köpfe, ein robusteres Urteil" data-i18n-en="Many heads, one more robust judgement">Viele Köpfe, ein robusteres Urteil</span></div>
+            <div class="meta-card"><strong data-i18n-de="Danach" data-i18n-en="After">Danach</strong><span data-i18n-de="Matrix verstehen" data-i18n-en="Understanding matrices">Matrix verstehen</span></div>
+            <div class="status-note" data-i18n-de="Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>." data-i18n-en="Every quiz question solved correctly for the first time gives <strong>10 points</strong>. Every demo you try gives <strong>5 points</strong>.">Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>.</div>
+            <div class="button-row">
+              <button id="jump-next-open" class="btn" type="button" data-i18n-de="Zum aktuellen Modul" data-i18n-en="Go to current module">Zum aktuellen Modul</button>
+              <button id="reset-ensemble-progress" class="btn ghost" type="button" data-i18n-de="Kapitel zurücksetzen" data-i18n-en="Reset chapter">Kapitel zurücksetzen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="content">
+        <section class="module lesson-step" id="module-1">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 1</div>
+              <h2 data-i18n-de="Warum viele Köpfe?" data-i18n-en="Why many heads?">Warum viele Köpfe?</h2>
+              <p class="module-summary" data-i18n-de="Du verstehst, warum ein einzelner Baum oft instabil ist und warum mehrere Perspektiven Stabilität bringen." data-i18n-en="You understand why a single tree is often unstable and why multiple perspectives add stability.">Du verstehst, warum ein einzelner Baum oft instabil ist und warum mehrere Perspektiven Stabilität bringen.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-1">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Wenn du das beste Schnitzel in der Stadt suchst, fragst du selten nur eine Person. Ein einzelner Freund kann einen Spezialgeschmack haben. Fragst du mehrere Menschen, wird das Gesamtbild stabiler. Ensemble Methods übertragen genau diese Idee auf Modelle." data-i18n-en="If you want to find the best schnitzel in town, you rarely ask just one person. A single friend may have a very special taste. If you ask several people, the overall picture becomes more stable. Ensemble methods transfer exactly this idea to models.">Wenn du das beste Schnitzel in der Stadt suchst, fragst du selten nur eine Person. Ein einzelner Freund kann einen Spezialgeschmack haben. Fragst du mehrere Menschen, wird das Gesamtbild stabiler. Ensemble Methods übertragen genau diese Idee auf Modelle.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="Ein einzelner <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Learner&quot; data-term-en=&quot;Learner&quot; data-definition-de=&quot;Ein Learner ist ein einzelnes Modell, zum Beispiel ein Decision Tree oder eine logistische Regression.&quot; data-definition-en=&quot;A learner is a single model, for example a decision tree or a logistic regression.&quot;>Learner</button> kann bei kleinen Datenänderungen stark schwanken. Ein <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Ensemble&quot; data-term-en=&quot;Ensemble&quot; data-definition-de=&quot;Ein Ensemble kombiniert mehrere Modelle zu einer gemeinsamen Vorhersage.&quot; data-definition-en=&quot;An ensemble combines several models into one joint prediction.&quot;>Ensemble</button> bündelt mehrere solche Modelle und reduziert damit oft Varianz." data-i18n-html-en="A single <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Learner&quot; data-term-en=&quot;Learner&quot; data-definition-de=&quot;Ein Learner ist ein einzelnes Modell, zum Beispiel ein Decision Tree oder eine logistische Regression.&quot; data-definition-en=&quot;A learner is a single model, for example a decision tree or a logistic regression.&quot;>learner</button> can fluctuate strongly with small data changes. An <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Ensemble&quot; data-term-en=&quot;Ensemble&quot; data-definition-de=&quot;Ein Ensemble kombiniert mehrere Modelle zu einer gemeinsamen Vorhersage.&quot; data-definition-en=&quot;An ensemble combines several models into one joint prediction.&quot;>ensemble</button> combines several such models and often reduces variance.">Ein einzelner <button class="glossary-term" type="button" data-term-de="Learner" data-term-en="Learner" data-definition-de="Ein Learner ist ein einzelnes Modell, zum Beispiel ein Decision Tree oder eine logistische Regression." data-definition-en="A learner is a single model, for example a decision tree or a logistic regression.">Learner</button> kann bei kleinen Datenänderungen stark schwanken. Ein <button class="glossary-term" type="button" data-term-de="Ensemble" data-term-en="Ensemble" data-definition-de="Ein Ensemble kombiniert mehrere Modelle zu einer gemeinsamen Vorhersage." data-definition-en="An ensemble combines several models into one joint prediction.">Ensemble</button> bündelt mehrere solche Modelle und reduziert damit oft Varianz.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Merksatz" data-i18n-en="Rule of thumb">Merksatz</h3>
+            <p data-i18n-de="Ein einzelner Baum ist leicht erklärbar, aber oft nervös. Ein Ensemble ist schwerer zu überblicken, aber oft robuster." data-i18n-en="A single tree is easy to explain but often nervous. An ensemble is harder to oversee but often more robust.">Ein einzelner Baum ist leicht erklärbar, aber oft nervös. Ein Ensemble ist schwerer zu überblicken, aber oft robuster.</p>
+          </div>
+
+          <div class="demo-grid">
+            <div class="plot-card">
+              <h3 data-i18n-de="Viele Meinungen simulieren" data-i18n-en="Simulate many opinions">Viele Meinungen simulieren</h3>
+              <div class="control">
+                <label for="crowd-size"><span data-i18n-de="Anzahl der Modelle" data-i18n-en="Number of models">Anzahl der Modelle</span><span id="crowd-size-label">5</span></label>
+                <input id="crowd-size" type="range" min="1" max="15" step="1" value="5" aria-label="Anzahl der Modelle">
+              </div>
+              <div class="control">
+                <label for="crowd-quality"><span data-i18n-de="Trefferquote pro Modell" data-i18n-en="Accuracy per model">Trefferquote pro Modell</span><span id="crowd-quality-label">55 %</span></label>
+                <input id="crowd-quality" type="range" min="51" max="75" step="1" value="55" aria-label="Trefferquote pro Modell">
+              </div>
+              <div class="result-box" id="crowd-result"></div>
+            </div>
+            <div class="plot-card">
+              <h3 data-i18n-de="Ensemble-Effekt" data-i18n-en="Ensemble effect">Ensemble-Effekt</h3>
+              <div class="ensemble-strip" id="crowd-strip"></div>
+              <p class="plot-caption" data-i18n-de="Je mehr leicht richtige, aber unabhängige Stimmen du bündelst, desto stabiler wird die Mehrheit." data-i18n-en="The more slightly correct but independent votes you combine, the more stable the majority becomes.">Je mehr leicht richtige, aber unabhängige Stimmen du bündelst, desto stabiler wird die Mehrheit.</p>
+            </div>
+          </div>
+
+          <div id="quiz-1" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ensembles sind kein Selbstzweck. Sie sollen die Schwächen einzelner Modelle abfedern." data-i18n-en="What do you take away? Ensembles are not an end in themselves. They are meant to cushion the weaknesses of individual models.">Was nimmst du mit? Ensembles sind kein Selbstzweck. Sie sollen die Schwächen einzelner Modelle abfedern.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-2">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 2</div>
+              <h2 data-i18n-de="Voting" data-i18n-en="Voting">Voting</h2>
+              <p class="module-summary" data-i18n-de="Du unterscheidest Hard Voting von Soft Voting und siehst, wann Wahrscheinlichkeiten wichtiger sind als bloße Mehrheiten." data-i18n-en="You distinguish hard voting from soft voting and see when probabilities matter more than mere majorities.">Du unterscheidest Hard Voting von Soft Voting und siehst, wann Wahrscheinlichkeiten wichtiger sind als bloße Mehrheiten.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-2">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Drei Ärzte geben eine Diagnose ab. Zwei sagen 'harmlos', einer sagt 'kritisch'. Per Mehrheit wäre die Sache klar. Aber wenn der kritische Arzt zusätzlich sagt, er sei sich zu 95 % sicher, wird die Diskussion anders. Genau das trennt Hard und Soft Voting." data-i18n-en="Three doctors give a diagnosis. Two say 'harmless', one says 'critical'. By majority, the case looks clear. But if the critical doctor also says they are 95% sure, the discussion changes. That is exactly the difference between hard and soft voting.">Drei Ärzte geben eine Diagnose ab. Zwei sagen 'harmlos', einer sagt 'kritisch'. Per Mehrheit wäre die Sache klar. Aber wenn der kritische Arzt zusätzlich sagt, er sei sich zu 95 % sicher, wird die Diskussion anders. Genau das trennt Hard und Soft Voting.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Hard Voting&quot; data-term-en=&quot;Hard voting&quot; data-definition-de=&quot;Hard Voting zählt nur die finalen Klassenstimmen der Modelle.&quot; data-definition-en=&quot;Hard voting only counts the final class votes of the models.&quot;>Hard Voting</button> zählt Klassenstimmen. <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Soft Voting&quot; data-term-en=&quot;Soft voting&quot; data-definition-de=&quot;Soft Voting mittelt die vorhergesagten Wahrscheinlichkeiten und entscheidet danach.&quot; data-definition-en=&quot;Soft voting averages predicted probabilities and decides afterwards.&quot;>Soft Voting</button> mittelt Wahrscheinlichkeiten. Soft Voting ist oft stärker, wenn die Modelle brauchbare <code>predict_proba</code>-Werte liefern." data-i18n-html-en="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Hard Voting&quot; data-term-en=&quot;Hard voting&quot; data-definition-de=&quot;Hard Voting zählt nur die finalen Klassenstimmen der Modelle.&quot; data-definition-en=&quot;Hard voting only counts the final class votes of the models.&quot;>Hard voting</button> counts class votes. <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Soft Voting&quot; data-term-en=&quot;Soft voting&quot; data-definition-de=&quot;Soft Voting mittelt die vorhergesagten Wahrscheinlichkeiten und entscheidet danach.&quot; data-definition-en=&quot;Soft voting averages predicted probabilities and decides afterwards.&quot;>Soft voting</button> averages probabilities. Soft voting is often stronger when the models provide useful <code>predict_proba</code> values."><button class="glossary-term" type="button" data-term-de="Hard Voting" data-term-en="Hard voting" data-definition-de="Hard Voting zählt nur die finalen Klassenstimmen der Modelle." data-definition-en="Hard voting only counts the final class votes of the models.">Hard Voting</button> zählt Klassenstimmen. <button class="glossary-term" type="button" data-term-de="Soft Voting" data-term-en="Soft voting" data-definition-de="Soft Voting mittelt die vorhergesagten Wahrscheinlichkeiten und entscheidet danach." data-definition-en="Soft voting averages predicted probabilities and decides afterwards.">Soft Voting</button> mittelt Wahrscheinlichkeiten. Soft Voting ist oft stärker, wenn die Modelle brauchbare <code>predict_proba</code>-Werte liefern.</p>
+            </div>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Abstimmung spielen" data-i18n-en="Play the vote">Abstimmung spielen</h3>
+            <div class="vote-grid">
+              <button class="vote-btn" data-vote-model="lr" type="button">LogReg</button>
+              <button class="vote-btn" data-vote-model="knn" type="button">KNN</button>
+              <button class="vote-btn" data-vote-model="dt" type="button">Tree</button>
+            </div>
+            <div class="mini-grid">
+              <div class="result-box" id="vote-hard-result"></div>
+              <div class="result-box" id="vote-soft-result"></div>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Hard Voting trainieren" data-i18n-en="Exercise: train hard voting">Übung: Hard Voting trainieren</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Diese Übung stammt direkt aus dem Voting-Notebook. Ergänze nur die Ensemble-Zeile und trainiere danach das Abstimmungsmodell." data-i18n-en="This exercise comes directly from the voting notebook. Complete only the ensemble line and then train the voting model.">Diese Übung stammt direkt aus dem Voting-Notebook. Ergänze nur die Ensemble-Zeile und trainiere danach das Abstimmungsmodell.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import VotingClassifier
+
+X_train = [[1, 1], [1, 2], [2, 1], [3, 3], [4, 4], [4, 5]]
+y_train = [0, 0, 0, 1, 1, 1]
+
+model1 = LogisticRegression(random_state=42)
+model2 = KNeighborsClassifier()
+model3 = DecisionTreeClassifier(random_state=42)
+
+ensemble = # ??? DEINE LÖSUNG ???
+ensemble.fit(X_train, y_train)
+
+print(ensemble.predict([[3, 4]])[0])</code></pre>
+            <details class="hint"><summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary><p data-i18n-de="Du brauchst drei Schätzmodelle in `estimators=[...]` und `voting='hard'`." data-i18n-en="You need three base models in `estimators=[...]` and `voting='hard'`.">Du brauchst drei Schätzmodelle in `estimators=[...]` und `voting='hard'`.</p></details>
+            <details class="solution"><summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary><pre><code class="language-python">from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import VotingClassifier
+
+X_train = [[1, 1], [1, 2], [2, 1], [3, 3], [4, 4], [4, 5]]
+y_train = [0, 0, 0, 1, 1, 1]
+
+model1 = LogisticRegression(random_state=42)
+model2 = KNeighborsClassifier()
+model3 = DecisionTreeClassifier(random_state=42)
+
+ensemble = VotingClassifier(
+    estimators=[("lr", model1), ("knn", model2), ("dt", model3)],
+    voting="hard"
+)
+ensemble.fit(X_train, y_train)
+
+print(ensemble.predict([[3, 4]])[0])</code></pre><p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>1</code>" data-i18n-en="Expected output: <code>1</code>">Erwartete Ausgabe: <code>1</code></p></details>
+          </div>
+
+          <div id="quiz-2" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Hard Voting fragt: Wer hat die Mehrheit? Soft Voting fragt zusätzlich: Wie sicher sind die Stimmen?" data-i18n-en="What do you take away? Hard voting asks: who has the majority? Soft voting also asks: how confident are the votes?">Was nimmst du mit? Hard Voting fragt: Wer hat die Mehrheit? Soft Voting fragt zusätzlich: Wie sicher sind die Stimmen?</p>
+        </section>
+
+        <section class="module lesson-step" id="module-3">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 3</div>
+              <h2 data-i18n-de="Bagging & Random Forest" data-i18n-en="Bagging and random forest">Bagging & Random Forest</h2>
+              <p class="module-summary" data-i18n-de="Du verstehst Bootstrap-Samples, Feature-Zufall und warum ein Wald ruhiger ist als ein einzelner Baum." data-i18n-en="You understand bootstrap samples, feature randomness and why a forest is calmer than a single tree.">Du verstehst Bootstrap-Samples, Feature-Zufall und warum ein Wald ruhiger ist als ein einzelner Baum.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-3">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Stell dir eine Stiftung-Warentest-Redaktion vor. Nicht jeder Tester sieht jedes Produkt und jedes Kriterium. Jeder bekommt einen anderen Ausschnitt. Am Ende werden die Bewertungen zusammengeführt. Das ist die Grundidee von Bagging und Random Forest." data-i18n-en="Imagine a product-testing editorial team. Not every tester sees every product and every criterion. Each person receives a different slice. In the end, the evaluations are combined. That is the basic idea of bagging and random forest.">Stell dir eine Stiftung-Warentest-Redaktion vor. Nicht jeder Tester sieht jedes Produkt und jedes Kriterium. Jeder bekommt einen anderen Ausschnitt. Am Ende werden die Bewertungen zusammengeführt. Das ist die Grundidee von Bagging und Random Forest.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Bagging&quot; data-term-en=&quot;Bagging&quot; data-definition-de=&quot;Bagging trainiert viele Modelle auf verschiedenen Bootstrap-Stichproben und mittelt oder votet danach.&quot; data-definition-en=&quot;Bagging trains many models on different bootstrap samples and then averages or votes.&quot;>Bagging</button> nutzt Bootstrap-Stichproben mit Zurücklegen. <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Random Forest&quot; data-term-en=&quot;Random forest&quot; data-definition-de=&quot;Ein Random Forest ist Bagging mit vielen Decision Trees und zusätzlichem Zufall bei der Feature-Auswahl pro Split.&quot; data-definition-en=&quot;A random forest is bagging with many decision trees and extra randomness in feature selection for each split.&quot;>Random Forest</button> fügt zusätzlich zufällige Feature-Teilmengen hinzu, damit die Bäume weniger korreliert sind." data-i18n-html-en="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Bagging&quot; data-term-en=&quot;Bagging&quot; data-definition-de=&quot;Bagging trainiert viele Modelle auf verschiedenen Bootstrap-Stichproben und mittelt oder votet danach.&quot; data-definition-en=&quot;Bagging trains many models on different bootstrap samples and then averages or votes.&quot;>Bagging</button> uses bootstrap samples with replacement. <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Random Forest&quot; data-term-en=&quot;Random forest&quot; data-definition-de=&quot;Ein Random Forest ist Bagging mit vielen Decision Trees und zusätzlichem Zufall bei der Feature-Auswahl pro Split.&quot; data-definition-en=&quot;A random forest is bagging with many decision trees and extra randomness in feature selection for each split.&quot;>Random forest</button> adds random feature subsets so the trees are less correlated."><button class="glossary-term" type="button" data-term-de="Bagging" data-term-en="Bagging" data-definition-de="Bagging trainiert viele Modelle auf verschiedenen Bootstrap-Stichproben und mittelt oder votet danach." data-definition-en="Bagging trains many models on different bootstrap samples and then averages or votes.">Bagging</button> nutzt Bootstrap-Stichproben mit Zurücklegen. <button class="glossary-term" type="button" data-term-de="Random Forest" data-term-en="Random forest" data-definition-de="Ein Random Forest ist Bagging mit vielen Decision Trees und zusätzlichem Zufall bei der Feature-Auswahl pro Split." data-definition-en="A random forest is bagging with many decision trees and extra randomness in feature selection for each split.">Random Forest</button> fügt zusätzlich zufällige Feature-Teilmengen hinzu, damit die Bäume weniger korreliert sind.</p>
+            </div>
+          </div>
+
+          <div class="demo-grid">
+            <div class="plot-card">
+              <h3 data-i18n-de="Wald bauen" data-i18n-en="Build a forest">Wald bauen</h3>
+              <div class="control">
+                <label for="forest-trees"><span data-i18n-de="Anzahl der Bäume" data-i18n-en="Number of trees">Anzahl der Bäume</span><span id="forest-trees-label">6</span></label>
+                <input id="forest-trees" type="range" min="3" max="12" step="1" value="6" aria-label="Anzahl der Bäume">
+              </div>
+              <div class="control">
+                <label for="forest-features"><span data-i18n-de="Features pro Split" data-i18n-en="Features per split">Features pro Split</span><span id="forest-features-label">2</span></label>
+                <input id="forest-features" type="range" min="1" max="4" step="1" value="2" aria-label="Features pro Split">
+              </div>
+              <div class="mini-grid">
+                <div class="result-box" id="forest-oob-result"></div>
+                <div class="result-box" id="forest-variance-result"></div>
+              </div>
+            </div>
+            <div class="plot-card">
+              <h3 data-i18n-de="Bootstrap-Samples" data-i18n-en="Bootstrap samples">Bootstrap-Samples</h3>
+              <div class="ensemble-strip" id="forest-strip"></div>
+              <p class="plot-caption" data-i18n-de="Jeder Baum sieht einen anderen Datenausschnitt. Manche Fälle sind mehrfach drin, manche fehlen und werden später zu OOB-Testfällen." data-i18n-en="Each tree sees a different data slice. Some cases appear multiple times, some are missing and later become OOB test cases.">Jeder Baum sieht einen anderen Datenausschnitt. Manche Fälle sind mehrfach drin, manche fehlen und werden später zu OOB-Testfällen.</p>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Random Forest trainieren" data-i18n-en="Exercise: train a random forest">Übung: Random Forest trainieren</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Die Aufgabe basiert auf dem Random-Forest-Codealong. Ergänze das Modell mit 100 Bäumen und `max_features='sqrt'`." data-i18n-en="This task is based on the random forest codealong. Complete the model with 100 trees and `max_features='sqrt'`.">Die Aufgabe basiert auf dem Random-Forest-Codealong. Ergänze das Modell mit 100 Bäumen und `max_features='sqrt'`.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+
+X_train = [[1, 1], [1, 2], [2, 1], [3, 3], [4, 4], [4, 5], [5, 4], [5, 5]]
+y_train = [0, 0, 0, 1, 1, 1, 1, 1]
+
+model = # ??? DEINE LÖSUNG ???
+model.fit(X_train, y_train)
+
+print(model.n_estimators)</code></pre>
+            <details class="hint"><summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary><p data-i18n-de="Nutze `RandomForestClassifier(n_estimators=100, max_features='sqrt', random_state=42)`." data-i18n-en="Use `RandomForestClassifier(n_estimators=100, max_features='sqrt', random_state=42)`.">Nutze `RandomForestClassifier(n_estimators=100, max_features='sqrt', random_state=42)`.</p></details>
+            <details class="solution"><summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary><pre><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+
+X_train = [[1, 1], [1, 2], [2, 1], [3, 3], [4, 4], [4, 5], [5, 4], [5, 5]]
+y_train = [0, 0, 0, 1, 1, 1, 1, 1]
+
+model = RandomForestClassifier(
+    n_estimators=100,
+    max_features="sqrt",
+    random_state=42
+)
+model.fit(X_train, y_train)
+
+print(model.n_estimators)</code></pre><p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>100</code>" data-i18n-en="Expected output: <code>100</code>">Erwartete Ausgabe: <code>100</code></p></details>
+          </div>
+
+          <div id="quiz-3" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ein Wald wird robust, wenn seine Bäume nicht alle denselben Ausschnitt und dieselben Merkmale sehen." data-i18n-en="What do you take away? A forest becomes robust when its trees do not all see the same slice and the same features.">Was nimmst du mit? Ein Wald wird robust, wenn seine Bäume nicht alle denselben Ausschnitt und dieselben Merkmale sehen.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-4">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 4</div>
+              <h2 data-i18n-de="Boosting" data-i18n-en="Boosting">Boosting</h2>
+              <p class="module-summary" data-i18n-de="Du siehst, wie spätere Modelle gezielt die Fehler früherer Modelle aufgreifen." data-i18n-en="You see how later models deliberately pick up the mistakes of earlier models.">Du siehst, wie spätere Modelle gezielt die Fehler früherer Modelle aufgreifen.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-4">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Beim Fahrschultraining übst du nicht in jeder Stunde alles gleich stark. Erst fährst du allgemein, dann konzentrierst du dich besonders auf das Einparken, dann auf die Autobahn. Boosting arbeitet ähnlich: Jede Runde schaut stärker auf die Fälle, die vorher schwierig waren." data-i18n-en="In driving lessons you do not practise everything equally in every hour. First you drive generally, then you focus especially on parking, then on the motorway. Boosting works similarly: each round pays more attention to the cases that were difficult before.">Beim Fahrschultraining übst du nicht in jeder Stunde alles gleich stark. Erst fährst du allgemein, dann konzentrierst du dich besonders auf das Einparken, dann auf die Autobahn. Boosting arbeitet ähnlich: Jede Runde schaut stärker auf die Fälle, die vorher schwierig waren.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;AdaBoost&quot; data-term-en=&quot;AdaBoost&quot; data-definition-de=&quot;AdaBoost erhöht das Gewicht der falsch vorhergesagten Fälle, damit der nächste Learner sich stärker auf sie konzentriert.&quot; data-definition-en=&quot;AdaBoost increases the weight of misclassified cases so the next learner focuses more on them.&quot;>AdaBoost</button> erhöht Gewichte schwieriger Fälle. <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Gradient Boosting&quot; data-term-en=&quot;Gradient boosting&quot; data-definition-de=&quot;Gradient Boosting lernt schrittweise die Restfehler des bisherigen Ensembles.&quot; data-definition-en=&quot;Gradient boosting learns the residual errors of the current ensemble step by step.&quot;>Gradient Boosting</button> lernt schrittweise die Restfehler. Die Modelle arbeiten also nicht parallel wie beim Bagging, sondern nacheinander." data-i18n-html-en="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;AdaBoost&quot; data-term-en=&quot;AdaBoost&quot; data-definition-de=&quot;AdaBoost erhöht das Gewicht der falsch vorhergesagten Fälle, damit der nächste Learner sich stärker auf sie konzentriert.&quot; data-definition-en=&quot;AdaBoost increases the weight of misclassified cases so the next learner focuses more on them.&quot;>AdaBoost</button> raises the weight of difficult cases. <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Gradient Boosting&quot; data-term-en=&quot;Gradient boosting&quot; data-definition-de=&quot;Gradient Boosting lernt schrittweise die Restfehler des bisherigen Ensembles.&quot; data-definition-en=&quot;Gradient boosting learns the residual errors of the current ensemble step by step.&quot;>Gradient boosting</button> learns the residual errors step by step. So the models do not work in parallel like bagging, but sequentially."><button class="glossary-term" type="button" data-term-de="AdaBoost" data-term-en="AdaBoost" data-definition-de="AdaBoost erhöht das Gewicht der falsch vorhergesagten Fälle, damit der nächste Learner sich stärker auf sie konzentriert." data-definition-en="AdaBoost increases the weight of misclassified cases so the next learner focuses more on them.">AdaBoost</button> erhöht Gewichte schwieriger Fälle. <button class="glossary-term" type="button" data-term-de="Gradient Boosting" data-term-en="Gradient boosting" data-definition-de="Gradient Boosting lernt schrittweise die Restfehler des bisherigen Ensembles." data-definition-en="Gradient boosting learns the residual errors of the current ensemble step by step.">Gradient Boosting</button> lernt schrittweise die Restfehler. Die Modelle arbeiten also nicht parallel wie beim Bagging, sondern nacheinander.</p>
+            </div>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Fehler-Kette" data-i18n-en="Error chain">Fehler-Kette</h3>
+            <div class="button-row">
+              <button class="scenario-btn" data-boost-step="1" type="button">Runde 1</button>
+              <button class="scenario-btn" data-boost-step="2" type="button">Runde 2</button>
+              <button class="scenario-btn" data-boost-step="3" type="button">Runde 3</button>
+            </div>
+            <div class="importance-grid" id="boost-cases"></div>
+            <div class="result-box" id="boost-result"></div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: AdaBoost-Runden denken" data-i18n-en="Exercise: think in AdaBoost rounds">Übung: AdaBoost-Runden denken</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Die Übung lehnt sich an das AdaBoost-Notebook an. Ergänze die Schleife, damit für mehrere Rundenzahlen der Fehler gesammelt wird." data-i18n-en="This exercise is based on the AdaBoost notebook. Complete the loop so the error is collected for several round counts.">Die Übung lehnt sich an das AdaBoost-Notebook an. Ergänze die Schleife, damit für mehrere Rundenzahlen der Fehler gesammelt wird.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">errors = []
+x_range = range(10, 40, 10)
+
+for rounds in x_range:
+    error = # ??? DEINE LÖSUNG ???
+    errors.append(error)
+
+print(len(errors))</code></pre>
+            <details class="hint"><summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary><p data-i18n-de="Im Notebook liefert `adaboost_clf(...)` ein Tupel aus Trainings- und Testfehler. Du brauchst hier nur den Testfehler." data-i18n-en="In the notebook, `adaboost_clf(...)` returns a tuple of train and test error. Here you only need the test error.">Im Notebook liefert `adaboost_clf(...)` ein Tupel aus Trainings- und Testfehler. Du brauchst hier nur den Testfehler.</p></details>
+            <details class="solution"><summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary><pre><code class="language-python">errors = []
+x_range = range(10, 40, 10)
+
+for rounds in x_range:
+    error = adaboost_clf(Y_train, X_train, Y_test, X_test, rounds, clf_tree)[1]
+    errors.append(error)
+
+print(len(errors))</code></pre><p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>3</code>" data-i18n-en="Expected output: <code>3</code>">Erwartete Ausgabe: <code>3</code></p></details>
+          </div>
+
+          <div id="quiz-4" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Boosting versucht nicht, viele unabhängige Stimmen zu sammeln. Es baut gezielt eine Fehler-Korrektur-Kette auf." data-i18n-en="What do you take away? Boosting does not try to collect many independent votes. It deliberately builds an error-correction chain.">Was nimmst du mit? Boosting versucht nicht, viele unabhängige Stimmen zu sammeln. Es baut gezielt eine Fehler-Korrektur-Kette auf.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-5">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 5</div>
+              <h2 data-i18n-de="Stacking" data-i18n-en="Stacking">Stacking</h2>
+              <p class="module-summary" data-i18n-de="Du lernst, wie ein Meta-Modell entscheidet, welchem Basis-Modell es in welcher Lage mehr traut." data-i18n-en="You learn how a meta model decides which base model to trust more in which situation.">Du lernst, wie ein Meta-Modell entscheidet, welchem Basis-Modell es in welcher Lage mehr traut.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-5">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="In einer Casting-Show sitzen unterschiedliche Experten in der Jury. Der eine hört auf Technik, der andere auf Bühnenpräsenz. Ein zusätzlicher Schiedsrichter könnte lernen, in welcher Situation welche Jury-Stimme am meisten zählt. Genau das ist Stacking." data-i18n-en="In a casting show, different experts sit on the jury. One listens for technique, the other for stage presence. An additional referee could learn in which situation which jury voice counts most. That is exactly what stacking is.">In einer Casting-Show sitzen unterschiedliche Experten in der Jury. Der eine hört auf Technik, der andere auf Bühnenpräsenz. Ein zusätzlicher Schiedsrichter könnte lernen, in welcher Situation welche Jury-Stimme am meisten zählt. Genau das ist Stacking.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Meta-Learner&quot; data-term-en=&quot;Meta learner&quot; data-definition-de=&quot;Der Meta-Learner ist das obere Modell in einem Stacking-Ensemble. Er lernt aus den Vorhersagen der Basis-Modelle.&quot; data-definition-en=&quot;The meta learner is the top model in a stacking ensemble. It learns from the predictions of the base models.&quot;>Meta-Learner</button> heißt das obere Modell. Es bekommt nicht die Rohdaten, sondern die Vorhersagen der Basis-Modelle als neue Eingaben." data-i18n-html-en="The <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Meta-Learner&quot; data-term-en=&quot;Meta learner&quot; data-definition-de=&quot;Der Meta-Learner ist das obere Modell in einem Stacking-Ensemble. Er lernt aus den Vorhersagen der Basis-Modelle.&quot; data-definition-en=&quot;The meta learner is the top model in a stacking ensemble. It learns from the predictions of the base models.&quot;>meta learner</button> is the top model. It does not receive the raw data, but the predictions of the base models as new inputs."><button class="glossary-term" type="button" data-term-de="Meta-Learner" data-term-en="Meta learner" data-definition-de="Der Meta-Learner ist das obere Modell in einem Stacking-Ensemble. Er lernt aus den Vorhersagen der Basis-Modelle." data-definition-en="The meta learner is the top model in a stacking ensemble. It learns from the predictions of the base models.">Meta-Learner</button> heißt das obere Modell. Es bekommt nicht die Rohdaten, sondern die Vorhersagen der Basis-Modelle als neue Eingaben.</p>
+            </div>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Welchem Modell würdest du trauen?" data-i18n-en="Which model would you trust?">Welchem Modell würdest du trauen?</h3>
+            <div class="case-grid">
+              <button class="case-btn" data-case="simple" type="button">Klarer Grenzfall</button>
+              <button class="case-btn" data-case="local" type="button">Lokale Nachbarschaft</button>
+              <button class="case-btn" data-case="noisy" type="button">Rauschige Daten</button>
+              <button class="case-btn" data-case="mixed" type="button">Gemischtes Bild</button>
+            </div>
+            <div class="mini-grid">
+              <div class="result-box" id="stacking-result"></div>
+              <div class="result-box" id="stacking-meta"></div>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: StackingClassifier aufsetzen" data-i18n-en="Exercise: set up a StackingClassifier">Übung: StackingClassifier aufsetzen</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Die Vorlage stammt aus dem Voting-Notebook. Ergänze die Stacking-Zeile mit den drei Basis-Modellen und einer logistischen Regression als finalem Modell." data-i18n-en="The template comes from the voting notebook. Complete the stacking line with the three base models and a logistic regression as final model.">Die Vorlage stammt aus dem Voting-Notebook. Ergänze die Stacking-Zeile mit den drei Basis-Modellen und einer logistischen Regression als finalem Modell.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, StackingClassifier
+
+estimators = [
+    ("dt", DecisionTreeClassifier(random_state=42)),
+    ("knn", KNeighborsClassifier()),
+    ("rf", RandomForestClassifier(random_state=42))
+]
+
+clf = # ??? DEINE LÖSUNG ???
+print(type(clf).__name__)</code></pre>
+            <details class="hint"><summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary><p data-i18n-de="Nutze `StackingClassifier(estimators=..., final_estimator=LogisticRegression())`." data-i18n-en="Use `StackingClassifier(estimators=..., final_estimator=LogisticRegression())`.">Nutze `StackingClassifier(estimators=..., final_estimator=LogisticRegression())`.</p></details>
+            <details class="solution"><summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary><pre><code class="language-python">from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, StackingClassifier
+
+estimators = [
+    ("dt", DecisionTreeClassifier(random_state=42)),
+    ("knn", KNeighborsClassifier()),
+    ("rf", RandomForestClassifier(random_state=42))
+]
+
+clf = StackingClassifier(
+    estimators=estimators,
+    final_estimator=LogisticRegression()
+)
+print(type(clf).__name__)</code></pre><p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>StackingClassifier</code>" data-i18n-en="Expected output: <code>StackingClassifier</code>">Erwartete Ausgabe: <code>StackingClassifier</code></p></details>
+          </div>
+
+          <div id="quiz-5" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Stacking ist mehr als Abstimmen. Es lernt, wann welche Modellstimme besonders nützlich ist." data-i18n-en="What do you take away? Stacking is more than voting. It learns when which model voice is especially useful.">Was nimmst du mit? Stacking ist mehr als Abstimmen. Es lernt, wann welche Modellstimme besonders nützlich ist.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-6">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 6</div>
+              <h2 data-i18n-de="Interpretation" data-i18n-en="Interpretation">Interpretation</h2>
+              <p class="module-summary" data-i18n-de="Du siehst, wie man trotz vieler Modelle noch Hinweise darauf bekommt, welche Merkmale wichtig waren." data-i18n-en="You see how you can still get clues about which features mattered despite many models.">Du siehst, wie man trotz vieler Modelle noch Hinweise darauf bekommt, welche Merkmale wichtig waren.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-6">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Wenn ein Ärzteteam eine Diagnose stellt, willst du trotzdem wissen, welche Blutwerte oder Symptome den Ausschlag gaben. Bei Ensembles ist das ähnlich: Das Endurteil ist stark, aber wir brauchen Werkzeuge, um nachträglich zu verstehen, was wichtig war." data-i18n-en="When a medical team makes a diagnosis, you still want to know which blood values or symptoms made the difference. Ensembles are similar: the final judgement is strong, but we need tools to understand afterwards what mattered.">Wenn ein Ärzteteam eine Diagnose stellt, willst du trotzdem wissen, welche Blutwerte oder Symptome den Ausschlag gaben. Bei Ensembles ist das ähnlich: Das Endurteil ist stark, aber wir brauchen Werkzeuge, um nachträglich zu verstehen, was wichtig war.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Feature Importance&quot; data-term-en=&quot;Feature importance&quot; data-definition-de=&quot;Feature Importance schätzt, wie stark ein Merkmal zur Modellentscheidung beigetragen hat.&quot; data-definition-en=&quot;Feature importance estimates how strongly a feature contributed to the model decision.&quot;>Feature Importance</button> ist ein erster Blick auf die Frage: Welche Merkmale wurden im Ensemble besonders oft oder besonders nützlich verwendet?" data-i18n-html-en="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Feature Importance&quot; data-term-en=&quot;Feature importance&quot; data-definition-de=&quot;Feature Importance schätzt, wie stark ein Merkmal zur Modellentscheidung beigetragen hat.&quot; data-definition-en=&quot;Feature importance estimates how strongly a feature contributed to the model decision.&quot;>Feature importance</button> is a first look at the question: which features were used especially often or especially usefully in the ensemble?"><button class="glossary-term" type="button" data-term-de="Feature Importance" data-term-en="Feature importance" data-definition-de="Feature Importance schätzt, wie stark ein Merkmal zur Modellentscheidung beigetragen hat." data-definition-en="Feature importance estimates how strongly a feature contributed to the model decision.">Feature Importance</button> ist ein erster Blick auf die Frage: Welche Merkmale wurden im Ensemble besonders oft oder besonders nützlich verwendet?</p>
+            </div>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Merkmale gewichten" data-i18n-en="Weight features">Merkmale gewichten</h3>
+            <div class="importance-grid">
+              <button class="scenario-btn" data-importance="sleep" type="button">Schlaf</button>
+              <button class="scenario-btn" data-importance="steps" type="button">Schritte</button>
+              <button class="scenario-btn" data-importance="age" type="button">Alter</button>
+              <button class="scenario-btn" data-importance="stress" type="button">Stress</button>
+            </div>
+            <svg id="importance-svg" class="ensemble-svg" viewBox="0 0 520 220" role="img" aria-label="Feature-Importance-Balken"></svg>
+            <div class="result-box" id="importance-result"></div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Wichtigstes Merkmal finden" data-i18n-en="Exercise: find the most important feature">Übung: Wichtigstes Merkmal finden</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Die Vorlage orientiert sich am Random-Forest-Codealong. Ergänze die Ausgabezeile so, dass das wichtigste Merkmal gefunden wird." data-i18n-en="The template is based on the random forest codealong. Complete the output line so the most important feature is found.">Die Vorlage orientiert sich am Random-Forest-Codealong. Ergänze die Ausgabezeile so, dass das wichtigste Merkmal gefunden wird.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">features = ["sleep", "steps", "age", "stress"]
+importance = [0.41, 0.27, 0.12, 0.20]
+
+best_feature = # ??? DEINE LÖSUNG ???
+print(best_feature)</code></pre>
+            <details class="hint"><summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary><p data-i18n-de="Finde erst den Index des größten Werts in `importance`." data-i18n-en="First find the index of the largest value in `importance`.">Finde erst den Index des größten Werts in `importance`.</p></details>
+            <details class="solution"><summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary><pre><code class="language-python">features = ["sleep", "steps", "age", "stress"]
+importance = [0.41, 0.27, 0.12, 0.20]
+
+best_feature = features[importance.index(max(importance))]
+print(best_feature)</code></pre><p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>sleep</code>" data-i18n-en="Expected output: <code>sleep</code>">Erwartete Ausgabe: <code>sleep</code></p></details>
+          </div>
+
+          <div id="quiz-6" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Auch starke Ensembles brauchen eine gute Nach-Erklärung, sonst bleibt das Modell für Fachabteilungen eine Black Box." data-i18n-en="What do you take away? Even strong ensembles need a good explanation afterwards, otherwise the model remains a black box for domain teams.">Was nimmst du mit? Auch starke Ensembles brauchen eine gute Nach-Erklärung, sonst bleibt das Modell für Fachabteilungen eine Black Box.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-7">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 7</div>
+              <h2 data-i18n-de="Praxisvergleich" data-i18n-en="Practical comparison">Praxisvergleich</h2>
+              <p class="module-summary" data-i18n-de="Du ordnest den kompletten Workflow vom Baseline-Modell bis zum Ensemble-Vergleich." data-i18n-en="You organise the full workflow from baseline model to ensemble comparison.">Du ordnest den kompletten Workflow vom Baseline-Modell bis zum Ensemble-Vergleich.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-7">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Im Arbeitsalltag reicht es nicht, nur ein Random-Forest-Modell hinzustellen. Du brauchst eine saubere Reihenfolge: Daten vorbereiten, Baseline prüfen, Ensembles vergleichen, Metriken lesen und dann erst entscheiden, was wirklich besser ist." data-i18n-en="In everyday work, it is not enough to just present a random forest. You need a clean order: prepare the data, check a baseline, compare ensembles, read the metrics and only then decide what is actually better.">Im Arbeitsalltag reicht es nicht, nur ein Random-Forest-Modell hinzustellen. Du brauchst eine saubere Reihenfolge: Daten vorbereiten, Baseline prüfen, Ensembles vergleichen, Metriken lesen und dann erst entscheiden, was wirklich besser ist.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-de="Ein guter Ensemble-Workflow vergleicht zuerst ein einfaches Baseline-Modell, dann Bagging/Voting/Boosting-Varianten und liest danach Metriken wie Accuracy, F-Score oder ROC-AUC im Test." data-i18n-en="A good ensemble workflow first compares a simple baseline model, then bagging/voting/boosting variants and finally reads metrics such as accuracy, F-score or ROC-AUC on the test set.">Ein guter Ensemble-Workflow vergleicht zuerst ein einfaches Baseline-Modell, dann Bagging/Voting/Boosting-Varianten und liest danach Metriken wie Accuracy, F-Score oder ROC-AUC im Test.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Merksatz" data-i18n-en="Rule of thumb">Merksatz</h3>
+            <p data-i18n-de="Erst Baseline, dann Ensemble, dann Vergleich. Sonst weißt du nie, ob die zusätzliche Komplexität überhaupt etwas gebracht hat." data-i18n-en="First baseline, then ensemble, then comparison. Otherwise you never know whether the added complexity helped at all.">Erst Baseline, dann Ensemble, dann Vergleich. Sonst weißt du nie, ob die zusätzliche Komplexität überhaupt etwas gebracht hat.</p>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Workflow ordnen" data-i18n-en="Order the workflow">Workflow ordnen</h3>
+            <p class="plot-caption" data-i18n-de="Klicke die Schritte in der richtigen Reihenfolge an." data-i18n-en="Click the steps in the correct order.">Klicke die Schritte in der richtigen Reihenfolge an.</p>
+            <div class="workflow-grid" id="workflow-grid"></div>
+            <div class="result-box" id="workflow-result"></div>
+          </div>
+
+          <div id="quiz-7" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ensemble Methods sind am stärksten, wenn du sie nicht nur trainierst, sondern auch fair mit einer einfachen Referenz vergleichst." data-i18n-en="What do you take away? Ensemble methods are strongest when you not only train them, but also compare them fairly against a simple reference.">Was nimmst du mit? Ensemble Methods sind am stärksten, wenn du sie nicht nur trainierst, sondern auch fair mit einer einfachen Referenz vergleichst.</p>
+        </section>
+      </div>
+
+      <footer class="footer-card">
+        <div class="card-kicker" data-i18n-de="Teil des Gesamtlehrpfads" data-i18n-en="Part of the full learning path">Teil des Gesamtlehrpfads</div>
+        <p class="lead" data-i18n-de="Dieses Kapitel gehört zum Pfad Decision Trees, Ensemble Methods, Matrix und Matrizenmultiplikation." data-i18n-en="This chapter belongs to the path of decision trees, ensemble methods, matrices and matrix multiplication.">Dieses Kapitel gehört zum Pfad Decision Trees, Ensemble Methods, Matrix und Matrizenmultiplikation.</p>
+        <div class="footer-links">
+          <a class="btn ghost" href="decision_trees_interaktion.html" data-i18n-de="Zurück zu Decision Trees" data-i18n-en="Back to decision trees">Zurück zu Decision Trees</a>
+          <a class="btn" href="matrix_interaktion.html" data-i18n-de="Weiter zu Matrix verstehen" data-i18n-en="Continue to understanding matrices">Weiter zu Matrix verstehen</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    window.DataSciencePageI18n = {
+      title: {
+        de: "Ensemble Methods | Der Modell-Rat",
+        en: "Ensemble methods | The model council"
+      },
+      description: {
+        de: "Interaktives Kapitel zu Ensemble Methods mit Voting, Random Forest, Boosting, Stacking und Feature Importance.",
+        en: "Interactive chapter on ensemble methods with voting, random forest, boosting, stacking and feature importance."
+      },
+      exact: {
+        "Ensemble-Rang": "Ensemble rank",
+        "Rang: Anfänger": "Rank: Beginner",
+        "Rang: Fortgeschritten": "Rank: Advanced",
+        "Rang: Profi": "Rank: Pro",
+        "Zurück zu Decision Trees": "Back to decision trees",
+        "Weiter zu Matrix verstehen": "Continue to understanding matrices"
+      }
+    };
+  </script>
+  <script src="lernstand_manager.js" defer></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var STORAGE_KEY = "asdm-ensemble-methods-state-v1";
+      var MODULES = [
+        { id: "module-1" }, { id: "module-2" }, { id: "module-3" }, { id: "module-4" },
+        { id: "module-5" }, { id: "module-6" }, { id: "module-7" }
+      ];
+
+      var UI = {
+        de: {
+          open: "Offen",
+          secure: "Sicher gelöst",
+          progressSteps: function (done, total) { return done + " von " + total + " Modulen sicher"; },
+          points: function (value) { return value + " Punkte"; },
+          rankBeginner: "Rang: Anfänger",
+          rankAdvanced: "Rang: Fortgeschritten",
+          rankPro: "Rang: Profi",
+          rankCopyBeginner: "Noch offen: verstehen, wann viele Modelle Stabilität bringen und wann sie sich nur wiederholen.",
+          rankCopyAdvanced: "Du kannst Voting, Wald und Boosting schon sauber auseinanderhalten.",
+          rankCopyPro: "Du argumentierst wie ein Ensemble-Analyst und kannst Stärken, Grenzen und Workflow begründen.",
+          quizTitle: "Quiz",
+          checkQuiz: "Antworten prüfen",
+          chooseAll: "Bitte beantworte zuerst alle Fragen in diesem Quiz.",
+          remaining: function (list) { return "Noch offen: " + list.join(", ") + "."; },
+          allCorrect: "Perfekt. Dieses Modul ist jetzt sicher gelöst.",
+          crowdText: function (n, q, ensemble) { return n + " Modelle mit je " + q + "% Trefferquote ergeben ungefähr " + ensemble + "% Mehrheits-Sicherheit."; },
+          hardVote: function (winner) { return "Hard Voting: Mehrheit sagt " + winner + "."; },
+          softVote: function (winner, prob) { return "Soft Voting: Die gemittelte Wahrscheinlichkeit spricht mit " + prob + "% für " + winner + "."; },
+          forestOob: function (value) { return "OOB-Idee: ungefähr " + value + "% der Fälle bleiben pro Baum außen vor."; },
+          forestVar: function (value) { return "Mehr Bäume und weniger gemeinsame Features senken hier die Nervosität auf etwa " + value + "%."; },
+          boost1: "Runde 1: Das erste Modell verwechselt noch mehrere Randfälle.",
+          boost2: "Runde 2: Die schwierigen Fälle bekommen mehr Gewicht und ziehen mehr Aufmerksamkeit an.",
+          boost3: "Runde 3: Die Fehler schrumpfen, weil die Kette gezielt nachbessert.",
+          stackResult: function (model) { return "In diesem Szenario würde der Meta-Learner besonders stark auf " + model + " hören."; },
+          stackMeta: "Stacking lernt genau diese Gewichtung aus Daten, statt sie von Hand festzulegen.",
+          importanceText: function (name, value) { return name + " liegt aktuell mit " + value + "% vorn."; },
+          workflowStart: "Starte mit dem ersten sinnvollen Schritt.",
+          workflowNext: function (count, total) { return "Gut. " + count + " von " + total + " Schritten sitzen."; },
+          workflowDone: "Workflow komplett. So vergleichst du Ensembles sauber mit einer Baseline.",
+          workflowWrong: "Dieser Schritt kommt später. Erst vorbereiten, dann Baseline, dann Ensemble, dann messen.",
+          yes: "Ja",
+          no: "Nein"
+        },
+        en: {
+          open: "Open",
+          secure: "Solved securely",
+          progressSteps: function (done, total) { return done + " of " + total + " modules secure"; },
+          points: function (value) { return value + " points"; },
+          rankBeginner: "Rank: Beginner",
+          rankAdvanced: "Rank: Advanced",
+          rankPro: "Rank: Pro",
+          rankCopyBeginner: "Still open: understanding when many models bring stability and when they just repeat each other.",
+          rankCopyAdvanced: "You can already distinguish voting, forests and boosting clearly.",
+          rankCopyPro: "You argue like an ensemble analyst and can justify strengths, limits and workflow.",
+          quizTitle: "Quiz",
+          checkQuiz: "Check answers",
+          chooseAll: "Please answer all questions in this quiz first.",
+          remaining: function (list) { return "Still open: " + list.join(", ") + "."; },
+          allCorrect: "Perfect. This module is now solved securely.",
+          crowdText: function (n, q, ensemble) { return n + " models with " + q + "% accuracy each produce roughly " + ensemble + "% majority confidence."; },
+          hardVote: function (winner) { return "Hard voting: the majority says " + winner + "."; },
+          softVote: function (winner, prob) { return "Soft voting: the averaged probability speaks with " + prob + "% for " + winner + "."; },
+          forestOob: function (value) { return "OOB idea: about " + value + "% of cases stay outside each tree."; },
+          forestVar: function (value) { return "More trees and fewer shared features reduce nervousness here to about " + value + "%."; },
+          boost1: "Round 1: the first model still confuses several edge cases.",
+          boost2: "Round 2: difficult cases receive more weight and attract more attention.",
+          boost3: "Round 3: errors shrink because the chain improves deliberately.",
+          stackResult: function (model) { return "In this scenario, the meta learner would especially trust " + model + "."; },
+          stackMeta: "Stacking learns exactly this weighting from data instead of setting it by hand.",
+          importanceText: function (name, value) { return name + " currently leads with " + value + "%."; },
+          workflowStart: "Start with the first sensible step.",
+          workflowNext: function (count, total) { return "Good. " + count + " of " + total + " steps are in place."; },
+          workflowDone: "Workflow complete. This is how you compare ensembles cleanly against a baseline.",
+          workflowWrong: "That step comes later. First prepare, then baseline, then ensemble, then measure.",
+          yes: "Yes",
+          no: "No"
+        }
+      };
+
+      var QUIZZES = {
+        "module-1": [
+          { id: "q1", question: { de: "Warum helfen mehrere unabhängige Modelle oft?", en: "Why do several independent models often help?" }, options: [{ value: "a", de: "Weil sie immer identisch sind", en: "Because they are always identical" }, { value: "b", de: "Weil sie Ausreißer und Zufall besser abfedern", en: "Because they cushion outliers and randomness better" }, { value: "c", de: "Weil sie nie trainiert werden müssen", en: "Because they never need training" }], correct: "b", explanation: { de: "Mehrere Perspektiven können zufällige Fehler einzelner Modelle mitteln.", en: "Several perspectives can average out random errors of individual models." } },
+          { id: "q2", question: { de: "Was ist ein Ensemble?", en: "What is an ensemble?" }, options: [{ value: "a", de: "Ein einzelner besonders tiefer Baum", en: "A single especially deep tree" }, { value: "b", de: "Eine Methode, mehrere Modelle zu kombinieren", en: "A method to combine several models" }, { value: "c", de: "Nur ein anderes Wort für Trainingsdaten", en: "Only another word for training data" }], correct: "b", explanation: { de: "Ein Ensemble bündelt mehrere Modelle zu einer gemeinsamen Vorhersage.", en: "An ensemble combines several models into one joint prediction." } }
+        ],
+        "module-2": [
+          { id: "q1", question: { de: "Was nutzt Hard Voting?", en: "What does hard voting use?" }, options: [{ value: "a", de: "Nur die finalen Klassenstimmen", en: "Only the final class votes" }, { value: "b", de: "Nur Feature Importances", en: "Only feature importances" }, { value: "c", de: "Nur Trainingszeiten", en: "Only training times" }], correct: "a", explanation: { de: "Hard Voting zählt nur Klassenurteile, keine Wahrscheinlichkeiten.", en: "Hard voting counts only class judgements, not probabilities." } },
+          { id: "q2", question: { de: "Wann ist Soft Voting oft sinnvoll?", en: "When is soft voting often useful?" }, options: [{ value: "a", de: "Wenn die Modelle gute Wahrscheinlichkeiten liefern", en: "When the models provide good probabilities" }, { value: "b", de: "Wenn es gar keine Klassen gibt", en: "When there are no classes at all" }, { value: "c", de: "Nur bei Regression", en: "Only in regression" }], correct: "a", explanation: { de: "Soft Voting mittelt Wahrscheinlichkeiten und braucht daher brauchbare Wahrscheinlichkeitswerte.", en: "Soft voting averages probabilities and therefore needs usable probability estimates." } }
+        ],
+        "module-3": [
+          { id: "q1", question: { de: "Was macht Bootstrap beim Bagging?", en: "What does bootstrap do in bagging?" }, options: [{ value: "a", de: "Es zieht Stichproben mit Zurücklegen", en: "It draws samples with replacement" }, { value: "b", de: "Es löscht alle Duplikate", en: "It deletes all duplicates" }, { value: "c", de: "Es sortiert Features alphabetisch", en: "It sorts features alphabetically" }], correct: "a", explanation: { de: "Genau dieser Stichproben-Zufall sorgt für verschiedene Trainingssichten pro Baum.", en: "This sampling randomness creates different training views for each tree." } },
+          { id: "q2", question: { de: "Was kommt im Random Forest zusätzlich zu Bagging dazu?", en: "What is added in a random forest on top of bagging?" }, options: [{ value: "a", de: "Feature-Zufall pro Split", en: "Feature randomness per split" }, { value: "b", de: "Keine Bäume mehr", en: "No more trees" }, { value: "c", de: "Nur ein einziges Blatt", en: "Only a single leaf" }], correct: "a", explanation: { de: "Random Forest decorreliert die Bäume zusätzlich über zufällige Feature-Teilmengen.", en: "Random forest further decorrelates trees through random feature subsets." } }
+        ],
+        "module-4": [
+          { id: "q1", question: { de: "Wie arbeiten Boosting-Modelle im Vergleich zu Bagging?", en: "How do boosting models work compared to bagging?" }, options: [{ value: "a", de: "Parallel und unabhängig", en: "In parallel and independently" }, { value: "b", de: "Nacheinander und fehlerorientiert", en: "Sequentially and error-focused" }, { value: "c", de: "Gar nicht mit Fehlern", en: "Not with errors at all" }], correct: "b", explanation: { de: "Boosting baut eine Kette auf, in der spätere Modelle Fehler früherer Modelle adressieren.", en: "Boosting builds a chain in which later models address the mistakes of earlier ones." } },
+          { id: "q2", question: { de: "Was gewichtet AdaBoost stärker?", en: "What does AdaBoost weight more strongly?" }, options: [{ value: "a", de: "Leichte Fälle", en: "Easy cases" }, { value: "b", de: "Schwierig oder falsch klassifizierte Fälle", en: "Difficult or misclassified cases" }, { value: "c", de: "Nur die Features", en: "Only the features" }], correct: "b", explanation: { de: "Schwierige Fälle bekommen mehr Gewicht, damit der nächste Learner sich auf sie konzentriert.", en: "Difficult cases receive more weight so the next learner focuses on them." } }
+        ],
+        "module-5": [
+          { id: "q1", question: { de: "Was bekommt der Meta-Learner beim Stacking?", en: "What does the meta learner receive in stacking?" }, options: [{ value: "a", de: "Direkt nur die Rohdaten", en: "Only the raw data directly" }, { value: "b", de: "Die Vorhersagen der Basis-Modelle", en: "The predictions of the base models" }, { value: "c", de: "Nur Feature-Namen", en: "Only feature names" }], correct: "b", explanation: { de: "Stacking trainiert das obere Modell auf Basis der Vorhersagen der unteren Modelle.", en: "Stacking trains the top model on the predictions of the lower models." } },
+          { id: "q2", question: { de: "Worin unterscheidet sich Stacking von Voting?", en: "How does stacking differ from voting?" }, options: [{ value: "a", de: "Stacking lernt die Kombination, Voting zählt oder mittelt direkt", en: "Stacking learns the combination, voting counts or averages directly" }, { value: "b", de: "Voting braucht immer XGBoost", en: "Voting always needs XGBoost" }, { value: "c", de: "Stacking hat nie Basis-Modelle", en: "Stacking never has base models" }], correct: "a", explanation: { de: "Voting aggregiert direkt. Stacking lernt erst, wie die Stimmen kombiniert werden sollen.", en: "Voting aggregates directly. Stacking first learns how the voices should be combined." } }
+        ],
+        "module-6": [
+          { id: "q1", question: { de: "Was zeigt Feature Importance?", en: "What does feature importance show?" }, options: [{ value: "a", de: "Welche Merkmale vermutlich besonders relevant waren", en: "Which features were probably especially relevant" }, { value: "b", de: "Nur die Dateigröße", en: "Only the file size" }, { value: "c", de: "Nur den Zufallsseed", en: "Only the random seed" }], correct: "a", explanation: { de: "Feature Importance ist ein Hinweis darauf, welche Merkmale das Ensemble häufig oder wirksam genutzt hat.", en: "Feature importance gives a clue which features the ensemble used often or effectively." } },
+          { id: "q2", question: { de: "Warum braucht man Interpretation trotz starker Ensembles?", en: "Why do you need interpretation despite strong ensembles?" }, options: [{ value: "a", de: "Damit Fachleute verstehen, worauf die Entscheidung ungefähr basiert", en: "So domain experts understand roughly what the decision is based on" }, { value: "b", de: "Nur damit der Code länger wird", en: "Only to make the code longer" }, { value: "c", de: "Weil sonst kein Training möglich ist", en: "Because otherwise no training is possible" }], correct: "a", explanation: { de: "Starke Vorhersage reicht im Job oft nicht. Entscheidungen müssen auch erklärbar sein.", en: "Strong prediction is often not enough at work. Decisions also need to be explainable." } }
+        ],
+        "module-7": [
+          { id: "q1", question: { de: "Was sollte vor dem Ensemble-Vergleich stehen?", en: "What should come before the ensemble comparison?" }, options: [{ value: "a", de: "Eine einfache Baseline", en: "A simple baseline" }, { value: "b", de: "Nur ein Screenshot", en: "Only a screenshot" }, { value: "c", de: "Keine Datenaufteilung", en: "No train-test split" }], correct: "a", explanation: { de: "Ohne Baseline weißt du nicht, ob die Zusatzkomplexität wirklich geholfen hat.", en: "Without a baseline, you do not know whether the extra complexity really helped." } },
+          { id: "q2", question: { de: "Warum gehört die Bewertung ans Ende?", en: "Why does evaluation belong at the end?" }, options: [{ value: "a", de: "Weil man erst nach Training und Vorhersage sinnvoll vergleichen kann", en: "Because you can only compare sensibly after training and prediction" }, { value: "b", de: "Damit die Farben schöner aussehen", en: "So the colours look nicer" }, { value: "c", de: "Weil ROC-AUC sonst verboten ist", en: "Because ROC-AUC would otherwise be forbidden" }], correct: "a", explanation: { de: "Erst wenn alle Modelle trainiert und getestet wurden, ergibt die Metrik-Lesung Sinn.", en: "Only after all models have been trained and tested does reading the metrics make sense." } }
+        ]
+      };
+
+      var VOTE_DATA = {
+        lr: { classLabel: { de: "kritisch", en: "critical" }, prob: 78 },
+        knn: { classLabel: { de: "harmlos", en: "harmless" }, prob: 40 },
+        dt: { classLabel: { de: "harmlos", en: "harmless" }, prob: 45 }
+      };
+
+      var STACK_CASES = {
+        simple: { model: { de: "logistische Regression", en: "logistic regression" } },
+        local: { model: { de: "KNN", en: "KNN" } },
+        noisy: { model: { de: "Random Forest", en: "random forest" } },
+        mixed: { model: { de: "Meta-Modell aus mehreren Stimmen", en: "meta model from several voices" } }
+      };
+
+      var IMPORTANCE = { sleep: 41, steps: 27, age: 12, stress: 20 };
+      var WORKFLOW_ORDER = ["prepare", "baseline", "ensemble", "evaluate", "compare"];
+
+      var state = loadState();
+      var sidebar = document.getElementById("sidebar");
+
+      function currentLang() { return document.documentElement.lang === "en" ? "en" : "de"; }
+      function t(key) { return UI[currentLang()][key]; }
+
+      function loadState() {
+        var fallback = {
+          points: 0,
+          completed: {},
+          solvedQuestions: {},
+          earnedKeys: {},
+          celebrated: {},
+          workflowIndex: 0,
+          workflowDoneSet: [],
+          workflowDone: false
+        };
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEY);
+          return raw ? Object.assign({}, fallback, JSON.parse(raw)) : fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function saveState() {
+        try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (error) {}
+      }
+
+      function addPoints(key, value) {
+        if (state.earnedKeys[key]) { return; }
+        state.earnedKeys[key] = true;
+        state.points += value;
+        saveState();
+        renderProgress();
+      }
+
+      function awardDemo(moduleId) { addPoints("demo-" + moduleId, 5); }
+
+      function completeQuestion(moduleId, questionId) {
+        state.solvedQuestions[moduleId] = state.solvedQuestions[moduleId] || {};
+        if (state.solvedQuestions[moduleId][questionId]) { return; }
+        state.solvedQuestions[moduleId][questionId] = true;
+        addPoints("quiz-" + moduleId + "-" + questionId, 10);
+      }
+
+      function isModuleComplete(moduleId) {
+        var solved = state.solvedQuestions[moduleId] || {};
+        return QUIZZES[moduleId].every(function (question) { return Boolean(solved[question.id]); });
+      }
+
+      function getRank() {
+        if (state.points > 110) { return "pro"; }
+        if (state.points > 50) { return "advanced"; }
+        return "beginner";
+      }
+
+      function renderProgress() {
+        MODULES.forEach(function (module) {
+          state.completed[module.id] = isModuleComplete(module.id);
+        });
+        var done = MODULES.filter(function (module) { return state.completed[module.id]; }).length;
+        document.getElementById("overall-progress").style.width = ((done / MODULES.length) * 100) + "%";
+        document.getElementById("progress-steps").textContent = t("progressSteps")(done, MODULES.length);
+        document.getElementById("progress-points").textContent = t("points")(state.points);
+
+        var rank = getRank();
+        document.getElementById("sidebar-rank").textContent = rank === "pro" ? t("rankPro") : rank === "advanced" ? t("rankAdvanced") : t("rankBeginner");
+        document.getElementById("rank-copy").textContent = rank === "pro" ? t("rankCopyPro") : rank === "advanced" ? t("rankCopyAdvanced") : t("rankCopyBeginner");
+
+        MODULES.forEach(function (module) {
+          var complete = Boolean(state.completed[module.id]);
+          var navMeta = document.querySelector('[data-module-status="' + module.id + '"]');
+          var pill = document.querySelector('[data-module-pill="' + module.id + '"]');
+          if (navMeta) { navMeta.textContent = complete ? t("secure") : t("open"); }
+          if (pill) {
+            pill.textContent = complete ? t("secure") : t("open");
+            pill.classList.toggle("is-complete", complete);
+          }
+        });
+
+        document.getElementById("badge-crowd").classList.toggle("is-earned", state.completed["module-1"] && state.completed["module-2"]);
+        document.getElementById("badge-forest").classList.toggle("is-earned", state.completed["module-3"]);
+        document.getElementById("badge-boost").classList.toggle("is-earned", state.completed["module-4"] && state.completed["module-5"]);
+        document.getElementById("badge-analyst").classList.toggle("is-earned", state.completed["module-6"] && state.completed["module-7"]);
+      }
+
+      function renderQuizzes() {
+        Object.keys(QUIZZES).forEach(function (moduleId) {
+          var shell = document.getElementById("quiz-" + moduleId.split("-")[1]);
+          shell.innerHTML = "";
+          var title = document.createElement("h3");
+          title.textContent = t("quizTitle");
+          shell.appendChild(title);
+
+          QUIZZES[moduleId].forEach(function (question, index) {
+            var fieldset = document.createElement("fieldset");
+            fieldset.className = "quiz-question";
+            var legend = document.createElement("legend");
+            legend.textContent = (index + 1) + ". " + question.question[currentLang()];
+            fieldset.appendChild(legend);
+            var optionsWrap = document.createElement("div");
+            optionsWrap.className = "quiz-options";
+            question.options.forEach(function (option) {
+              var label = document.createElement("label");
+              label.className = "quiz-option";
+              var input = document.createElement("input");
+              input.type = "radio";
+              input.name = moduleId + "-" + question.id;
+              input.value = option.value;
+              var text = document.createElement("span");
+              text.textContent = option[currentLang()];
+              label.appendChild(input);
+              label.appendChild(text);
+              optionsWrap.appendChild(label);
+            });
+            fieldset.appendChild(optionsWrap);
+            shell.appendChild(fieldset);
+          });
+
+          var button = document.createElement("button");
+          button.className = "btn secondary";
+          button.type = "button";
+          button.textContent = t("checkQuiz");
+          button.addEventListener("click", function () { checkQuiz(moduleId); });
+          shell.appendChild(button);
+
+          var feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.id = "feedback-" + moduleId;
+          shell.appendChild(feedback);
+        });
+      }
+
+      function checkQuiz(moduleId) {
+        var feedback = document.getElementById("feedback-" + moduleId);
+        feedback.className = "quiz-feedback is-visible";
+        var unanswered = [];
+        QUIZZES[moduleId].forEach(function (question, index) {
+          if (!document.querySelector('input[name="' + moduleId + "-" + question.id + '"]:checked')) {
+            unanswered.push(String(index + 1));
+          }
+        });
+        if (unanswered.length) {
+          feedback.classList.add("is-warning");
+          feedback.textContent = t("chooseAll");
+          return;
+        }
+
+        var stillOpen = [];
+        QUIZZES[moduleId].forEach(function (question, index) {
+          var selected = document.querySelector('input[name="' + moduleId + "-" + question.id + '"]:checked');
+          document.querySelectorAll('input[name="' + moduleId + "-" + question.id + '"]').forEach(function (input) {
+            input.parentElement.classList.remove("is-correct", "is-wrong");
+          });
+          if (selected.value === question.correct) {
+            selected.parentElement.classList.add("is-correct");
+            completeQuestion(moduleId, question.id);
+          } else {
+            selected.parentElement.classList.add("is-wrong");
+          }
+          if (!state.solvedQuestions[moduleId] || !state.solvedQuestions[moduleId][question.id]) {
+            stillOpen.push(String(index + 1));
+          }
+        });
+
+        if (stillOpen.length === 0) {
+          feedback.classList.add("is-success");
+          feedback.textContent = t("allCorrect");
+          if (!state.celebrated[moduleId] && window.DataScienceCelebration && typeof window.DataScienceCelebration.launch === "function") {
+            state.celebrated[moduleId] = true;
+            window.DataScienceCelebration.launch({ pieceCount: 24, duration: 2300 });
+          }
+        } else {
+          feedback.classList.add("is-warning");
+          feedback.textContent = t("remaining")(stillOpen);
+        }
+        saveState();
+        renderProgress();
+      }
+
+      function renderCrowdDemo() {
+        var n = Number(document.getElementById("crowd-size").value);
+        var q = Number(document.getElementById("crowd-quality").value);
+        document.getElementById("crowd-size-label").textContent = String(n);
+        document.getElementById("crowd-quality-label").textContent = q + " %";
+        var ensemble = Math.min(99.9, (q + Math.log(n) * 8)).toFixed(1);
+        document.getElementById("crowd-result").textContent = t("crowdText")(n, q, ensemble);
+        var strip = document.getElementById("crowd-strip");
+        strip.innerHTML = "";
+        for (var i = 0; i < n; i += 1) {
+          var item = document.createElement("div");
+          item.className = "ensemble-box";
+          item.textContent = (i + 1) + " · " + (i % 3 === 0 ? "✓" : i % 5 === 0 ? "?" : "✓");
+          strip.appendChild(item);
+        }
+      }
+
+      function renderVoteDemo() {
+        var selected = state.voteSelected || ["lr", "knn", "dt"];
+        document.querySelectorAll("[data-vote-model]").forEach(function (button) {
+          var key = button.getAttribute("data-vote-model");
+          button.classList.toggle("is-selected", selected.indexOf(key) !== -1);
+        });
+        var votes = selected.map(function (key) { return VOTE_DATA[key]; });
+        if (!votes.length) {
+          document.getElementById("vote-hard-result").textContent = currentLang() === "de" ? "Wähle mindestens ein Modell aus." : "Choose at least one model.";
+          document.getElementById("vote-soft-result").textContent = "";
+          return;
+        }
+        var harmless = votes.filter(function (vote) { return vote.classLabel.de === "harmlos"; }).length;
+        var critical = votes.length - harmless;
+        var hardWinner = harmless >= critical ? (currentLang() === "de" ? "harmlos" : "harmless") : (currentLang() === "de" ? "kritisch" : "critical");
+        var avgProb = votes.reduce(function (sum, vote) { return sum + vote.prob; }, 0) / votes.length;
+        var softWinner = avgProb >= 50 ? (currentLang() === "de" ? "kritisch" : "critical") : (currentLang() === "de" ? "harmlos" : "harmless");
+        document.getElementById("vote-hard-result").textContent = t("hardVote")(hardWinner);
+        document.getElementById("vote-soft-result").textContent = t("softVote")(softWinner, avgProb.toFixed(1));
+      }
+
+      function renderForestDemo() {
+        var trees = Number(document.getElementById("forest-trees").value);
+        var features = Number(document.getElementById("forest-features").value);
+        document.getElementById("forest-trees-label").textContent = String(trees);
+        document.getElementById("forest-features-label").textContent = String(features);
+        var oob = Math.max(22, 39 - trees / 3).toFixed(1);
+        var variance = Math.max(8, 42 - trees * 2.1 - features * 2.5).toFixed(1);
+        document.getElementById("forest-oob-result").textContent = t("forestOob")(oob);
+        document.getElementById("forest-variance-result").textContent = t("forestVar")(variance);
+        var strip = document.getElementById("forest-strip");
+        strip.innerHTML = "";
+        for (var i = 0; i < trees; i += 1) {
+          var item = document.createElement("div");
+          item.className = "ensemble-box";
+          item.innerHTML = "<strong>B" + (i + 1) + "</strong><br>F=" + features + "<br>OOB";
+          strip.appendChild(item);
+        }
+      }
+
+      function renderBoostDemo(step) {
+        state.boostStep = step || state.boostStep || 1;
+        document.querySelectorAll("[data-boost-step]").forEach(function (button) {
+          button.classList.toggle("is-selected", Number(button.getAttribute("data-boost-step")) === state.boostStep);
+        });
+        var cases = document.getElementById("boost-cases");
+        cases.innerHTML = "";
+        for (var i = 1; i <= 8; i += 1) {
+          var box = document.createElement("div");
+          box.className = "ensemble-box";
+          var highlight = (state.boostStep === 1 && (i === 3 || i === 6 || i === 7))
+            || (state.boostStep === 2 && (i === 3 || i === 6))
+            || (state.boostStep === 3 && (i === 6));
+          box.style.borderColor = highlight ? "rgba(99,24,50,.4)" : "";
+          box.style.background = highlight ? "#fff1f4" : "#fff";
+          box.textContent = (currentLang() === "de" ? "Fall " : "Case ") + i;
+          cases.appendChild(box);
+        }
+        document.getElementById("boost-result").textContent = state.boostStep === 1 ? t("boost1") : state.boostStep === 2 ? t("boost2") : t("boost3");
+      }
+
+      function renderStackingDemo() {
+        var selected = state.stackingCase || "mixed";
+        document.querySelectorAll("[data-case]").forEach(function (button) {
+          button.classList.toggle("is-selected", button.getAttribute("data-case") === selected);
+        });
+        var model = STACK_CASES[selected].model[currentLang()];
+        document.getElementById("stacking-result").textContent = t("stackResult")(model);
+        document.getElementById("stacking-meta").textContent = t("stackMeta");
+      }
+
+      function renderImportance() {
+        var selected = state.importanceKey || "sleep";
+        document.querySelectorAll("[data-importance]").forEach(function (button) {
+          button.classList.toggle("is-selected", button.getAttribute("data-importance") === selected);
+        });
+        var svg = document.getElementById("importance-svg");
+        var labels = { sleep: currentLang() === "de" ? "Schlaf" : "Sleep", steps: currentLang() === "de" ? "Schritte" : "Steps", age: currentLang() === "de" ? "Alter" : "Age", stress: currentLang() === "de" ? "Stress" : "Stress" };
+        var keys = ["sleep", "steps", "age", "stress"];
+        svg.innerHTML = "";
+        keys.forEach(function (key, index) {
+          var x = 40 + index * 120;
+          var height = IMPORTANCE[key] * 3;
+          svg.innerHTML += '<rect x="' + x + '" y="' + (180 - height) + '" width="70" height="' + height + '" rx="12" fill="' + (key === selected ? "#631832" : "#173262") + '" opacity="' + (key === selected ? "1" : "0.75") + '"></rect>';
+          svg.innerHTML += '<text x="' + (x + 35) + '" y="198" text-anchor="middle" fill="#231a24" font-size="13">' + labels[key] + '</text>';
+          svg.innerHTML += '<text x="' + (x + 35) + '" y="' + (168 - height) + '" text-anchor="middle" fill="#231a24" font-size="12">' + IMPORTANCE[key] + '%</text>';
+        });
+        document.getElementById("importance-result").textContent = t("importanceText")(labels[selected], IMPORTANCE[selected]);
+      }
+
+      function currentWorkflowMessage() {
+        if (state.workflowDone) { return t("workflowDone"); }
+        if (state.workflowIndex > 0) { return t("workflowNext")(state.workflowIndex, WORKFLOW_ORDER.length); }
+        return t("workflowStart");
+      }
+
+      function renderWorkflow() {
+        var labels = {
+          prepare: currentLang() === "de" ? "Daten vorbereiten" : "Prepare data",
+          baseline: currentLang() === "de" ? "Baseline trainieren" : "Train baseline",
+          ensemble: currentLang() === "de" ? "Ensemble trainieren" : "Train ensemble",
+          evaluate: currentLang() === "de" ? "Metriken berechnen" : "Compute metrics",
+          compare: currentLang() === "de" ? "Modelle vergleichen" : "Compare models"
+        };
+        var order = ["compare", "ensemble", "prepare", "evaluate", "baseline"];
+        var grid = document.getElementById("workflow-grid");
+        grid.innerHTML = "";
+        order.forEach(function (key) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "workflow-choice";
+          button.textContent = labels[key];
+          if ((state.workflowDoneSet || []).indexOf(key) !== -1) { button.classList.add("is-done"); }
+          button.addEventListener("click", function () { handleWorkflowClick(key); });
+          grid.appendChild(button);
+        });
+        document.getElementById("workflow-result").textContent = currentWorkflowMessage();
+      }
+
+      function handleWorkflowClick(key) {
+        state.workflowDoneSet = state.workflowDoneSet || [];
+        var expected = WORKFLOW_ORDER[state.workflowIndex || 0];
+        if (key === expected) {
+          if (state.workflowDoneSet.indexOf(key) === -1) { state.workflowDoneSet.push(key); }
+          state.workflowIndex = (state.workflowIndex || 0) + 1;
+          if (state.workflowIndex >= WORKFLOW_ORDER.length) {
+            state.workflowDone = true;
+            awardDemo("module-7");
+          } else {
+            awardDemo("module-7");
+          }
+          saveState();
+          renderWorkflow();
+        } else {
+          document.getElementById("workflow-result").textContent = t("workflowWrong");
+        }
+      }
+
+      function syncGlossaryTerms() {
+        document.querySelectorAll(".glossary-term").forEach(function (term) {
+          var lang = currentLang();
+          term.textContent = term.dataset[lang === "en" ? "termEn" : "termDe"] || term.textContent;
+          term.setAttribute("data-term", term.dataset[lang === "en" ? "termEn" : "termDe"] || "");
+          term.setAttribute("data-definition", term.dataset[lang === "en" ? "definitionEn" : "definitionDe"] || "");
+        });
+      }
+
+      function bindEvents() {
+        document.getElementById("crowd-size").addEventListener("input", function () { awardDemo("module-1"); renderCrowdDemo(); });
+        document.getElementById("crowd-quality").addEventListener("input", function () { awardDemo("module-1"); renderCrowdDemo(); });
+
+        document.querySelectorAll("[data-vote-model]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            var key = button.getAttribute("data-vote-model");
+            state.voteSelected = state.voteSelected || ["lr", "knn", "dt"];
+            var index = state.voteSelected.indexOf(key);
+            if (index === -1) { state.voteSelected.push(key); } else { state.voteSelected.splice(index, 1); }
+            awardDemo("module-2");
+            saveState();
+            renderVoteDemo();
+          });
+        });
+
+        document.getElementById("forest-trees").addEventListener("input", function () { awardDemo("module-3"); renderForestDemo(); });
+        document.getElementById("forest-features").addEventListener("input", function () { awardDemo("module-3"); renderForestDemo(); });
+
+        document.querySelectorAll("[data-boost-step]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            awardDemo("module-4");
+            renderBoostDemo(Number(button.getAttribute("data-boost-step")));
+            saveState();
+          });
+        });
+
+        document.querySelectorAll("[data-case]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            state.stackingCase = button.getAttribute("data-case");
+            awardDemo("module-5");
+            saveState();
+            renderStackingDemo();
+          });
+        });
+
+        document.querySelectorAll("[data-importance]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            state.importanceKey = button.getAttribute("data-importance");
+            awardDemo("module-6");
+            saveState();
+            renderImportance();
+          });
+        });
+
+        document.getElementById("jump-next-open").addEventListener("click", function () {
+          var target = MODULES.find(function (module) { return !state.completed[module.id]; }) || MODULES[MODULES.length - 1];
+          document.getElementById(target.id).scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        document.getElementById("reset-ensemble-progress").addEventListener("click", function () {
+          try { window.localStorage.removeItem(STORAGE_KEY); } catch (error) {}
+          window.location.reload();
+        });
+
+        document.getElementById("sidebar-toggle").addEventListener("click", function () {
+          var collapsed = sidebar.getAttribute("data-collapsed") === "true";
+          sidebar.setAttribute("data-collapsed", collapsed ? "false" : "true");
+          this.setAttribute("aria-expanded", collapsed ? "true" : "false");
+        });
+
+        window.addEventListener("scroll", handleScrollSpy, { passive: true });
+        window.addEventListener("ds-language-change", handleLanguageRefresh);
+      }
+
+      function handleScrollSpy() {
+        var currentId = "module-1";
+        MODULES.forEach(function (module) {
+          var section = document.getElementById(module.id);
+          if (section && section.getBoundingClientRect().top <= 140) { currentId = module.id; }
+        });
+        document.querySelectorAll("[data-module-link]").forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("data-module-link") === currentId);
+        });
+      }
+
+      function handleLanguageRefresh() {
+        renderQuizzes();
+        renderProgress();
+        renderCrowdDemo();
+        renderVoteDemo();
+        renderForestDemo();
+        renderBoostDemo(state.boostStep || 1);
+        renderStackingDemo();
+        renderImportance();
+        renderWorkflow();
+        syncGlossaryTerms();
+      }
+
+      function init() {
+        state.voteSelected = state.voteSelected || ["lr", "knn", "dt"];
+        state.stackingCase = state.stackingCase || "mixed";
+        state.importanceKey = state.importanceKey || "sleep";
+        state.boostStep = state.boostStep || 1;
+        renderQuizzes();
+        renderProgress();
+        renderCrowdDemo();
+        renderVoteDemo();
+        renderForestDemo();
+        renderBoostDemo(state.boostStep);
+        renderStackingDemo();
+        renderImportance();
+        renderWorkflow();
+        syncGlossaryTerms();
+        bindEvents();
+        handleScrollSpy();
+        window.setTimeout(handleLanguageRefresh, 120);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

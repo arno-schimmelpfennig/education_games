@@ -1,0 +1,3220 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regularisierung im Machine Learning | Die Modell-Diät</title>
+  <meta name="description" content="Interaktives Kapitel zur Regularisierung im Machine Learning mit Ridge, Lasso, Elastic Net, Alpha-Tuning und Pipeline-Aufbau.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --text: #231A24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --bg-deep: #f3f1f4;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning: #ae6f32;
+      --warning-soft: #faf4ee;
+      --warning-line: #e2c9b7;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 940px;
+      --footer-height: 78px;
+    }
+
+    body.is-dark {
+      --primary-light: #2b1c24;
+      --secondary-light: #1d2740;
+      --text: #f4eef2;
+      --text-light: #bcaeb8;
+      --bg: #151217;
+      --bg-deep: #1a1620;
+      --card-bg: #211b24;
+      --line: #453743;
+      --success-soft: #183128;
+      --success-line: #355546;
+      --danger-soft: #361c25;
+      --danger-line: #6e4550;
+      --warning-soft: #32241d;
+      --warning-line: #6f5145;
+      --shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 36%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 42%, var(--bg-deep) 100%);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px calc(var(--footer-height) + 24px);
+      background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.72) 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    body.is-dark #sidebar {
+      background: linear-gradient(180deg, var(--card-bg) 0%, rgba(33, 27, 36, 0.9) 100%);
+    }
+
+    #stage {
+      min-width: 0;
+      padding: 16px 16px calc(var(--footer-height) + 28px);
+    }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card,
+    .gamification-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card {
+      padding: 14px;
+      margin-top: 14px;
+    }
+
+    .sidebar-card p,
+    .module p,
+    .module li {
+      line-height: 1.6;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      margin-top: 8px;
+      font-size: 1.88rem;
+      line-height: 1.06;
+      color: var(--primary);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    h4 {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .lead {
+      margin-top: 10px;
+      font-size: 0.96rem;
+      color: var(--text-light);
+    }
+
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .meta-grid,
+    .chip-row,
+    .badge-grid,
+    .footer-links,
+    .module-grid,
+    .demo-grid,
+    .button-grid,
+    .metric-grid,
+    .pipeline-grid,
+    .compare-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .button-row,
+    .mode-row,
+    .stepper-row,
+    .chart-toggle-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .metric-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .compare-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .quiz-feedback,
+    .formula-block,
+    .callout,
+    .helper-note,
+    .storage-note,
+    .metric-card,
+    .comparison-card {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text-light);
+    }
+
+    body.is-dark .meta-card,
+    body.is-dark .chip,
+    body.is-dark .status-note,
+    body.is-dark .quiz-feedback,
+    body.is-dark .formula-block,
+    body.is-dark .callout,
+    body.is-dark .helper-note,
+    body.is-dark .storage-note,
+    body.is-dark .metric-card,
+    body.is-dark .comparison-card {
+      background: rgba(33, 27, 36, 0.86);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong,
+    .comparison-card strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      text-align: center;
+      font-size: 0.84rem;
+    }
+
+    .btn,
+    .sidebar-toggle,
+    .quiz-option,
+    .choice-btn,
+    .mode-btn,
+    .toggle-btn,
+    .step-button {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle,
+    .step-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(23, 50, 98, 0.18);
+    }
+
+    .btn.secondary,
+    .step-button.secondary {
+      background: linear-gradient(135deg, var(--secondary), #355284);
+    }
+
+    .btn.ghost,
+    .toggle-btn,
+    .sidebar-toggle,
+    .mode-btn,
+    .choice-btn,
+    .quiz-option {
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    body.is-dark .btn.ghost,
+    body.is-dark .toggle-btn,
+    body.is-dark .sidebar-toggle,
+    body.is-dark .mode-btn,
+    body.is-dark .choice-btn,
+    body.is-dark .quiz-option {
+      background: rgba(33, 27, 36, 0.92);
+    }
+
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .mode-btn:hover,
+    .quiz-option:hover,
+    .choice-btn:hover,
+    .toggle-btn:hover,
+    .step-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .mode-btn.is-active,
+    .choice-btn.is-active,
+    .step-button.is-active {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .quiz-option.is-correct {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+
+    .quiz-option.is-wrong {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: var(--danger);
+    }
+
+    .show-mobile {
+      display: none;
+    }
+
+    .hide-mobile {
+      display: inline-flex;
+    }
+
+    .sticky-shell {
+      position: sticky;
+      top: 16px;
+      padding: 14px;
+      z-index: 20;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .sticky-top,
+    .progress-label,
+    .module-head,
+    .nav-item,
+    .badge-item,
+    .hero-grid,
+    .card-header,
+    .gamification-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sticky-title {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .progress-track {
+      margin-top: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      transition: width 0.2s ease;
+    }
+
+    .hero {
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero-grid {
+      align-items: stretch;
+    }
+
+    .hero-grid > * {
+      flex: 1 1 0;
+    }
+
+    .hero-banner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.84rem;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    #content {
+      display: grid;
+      gap: 16px;
+      max-width: var(--content-max);
+    }
+
+    .module {
+      padding: 18px;
+      scroll-margin-top: 120px;
+    }
+
+    .module-head {
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .module-index {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .module-subtitle {
+      margin-top: 8px;
+      color: var(--text-light);
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.7);
+      min-width: 0;
+    }
+
+    body.is-dark .card {
+      background: rgba(33, 27, 36, 0.78);
+    }
+
+    .card.full {
+      grid-column: 1 / -1;
+    }
+
+    .interaction,
+    .story-copy,
+    .theory-copy,
+    .code-shell {
+      display: grid;
+      gap: 12px;
+    }
+
+    .story-copy p,
+    .theory-copy p,
+    .card p,
+    .comparison-card p {
+      margin: 0;
+    }
+
+    .control-grid,
+    .meter-stack {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .control label,
+    .pipeline-slot label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+    }
+
+    .chart-shell,
+    .svg-shell {
+      position: relative;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      min-height: 320px;
+    }
+
+    body.is-dark .chart-shell,
+    body.is-dark .svg-shell {
+      background: rgba(26, 22, 32, 0.88);
+    }
+
+    .chart-shell.small {
+      min-height: 240px;
+    }
+
+    .chart-caption {
+      margin-top: 10px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 270px !important;
+    }
+
+    .chart-shell.small canvas {
+      height: 180px !important;
+    }
+
+    .nav-list,
+    .quiz-options,
+    .quiz-shell,
+    .badge-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav-item {
+      padding: 10px 12px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
+      align-items: center;
+    }
+
+    body.is-dark .nav-item {
+      background: rgba(33, 27, 36, 0.82);
+    }
+
+    .nav-item.is-active {
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #fff;
+    }
+
+    .nav-item.is-done .nav-status {
+      color: var(--success);
+    }
+
+    .nav-item.is-active .nav-status {
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .nav-label {
+      display: grid;
+      gap: 2px;
+    }
+
+    .nav-label strong {
+      font-size: 0.92rem;
+    }
+
+    .nav-status {
+      font-size: 0.78rem;
+      color: var(--text-light);
+    }
+
+    .badge-item {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      align-items: center;
+      background: rgba(255, 255, 255, 0.76);
+    }
+
+    body.is-dark .badge-item {
+      background: rgba(33, 27, 36, 0.82);
+    }
+
+    .badge-item.is-earned {
+      border-color: rgba(23, 50, 98, 0.18);
+      background: linear-gradient(135deg, rgba(23, 50, 98, 0.12), rgba(99, 24, 50, 0.12));
+    }
+
+    .badge-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-light);
+      color: var(--primary);
+      flex: 0 0 38px;
+    }
+
+    .formula-note,
+    .answer-note,
+    .reflection {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .formula-block code {
+      font-size: 0.98rem;
+      white-space: normal;
+    }
+
+    .helper-note.ok,
+    .quiz-feedback.ok,
+    .status-note.ok {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+
+    .helper-note.warn,
+    .quiz-feedback.warn,
+    .status-note.warn {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: var(--danger);
+    }
+
+    .helper-note.info,
+    .status-note.info {
+      background: var(--warning-soft);
+      border-color: var(--warning-line);
+      color: var(--warning);
+    }
+
+    .quiz-question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 0;
+    }
+
+    .quiz-question legend {
+      padding: 0 4px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .quiz-options {
+      margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .quiz-option {
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    pre[class*="language-"] {
+      margin: 0;
+      border-radius: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      overflow: auto;
+      font-size: 0.88rem;
+    }
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(99,24,50,0.05), rgba(23,50,98,0.04));
+    }
+    body.is-dark .exercise-card {
+      background: linear-gradient(180deg, rgba(99,24,50,0.14), rgba(23,50,98,0.12));
+    }
+    .exercise-instruction, .exercise-context {
+      color: var(--text-light);
+      line-height: 1.6;
+      margin: 0;
+    }
+    .exercise-context {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+    }
+    body.is-dark .exercise-context {
+      background: rgba(33,27,36,0.82);
+    }
+    .hint, .solution {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.74);
+      overflow: hidden;
+    }
+    body.is-dark .hint, body.is-dark .solution {
+      background: rgba(33,27,36,0.82);
+    }
+    .hint summary, .solution summary {
+      cursor: pointer;
+      font-weight: 700;
+      padding: 11px 12px;
+      color: var(--text);
+      list-style: none;
+    }
+    .hint summary::-webkit-details-marker, .solution summary::-webkit-details-marker {
+      display: none;
+    }
+    .hint p, .solution p {
+      padding: 0 12px 12px;
+      margin: 0;
+      color: var(--text-light);
+    }
+    .solution pre[class*="language-"] {
+      margin: 0 12px 12px;
+    }
+    .expected-output {
+      padding-top: 0;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .code-note {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--secondary-light);
+      border: 1px solid rgba(23, 50, 98, 0.16);
+      color: var(--secondary);
+    }
+
+    body.is-dark .code-note {
+      background: rgba(29, 39, 64, 0.9);
+    }
+
+    .meter {
+      display: grid;
+      gap: 6px;
+    }
+
+    .meter-bar {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--primary-light);
+    }
+
+    .meter-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      width: 0;
+      transition: width 0.2s ease;
+    }
+
+    .meter-bar.primary span {
+      background: linear-gradient(135deg, var(--primary), #9a4764);
+    }
+
+    .meter-bar.secondary span {
+      background: linear-gradient(135deg, var(--secondary), #41649c);
+    }
+
+    .meter-bar.success span {
+      background: linear-gradient(135deg, var(--success), #6fa18d);
+    }
+
+    .meter-bar.danger span {
+      background: linear-gradient(135deg, var(--danger), #ad5a6a);
+    }
+
+    .constraint-svg,
+    .pipeline-svg {
+      width: 100%;
+      height: 280px;
+    }
+
+    .pipeline-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pipeline-slot {
+      display: grid;
+      gap: 8px;
+    }
+
+    .pipeline-slot select {
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+    }
+
+    body.is-dark .pipeline-slot select {
+      background: rgba(33, 27, 36, 0.92);
+    }
+
+    .footer-card {
+      margin-top: 16px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      max-width: var(--content-max);
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(2, minmax(0, max-content));
+    }
+
+    .gamification-bar {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 12px;
+      padding: 12px 14px;
+      z-index: 40;
+      backdrop-filter: blur(10px);
+    }
+
+    .gamification-copy {
+      display: grid;
+      gap: 4px;
+    }
+
+    .gamification-copy strong {
+      color: var(--primary);
+    }
+
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 60;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 14px;
+      border-radius: 3px;
+      opacity: 0.9;
+      animation: confetti-fall 1.6s linear forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(480deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: min(360px, 92vw);
+        transform: translateX(-104%);
+        transition: transform 0.2s ease;
+        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.16);
+      }
+
+      body.sidebar-open #sidebar {
+        transform: translateX(0);
+      }
+
+      .show-mobile {
+        display: inline-flex;
+      }
+
+      .hide-mobile {
+        display: none;
+      }
+
+      .hero-grid,
+      .sticky-top,
+      .module-head,
+      .gamification-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .module-grid,
+      .meta-grid,
+      .chip-row,
+      .metric-grid,
+      .compare-grid,
+      .pipeline-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-links {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      #stage {
+        padding: 12px 12px calc(var(--footer-height) + 110px);
+      }
+
+      .sticky-shell,
+      .hero,
+      .module,
+      .footer-card {
+        padding: 14px;
+      }
+
+      .chart-shell,
+      .svg-shell {
+        min-height: 280px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      #sidebar,
+      .sticky-shell,
+      .gamification-bar,
+      .btn,
+      .sidebar-toggle,
+      .quiz-option,
+      .choice-btn,
+      .mode-btn,
+      .toggle-btn,
+      select,
+      input[type="range"] {
+        display: none !important;
+      }
+
+      #app {
+        display: block;
+      }
+
+      #stage,
+      #content,
+      .hero,
+      .footer-card,
+      .module {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border: 0;
+      }
+
+      .module {
+        page-break-inside: avoid;
+        margin: 0 0 20px;
+      }
+
+      .print-solution {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Regularisierung im Machine Learning</h1>
+      <p class="lead">Die Modell-Diät zeigt dir in 8 Schritten, wie du Overfitting zügelst, Koeffizienten sinnvoll schrumpfst und Alpha nicht nach Bauchgefühl wählst.</p>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Kontext</div>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Zielgruppe</strong>VHS, Karrierewechsler und ML-Einsteiger ohne tiefes Mathewissen</div>
+          <div class="meta-card"><strong>Leitmetapher</strong>Die Modell-Diät: zu viel auswendig gelernt, dann gezielt abspecken</div>
+          <div class="meta-card"><strong>Vorher</strong><a href="variance_ml.html">Varianz im Machine Learning</a></div>
+          <div class="meta-card"><strong>Danach</strong><a href="gradient_descent_interaktion.html">Gradient Descent</a></div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Fortschritt</div>
+        <div class="progress-label">
+          <span id="sidebar-progress-label">0 von 8 Schritten erledigt</span>
+          <span id="sidebar-points-label">0 Punkte</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="sidebar-progress-fill" class="progress-fill"></div>
+        </div>
+        <p class="lead" style="margin-top:10px;">Quiz-Abschluss: Ein Schritt zählt, sobald alle Antworten einmal korrekt sitzen. Badges sammeln sich dabei automatisch mit.</p>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Bias-Detektiv? Heute bist du Modell-Diät-Coach</div>
+        <nav id="step-nav" class="nav-list" aria-label="Schritte im Regularisierungs-Kapitel"></nav>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Badges</div>
+        <div id="badge-grid" class="badge-grid"></div>
+      </div>
+
+      <div id="storage-note" class="sidebar-card storage-note" hidden></div>
+    </aside>
+
+    <main id="stage">
+      <header class="sticky-shell">
+        <div class="sticky-top">
+          <button id="sidebar-toggle" class="sidebar-toggle show-mobile" type="button" aria-label="Navigation ein- oder ausblenden">☰ Schritte</button>
+          <div>
+            <div class="card-kicker">Breadcrumb</div>
+            <div class="sticky-title"><a href="../index.html" style="text-decoration:none;">Startseite</a> &gt; <a href="../index.html" style="text-decoration:none;">Data Science</a> &gt; Regularisierung im ML</div>
+          </div>
+          <div class="button-row">
+            <a class="btn ghost hide-mobile" href="variance_ml.html">← Zurück zu Varianz</a>
+          </div>
+        </div>
+        <div class="progress-label">
+          <span id="stage-progress-label">0 Prozent abgeschlossen</span>
+          <span id="stage-rank-label">Rang: Buffet-Neuling</span>
+        </div>
+        <div class="progress-track" aria-label="Gesamtfortschritt im Kapitel">
+          <div id="stage-progress-fill" class="progress-fill"></div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-banner">8 Schritte · Chart.js · KaTeX · Prism · lokale Fortschrittsspeicherung</div>
+            <h2 style="margin-top:10px;">Was lernst du in diesem Kapitel?</h2>
+            <p class="lead">Du lernst, warum Modelle zu viele Details auswendig lernen, was harte und weiche Schranken unterscheiden, wann Ridge oder Lasso sinnvoll sind, wie Elastic Net beide Ideen mischt und wie du Alpha mit Grid Search statt per Bauchgefühl findest.</p>
+            <div class="chip-row">
+              <div class="chip"><strong>Alltag</strong>Buffet, Budget, Strafzettel, Kleiderschrank, Heizung und Fitness-Tracker</div>
+              <div class="chip"><strong>Transfer</strong>Du erkennst später schneller, wann ein Modell zu nervös ist und wie du es sinnvoll bremst</div>
+              <div class="chip"><strong>Praxis</strong>Die Code-Beispiele bleiben nah an sklearn und führen zur echten Pipeline</div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <h3>Die Modell-Diät-Challenge</h3>
+            <div class="status-note">Jede richtige Quiz-Antwort bringt <strong>10 Punkte</strong>. Richtige Antworten beim ersten Versuch geben <strong>5 Bonuspunkte</strong>.</div>
+            <div class="status-note">Die vier Badges zeigen dir, ob du nur Begriffe kennst oder die Stellschrauben wirklich anwenden kannst.</div>
+            <div class="status-note">Alles läuft direkt im Browser. Dein Fortschritt bleibt lokal auf dem Gerät gespeichert.</div>
+            <div class="button-row">
+              <button id="jump-first-open" class="btn" type="button">Zum nächsten offenen Schritt</button>
+              <button id="reset-progress" class="btn ghost" type="button">Fortschritt zurücksetzen</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="content">
+        <section id="schritt-1" class="module lesson-step" data-step="1">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 1 · Overfitting erkennen</div>
+              <h2 class="module-title">Warum brauchen wir Regularisierung?</h2>
+              <p class="module-subtitle">Ein Modell ohne Bremse kann Trainingsdaten perfekt treffen und auf neuen Daten trotzdem scheitern.</p>
+            </div>
+            <div id="status-1" class="status-note">Noch offen. Bewege den Grad-Regler und beantworte danach die Quizfragen.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Stell dir ein riesiges Buffet vor. Jemand lädt sich von allem etwas auf den Teller, auch von den exotischen Gerichten, die zufällig nur heute da sind. Beim nächsten Restaurantbesuch sucht er genau diese Spezialitäten wieder und ist enttäuscht, weil sie gar nicht da sind.</p>
+                <p>Ein überangepasstes Modell macht etwas Ähnliches: Es lernt jeden kleinen Zufall aus den Trainingsdaten mit. Auf neuen Daten fehlt dann die Orientierung.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p><strong>Overfitting</strong> bedeutet: Trainingsfehler sehr klein, Testfehler deutlich größer. Das Modell hat Details statt Muster gelernt.</p>
+                <p><button type="button" class="glossary-term" data-term="Regularisierung" data-definition="Zusätzliche Strafe im Lernverfahren, die große Gewichte unattraktiver macht und dadurch Overfitting bremsen soll.">Regularisierung</button> fügt eine Strafe für zu große Koeffizienten hinzu. Dadurch wird das Modell gezwungen, ruhiger und robuster zu bleiben.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Merksatz:</strong> <code>MSE = Bias² + Varianz + Noise</code>. Regularisierung zielt vor allem auf die <strong>Varianz</strong>, weil sie zu nervöse Modelle dämpft.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="control">
+                      <label for="overfit-degree"><span>Polynomgrad</span><span id="overfit-degree-label">3</span></label>
+                      <input id="overfit-degree" type="range" min="1" max="12" step="1" value="3" aria-label="Polynomgrad für Overfitting-Demo">
+                    </div>
+                    <div class="metric-grid">
+                      <div class="metric-card"><strong>Trainingsfehler</strong><div id="overfit-train-error">0.00</div></div>
+                      <div class="metric-card"><strong>Testfehler</strong><div id="overfit-test-error">0.00</div></div>
+                    </div>
+                    <div class="helper-note" id="overfit-summary">Bei mittlerem Grad sieht die Kurve oft noch ruhig genug aus, um auch auf neuen Daten zu funktionieren.</div>
+                  </div>
+                  <div class="chart-shell">
+                    <canvas id="overfit-chart" role="img" aria-label="Trainingsdaten, Testdaten und Modellkurve für verschiedene Polynomgrade"></canvas>
+                    <div class="chart-caption">Je weiter du den Regler nach rechts ziehst, desto biegsamer wird die Kurve. Beobachte, wann Testfehler und Trainingsfehler auseinanderlaufen.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-1"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Sehr niedriger Trainingsfehler bei hohem Testfehler ist Overfitting. Regularisierung bremst diese Überanpassung.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Ein Modell ist nicht gut, weil es alte Daten perfekt auswendig kann. Es ist gut, wenn es auf neue Fälle stabil bleibt.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-2" class="module lesson-step" data-step="2">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 2 · Harte Schranken</div>
+              <h2 class="module-title">Budgetgrenze statt grenzenloser Einkauf</h2>
+              <p class="module-subtitle">Harte Schranken begrenzen direkt, wie groß die Koeffizienten zusammen werden dürfen.</p>
+            </div>
+            <div id="status-2" class="status-note">Noch offen. Wechsle zwischen L1 und L2 und beobachte, wie die erlaubte Zone schrumpft.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Beim Wocheneinkauf hilft ein klares Budget. Du darfst kaufen, was du willst, aber die Summe aller Produkte muss unter deiner Grenze bleiben. Irgendwann ist Schluss.</p>
+                <p>Genau so kannst du auch ein Modell behandeln: Die Koeffizienten dürfen nicht beliebig groß werden. Das Budget heißt in der Theorie oft <strong>t</strong>.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p>Bei einer <strong>harten Schranke</strong> wird die Summe der Gewichte direkt begrenzt.</p>
+                <p><strong>L1</strong> nutzt Beträge: <code>Σ |βⱼ| ≤ t</code>. <strong>L2</strong> nutzt Quadrate: <code>Σ βⱼ² ≤ t</code>.</p>
+                <p>Die Form der erlaubten Region ist wichtig: Beim Diamanten von L1 liegen Ecken auf den Achsen. Dort landen Lösungen leichter exakt auf null.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Einfach gesagt:</strong> <code>t</code> ist dein Einkaufsbudget. Kleines <code>t</code> = strenge Diät. Großes <code>t</code> = fast freie Auswahl.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="control">
+                      <label for="constraint-budget"><span>Budget t</span><span id="constraint-budget-label">8</span></label>
+                      <input id="constraint-budget" type="range" min="0" max="20" step="1" value="8" aria-label="Budget für harte Schranken">
+                    </div>
+                    <div class="mode-row" aria-label="Schrankentyp wählen">
+                      <button class="mode-btn is-active" data-constraint-mode="l1" type="button">L1-Diamant</button>
+                      <button class="mode-btn" data-constraint-mode="l2" type="button">L2-Kreis</button>
+                    </div>
+                    <div class="metric-grid">
+                      <div class="metric-card"><strong>Erlaubter Bereich</strong><div id="constraint-area-label">mittel</div></div>
+                      <div class="metric-card"><strong>Wirkung</strong><div id="constraint-behavior-label">L1 begünstigt Null-Koeffizienten.</div></div>
+                    </div>
+                  </div>
+                  <div class="svg-shell">
+                    <svg id="constraint-svg" class="constraint-svg" viewBox="0 0 320 280" role="img" aria-label="Visualisierung der harten Schranke für L1 oder L2">
+                      <rect x="0" y="0" width="320" height="280" fill="transparent"></rect>
+                      <line x1="160" y1="20" x2="160" y2="260" stroke="#c9bac2" stroke-width="2"></line>
+                      <line x1="30" y1="140" x2="290" y2="140" stroke="#c9bac2" stroke-width="2"></line>
+                      <text x="292" y="148" font-size="14" fill="#695f68">β₁</text>
+                      <text x="166" y="18" font-size="14" fill="#695f68">β₂</text>
+                      <path id="constraint-region" d="" fill="rgba(23, 50, 98, 0.18)" stroke="#173262" stroke-width="3"></path>
+                      <circle id="constraint-solution" cx="200" cy="95" r="7" fill="#631832"></circle>
+                    </svg>
+                    <div class="chart-caption">Das bordeauxfarbene Modell-Gewicht sucht die beste Lösung innerhalb der blauen Region. Bei L1 trifft die Lösung leichter eine Ecke.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-2"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Bei <code>t = 0</code> bleiben nur Koeffizienten von null. Große Budgets wirken fast wie unregularisierte Regression.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Eine harte Schranke ist wie ein Einkaufslimit: nicht jedes Gewicht darf wachsen, nur weil es gerade praktisch erscheint.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-3" class="module lesson-step" data-step="3">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 3 · Von hart zu weich</div>
+              <h2 class="module-title">Alpha macht aus Verboten Strafzettel</h2>
+              <p class="module-subtitle">Statt einer harten Grenze kann das Modell große Koeffizienten noch wählen, muss dafür aber einen Preis zahlen.</p>
+            </div>
+            <div id="status-3" class="status-note">Noch offen. Ziehe den Alpha-Regler und beobachte, wie sich die Modellkurve beruhigt.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Eine harte Schranke ist wie ein Fahrverbot: mehr als 50 km/h geht einfach nicht. Ein Strafterm ist weicher. Du darfst schneller fahren, aber mit jedem Kilometer wird der Strafzettel teurer.</p>
+                <p>Genau das macht <button type="button" class="glossary-term" data-term="Alpha" data-definition="Stellschraube für die Stärke der Regularisierung. Größeres Alpha bedeutet meist stärkere Bestrafung großer Gewichte."><strong>Alpha</strong></button> im Modell. Große Koeffizienten sind nicht verboten, aber sie verteuern die Kostenfunktion.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p>Die Kostenfunktion wird erweitert: Fehlerterm plus Strafterm. Damit verschiebt sich das Gleichgewicht zwischen möglichst guter Anpassung und möglichst kleinen Gewichten.</p>
+                <p>Bei <strong>Alpha = 0</strong> gibt es keine Strafe. Bei sehr großem Alpha werden große Gewichte unattraktiv.</p>
+              </div>
+              <div class="formula-block">
+                <div id="formula-ridge"></div>
+                <div id="formula-lasso" style="margin-top:10px;"></div>
+                <div class="formula-note">In Alltagssprache: Fehler messen und zusätzlich „zu große Gewichte bestrafen“.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="control">
+                      <label for="alpha-slider"><span>Alpha</span><span id="alpha-slider-label">0.8</span></label>
+                      <input id="alpha-slider" type="range" min="0" max="40" step="1" value="8" aria-label="Alpha für weiche Regularisierung">
+                    </div>
+                    <div class="metric-grid">
+                      <div class="metric-card"><strong>Trainingsfehler</strong><div id="alpha-train-error">0.00</div></div>
+                      <div class="metric-card"><strong>Testfehler</strong><div id="alpha-test-error">0.00</div></div>
+                    </div>
+                    <div class="helper-note info" id="alpha-hint">Bei moderatem Alpha bleibt das Modell beweglich, jagt aber nicht jedem Zacken hinterher.</div>
+                  </div>
+                  <div class="chart-shell">
+                    <canvas id="alpha-chart" role="img" aria-label="Modellkurve bei wachsendem Alpha"></canvas>
+                    <div class="chart-caption">Links im Datensatz steckt echte Struktur, aber auch Zufallsrauschen. Alpha zwingt die Kurve, sich stärker an das robuste Muster zu halten.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-3"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Alpha gleich null bedeutet normale Regression. Sehr hohes Alpha drückt Koeffizienten stark Richtung null.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Regulierung mit Alpha ist kein harter Bann, sondern eine Preislogik. Große Gewichte sind möglich, aber nicht mehr gratis.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-4" class="module lesson-step" data-step="4">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 4 · Ridge</div>
+              <h2 class="module-title">Ridge verteilt das Gewichtsbudget</h2>
+              <p class="module-subtitle">Ridge hält alle Koeffizienten klein, löscht aber keinen komplett aus dem Modell.</p>
+            </div>
+            <div id="status-4" class="status-note">Noch offen. Bewege den Regler und beobachte, wie alle Balken gemeinsam schrumpfen.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Beim Kochen willst du nicht alles Salz in eine einzige Prise packen. Du verteilst das Gewürzbudget lieber über mehrere Zutaten. So schmeckt das Gericht runder und hängt nicht an einem Extrem.</p>
+                <p>Ridge macht genau das mit den Modellgewichten. Jedes Feature darf bleiben, aber keines soll dominant werden.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p><button type="button" class="glossary-term" data-term="Ridge" data-definition="Regularisierungsverfahren mit L2-Strafe. Es schrumpft alle Gewichte, setzt sie aber meist nicht exakt auf null.">Ridge</button> verwendet die <strong>L2-Strafe</strong>. Große Koeffizienten werden teuer, aber die Lösung landet selten exakt auf null.</p>
+                <p>Besonders nützlich ist Ridge, wenn Features ähnlich oder korreliert sind. Dann verteilt das Modell Gewicht oft stabiler.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Ridge in einem Satz:</strong> <code>Fehler + Alpha × Σ βⱼ²</code></div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="control">
+                      <label for="ridge-alpha"><span>Alpha</span><span id="ridge-alpha-label">1.0</span></label>
+                      <input id="ridge-alpha" type="range" min="0" max="50" step="1" value="10" aria-label="Alpha für Ridge-Demo">
+                    </div>
+                    <div class="metric-grid">
+                      <div class="metric-card"><strong>Größter Koeffizient</strong><div id="ridge-max-coef">0.00</div></div>
+                      <div class="metric-card"><strong>Anzahl null</strong><div id="ridge-zero-count">0</div></div>
+                    </div>
+                  </div>
+                  <div class="chart-shell">
+                    <canvas id="ridge-chart" role="img" aria-label="Ridge-Koeffizienten als Balkendiagramm"></canvas>
+                    <div class="chart-caption">Ridge schrumpft die Balken gemeinsam. Sie werden kleiner, verschwinden aber praktisch nicht ganz.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Ridge mit festem Alpha anwenden</h4>
+                <p class="exercise-instruction">Nutze ein bewusst einfaches Regressionsbeispiel und ergänze das Ridge-Modell. Danach schaust du dir an, wie stark der Koeffizient durch die Strafe geschrumpft wird.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre class="language-python"><code class="language-python">from sklearn.linear_model import Ridge
+
+X = [[0.0], [1.0], [2.0], [3.0]]
+y = [0.0, 1.0, 2.0, 3.0]
+
+model = # ??? DEINE LÖSUNG ???
+model.fit(X, y)
+
+print(round(model.coef_[0], 3))</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Setze <code>alpha=1.0</code> und <code>fit_intercept=False</code>, damit du den Schrumpf-Effekt klar siehst.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre class="language-python"><code class="language-python">from sklearn.linear_model import Ridge
+
+X = [[0.0], [1.0], [2.0], [3.0]]
+y = [0.0, 1.0, 2.0, 3.0]
+
+model = Ridge(alpha=1.0, fit_intercept=False)
+model.fit(X, y)
+
+print(round(model.coef_[0], 3))</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `0.933`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Code-Beispiel</div>
+              <div class="code-shell">
+                <pre class="language-python"><code class="language-python">from sklearn.linear_model import Ridge
+
+# Wir erzeugen ein Ridge-Modell mit moderater Strafe.
+model = Ridge(alpha=1.0)
+
+# Das Modell lernt die Gewichte aus den Trainingsdaten.
+model.fit(X_train, y_train)
+
+# Ridge schrumpft alle Koeffizienten,
+# aber normalerweise wird keiner exakt null.
+print(model.coef_)</code></pre>
+                <div class="code-note"><strong>Was passiert hier?</strong> `alpha=1.0` ist eine sanfte Diät. Das Modell bleibt flexibel, aber extreme Gewichte werden unattraktiv.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-4"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Ridge schrumpft alle Gewichte. Es ist oft stark, wenn Merkmale miteinander korreliert sind.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Ridge ist kein Aufräumer, sondern ein Verteiler. Alles bleibt grundsätzlich im Team, aber niemand bekommt die ganze Bühne.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-5" class="module lesson-step" data-step="5">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 5 · Lasso</div>
+              <h2 class="module-title">Lasso räumt den Kleiderschrank auf</h2>
+              <p class="module-subtitle">Lasso kann unwichtige Features komplett auf null setzen und damit automatisch aus dem Modell werfen.</p>
+            </div>
+            <div id="status-5" class="status-note">Noch offen. Bewege den Regler und beobachte, wie einzelne Balken wirklich verschwinden.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Beim Ausmisten eines Kleiderschranks reicht es manchmal nicht, alles nur etwas kleiner zu falten. Manche Teile kommen konsequent weg, weil du sie nie trägst.</p>
+                <p>Lasso arbeitet ähnlich. Unwichtige Features werden nicht nur gedämpft, sondern bei genug Strafe ganz aus dem Modell entfernt.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p><button type="button" class="glossary-term" data-term="Lasso" data-definition="Regularisierungsverfahren mit L1-Strafe. Es kann einzelne Gewichte exakt auf null setzen und damit Features aussortieren.">Lasso</button> nutzt die <strong>L1-Strafe</strong>: <code>Fehler + Alpha × Σ |βⱼ|</code>.</p>
+                <p>Weil die L1-Geometrie Ecken auf den Achsen hat, landet die Lösung leichter genau bei null. Deshalb ist Lasso gleichzeitig Regularisierung und Feature-Auswahl.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Merksatz:</strong> Ridge macht alles kleiner. Lasso entscheidet manchmal: „Dieses Feature fliegt raus.“</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="control">
+                      <label for="lasso-alpha"><span>Alpha</span><span id="lasso-alpha-label">0.8</span></label>
+                      <input id="lasso-alpha" type="range" min="0" max="20" step="1" value="4" aria-label="Alpha für Lasso-Demo">
+                    </div>
+                    <div class="metric-grid">
+                      <div class="metric-card"><strong>Aktive Features</strong><div id="lasso-active-count">0</div></div>
+                      <div class="metric-card"><strong>Auf null gesetzt</strong><div id="lasso-zero-count">0</div></div>
+                    </div>
+                  </div>
+                  <div class="chart-shell">
+                    <canvas id="lasso-chart" role="img" aria-label="Lasso-Koeffizienten als Balkendiagramm"></canvas>
+                    <div class="chart-caption">Sobald Alpha steigt, knipsen einzelne Gewichte komplett aus. Genau das macht Lasso bei vielen irrelevanten Merkmalen spannend.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Lasso schrumpft noch härter</h4>
+                <p class="exercise-instruction">Ergänze das Lasso-Modell mit einem festen <code>alpha</code> und vergleiche den Koeffizienten mit Ridge. So siehst du direkt, wie eine L1-Strafe stärker auf Sparsamkeit drückt.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre class="language-python"><code class="language-python">from sklearn.linear_model import Lasso
+
+X = [[0.0], [1.0], [2.0], [3.0]]
+y = [0.0, 1.0, 2.0, 3.0]
+
+model = # ??? DEINE LÖSUNG ???
+model.fit(X, y)
+
+print(round(model.coef_[0], 3))</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Nimm <code>alpha=0.5</code>, <code>fit_intercept=False</code> und setze ein höheres <code>max_iter</code>, damit die Lösung sicher konvergiert.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre class="language-python"><code class="language-python">from sklearn.linear_model import Lasso
+
+X = [[0.0], [1.0], [2.0], [3.0]]
+y = [0.0, 1.0, 2.0, 3.0]
+
+model = Lasso(alpha=0.5, fit_intercept=False, max_iter=10000)
+model.fit(X, y)
+
+print(round(model.coef_[0], 3))</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `0.857`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Code-Beispiel</div>
+              <div class="code-shell">
+                <pre class="language-python"><code class="language-python">from sklearn.linear_model import Lasso
+
+# Lasso nutzt eine L1-Strafe.
+model = Lasso(alpha=0.5)
+model.fit(X_train, y_train)
+
+# Einige Koeffizienten können exakt null werden.
+print(model.coef_)</code></pre>
+                <div class="code-note"><strong>Was passiert hier?</strong> Mit wachsendem `alpha` wird Lasso radikaler. Unwichtige Features verschwinden komplett aus der Rechnung.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-5"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Lasso kann Koeffizienten exakt null setzen und ist deshalb besonders nützlich, wenn viele Features unwichtig sind.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Lasso ist die strengere Aufräumkraft. Wenn viele Merkmale nur Ballast sind, kann genau diese Härte hilfreich sein.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-6" class="module lesson-step" data-step="6">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 6 · Elastic Net</div>
+              <h2 class="module-title">Elastic Net kombiniert Diät und Aufräumen</h2>
+              <p class="module-subtitle">Elastic Net mischt Ridge und Lasso und ist oft robuster, wenn Features korreliert sind und zugleich viele irrelevante Merkmale im Spiel sind.</p>
+            </div>
+            <div id="status-6" class="status-note">Noch offen. Ziehe am `l1_ratio` und beobachte, wie sich das Verhalten von Ridge zu Lasso verschiebt.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Manche Diäten funktionieren besser als Kombination: etwas weniger von allem und gleichzeitig konsequentes Streichen einzelner Ausnahmen. Genau diese Mischlogik bringt Elastic Net ins Modell.</p>
+                <p>Es kann Gewichte insgesamt schrumpfen und trotzdem einzelne Features aussortieren, ohne so aggressiv wie reines Lasso zu werden.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p><button type="button" class="glossary-term" data-term="Elastic Net" data-definition="Mischform aus Ridge und Lasso. Sie kombiniert Schrumpfen aller Gewichte mit möglichem Aussortieren einzelner Features."><strong>Elastic Net</strong></button> mischt L1 und L2. Der Parameter <code>l1_ratio</code> steuert die Mischung.</p>
+                <p><code>l1_ratio = 0</code> entspricht Ridge. <code>l1_ratio = 1</code> entspricht Lasso. Werte dazwischen kombinieren beides.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Merksatz:</strong> <code>Penalty = Alpha × (r × L1 + (1 - r) × L2)</code></div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="control">
+                      <label for="elastic-alpha"><span>Alpha</span><span id="elastic-alpha-label">1.0</span></label>
+                      <input id="elastic-alpha" type="range" min="0" max="20" step="1" value="5" aria-label="Alpha für Elastic-Net-Demo">
+                    </div>
+                    <div class="control">
+                      <label for="elastic-ratio"><span>l1_ratio</span><span id="elastic-ratio-label">0.5</span></label>
+                      <input id="elastic-ratio" type="range" min="0" max="100" step="5" value="50" aria-label="L1-Anteil für Elastic-Net-Demo">
+                    </div>
+                    <div class="compare-grid">
+                      <div class="comparison-card"><strong>Ridge-Seite</strong><span id="elastic-ridge-note">mehr Verteilung</span></div>
+                      <div class="comparison-card"><strong>Mischung</strong><span id="elastic-mix-note">ausbalanciert</span></div>
+                      <div class="comparison-card"><strong>Lasso-Seite</strong><span id="elastic-lasso-note">mehr Aussortieren</span></div>
+                    </div>
+                  </div>
+                  <div class="chart-shell">
+                    <canvas id="elastic-chart" role="img" aria-label="Elastic-Net-Koeffizienten als Balkendiagramm"></canvas>
+                    <div class="chart-caption">Links am Regler verhält sich das Modell wie Ridge, rechts wie Lasso. In der Mitte entsteht die Mischform.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Elastic Net als Mischform testen</h4>
+                <p class="exercise-instruction">Setze ein Elastic-Net-Modell mit gemischter Strafe auf. Ergänze die Modellzeile und beobachte, wie der Koeffizient zwischen Ridge und Lasso landet.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre class="language-python"><code class="language-python">from sklearn.linear_model import ElasticNet
+
+X = [[0.0], [1.0], [2.0], [3.0]]
+y = [0.0, 1.0, 2.0, 3.0]
+
+model = # ??? DEINE LÖSUNG ???
+model.fit(X, y)
+
+print(round(model.coef_[0], 3))</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Wähle <code>alpha=0.2</code>, <code>l1_ratio=0.5</code>, <code>fit_intercept=False</code> und ein höheres <code>max_iter</code>.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre class="language-python"><code class="language-python">from sklearn.linear_model import ElasticNet
+
+X = [[0.0], [1.0], [2.0], [3.0]]
+y = [0.0, 1.0, 2.0, 3.0]
+
+model = ElasticNet(alpha=0.2, l1_ratio=0.5, fit_intercept=False, max_iter=10000)
+model.fit(X, y)
+
+print(round(model.coef_[0], 3))</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `0.944`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-6"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Elastic Net mischt Ridge und Lasso. Es ist oft hilfreich bei korrelierten Features und gleichzeitig vielen irrelevanten Merkmalen.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Elastic Net ist kein Kompromiss aus Verlegenheit, sondern eine bewusst steuerbare Mischform für schwierige Datensituationen.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-7" class="module lesson-step" data-step="7">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 7 · Alpha finden</div>
+              <h2 class="module-title">Grid Search statt Ratespiel</h2>
+              <p class="module-subtitle">Alpha ist ein Hyperparameter. Gute Werte findest du, indem du mehrere Kandidaten systematisch testest.</p>
+            </div>
+            <div id="status-7" class="status-note">Noch offen. Wechsle zwischen Ridge, Lasso und Elastic Net und suche den Punkt mit dem kleinsten Validierungsfehler.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Eine Heizung stellst du nicht blind auf 31 Grad, nur weil dir die Zahl gefällt. Du probierst verschiedene Einstellungen und beobachtest, wo es wirklich angenehm wird.</p>
+                <p>Genauso behandelst du Alpha. Zu klein bedeutet oft Overfitting, zu groß führt schnell zu Underfitting. Dazwischen liegt der brauchbare Bereich.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p><strong>Alpha</strong> ist ein Hyperparameter: Menschen legen ihn vor dem Training fest, das Modell lernt ihn nicht selbst.</p>
+                <p>Mit <strong>Grid Search</strong> probierst du viele Werte aus und vergleichst ihre Validierungsfehler, oft zusammen mit Cross-Validation.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Einfach gesagt:</strong> mehrere Alpha-Werte testen, den Fehler messen, das Minimum wählen.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="demo-grid">
+                  <div class="control-grid">
+                    <div class="mode-row" aria-label="Modell für Grid Search wählen">
+                      <button class="mode-btn is-active" data-grid-mode="ridge" type="button">RidgeCV</button>
+                      <button class="mode-btn" data-grid-mode="lasso" type="button">LassoCV</button>
+                      <button class="mode-btn" data-grid-mode="elastic" type="button">ElasticNet</button>
+                    </div>
+                    <div class="control">
+                      <label for="grid-alpha"><span>Ausgewähltes Alpha</span><span id="grid-alpha-label">0.1</span></label>
+                      <input id="grid-alpha" type="range" min="0" max="8" step="1" value="2" aria-label="Index für getestete Alpha-Werte">
+                    </div>
+                    <div class="metric-grid">
+                      <div class="metric-card"><strong>Validierungs-MSE</strong><div id="grid-mse-label">0.00</div></div>
+                      <div class="metric-card"><strong>Empfehlung</strong><div id="grid-best-label">nahe am Optimum</div></div>
+                    </div>
+                  </div>
+                  <div class="chart-shell">
+                    <canvas id="grid-chart" role="img" aria-label="Grid-Search-Kurve für Alpha und Validierungsfehler"></canvas>
+                    <div class="chart-caption">Links droht Overfitting, rechts Underfitting. Gesucht ist das Tal der Kurve, nicht der Rand.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Bestes Alpha aus Validierungswerten wählen</h4>
+                <p class="exercise-instruction">Stell dir vor, deine Grid Search hat drei Kandidaten getestet. Ergänze die Zeile, die aus den gemessenen Validierungsfehlern den besten <code>alpha</code>-Wert auswählt.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre class="language-python"><code class="language-python">alphas = [0.1, 1.0, 10.0]
+validation_rmse = [0.52, 0.68, 1.34]
+
+best_index = # ??? DEINE LÖSUNG ???
+best_alpha = alphas[best_index]
+print(best_alpha)</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Gesucht ist der Index des kleinsten Fehlers. Mit diesem Index holst du dir danach das passende <code>alpha</code> aus der Liste.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre class="language-python"><code class="language-python">alphas = [0.1, 1.0, 10.0]
+validation_rmse = [0.52, 0.68, 1.34]
+
+best_index = validation_rmse.index(min(validation_rmse))
+best_alpha = alphas[best_index]
+print(best_alpha)</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `0.1`</p>
+                </details>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Code-Beispiel</div>
+              <div class="code-shell">
+                <pre class="language-python"><code class="language-python">import pandas as pd
+from sklearn.linear_model import RidgeCV
+from sklearn.model_selection import train_test_split
+
+# Kleine Beispieldaten für Verbrauch in Abhängigkeit von zwei Features
+df = pd.DataFrame({
+    "horsepower": [95, 110, 125, 140, 155, 170, 185, 200],
+    "weight": [2200, 2350, 2480, 2620, 2790, 2950, 3120, 3300],
+    "mpg": [33, 31, 29, 27, 25, 23, 21, 19]
+})
+
+X = df[["horsepower", "weight"]]
+y = df["mpg"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# Wir testen mehrere Alpha-Werte automatisch.
+alphas = [0.01, 0.1, 1.0, 10.0, 100.0]
+model = RidgeCV(alphas=alphas, cv=3)
+model.fit(X_train, y_train)
+
+print(model.alpha_)  # Bestes Alpha aus der Suche</code></pre>
+                <div class="code-note"><strong>Was passiert hier?</strong> `cv=5` teilt die Trainingsdaten mehrfach neu auf. So wird Alpha robuster gewählt als mit einem einzigen Zufallssplit.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Quiz</div>
+              <div id="quiz-step-7"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Alpha ist ein Hyperparameter. Den besten Wert sucht man systematisch, zum Beispiel mit Grid Search und Cross-Validation.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Alpha wird nicht geraten. Ein guter Workflow testet mehrere Kandidaten und entscheidet anhand von Validierungsdaten.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="schritt-8" class="module lesson-step" data-step="8">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Schritt 8 · Pipeline</div>
+              <h2 class="module-title">Alles zusammen in einer sauberen Pipeline</h2>
+              <p class="module-subtitle">Am Ende zählt der reproduzierbare Ablauf: Daten vorbereiten, skalieren, regularisieren und fair bewerten.</p>
+            </div>
+            <div id="status-8" class="status-note">Noch offen. Baue die Reihenfolge der Pipeline richtig zusammen und beantworte danach das Abschluss-Quiz.</div>
+          </div>
+          <div class="module-grid">
+            <article class="card">
+              <div class="card-kicker">Alltagsgeschichte</div>
+              <div class="story-copy">
+                <p>Ein Fitness-Tracker sammelt nicht nur einen Wert. Er verbindet Schritte, Puls, Schlaf und Aktivität zu einer Gesamtbewertung. Entscheidend ist die Reihenfolge und dass nichts vergessen wird.</p>
+                <p>Im Machine Learning ist eine <button type="button" class="glossary-term" data-term="Pipeline" data-definition="Feste Verarbeitungskette, in der Datenvorbereitung, Transformationen und Modelltraining in derselben Reihenfolge ablaufen.">Pipeline</button> genau diese saubere Kette: vorbereiten, transformieren, modellieren und am Ende prüfen, wie gut das Ganze auf neuen Daten funktioniert.</p>
+              </div>
+            </article>
+            <article class="card">
+              <div class="card-kicker">ML-Sprache</div>
+              <div class="theory-copy">
+                <p>Eine Pipeline macht den Ablauf reproduzierbar. Gerade bei Regularisierung ist <strong>Skalierung</strong> wichtig, weil die Strafe sonst große Skalen bevorzugt oder benachteiligt.</p>
+                <p>Für polynomiale Regression folgt oft diese Reihenfolge: Features erweitern, skalieren, regularisiertes Modell trainieren. Die Bewertung bleibt außerhalb der Pipeline mit Testdaten.</p>
+              </div>
+              <div class="formula-block">
+                <div><strong>Einfach gesagt:</strong> erst Zutaten vorbereiten, dann mischen, dann backen, dann probieren.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Interaktive Demo</div>
+              <div class="interaction">
+                <div class="pipeline-grid">
+                  <div class="control-grid">
+                    <div class="pipeline-slot">
+                      <label for="pipe-slot-1"><span>Slot 1</span></label>
+                      <select id="pipe-slot-1" aria-label="Erster Pipeline-Schritt">
+                        <option value="">Bitte wählen</option>
+                        <option value="model">Ridge</option>
+                        <option value="poly">PolynomialFeatures</option>
+                        <option value="scale">StandardScaler</option>
+                        <option value="split">Train/Test Split</option>
+                        <option value="eval">Bewerten</option>
+                      </select>
+                    </div>
+                    <div class="pipeline-slot">
+                      <label for="pipe-slot-2"><span>Slot 2</span></label>
+                      <select id="pipe-slot-2" aria-label="Zweiter Pipeline-Schritt">
+                        <option value="">Bitte wählen</option>
+                        <option value="scale">StandardScaler</option>
+                        <option value="eval">Bewerten</option>
+                        <option value="model">Ridge</option>
+                        <option value="split">Train/Test Split</option>
+                        <option value="poly">PolynomialFeatures</option>
+                      </select>
+                    </div>
+                    <div class="pipeline-slot">
+                      <label for="pipe-slot-3"><span>Slot 3</span></label>
+                      <select id="pipe-slot-3" aria-label="Dritter Pipeline-Schritt">
+                        <option value="">Bitte wählen</option>
+                        <option value="split">Train/Test Split</option>
+                        <option value="poly">PolynomialFeatures</option>
+                        <option value="eval">Bewerten</option>
+                        <option value="model">Ridge</option>
+                        <option value="scale">StandardScaler</option>
+                      </select>
+                    </div>
+                    <div class="pipeline-slot">
+                      <label for="pipe-slot-4"><span>Slot 4</span></label>
+                      <select id="pipe-slot-4" aria-label="Vierter Pipeline-Schritt">
+                        <option value="">Bitte wählen</option>
+                        <option value="split">Train/Test Split</option>
+                        <option value="eval">Bewerten</option>
+                        <option value="scale">StandardScaler</option>
+                        <option value="poly">PolynomialFeatures</option>
+                        <option value="model">Ridge</option>
+                      </select>
+                    </div>
+                    <div class="pipeline-slot">
+                      <label for="pipe-slot-5"><span>Slot 5</span></label>
+                      <select id="pipe-slot-5" aria-label="Fünfter Pipeline-Schritt">
+                        <option value="">Bitte wählen</option>
+                        <option value="scale">StandardScaler</option>
+                        <option value="model">Ridge</option>
+                        <option value="split">Train/Test Split</option>
+                        <option value="eval">Bewerten</option>
+                        <option value="poly">PolynomialFeatures</option>
+                      </select>
+                    </div>
+                    <div class="button-row">
+                      <button id="pipeline-check" class="btn" type="button">Reihenfolge prüfen</button>
+                      <button id="pipeline-reset" class="btn secondary" type="button">Felder leeren</button>
+                    </div>
+                    <div id="pipeline-feedback" class="helper-note">Baue die Pipeline selbst zusammen: erst fair teilen, dann vorbereiten, dann trainieren und am Ende bewerten.</div>
+                  </div>
+                  <div class="chart-shell">
+                    <svg id="pipeline-svg" class="pipeline-svg" viewBox="0 0 520 280" role="img" aria-label="Visualisierung einer Machine-Learning-Pipeline">
+                      <rect x="20" y="80" width="80" height="70" rx="18" fill="#efe6eb" stroke="#631832" stroke-width="2"></rect>
+                      <text x="60" y="115" text-anchor="middle" fill="#631832" font-size="14" font-weight="700">Split</text>
+                      <rect x="120" y="80" width="110" height="70" rx="18" fill="#e8eef8" stroke="#173262" stroke-width="2"></rect>
+                      <text x="175" y="115" text-anchor="middle" fill="#173262" font-size="14" font-weight="700">Features</text>
+                      <rect x="250" y="80" width="110" height="70" rx="18" fill="#e8eef8" stroke="#173262" stroke-width="2"></rect>
+                      <text x="305" y="115" text-anchor="middle" fill="#173262" font-size="14" font-weight="700">Scaling</text>
+                      <rect x="380" y="80" width="80" height="70" rx="18" fill="#efe6eb" stroke="#631832" stroke-width="2"></rect>
+                      <text x="420" y="115" text-anchor="middle" fill="#631832" font-size="14" font-weight="700">Ridge</text>
+                      <line x1="100" y1="115" x2="120" y2="115" stroke="#173262" stroke-width="3"></line>
+                      <line x1="230" y1="115" x2="250" y2="115" stroke="#173262" stroke-width="3"></line>
+                      <line x1="360" y1="115" x2="380" y2="115" stroke="#173262" stroke-width="3"></line>
+                      <text x="260" y="210" text-anchor="middle" fill="#695f68" font-size="16" id="pipeline-visual-label">? → ? → ? → ? → ?</text>
+                    </svg>
+                    <div class="chart-caption">Die grafische Kette aktualisiert sich mit deiner Auswahl. Ziel ist eine Reihenfolge, die später auch im Notebook sauber reproduzierbar ist.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Code-Beispiel</div>
+              <div class="code-shell">
+                <pre class="language-python"><code class="language-python">import numpy as np
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split
+
+# Einfache Beispieldaten mit leicht gekrümmtem Zusammenhang
+X = np.array([[1], [2], [3], [4], [5], [6], [7], [8]])
+y = np.array([1.2, 1.9, 3.1, 4.0, 5.3, 6.1, 7.4, 8.2])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+
+pipeline = make_pipeline(
+    PolynomialFeatures(degree=3, include_bias=False),
+    StandardScaler(),
+    Ridge(alpha=1.0)
+)
+
+pipeline.fit(X_train, y_train)
+y_pred = pipeline.predict(X_test)
+print(y_pred.round(2))</code></pre>
+                <div class="code-note"><strong>Was passiert hier?</strong> Die Pipeline garantiert, dass dieselben Verarbeitungsschritte beim Training und bei neuen Daten in derselben Reihenfolge laufen.</div>
+              </div>
+            </article>
+            <article class="card full">
+              <div class="card-kicker">Abschluss-Quiz</div>
+              <div id="quiz-step-8"></div>
+              <div class="print-solution"><strong>Lösungen:</strong> Overfitting zeigt sich an hoher Testlücke. Ridge schrumpft, Lasso selektiert. `l1_ratio` steuert die Mischung im Elastic Net. Skalierung ist vor Regularisierung wichtig, und die Bewertung gehört ans Ende des Workflows.</div>
+            </article>
+            <article class="card full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Regularisierung ist keine einzelne Formel, sondern Teil eines sauberen Gesamtprozesses. Erst die Pipeline macht aus einer guten Idee einen verlässlichen Workflow.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer-card">
+        <div>
+          <div class="card-kicker">Lernpfad danach</div>
+          <h2>Die Modell-Diät steht, jetzt folgt der nächste Themenblock</h2>
+          <p class="lead">Nach diesem Kapitel kannst du Overfitting, Ridge, Lasso, Elastic Net und Alpha-Tuning sauber einordnen. Als nächstes geht es im Pfad mit <strong>Gradient Descent</strong> weiter.</p>
+        </div>
+        <div class="footer-links">
+          <a class="btn" href="gradient_descent_interaktion.html">Weiter zu Gradient Descent</a>
+          <a class="btn secondary" href="variance_ml.html">← Zurück zu Varianz</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <footer class="gamification-bar" aria-live="polite">
+    <div class="gamification-copy">
+      <strong id="game-rank">Rang: Buffet-Neuling</strong>
+      <span id="game-next-badge">Nächster Badge: Ernährungsberater nach Schritt 1 und 2.</span>
+    </div>
+    <div class="progress-label">
+      <span id="game-points">0 Punkte</span>
+      <span id="game-badges">0 von 4 Badges</span>
+    </div>
+  </footer>
+
+  <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
+
+  <script>
+    const STEP_CONFIG = [
+      { id: 1, short: "Warum?", title: "Warum brauchen wir Regularisierung?" },
+      { id: 2, short: "Harte Schranken", title: "Budgetgrenze statt grenzenloser Einkauf" },
+      { id: 3, short: "Alpha", title: "Alpha macht aus Verboten Strafzettel" },
+      { id: 4, short: "Ridge", title: "Ridge verteilt das Gewichtsbudget" },
+      { id: 5, short: "Lasso", title: "Lasso räumt den Kleiderschrank auf" },
+      { id: 6, short: "Elastic Net", title: "Elastic Net kombiniert Diät und Aufräumen" },
+      { id: 7, short: "Grid Search", title: "Grid Search statt Ratespiel" },
+      { id: 8, short: "Pipeline", title: "Alles zusammen in einer sauberen Pipeline" }
+    ];
+
+    const BADGE_CONFIG = [
+      { id: 1, label: "Ernährungsberater", icon: "salad", steps: [1, 2], desc: "Overfitting verstehen und harte Schranken lesen" },
+      { id: 2, label: "Ridge-Trainer", icon: "dumbbell", steps: [3, 4], desc: "Alpha und Ridge sicher anwenden" },
+      { id: 3, label: "Lasso-Aufräumer", icon: "scissors", steps: [5, 6], desc: "Feature-Auswahl und Mischformen beherrschen" },
+      { id: 4, label: "Regularisierungs-Meister", icon: "trophy", steps: [7, 8], desc: "Alpha-Tuning und Pipeline sauber abschließen" }
+    ];
+
+    const QUIZ_CONFIG = {
+      1: [
+        {
+          question: "Ein Modell hat 0 Prozent Trainingsfehler, aber deutlich höheren Testfehler. Was liegt nahe?",
+          options: [
+            "Overfitting",
+            "Perfekte Generalisierung",
+            "Zu hoher Bias"
+          ],
+          correct: 0,
+          explanation: "Das Modell hat die Trainingsdaten zu stark auswendig gelernt."
+        },
+        {
+          question: "Wogegen hilft Regularisierung besonders?",
+          options: [
+            "Gegen zu hohe Varianz und Overfitting",
+            "Gegen fehlende Datenqualität allein",
+            "Gegen jeden Fehler ohne Ausnahme"
+          ],
+          correct: 0,
+          explanation: "Regularisierung dämpft vor allem übernervöse Modelle."
+        }
+      ],
+      2: [
+        {
+          question: "Was passiert bei einer harten Schranke mit sehr kleinem t?",
+          options: [
+            "Die Koeffizienten werden stark begrenzt",
+            "Das Modell wird automatisch komplexer",
+            "Der Testsatz wird größer"
+          ],
+          correct: 0,
+          explanation: "Kleines Budget bedeutet strenge Begrenzung der Gewichte."
+        },
+        {
+          question: "Welche Form gehört zu L1?",
+          options: [
+            "Diamant",
+            "Kreis",
+            "Quadrat mit runden Ecken"
+          ],
+          correct: 0,
+          explanation: "Die Ecken des Diamanten erklären, warum L1 leichter auf Achsen landet."
+        }
+      ],
+      3: [
+        {
+          question: "Was bedeutet Alpha gleich null?",
+          options: [
+            "Keine Regularisierung",
+            "Alle Koeffizienten sind null",
+            "Das Modell wird automatisch zu Lasso"
+          ],
+          correct: 0,
+          explanation: "Ohne Strafterm bleibt die normale Regression übrig."
+        },
+        {
+          question: "Was macht ein sehr großes Alpha typischerweise?",
+          options: [
+            "Es drückt die Gewichte stark zusammen",
+            "Es lässt das Modell freier werden",
+            "Es verdoppelt den Testsatz"
+          ],
+          correct: 0,
+          explanation: "Große Strafe bedeutet: große Koeffizienten werden teuer."
+        }
+      ],
+      4: [
+        {
+          question: "Wie verhält sich Ridge bei den Koeffizienten?",
+          options: [
+            "Es schrumpft alle, setzt aber selten exakt null",
+            "Es löscht sofort die Hälfte aller Features",
+            "Es ändert nur den Achsenabschnitt"
+          ],
+          correct: 0,
+          explanation: "Ridge verteilt Gewicht, statt es hart zu streichen."
+        },
+        {
+          question: "Wann ist Ridge oft besonders hilfreich?",
+          options: [
+            "Bei korrelierten Merkmalen",
+            "Nur wenn exakt zwei Features vorhanden sind",
+            "Nur bei Klassifikation"
+          ],
+          correct: 0,
+          explanation: "Korrelierte Features profitieren oft von der gleichmäßigen Schrumpfung."
+        }
+      ],
+      5: [
+        {
+          question: "Was ist der große Unterschied zwischen Lasso und Ridge?",
+          options: [
+            "Lasso kann Gewichte exakt auf null setzen",
+            "Ridge kann das, Lasso nicht",
+            "Es gibt keinen praktischen Unterschied"
+          ],
+          correct: 0,
+          explanation: "Genau deshalb ist Lasso auch für Feature-Auswahl interessant."
+        },
+        {
+          question: "Wann ist Lasso besonders attraktiv?",
+          options: [
+            "Wenn viele Features wahrscheinlich unwichtig sind",
+            "Wenn jedes Feature unbedingt erhalten bleiben soll",
+            "Wenn kein Hyperparameter gewählt werden soll"
+          ],
+          correct: 0,
+          explanation: "Lasso kann Ballast aktiv entfernen."
+        }
+      ],
+      6: [
+        {
+          question: "Was steuert `l1_ratio` im Elastic Net?",
+          options: [
+            "Die Mischung aus L1 und L2",
+            "Die Anzahl der Trainingsdaten",
+            "Die Anzahl der Zielvariablen"
+          ],
+          correct: 0,
+          explanation: "`l1_ratio` ist der Mischregler zwischen Ridge und Lasso."
+        },
+        {
+          question: "Welchem Verfahren entspricht `l1_ratio = 0`?",
+          options: [
+            "Ridge",
+            "Lasso",
+            "Logistische Regression"
+          ],
+          correct: 0,
+          explanation: "Bei null bleibt die reine L2-Seite übrig."
+        }
+      ],
+      7: [
+        {
+          question: "Was ist Alpha im ML-Kontext?",
+          options: [
+            "Ein Hyperparameter",
+            "Ein automatisch gelernter Zielwert",
+            "Die Anzahl der Folds"
+          ],
+          correct: 0,
+          explanation: "Alpha wird vor dem Training festgelegt und getestet."
+        },
+        {
+          question: "Wie findet man einen guten Alpha-Wert typischerweise?",
+          options: [
+            "Mit Grid Search und Validierung",
+            "Nur durch Bauchgefühl",
+            "Gar nicht, Alpha ist immer 1"
+          ],
+          correct: 0,
+          explanation: "Systematisches Testen ist robuster als Raten."
+        }
+      ],
+      8: [
+        {
+          question: "Warum ist Skalierung vor Ridge oder Lasso oft wichtig?",
+          options: [
+            "Weil die Strafe sonst Features mit großen Skalen unfair behandeln kann",
+            "Weil das Modell sonst gar nicht trainiert",
+            "Weil Skalierung automatisch mehr Daten erzeugt"
+          ],
+          correct: 0,
+          explanation: "Regularisierung wirkt auf Gewichte. Unterschiedliche Skalen verzerren diesen Effekt."
+        },
+        {
+          question: "Welche Aussage trifft auf eine saubere Pipeline zu?",
+          options: [
+            "Sie hält die Verarbeitung reproduzierbar und konsistent",
+            "Sie ersetzt jeden Testsatz",
+            "Sie macht Hyperparameter überflüssig"
+          ],
+          correct: 0,
+          explanation: "Pipelines verhindern, dass Schritte vergessen oder in falscher Reihenfolge ausgeführt werden."
+        },
+        {
+          question: "Welcher Schritt gehört logisch vor das Modelltraining?",
+          options: [
+            "Feature-Transformation und Skalierung",
+            "Testfehler ausdrucken",
+            "Confusion Matrix berechnen"
+          ],
+          correct: 0,
+          explanation: "Erst die Daten vorbereiten, dann trainieren."
+        },
+        {
+          question: "Was zeigt eine große Lücke zwischen Training und Test meist an?",
+          options: [
+            "Overfitting",
+            "Perfekte Generalisierung",
+            "Dass keine Features vorhanden sind"
+          ],
+          correct: 0,
+          explanation: "Die bekannte Lücke ist ein Warnsignal für zu hohe Varianz."
+        },
+        {
+          question: "Welche Methode kann Features automatisch aussortieren?",
+          options: [
+            "Lasso",
+            "Ridge",
+            "Train/Test Split"
+          ],
+          correct: 0,
+          explanation: "Lasso setzt manche Koeffizienten exakt auf null."
+        }
+      ]
+    };
+
+    const storageWrapper = (() => {
+      let fallback = {};
+      try {
+        const key = "__regularization_ml_storage_test__";
+        window.localStorage.setItem(key, "1");
+        window.localStorage.removeItem(key);
+        return {
+          available: true,
+          getItem: (key) => window.localStorage.getItem(key),
+          setItem: (key, value) => window.localStorage.setItem(key, value),
+          removeItem: (key) => window.localStorage.removeItem(key)
+        };
+      } catch (error) {
+        return {
+          available: false,
+          getItem: (key) => fallback[key] ?? null,
+          setItem: (key, value) => { fallback[key] = value; },
+          removeItem: (key) => { delete fallback[key]; }
+        };
+      }
+    })();
+
+    class DataGenerator {
+      static random(seed) {
+        const value = Math.sin(seed * 9301 + 49297) * 233280;
+        return value - Math.floor(value);
+      }
+
+      static createCurvyData(count = 50) {
+        return Array.from({ length: count }, (_, index) => {
+          const x = index / 4;
+          const noise = (DataGenerator.random(index + 17) - 0.5) * 2.1;
+          const y = 4 + 1.8 * Math.sin(x / 2.4) + 0.12 * (x - 6) ** 2 + noise;
+          return {
+            x: Number(x.toFixed(2)),
+            y: Number(y.toFixed(2))
+          };
+        });
+      }
+
+      static splitData(data, ratio = 0.7) {
+        const cutoff = Math.round(data.length * ratio);
+        return {
+          train: data.slice(0, cutoff),
+          test: data.slice(cutoff)
+        };
+      }
+    }
+
+    class PolynomialModel {
+      static fit(points, degree, lambda = 0) {
+        const size = degree + 1;
+        const matrix = Array.from({ length: size }, () => Array(size).fill(0));
+        const vector = Array(size).fill(0);
+
+        for (let row = 0; row < size; row += 1) {
+          for (let col = 0; col < size; col += 1) {
+            matrix[row][col] = points.reduce((sum, point) => sum + (point.x ** (row + col)), 0);
+          }
+          matrix[row][row] += lambda;
+          vector[row] = points.reduce((sum, point) => sum + point.y * (point.x ** row), 0);
+        }
+
+        return PolynomialModel.solve(matrix, vector);
+      }
+
+      static solve(matrix, vector) {
+        const n = matrix.length;
+        const augmented = matrix.map((row, index) => [...row, vector[index]]);
+
+        for (let pivot = 0; pivot < n; pivot += 1) {
+          let maxRow = pivot;
+          for (let row = pivot + 1; row < n; row += 1) {
+            if (Math.abs(augmented[row][pivot]) > Math.abs(augmented[maxRow][pivot])) {
+              maxRow = row;
+            }
+          }
+          [augmented[pivot], augmented[maxRow]] = [augmented[maxRow], augmented[pivot]];
+          const pivotValue = augmented[pivot][pivot] || 1e-9;
+          for (let col = pivot; col <= n; col += 1) {
+            augmented[pivot][col] /= pivotValue;
+          }
+          for (let row = 0; row < n; row += 1) {
+            if (row === pivot) {
+              continue;
+            }
+            const factor = augmented[row][pivot];
+            for (let col = pivot; col <= n; col += 1) {
+              augmented[row][col] -= factor * augmented[pivot][col];
+            }
+          }
+        }
+
+        return augmented.map((row) => row[n]);
+      }
+
+      static predict(coeffs, x) {
+        return coeffs.reduce((sum, coeff, index) => sum + coeff * (x ** index), 0);
+      }
+
+      static predictSeries(coeffs, xValues) {
+        return xValues.map((x) => ({ x, y: PolynomialModel.predict(coeffs, x) }));
+      }
+
+      static mse(points, coeffs) {
+        if (!points.length) {
+          return 0;
+        }
+        const error = points.reduce((sum, point) => {
+          const prediction = PolynomialModel.predict(coeffs, point.x);
+          return sum + ((point.y - prediction) ** 2);
+        }, 0);
+        return error / points.length;
+      }
+    }
+
+    class ChartManager {
+      static instances = new Map();
+
+      static colors() {
+        const styles = getComputedStyle(document.body);
+        return {
+          primary: styles.getPropertyValue("--primary").trim(),
+          secondary: styles.getPropertyValue("--secondary").trim(),
+          text: styles.getPropertyValue("--text").trim(),
+          line: styles.getPropertyValue("--line").trim(),
+          success: styles.getPropertyValue("--success").trim(),
+          danger: styles.getPropertyValue("--danger").trim(),
+          warning: styles.getPropertyValue("--warning").trim()
+        };
+      }
+
+      static baseOptions(title, xTitle, yTitle) {
+        const colors = ChartManager.colors();
+        return {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "nearest",
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: colors.text
+              }
+            },
+            title: {
+              display: true,
+              text: title,
+              color: colors.text,
+              font: {
+                size: 14
+              }
+            },
+            tooltip: {
+              backgroundColor: colors.text,
+              titleColor: "#fff",
+              bodyColor: "#fff"
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: xTitle,
+                color: colors.text
+              },
+              ticks: {
+                color: colors.text
+              },
+              grid: {
+                color: colors.line
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: yTitle,
+                color: colors.text
+              },
+              ticks: {
+                color: colors.text
+              },
+              grid: {
+                color: colors.line
+              }
+            }
+          }
+        };
+      }
+
+      static createOrUpdate(id, config) {
+        const canvas = document.getElementById(id);
+        if (!canvas || typeof Chart === "undefined") {
+          return null;
+        }
+        const existing = ChartManager.instances.get(id);
+        if (existing) {
+          existing.destroy();
+        }
+        const chart = new Chart(canvas, config);
+        ChartManager.instances.set(id, chart);
+        return chart;
+      }
+    }
+
+    class QuizEngine {
+      constructor(stepId, questions, tracker) {
+        this.stepId = stepId;
+        this.questions = questions;
+        this.tracker = tracker;
+        this.container = document.getElementById(`quiz-step-${stepId}`);
+        this.state = tracker.getStepQuizState(stepId);
+        this.state.correctSet = this.state.correctSet || {};
+        Object.entries(this.state.answers || {}).forEach(([index, value]) => {
+          if (Number(value) === this.questions[Number(index)].correct) {
+            this.state.correctSet[index] = true;
+          }
+        });
+        this.state.correctCount = Object.keys(this.state.correctSet).length;
+        this.state.submitted = this.state.correctCount === this.questions.length;
+        this.state.passed = this.state.submitted;
+      }
+
+      render() {
+        if (!this.container) {
+          return;
+        }
+
+        this.container.innerHTML = "";
+        const wrapper = document.createElement("div");
+        wrapper.className = "quiz-shell";
+
+        this.questions.forEach((question, questionIndex) => {
+          const fieldset = document.createElement("fieldset");
+          fieldset.className = "quiz-question";
+
+          const legend = document.createElement("legend");
+          legend.textContent = `${questionIndex + 1}. ${question.question}`;
+          fieldset.appendChild(legend);
+
+          const options = document.createElement("div");
+          options.className = "quiz-options";
+
+          question.options.forEach((option, optionIndex) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "quiz-option";
+            button.textContent = option;
+            button.setAttribute("aria-label", `${question.question} Antwort ${optionIndex + 1}`);
+
+            const previousAnswer = this.state.answers?.[questionIndex];
+            const questionSolved = Boolean(this.state.correctSet?.[questionIndex]);
+            if (questionSolved) {
+              button.disabled = true;
+              if (optionIndex === question.correct) {
+                button.classList.add("is-correct");
+              }
+            } else if (previousAnswer !== undefined && optionIndex === previousAnswer) {
+              button.classList.add("is-wrong");
+            }
+
+            button.addEventListener("click", () => {
+              if (this.state.correctSet?.[questionIndex]) {
+                return;
+              }
+              this.checkAnswer(questionIndex, optionIndex);
+            });
+            options.appendChild(button);
+          });
+
+          const note = document.createElement("div");
+          note.className = "answer-note";
+          if (this.state.answers?.[questionIndex] !== undefined) {
+            const solved = Boolean(this.state.correctSet?.[questionIndex]);
+            note.textContent = solved
+              ? `Richtig. ${question.explanation}`
+              : `Noch nicht korrekt. ${question.explanation} Versuche es direkt noch einmal.`;
+            note.style.color = solved ? "#3c5d51" : "#72303d";
+          }
+
+          fieldset.appendChild(options);
+          fieldset.appendChild(note);
+          wrapper.appendChild(fieldset);
+        });
+
+        const feedback = document.createElement("div");
+        feedback.className = "quiz-feedback";
+        feedback.setAttribute("role", "alert");
+
+        if (this.state.submitted) {
+          feedback.classList.add("ok");
+          feedback.innerHTML = `<strong>Schritt abgeschlossen.</strong> Alle ${this.questions.length} Antworten sind jetzt korrekt.`;
+        } else {
+          feedback.textContent = `Direktes Feedback erscheint sofort. Bereits richtige Antworten bleiben gesichert, falsche kannst du direkt korrigieren. Aktuell sitzen ${this.state.correctCount || 0} von ${this.questions.length}.`;
+        }
+
+        wrapper.appendChild(feedback);
+        this.container.appendChild(wrapper);
+      }
+
+      checkAnswer(questionIndex, answerIndex) {
+        if (!this.state.answers) {
+          this.state.answers = {};
+        }
+        this.state.answers[questionIndex] = answerIndex;
+        const question = this.questions[questionIndex];
+        const isCorrect = answerIndex === question.correct;
+
+        if (isCorrect) {
+          this.state.correctSet[questionIndex] = true;
+          this.tracker.addPoints(10, `quiz-${this.stepId}-${questionIndex}-base`);
+          this.tracker.addPoints(5, `quiz-${this.stepId}-${questionIndex}-bonus`);
+        }
+
+        this.state.correctCount = Object.keys(this.state.correctSet).length;
+        this.state.submitted = this.state.correctCount === this.questions.length;
+        this.state.passed = this.state.submitted;
+
+        this.tracker.setStepQuizState(this.stepId, this.state);
+        if (this.state.submitted) {
+          this.tracker.markStepComplete(this.stepId, true);
+          this.tracker.maybeCelebratePerfectQuiz(this.stepId, this.state.correctCount, this.questions.length);
+          setStatus(this.stepId, `Erledigt. Alle ${this.questions.length} Antworten sind korrekt.`, "ok");
+        } else {
+          this.tracker.markStepComplete(this.stepId, false);
+          setStatus(this.stepId, `Noch offen. ${this.state.correctCount} von ${this.questions.length} Antworten sitzen bereits.`, "warn");
+        }
+        this.render();
+      }
+    }
+
+    class ProgressTracker {
+      constructor() {
+        this.storageKey = "lehrpfad_regularization";
+        this.state = {
+          points: 0,
+          badges: [false, false, false, false],
+          stepsCompleted: Array(8).fill(false),
+          quizzes: {},
+          pointEvents: {}
+        };
+        this.load();
+      }
+
+      load() {
+        const raw = storageWrapper.getItem(this.storageKey);
+        if (!raw) {
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          this.state = {
+            ...this.state,
+            ...parsed,
+            badges: Array.isArray(parsed.badges) ? parsed.badges : this.state.badges,
+            stepsCompleted: Array.isArray(parsed.stepsCompleted) ? parsed.stepsCompleted : this.state.stepsCompleted,
+            quizzes: parsed.quizzes || {},
+            pointEvents: parsed.pointEvents || {}
+          };
+          delete this.state.darkMode;
+        } catch (error) {
+          this.save();
+        }
+      }
+
+      save() {
+        storageWrapper.setItem(this.storageKey, JSON.stringify(this.state));
+      }
+
+      reset() {
+        this.state = {
+          points: 0,
+          badges: [false, false, false, false],
+          stepsCompleted: Array(8).fill(false),
+          quizzes: {},
+          pointEvents: {}
+        };
+        storageWrapper.removeItem(this.storageKey);
+      }
+
+      addPoints(points, eventId) {
+        if (this.state.pointEvents[eventId]) {
+          return false;
+        }
+        this.state.pointEvents[eventId] = points;
+        this.state.points += points;
+        this.save();
+        this.render();
+        return true;
+      }
+
+      maybeCelebratePerfectQuiz(stepId, correctCount, totalQuestions) {
+        const eventId = `perfect-quiz-${stepId}`;
+        if (!totalQuestions || correctCount !== totalQuestions || this.state.pointEvents[eventId]) {
+          return;
+        }
+        this.state.pointEvents[eventId] = true;
+        this.save();
+        this.launchConfetti();
+      }
+
+      getStepQuizState(stepId) {
+        return this.state.quizzes[stepId] || {
+          answers: {},
+          correctSet: {},
+          correctCount: 0,
+          submitted: false,
+          passed: false
+        };
+      }
+
+      setStepQuizState(stepId, quizState) {
+        this.state.quizzes[stepId] = quizState;
+        this.save();
+        this.checkBadges();
+        this.render();
+      }
+
+      markStepComplete(stepId, isPassed) {
+        this.state.stepsCompleted[stepId - 1] = isPassed;
+        this.save();
+        this.checkBadges();
+        this.render();
+      }
+
+      getRank() {
+        if (this.state.points >= 180) {
+          return "Regularisierungs-Meister";
+        }
+        if (this.state.points >= 110) {
+          return "Lasso-Aufräumer";
+        }
+        if (this.state.points >= 60) {
+          return "Ridge-Trainer";
+        }
+        return "Buffet-Neuling";
+      }
+
+      checkBadges() {
+        BADGE_CONFIG.forEach((badge, badgeIndex) => {
+          const totalQuestions = badge.steps.reduce((sum, stepId) => sum + QUIZ_CONFIG[stepId].length, 0);
+          const correctAnswers = badge.steps.reduce((sum, stepId) => sum + (this.state.quizzes[stepId]?.correctCount || 0), 0);
+          const earned = totalQuestions > 0 && (correctAnswers / totalQuestions) >= 0.8;
+          if (earned && !this.state.badges[badgeIndex]) {
+            this.state.badges[badgeIndex] = true;
+            this.addPoints(25, `badge-${badge.id}`);
+          }
+        });
+        this.save();
+      }
+
+      renderSidebar() {
+        const completed = this.state.stepsCompleted.filter(Boolean).length;
+        const percent = Math.round((completed / STEP_CONFIG.length) * 100);
+        document.getElementById("sidebar-progress-label").textContent = `${completed} von ${STEP_CONFIG.length} Schritten erledigt`;
+        document.getElementById("sidebar-points-label").textContent = `${this.state.points} Punkte`;
+        document.getElementById("sidebar-progress-fill").style.width = `${percent}%`;
+      }
+
+      renderStage() {
+        const completed = this.state.stepsCompleted.filter(Boolean).length;
+        const percent = Math.round((completed / STEP_CONFIG.length) * 100);
+        document.getElementById("stage-progress-label").textContent = `${percent} Prozent abgeschlossen`;
+        document.getElementById("stage-rank-label").textContent = `Rang: ${this.getRank()}`;
+        document.getElementById("stage-progress-fill").style.width = `${percent}%`;
+      }
+
+      renderGameBar() {
+        const badgeCount = this.state.badges.filter(Boolean).length;
+        const nextBadge = BADGE_CONFIG.find((_, index) => !this.state.badges[index]);
+        document.getElementById("game-rank").textContent = `Rang: ${this.getRank()}`;
+        document.getElementById("game-points").textContent = `${this.state.points} Punkte`;
+        document.getElementById("game-badges").textContent = `${badgeCount} von ${BADGE_CONFIG.length} Badges`;
+        document.getElementById("game-next-badge").textContent = nextBadge
+          ? `Nächster Badge: ${nextBadge.label} nach ${nextBadge.steps.map((step) => `Schritt ${step}`).join(" und ")}.`
+          : "Alle Badges freigeschaltet.";
+      }
+
+      renderBadges() {
+        const grid = document.getElementById("badge-grid");
+        grid.innerHTML = "";
+        BADGE_CONFIG.forEach((badge, index) => {
+          const item = document.createElement("div");
+          item.className = `badge-item${this.state.badges[index] ? " is-earned" : ""}`;
+          item.innerHTML = `
+            <div class="badge-icon" aria-hidden="true">${renderBadgeIcon(badge.icon)}</div>
+            <div>
+              <strong>${badge.label}</strong>
+              <div>${badge.desc}</div>
+            </div>
+          `;
+          grid.appendChild(item);
+        });
+      }
+
+      renderNav() {
+        const nav = document.getElementById("step-nav");
+        nav.innerHTML = "";
+        STEP_CONFIG.forEach((step, index) => {
+          const link = document.createElement("a");
+          const done = this.state.stepsCompleted[index];
+          link.href = `#schritt-${step.id}`;
+          link.className = `nav-item${done ? " is-done" : ""}`;
+          link.setAttribute("data-step-link", step.id);
+          link.innerHTML = `
+            <div class="nav-label">
+              <strong>Schritt ${step.id}: ${step.short}</strong>
+              <span class="nav-status">${done ? "Erledigt" : "Offen"}</span>
+            </div>
+            <span aria-hidden="true">${done ? "✅" : "•"}</span>
+          `;
+          nav.appendChild(link);
+        });
+      }
+
+      render() {
+        this.renderSidebar();
+        this.renderStage();
+        this.renderGameBar();
+        this.renderBadges();
+        this.renderNav();
+      }
+
+      launchConfetti() {
+        const colors = ["#631832", "#173262", "#4f7a6a", "#ae6f32"];
+        if (window.DataScienceCelebration && typeof window.DataScienceCelebration.launch === "function") {
+          window.DataScienceCelebration.launch({ colors, pieceCount: 22, duration: 1920 });
+          return;
+        }
+        const layer = document.getElementById("confetti-layer");
+        for (let i = 0; i < 22; i += 1) {
+          const piece = document.createElement("span");
+          piece.className = "confetti-piece";
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDelay = `${Math.random() * 0.42}s`;
+          piece.style.animationDuration = "1.92s";
+          layer.appendChild(piece);
+          setTimeout(() => piece.remove(), 2420);
+        }
+      }
+    }
+
+    const tracker = new ProgressTracker();
+    const chartState = {
+      data: DataGenerator.createCurvyData(46),
+      currentConstraintMode: "l1",
+      currentGridMode: "ridge"
+    };
+    chartState.split = DataGenerator.splitData(chartState.data, 0.72);
+    chartState.xValues = Array.from({ length: 100 }, (_, index) => Number((index * 0.12).toFixed(2)));
+    chartState.baseCoefficients = [2.8, -2.1, 1.7, 0.6, -0.9, 1.3, -0.5, 0.8];
+    chartState.gridAlphas = [0.001, 0.01, 0.1, 1, 3, 10, 30, 100, 300];
+
+    function setStatus(stepId, text, tone = "") {
+      const node = document.getElementById(`status-${stepId}`);
+      if (!node) {
+        return;
+      }
+      node.textContent = text;
+      node.className = `status-note${tone ? ` ${tone}` : ""}`;
+    }
+
+    function renderBadgeIcon(type) {
+      if (type === "salad") {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 11c0 5 3 8 7 8s7-3 7-8H5Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 11c.5-3 2.5-5 4-5 2 0 3.5 1.6 4 5" stroke="currentColor" stroke-width="1.8"/><path d="M12 6V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+      }
+      if (type === "dumbbell") {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 10v4M7 8v8M17 8v8M20 10v4M7 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+      }
+      if (type === "scissors") {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="17" r="2.5" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="7" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m8 8 10 8M8 16l10-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+      }
+      return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="m12 3 2.2 4.5 4.8.7-3.5 3.4.8 4.8L12 14.1 7.7 16.4l.8-4.8L5 8.2l4.8-.7L12 3Z" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>`;
+    }
+
+    function createScatterDataset(points, label, color) {
+      return {
+        type: "scatter",
+        label,
+        data: points.map((point) => ({ x: point.x, y: point.y })),
+        pointRadius: 4,
+        pointHoverRadius: 5,
+        showLine: false,
+        borderColor: color,
+        backgroundColor: color
+      };
+    }
+
+    function createLineDataset(series, label, color, dashed = false) {
+      return {
+        type: "line",
+        label,
+        data: series.map((point) => ({ x: point.x, y: point.y })),
+        borderColor: color,
+        backgroundColor: color,
+        pointRadius: 0,
+        tension: 0.25,
+        fill: false,
+        borderWidth: 2,
+        borderDash: dashed ? [6, 6] : []
+      };
+    }
+
+    function updateOverfitDemo() {
+      const colors = ChartManager.colors();
+      const degree = Number(document.getElementById("overfit-degree").value);
+      const lambda = degree >= 7 ? 0 : 0.02;
+      const coeffs = PolynomialModel.fit(chartState.split.train, degree, lambda);
+      const curve = PolynomialModel.predictSeries(coeffs, chartState.xValues);
+      const trainError = PolynomialModel.mse(chartState.split.train, coeffs);
+      const testError = PolynomialModel.mse(chartState.split.test, coeffs);
+
+      document.getElementById("overfit-degree-label").textContent = String(degree);
+      document.getElementById("overfit-train-error").textContent = trainError.toFixed(2);
+      document.getElementById("overfit-test-error").textContent = testError.toFixed(2);
+
+      const summary = document.getElementById("overfit-summary");
+      if (degree <= 2) {
+        summary.textContent = "Noch recht grob: Das Modell sieht nur die Haupttendenz und lässt manche Krümmung liegen.";
+      } else if (degree <= 5) {
+        summary.textContent = "Hier liegt oft ein brauchbarer Mittelweg: genug flexibel, aber noch nicht hektisch.";
+      } else {
+        summary.textContent = "Jetzt wird die Kurve nervös. Trainingsfehler sinkt, aber auf Testdaten kippt die Stabilität.";
+      }
+
+      ChartManager.createOrUpdate("overfit-chart", {
+        type: "scatter",
+        data: {
+          datasets: [
+            createScatterDataset(chartState.split.train, "Training", colors.secondary),
+            createScatterDataset(chartState.split.test, "Test", colors.success),
+            createLineDataset(curve, `Modell Grad ${degree}`, colors.primary)
+          ]
+        },
+        options: ChartManager.baseOptions("Overfitting live erleben", "x", "y")
+      });
+    }
+
+    function updateConstraintDemo() {
+      const budget = Number(document.getElementById("constraint-budget").value);
+      const mode = chartState.currentConstraintMode;
+      const path = document.getElementById("constraint-region");
+      const solution = document.getElementById("constraint-solution");
+      const size = 14 + budget * 5.2;
+      const centerX = 160;
+      const centerY = 140;
+
+      document.getElementById("constraint-budget-label").textContent = String(budget);
+      document.getElementById("constraint-area-label").textContent = budget <= 4 ? "sehr klein" : budget <= 12 ? "mittel" : "groß";
+      document.getElementById("constraint-behavior-label").textContent = mode === "l1"
+        ? "L1 begünstigt Null-Koeffizienten."
+        : "L2 verteilt Gewicht weicher über alle Features.";
+
+      if (mode === "l1") {
+        path.setAttribute("d", `M ${centerX} ${centerY - size} L ${centerX + size} ${centerY} L ${centerX} ${centerY + size} L ${centerX - size} ${centerY} Z`);
+        solution.setAttribute("cx", String(centerX + size * 0.72));
+        solution.setAttribute("cy", String(centerY));
+      } else {
+        path.setAttribute("d", `M ${centerX - size},${centerY} a ${size},${size} 0 1,0 ${size * 2},0 a ${size},${size} 0 1,0 -${size * 2},0`);
+        solution.setAttribute("cx", String(centerX + size * 0.6));
+        solution.setAttribute("cy", String(centerY - size * 0.45));
+      }
+    }
+
+    function updateAlphaDemo() {
+      const colors = ChartManager.colors();
+      const alphaRaw = Number(document.getElementById("alpha-slider").value);
+      const alpha = alphaRaw / 10;
+      const coeffs = PolynomialModel.fit(chartState.split.train, 8, alpha);
+      const curve = PolynomialModel.predictSeries(coeffs, chartState.xValues);
+      const trainError = PolynomialModel.mse(chartState.split.train, coeffs);
+      const testError = PolynomialModel.mse(chartState.split.test, coeffs);
+
+      document.getElementById("alpha-slider-label").textContent = alpha.toFixed(1);
+      document.getElementById("alpha-train-error").textContent = trainError.toFixed(2);
+      document.getElementById("alpha-test-error").textContent = testError.toFixed(2);
+
+      const hint = document.getElementById("alpha-hint");
+      hint.className = "helper-note info";
+      if (alpha < 0.4) {
+        hint.textContent = "Kaum Strafe: Das Modell darf stark zappeln und kann Trainingsrauschen leicht mitlernen.";
+      } else if (alpha <= 1.6) {
+        hint.textContent = "Moderates Alpha: Oft die Zone, in der Testfehler sinken, ohne dass das Modell zu grob wird.";
+      } else {
+        hint.textContent = "Sehr hohes Alpha: Jetzt droht Underfitting. Die Kurve wird deutlich ruhiger, aber auch grober.";
+      }
+
+      ChartManager.createOrUpdate("alpha-chart", {
+        type: "scatter",
+        data: {
+          datasets: [
+            createScatterDataset(chartState.split.train, "Training", colors.secondary),
+            createScatterDataset(chartState.split.test, "Test", colors.success),
+            createLineDataset(curve, `Regularisierte Kurve (Alpha ${alpha.toFixed(1)})`, colors.primary)
+          ]
+        },
+        options: ChartManager.baseOptions("Weiche Regularisierung mit Alpha", "x", "y")
+      });
+    }
+
+    function ridgeShrink(values, alpha) {
+      return values.map((value) => value / (1 + alpha * 0.16));
+    }
+
+    function lassoShrink(values, alpha) {
+      return values.map((value) => {
+        const sign = value >= 0 ? 1 : -1;
+        const shrunk = Math.max(0, Math.abs(value) - alpha * 0.18);
+        return sign * shrunk;
+      });
+    }
+
+    function elasticShrink(values, alpha, ratio) {
+      const ridgePart = ridgeShrink(values, alpha * (1 - ratio));
+      return ridgePart.map((value, index) => {
+        const sign = value >= 0 ? 1 : -1;
+        const shrunk = Math.max(0, Math.abs(value) - alpha * ratio * 0.16);
+        return sign * shrunk;
+      });
+    }
+
+    function updateRidgeDemo() {
+      const colors = ChartManager.colors();
+      const alpha = Number(document.getElementById("ridge-alpha").value) / 10;
+      const coeffs = ridgeShrink(chartState.baseCoefficients, alpha);
+      document.getElementById("ridge-alpha-label").textContent = alpha.toFixed(1);
+      document.getElementById("ridge-max-coef").textContent = Math.max(...coeffs.map((value) => Math.abs(value))).toFixed(2);
+      document.getElementById("ridge-zero-count").textContent = coeffs.filter((value) => Math.abs(value) < 0.01).length.toString();
+
+      ChartManager.createOrUpdate("ridge-chart", {
+        type: "bar",
+        data: {
+          labels: coeffs.map((_, index) => `w${index + 1}`),
+          datasets: [
+            {
+              label: "Ridge-Koeffizienten",
+              data: coeffs,
+              backgroundColor: coeffs.map(() => colors.secondary),
+              borderRadius: 8
+            }
+          ]
+        },
+        options: ChartManager.baseOptions("Ridge schrumpft alle Gewichte", "Feature", "Koeffizient")
+      });
+    }
+
+    function updateLassoDemo() {
+      const colors = ChartManager.colors();
+      const alpha = Number(document.getElementById("lasso-alpha").value) / 5;
+      const coeffs = lassoShrink(chartState.baseCoefficients, alpha);
+      const activeCount = coeffs.filter((value) => Math.abs(value) > 0.02).length;
+      const zeroCount = coeffs.length - activeCount;
+      document.getElementById("lasso-alpha-label").textContent = alpha.toFixed(1);
+      document.getElementById("lasso-active-count").textContent = String(activeCount);
+      document.getElementById("lasso-zero-count").textContent = String(zeroCount);
+
+      ChartManager.createOrUpdate("lasso-chart", {
+        type: "bar",
+        data: {
+          labels: coeffs.map((_, index) => `w${index + 1}`),
+          datasets: [
+            {
+              label: "Lasso-Koeffizienten",
+              data: coeffs,
+              backgroundColor: coeffs.map((value) => Math.abs(value) < 0.02 ? colors.danger : colors.primary),
+              borderRadius: 8
+            }
+          ]
+        },
+        options: ChartManager.baseOptions("Lasso wählt Features aus", "Feature", "Koeffizient")
+      });
+    }
+
+    function updateElasticDemo() {
+      const colors = ChartManager.colors();
+      const alpha = Number(document.getElementById("elastic-alpha").value) / 5;
+      const ratio = Number(document.getElementById("elastic-ratio").value) / 100;
+      const coeffs = elasticShrink(chartState.baseCoefficients, alpha, ratio);
+
+      document.getElementById("elastic-alpha-label").textContent = alpha.toFixed(1);
+      document.getElementById("elastic-ratio-label").textContent = ratio.toFixed(2);
+      document.getElementById("elastic-ridge-note").textContent = ratio < 0.34 ? "stark ridge-lastig" : "Ridge bleibt spürbar";
+      document.getElementById("elastic-mix-note").textContent = ratio > 0.34 && ratio < 0.66 ? "ausbalancierte Mischung" : "Mischung kippt zu einer Seite";
+      document.getElementById("elastic-lasso-note").textContent = ratio > 0.66 ? "stark lasso-lastig" : "Lasso nur ergänzend";
+
+      ChartManager.createOrUpdate("elastic-chart", {
+        type: "bar",
+        data: {
+          labels: coeffs.map((_, index) => `w${index + 1}`),
+          datasets: [
+            {
+              label: "Elastic-Net-Koeffizienten",
+              data: coeffs,
+              backgroundColor: coeffs.map((value) => Math.abs(value) < 0.03 ? colors.warning : colors.secondary),
+              borderRadius: 8
+            }
+          ]
+        },
+        options: ChartManager.baseOptions("Elastic Net als Mischform", "Feature", "Koeffizient")
+      });
+    }
+
+    function gridSeriesForMode(mode) {
+      const alphaValues = chartState.gridAlphas;
+      const center = mode === "ridge" ? 3.2 : mode === "lasso" ? 2.6 : 3.8;
+      const floor = mode === "ridge" ? 1.1 : mode === "lasso" ? 1.25 : 1.05;
+      return alphaValues.map((alphaValue, index) => {
+        const x = Math.log10(alphaValue + 0.001);
+        const mse = floor + ((x - Math.log10(center + 0.001)) ** 2) * 0.85 + (mode === "lasso" ? index * 0.015 : index * 0.01);
+        return {
+          alpha: alphaValue,
+          mse: Number(mse.toFixed(2))
+        };
+      });
+    }
+
+    function updateGridDemo() {
+      const colors = ChartManager.colors();
+      const series = gridSeriesForMode(chartState.currentGridMode);
+      const index = Number(document.getElementById("grid-alpha").value);
+      const chosen = series[index];
+      const best = series.reduce((lowest, item) => item.mse < lowest.mse ? item : lowest, series[0]);
+
+      document.getElementById("grid-alpha-label").textContent = String(chosen.alpha);
+      document.getElementById("grid-mse-label").textContent = chosen.mse.toFixed(2);
+      document.getElementById("grid-best-label").textContent = chosen.alpha === best.alpha
+        ? "Das ist das Minimum."
+        : chosen.alpha < best.alpha
+          ? "Noch zu wenig Regularisierung."
+          : "Jetzt wird das Modell zu streng.";
+
+      ChartManager.createOrUpdate("grid-chart", {
+        type: "line",
+        data: {
+          labels: series.map((item) => item.alpha),
+          datasets: [
+            {
+              label: "Validierungs-MSE",
+              data: series.map((item) => item.mse),
+              borderColor: colors.primary,
+              backgroundColor: colors.primary,
+              borderWidth: 2,
+              pointRadius: 4,
+              tension: 0.2
+            },
+            {
+              label: "Ausgewähltes Alpha",
+              data: series.map((item, itemIndex) => itemIndex === index ? item.mse : null),
+              borderColor: colors.secondary,
+              backgroundColor: colors.secondary,
+              pointRadius: 7,
+              showLine: false
+            }
+          ]
+        },
+        options: ChartManager.baseOptions("Alpha-Suche mit Validierungsfehler", "Alpha", "Validierungs-MSE")
+      });
+    }
+
+    function updatePipelineVisual() {
+      const order = [
+        document.getElementById("pipe-slot-1").value,
+        document.getElementById("pipe-slot-2").value,
+        document.getElementById("pipe-slot-3").value,
+        document.getElementById("pipe-slot-4").value,
+        document.getElementById("pipe-slot-5").value
+      ];
+      const labels = {
+        "": "?",
+        split: "Train/Test Split",
+        poly: "PolynomialFeatures",
+        scale: "StandardScaler",
+        model: "Ridge",
+        eval: "Bewerten"
+      };
+      document.getElementById("pipeline-visual-label").textContent = order.map((key) => labels[key]).join(" → ");
+    }
+
+    function checkPipelineOrder() {
+      const order = [
+        document.getElementById("pipe-slot-1").value,
+        document.getElementById("pipe-slot-2").value,
+        document.getElementById("pipe-slot-3").value,
+        document.getElementById("pipe-slot-4").value,
+        document.getElementById("pipe-slot-5").value
+      ];
+      const expected = ["split", "poly", "scale", "model", "eval"];
+      const feedback = document.getElementById("pipeline-feedback");
+      if (order.includes("")) {
+        feedback.className = "helper-note warn";
+        feedback.textContent = "Noch nicht vollständig. Wähle zuerst für jeden Slot genau einen Schritt.";
+      } else if (order.join("|") === expected.join("|")) {
+        feedback.className = "helper-note ok";
+        feedback.textContent = "Sauber. Erst fair teilen, dann Merkmale erzeugen, skalieren, trainieren und ganz am Ende auf Testdaten bewerten.";
+        setStatus(8, "Pipeline logisch gebaut. Jetzt noch das Abschluss-Quiz abschließen.", "info");
+      } else {
+        feedback.className = "helper-note warn";
+        feedback.textContent = "Noch nicht ideal. Achte darauf, dass die Bewertung am Ende steht und das Modell erst nach der Aufbereitung trainiert wird.";
+      }
+    }
+
+    function highlightActiveStep() {
+      const steps = [...document.querySelectorAll(".lesson-step")];
+      const links = [...document.querySelectorAll("[data-step-link]")];
+      const offset = window.innerHeight * 0.28;
+      let activeStep = 1;
+
+      steps.forEach((step) => {
+        const rect = step.getBoundingClientRect();
+        if (rect.top <= offset) {
+          activeStep = Number(step.dataset.step);
+        }
+      });
+
+      links.forEach((link) => {
+        link.classList.toggle("is-active", Number(link.dataset.stepLink) === activeStep);
+      });
+    }
+
+    function initSidebarToggle() {
+      const toggle = document.getElementById("sidebar-toggle");
+      toggle.addEventListener("click", () => {
+        document.body.classList.toggle("sidebar-open");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (window.innerWidth > 1080) {
+          return;
+        }
+        const sidebar = document.getElementById("sidebar");
+        if (!document.body.classList.contains("sidebar-open")) {
+          return;
+        }
+        if (sidebar.contains(event.target) || toggle.contains(event.target)) {
+          return;
+        }
+        document.body.classList.remove("sidebar-open");
+      });
+    }
+
+    function updateAllCharts() {
+      updateOverfitDemo();
+      updateAlphaDemo();
+      updateRidgeDemo();
+      updateLassoDemo();
+      updateElasticDemo();
+      updateGridDemo();
+      updateConstraintDemo();
+    }
+
+    function showStorageNote() {
+      const note = document.getElementById("storage-note");
+      if (storageWrapper.available) {
+        note.hidden = false;
+        note.textContent = "Dein Fortschritt wird lokal im Browser gespeichert. Zusätzlich ist der gemeinsame Lernstand-Manager für den Data-Science-Ordner eingebunden.";
+      }
+    }
+
+    function initEvents() {
+      document.getElementById("overfit-degree").addEventListener("input", updateOverfitDemo);
+      document.getElementById("constraint-budget").addEventListener("input", updateConstraintDemo);
+      document.querySelectorAll("[data-constraint-mode]").forEach((button) => {
+        button.addEventListener("click", () => {
+          chartState.currentConstraintMode = button.dataset.constraintMode;
+          document.querySelectorAll("[data-constraint-mode]").forEach((node) => node.classList.toggle("is-active", node === button));
+          updateConstraintDemo();
+        });
+      });
+
+      document.getElementById("alpha-slider").addEventListener("input", updateAlphaDemo);
+      document.getElementById("ridge-alpha").addEventListener("input", updateRidgeDemo);
+      document.getElementById("lasso-alpha").addEventListener("input", updateLassoDemo);
+      document.getElementById("elastic-alpha").addEventListener("input", updateElasticDemo);
+      document.getElementById("elastic-ratio").addEventListener("input", updateElasticDemo);
+      document.getElementById("grid-alpha").addEventListener("input", updateGridDemo);
+
+      document.querySelectorAll("[data-grid-mode]").forEach((button) => {
+        button.addEventListener("click", () => {
+          chartState.currentGridMode = button.dataset.gridMode;
+          document.querySelectorAll("[data-grid-mode]").forEach((node) => node.classList.toggle("is-active", node === button));
+          updateGridDemo();
+        });
+      });
+
+      ["pipe-slot-1", "pipe-slot-2", "pipe-slot-3", "pipe-slot-4", "pipe-slot-5"].forEach((id) => {
+        document.getElementById(id).addEventListener("change", updatePipelineVisual);
+      });
+
+      document.getElementById("pipeline-check").addEventListener("click", checkPipelineOrder);
+      document.getElementById("pipeline-reset").addEventListener("click", () => {
+        document.getElementById("pipe-slot-1").value = "";
+        document.getElementById("pipe-slot-2").value = "";
+        document.getElementById("pipe-slot-3").value = "";
+        document.getElementById("pipe-slot-4").value = "";
+        document.getElementById("pipe-slot-5").value = "";
+        updatePipelineVisual();
+        document.getElementById("pipeline-feedback").className = "helper-note";
+        document.getElementById("pipeline-feedback").textContent = "Felder geleert. Baue die Reihenfolge jetzt bewusst selbst auf.";
+      });
+
+      document.getElementById("jump-first-open").addEventListener("click", () => {
+        const firstOpen = tracker.state.stepsCompleted.findIndex((value) => !value) + 1 || STEP_CONFIG.length;
+        document.getElementById(`schritt-${firstOpen}`).scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      document.getElementById("reset-progress").addEventListener("click", () => {
+        tracker.reset();
+        window.location.reload();
+      });
+
+      window.addEventListener("scroll", highlightActiveStep, { passive: true });
+      window.addEventListener("resize", highlightActiveStep);
+    }
+
+    function initQuizzes() {
+      Object.entries(QUIZ_CONFIG).forEach(([stepId, questions]) => {
+        const engine = new QuizEngine(Number(stepId), questions, tracker);
+        engine.render();
+      });
+    }
+
+    function applyStoredStatuses() {
+      STEP_CONFIG.forEach((step) => {
+        const quizState = tracker.getStepQuizState(step.id);
+        if (quizState.submitted) {
+          setStatus(
+            step.id,
+            quizState.passed
+              ? `Erledigt. ${quizState.correctCount} von ${QUIZ_CONFIG[step.id].length} Antworten sind richtig.`
+              : `Noch offen. ${quizState.correctCount} von ${QUIZ_CONFIG[step.id].length} Antworten sind richtig.`,
+            quizState.passed ? "ok" : "warn"
+          );
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      tracker.render();
+      initSidebarToggle();
+      showStorageNote();
+      initEvents();
+      updatePipelineVisual();
+      initQuizzes();
+      applyStoredStatuses();
+      updateAllCharts();
+      highlightActiveStep();
+
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ]
+        });
+      }
+
+      if (window.Prism && typeof window.Prism.highlightAll === "function") {
+        window.Prism.highlightAll();
+      }
+    });
+  </script>
+  <script defer src="lernstand_manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,3147 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logistische Regression | Der Türsteher-Simulator</title>
+  <meta name="description" content="Interaktives Kapitel zur logistischen Regression mit Sigmoid, Entscheidungsgrenze, Log-Loss, Gradient Descent, sklearn-Workflow, Threshold und Multiclass-Klassifikation.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e7eef8;
+      --text: #231A24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --bg-deep: #f2f4f8;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning: #9a6b4a;
+      --warning-soft: #faf4ee;
+      --warning-line: #e2c9b7;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 960px;
+      --footer-height: 78px;
+      --font: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 34%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 44%, var(--bg-deep) 100%);
+    }
+    a { color: inherit; }
+    button, input, select {
+      font: inherit;
+    }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px calc(var(--footer-height) + 24px);
+      background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255,255,255,0.74) 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    #stage {
+      min-width: 0;
+      padding: 16px 16px calc(var(--footer-height) + 28px);
+    }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    h1, h2, h3, h4 {
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    h1 {
+      margin-top: 8px;
+      font-size: 1.9rem;
+      line-height: 1.06;
+      color: var(--primary);
+    }
+    h2 {
+      font-size: 1.34rem;
+      color: var(--primary);
+    }
+    h3 {
+      font-size: 1rem;
+      color: var(--secondary);
+    }
+    h4 {
+      font-size: 0.96rem;
+      color: var(--text);
+    }
+    p, li {
+      line-height: 1.62;
+    }
+    .lead {
+      margin-top: 10px;
+      color: var(--text-light);
+      font-size: 0.96rem;
+    }
+
+    .sidebar-card, .hero, .sticky-shell, .module, .footer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .sidebar-card {
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .sidebar-card p {
+      margin: 0;
+    }
+
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .meta-grid, .chip-row, .badge-grid, .footer-links, .module-grid, .quiz-shell, .quiz-options,
+    .nav-list, .story-grid, .metric-grid, .exercise-grid, .classify-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .button-row, .slider-row, .mode-row, .step-buttons, .small-actions, .classify-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+    .story-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .metric-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .exercise-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .meta-card, .chip, .status-note, .quiz-feedback, .formula-block, .helper-note, .storage-note,
+    .metric-card, .callout, .plot-card, .exercise-card, .matrix-card, .classify-item, .flow-step,
+    .reflection, .legend-row, .mini-note {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.82);
+      color: var(--text-light);
+    }
+
+    .meta-card strong, .chip strong, .badge-item strong, .metric-card strong, .classify-item strong, .flow-step strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      text-align: center;
+      font-size: 0.84rem;
+    }
+
+    .btn, .sidebar-toggle, .quiz-option, .mode-btn, .ghost-btn {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn, .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(23, 50, 98, 0.18);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(135deg, var(--secondary), #355284);
+    }
+
+    .btn.ghost, .ghost-btn, .mode-btn, .quiz-option {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .btn.warn {
+      background: linear-gradient(135deg, #9a6b4a, #631832);
+    }
+
+    .btn:hover, .sidebar-toggle:hover, .quiz-option:hover, .mode-btn:hover, .ghost-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .show-mobile { display: none; }
+    .hide-mobile { display: inline-flex; }
+
+    .sticky-shell {
+      position: sticky;
+      top: 16px;
+      padding: 14px;
+      z-index: 20;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .sticky-top, .progress-label, .module-head, .nav-item, .badge-item, .hero-grid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sticky-title {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .progress-track {
+      margin-top: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      transition: width 0.2s ease;
+    }
+
+    .hero {
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero-grid {
+      align-items: stretch;
+    }
+
+    .hero-grid > * {
+      flex: 1 1 0;
+    }
+
+    .hero-banner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.84rem;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    #content {
+      display: grid;
+      gap: 16px;
+      max-width: var(--content-max);
+    }
+
+    .module {
+      padding: 18px;
+      scroll-margin-top: 120px;
+    }
+
+    .module-head {
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .module-index {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .module-summary {
+      margin-top: 6px;
+      color: var(--text-light);
+      max-width: 56ch;
+    }
+
+    .module-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--secondary);
+      background: var(--secondary-light);
+      white-space: nowrap;
+    }
+
+    .module-status.is-complete {
+      color: var(--success);
+      background: var(--success-soft);
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 14px;
+    }
+
+    .formula-block code {
+      font-size: 0.95rem;
+      white-space: normal;
+    }
+
+    .plot-card {
+      padding: 14px;
+      background: linear-gradient(180deg, #fff 0%, #faf7f9 100%);
+    }
+
+    .plot-card canvas, .plot-card svg {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+    }
+
+    .plot-shell {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      min-height: 260px;
+    }
+
+    .slider-row {
+      align-items: center;
+    }
+
+    .control {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--text-light);
+      font-size: 0.88rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+    }
+
+    pre[class*="language-"] {
+      margin: 0;
+      background: #1e293b !important;
+      border-radius: 16px;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      overflow: auto;
+    }
+
+    .code-wrap {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .code-explain {
+      margin-top: 0;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .exercise-instruction, .exercise-context, .expected-output {
+      margin: 0;
+    }
+
+    details.hint, details.solution {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    details.hint summary, details.solution summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .quiz-shell {
+      margin-top: 14px;
+    }
+
+    .quiz-question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .quiz-question legend {
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+
+    .quiz-options {
+      grid-template-columns: 1fr;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .quiz-option input {
+      margin: 0;
+    }
+
+    .quiz-option.is-correct {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+
+    .quiz-option.is-wrong {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: var(--danger);
+    }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .quiz-feedback.is-visible {
+      display: block;
+    }
+
+    .quiz-feedback.is-success {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+
+    .quiz-feedback.is-warning {
+      background: var(--warning-soft);
+      border-color: var(--warning-line);
+      color: var(--warning);
+    }
+
+    .quiz-feedback.is-danger {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: var(--danger);
+    }
+
+    .reflection {
+      margin-top: 14px;
+      background: linear-gradient(180deg, #fff7ea 0%, #fff 100%);
+      color: var(--text);
+    }
+
+    .nav-list {
+      margin-top: 10px;
+    }
+
+    .nav-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 11px 12px;
+      text-decoration: none;
+    }
+
+    .nav-item.is-active {
+      border-color: rgba(23, 50, 98, 0.34);
+      background: var(--secondary-light);
+    }
+
+    .nav-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .nav-meta {
+      text-align: right;
+      color: var(--text-light);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .badge-grid {
+      margin-top: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .badge-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 11px 12px;
+      align-items: center;
+    }
+
+    .badge-item.is-earned {
+      border-color: rgba(23, 50, 98, 0.22);
+      background: linear-gradient(135deg, #fff7ea, #fff);
+    }
+
+    .badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(99,24,50,0.12), rgba(23,50,98,0.12));
+      color: var(--primary);
+      flex: 0 0 40px;
+      font-size: 1.1rem;
+    }
+
+    .progress-copy {
+      font-size: 0.84rem;
+      color: var(--text-light);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 10px;
+    }
+
+    .matrix-table th, .matrix-table td {
+      border: 1px solid var(--line);
+      padding: 8px 9px;
+      text-align: center;
+    }
+
+    .matrix-table th {
+      background: #f4f7fb;
+      color: var(--secondary);
+    }
+
+    .classify-item {
+      display: grid;
+      gap: 10px;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--text-light);
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .footer-card {
+      max-width: var(--content-max);
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 10px;
+    }
+
+    .glossary-term {
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1120px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+      #sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .show-mobile { display: inline-flex; }
+      .hide-mobile { display: none; }
+    }
+
+    @media (max-width: 840px) {
+      .meta-grid, .chip-row, .story-grid, .module-grid, .metric-grid, .exercise-grid, .footer-links {
+        grid-template-columns: 1fr;
+      }
+      .hero-grid, .sticky-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .progress-label {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelübersicht">
+      <div class="brandline" data-i18n-de="Data Science Lernpfad" data-i18n-en="Data Science learning path">Data Science Lernpfad</div>
+      <h1 data-i18n-de="Logistische Regression" data-i18n-en="Logistic Regression">Logistische Regression</h1>
+      <p class="lead" data-i18n-de="Der Türsteher-Simulator erklärt dir Klassifikation so, dass du Wahrscheinlichkeiten, Grenzen und Thresholds im Alltag wiedererkennst." data-i18n-en="The bouncer simulator explains classification so you can recognise probabilities, boundaries and thresholds in everyday situations.">Der Türsteher-Simulator erklärt dir Klassifikation so, dass du Wahrscheinlichkeiten, Grenzen und Thresholds im Alltag wiedererkennst.</p>
+
+      <div class="meta-grid">
+        <div class="meta-card">
+          <strong data-i18n-de="Davor" data-i18n-en="Before">Davor</strong>
+          <a href="klassifikation_metriken_interaktion.html">Evaluation Metrics</a>
+        </div>
+        <div class="meta-card">
+          <strong data-i18n-de="Danach" data-i18n-en="After">Danach</strong>
+          <a href="feature_engineering.html">Feature Engineering</a>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Fortschritt" data-i18n-en="Progress">Fortschritt</div>
+        <div class="progress-copy">
+          <span id="sidebar-progress-label">0 von 8 Modulen erledigt</span>
+          <span id="sidebar-points-label">0 Punkte</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div id="sidebar-progress-fill" class="progress-fill"></div>
+        </div>
+        <p class="lead" style="margin-top:10px;" data-i18n-de="Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten darfst du sofort korrigieren." data-i18n-en="A module only counts as secure once every quiz question has been answered correctly at least once. Wrong answers can be corrected immediately.">Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten darfst du sofort korrigieren.</p>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Bias-Detektiv-Rang" data-i18n-en="Bias detective rank">Bias-Detektiv-Rang</div>
+        <div class="status-note">
+          <strong id="rank-label">Rang: Anfänger</strong>
+          <div id="rank-note">Noch offen: Wahrscheinlichkeiten sicher lesen.</div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Module" data-i18n-en="Modules">Module</div>
+        <nav id="module-nav" class="nav-list" aria-label="Module und Fortschrittsstatus"></nav>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker" data-i18n-de="Badges" data-i18n-en="Badges">Badges</div>
+        <div id="sidebar-badges" class="badge-grid"></div>
+      </div>
+
+      <div id="storage-note" class="sidebar-card storage-note" hidden></div>
+    </aside>
+
+    <main id="stage">
+      <header class="sticky-shell">
+        <div class="sticky-top">
+          <button id="sidebar-toggle" class="sidebar-toggle show-mobile" type="button" aria-label="Navigation ein- oder ausblenden">☰ Module</button>
+          <div>
+            <div class="card-kicker" data-i18n-de="Aktives Modul" data-i18n-en="Active module">Aktives Modul</div>
+            <div id="sticky-title" class="sticky-title">Modul 1 startet hier</div>
+          </div>
+          <div class="hide-mobile" style="text-align:right;">
+            <div class="card-kicker" data-i18n-de="Leitmetapher" data-i18n-en="Guiding metaphor">Leitmetapher</div>
+            <div class="sticky-title" data-i18n-de="Der Türsteher-Simulator" data-i18n-en="The bouncer simulator">Der Türsteher-Simulator</div>
+          </div>
+        </div>
+        <div class="progress-label">
+          <span id="stage-progress-label">0 Prozent abgeschlossen</span>
+          <span id="stage-points-label">0 Punkte gesammelt</span>
+        </div>
+        <div class="progress-track" aria-label="Gesamtfortschritt im Kapitel">
+          <div id="stage-progress-fill" class="progress-fill"></div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-banner" data-i18n-de="8 Module · Übungen aus den Notebooks · lokale Fortschrittsspeicherung" data-i18n-en="8 modules · notebook-based exercises · local progress saving">8 Module · Übungen aus den Notebooks · lokale Fortschrittsspeicherung</div>
+            <h2 style="margin-top:10px;" data-i18n-de="Was lernst du in 10 Minuten pro Abschnitt?" data-i18n-en="What will you learn in 10 minutes per section?">Was lernst du in 10 Minuten pro Abschnitt?</h2>
+            <p class="lead" data-i18n-de="Du verstehst, warum logistische Regression Wahrscheinlichkeiten statt freier Zahlen ausgibt, wie eine Entscheidungsgrenze entsteht und wie du Threshold, Log-Loss und Multiclass-Fälle praktisch liest." data-i18n-en="You will understand why logistic regression outputs probabilities instead of free numbers, how a decision boundary appears, and how to read threshold, log-loss and multiclass cases in practice.">Du verstehst, warum logistische Regression Wahrscheinlichkeiten statt freier Zahlen ausgibt, wie eine Entscheidungsgrenze entsteht und wie du Threshold, Log-Loss und Multiclass-Fälle praktisch liest.</p>
+            <div class="chip-row">
+              <div class="chip"><strong data-i18n-de="Alltag" data-i18n-en="Everyday life">Alltag</strong><span data-i18n-de="Post, Club-Tür, Alarmanlage und Uni-Zulassung statt trockener Formeln." data-i18n-en="Mail, club door, alarm system and university admission instead of dry formulas.">Post, Club-Tür, Alarmanlage und Uni-Zulassung statt trockener Formeln.</span></div>
+              <div class="chip"><strong data-i18n-de="Didaktik" data-i18n-en="Didactics">Didaktik</strong><span data-i18n-de="Erst Bild im Kopf, dann Formel, dann Python, dann Demo, dann Quiz." data-i18n-en="First a mental picture, then the formula, then Python, then the demo, then the quiz.">Erst Bild im Kopf, dann Formel, dann Python, dann Demo, dann Quiz.</span></div>
+              <div class="chip"><strong data-i18n-de="Selbststudium" data-i18n-en="Self-study">Selbststudium</strong><span data-i18n-de="Jeder Schritt ist alleine lösbar und bleibt nach dem Schließen des Browsers gespeichert." data-i18n-en="Every step can be completed alone and remains saved after closing the browser.">Jeder Schritt ist alleine lösbar und bleibt nach dem Schließen des Browsers gespeichert.</span></div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <h3 data-i18n-de="Türsteher-Simulator: dein Spielstand" data-i18n-en="Bouncer simulator: your progress">Türsteher-Simulator: dein Spielstand</h3>
+            <div class="status-note" data-i18n-de="Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>." data-i18n-en="Every quiz question solved correctly for the first time gives <strong>10 points</strong>. Every demo you try gives <strong>5 points</strong>.">Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>.</div>
+            <div class="status-note" data-i18n-de="Wenn ein Quiz bei 100 % steht, wird das Modul als sicher markiert. Erst dann zählt es als erledigt." data-i18n-en="When a quiz reaches 100%, the module is marked as secure. Only then does it count as completed.">Wenn ein Quiz bei 100 % steht, wird das Modul als sicher markiert. Erst dann zählt es als erledigt.</div>
+            <div class="status-note" data-i18n-de="Die Seite nutzt den gemeinsamen Lernstand im Data-Science-Pfad. Du kannst also später genau an derselben Stelle weitermachen." data-i18n-en="This page uses the shared learning progress in the data science path. You can continue later at exactly the same point.">Die Seite nutzt den gemeinsamen Lernstand im Data-Science-Pfad. Du kannst also später genau an derselben Stelle weitermachen.</div>
+            <div class="button-row">
+              <button id="jump-next-open" class="btn" type="button" data-i18n-de="Zum aktuellen Modul" data-i18n-en="Go to current module">Zum aktuellen Modul</button>
+              <button id="reset-logistic-progress" class="btn ghost" type="button" data-i18n-de="Kapitel zurücksetzen" data-i18n-en="Reset chapter">Kapitel zurücksetzen</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="content">
+        <section id="module-1" class="module" data-module-id="1">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 1 von 8</div>
+              <h2 data-i18n-de="Warum Klassifikation?" data-i18n-en="Why classification?">Warum Klassifikation?</h2>
+              <p class="module-summary" data-i18n-de="Du unterscheidest Zahlenvorhersagen von Ja/Nein-Entscheidungen und spürst sofort, warum lineare Regression hier nicht reicht." data-i18n-en="You distinguish numeric predictions from yes-or-no decisions and immediately see why linear regression is not enough here.">Du unterscheidest Zahlenvorhersagen von Ja/Nein-Entscheidungen und spürst sofort, warum lineare Regression hier nicht reicht.</p>
+            </div>
+            <div id="module-status-1" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Stell dir vor, du arbeitest bei der Post in Köln. Vor dir landen Sendungen auf dem Tisch: Brief oder Paket? Du musst nicht den exakten Wert ausrechnen, sondern eine Kategorie vergeben. Genau so arbeitet ein Klassifikationsmodell.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Bei Regression ist die Zielvariable eine Zahl, etwa ein Hauspreis. Bei Klassifikation ist die Zielvariable eine Klasse, zum Beispiel <span class="glossary-term">Spam</span> oder <span class="glossary-term">kein Spam</span>. Für binäre Klassifikation gilt oft <code>y ∈ {0, 1}</code>.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Merksatz</strong>
+            <p>Die logistische Regression sagt nicht direkt „Ja“ oder „Nein“, sondern zuerst eine Wahrscheinlichkeit für Klasse 1. Erst danach wird diese Wahrscheinlichkeit über einen Schwellenwert in eine Entscheidung übersetzt.</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel</h3>
+            <pre class="language-python"><code># Zwei Probleme klar unterscheiden
+temperature_tomorrow = 18.7   # Regression: Zahl vorhersagen
+will_rain = 1                 # Klassifikation: Klasse 0 oder 1
+
+print("Regression:", temperature_tomorrow)
+print("Klassifikation:", will_rain)</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? Die erste Variable ist eine echte Zahl. Die zweite Variable steht für eine Klasse. Genau diese andere Zielstruktur macht einen anderen Modelltyp nötig.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktion: Sortiere die Probleme</h3>
+            <p class="lead">Ordne die Situationen der passenden Problemart zu. So spürst du sofort den Unterschied zwischen „Zahl schätzen“ und „Klasse entscheiden“.</p>
+            <div id="classification-sorter" class="classify-list" aria-label="Sortierübung zur Problemart"></div>
+            <div class="small-actions">
+              <button id="check-sorter" class="btn secondary" type="button">Prüfen</button>
+              <button id="reset-sorter" class="btn ghost" type="button">Zurücksetzen</button>
+            </div>
+            <div id="sorter-feedback" class="quiz-feedback" aria-live="polite"></div>
+          </div>
+          <div id="quiz-1" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Wenn du nur zwischen Klassen unterscheiden willst, ist eine saubere Wahrscheinlichkeit oft hilfreicher als eine freie Zahl.</p>
+        </section>
+
+        <section id="module-2" class="module" data-module-id="2">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 2 von 8</div>
+              <h2 data-i18n-de="Die Sigmoid-Funktion" data-i18n-en="The sigmoid function">Die Sigmoid-Funktion</h2>
+              <p class="module-summary" data-i18n-de="Du verstehst, wie aus einem beliebigen Score eine Wahrscheinlichkeit zwischen 0 und 1 wird." data-i18n-en="You understand how any score becomes a probability between 0 and 1.">Du verstehst, wie aus einem beliebigen Score eine Wahrscheinlichkeit zwischen 0 und 1 wird.</p>
+            </div>
+            <div id="module-status-2" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Ein normaler Lichtschalter kennt nur an oder aus. Ein Dimmer kennt viele Zwischenstufen. Die Sigmoid-Funktion ist der Dimmer des Modells: Sie übersetzt jeden Rohwert in eine Wahrscheinlichkeit zwischen 0 % und 100 %.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Das Modell berechnet zunächst einen Score <code>t = b₀ + b₁x₁ + ...</code>. Dieser Score kann jede Zahl annehmen. Erst die Sigmoid-Funktion macht daraus eine sinnvolle Wahrscheinlichkeit.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Formel</strong>
+            <p><code>\sigma(t) = \frac{1}{1 + e^{-t}}</code></p>
+            <p>Für sehr kleine Werte geht die Kurve gegen 0. Für sehr große Werte geht sie gegen 1. Bei <code>t = 0</code> liegt sie genau bei 0,5.</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel aus dem Notebook</h3>
+            <pre class="language-python"><code>from scipy.special import expit
+
+score = -1.2                     # Rohwert des Modells
+probability = expit(score)       # Sigmoid macht daraus 0 bis 1
+
+print(round(probability, 3))     # 0.231</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? <code>expit</code> ist die Sigmoid-Funktion aus dem Notebook. Ein negativer Score führt zu einer kleinen Wahrscheinlichkeit.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Ziehe am Dimmer</h3>
+            <div class="control">
+              <label for="sigmoid-input"><span>Score t</span><span id="sigmoid-value">0.0</span></label>
+              <input id="sigmoid-input" type="range" min="-10" max="10" step="0.1" value="0" aria-label="Score für die Sigmoid-Funktion">
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card"><strong>Wahrscheinlichkeit</strong><span id="sigmoid-probability">50.0 %</span></div>
+              <div class="metric-card"><strong>Deutung</strong><span id="sigmoid-meaning">50:50, der Türsteher ist unsicher.</span></div>
+              <div class="metric-card"><strong>Grenzfall links</strong><span>t → -∞, fast sicher Nein</span></div>
+              <div class="metric-card"><strong>Grenzfall rechts</strong><span>t → +∞, fast sicher Ja</span></div>
+            </div>
+            <div class="plot-shell">
+              <canvas id="sigmoid-chart" height="240" aria-label="Sigmoid-Kurve" role="img"></canvas>
+            </div>
+          </div>
+          <div class="exercise-card">
+            <h4>🏋️ Übung: Sigmoid-Werte prüfen</h4>
+            <p class="exercise-instruction">Übertrage die Sigmoid-Idee in ein minimales Python-Beispiel. Ergänze genau die eine Zeile, die den Score in eine Wahrscheinlichkeit umwandelt.</p>
+            <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre class="language-python"><code>from math import exp
+
+def sigmoid(t):
+    return # ??? DEINE LÖSUNG ???
+
+score = 1.0
+print(round(sigmoid(score), 3))</code></pre>
+            <details class="hint">
+              <summary>💡 Tipp anzeigen</summary>
+              <p>In Python schreibst du die Formel mit <code>exp(-t)</code>, also zum Beispiel <code>1 / (1 + exp(-t))</code>.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ Lösung anzeigen</summary>
+              <pre class="language-python"><code>from math import exp
+
+def sigmoid(t):
+    return 1 / (1 + exp(-t))
+
+score = 1.0
+print(round(sigmoid(score), 3))</code></pre>
+              <p class="expected-output">Erwartete Ausgabe: <code>0.731</code></p>
+            </details>
+          </div>
+          <div id="quiz-2" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Die Sigmoid-Funktion ist keine Deko, sondern der entscheidende Schritt, der eine freie Rechenwelt in eine Wahrscheinlichkeitswelt übersetzt.</p>
+        </section>
+
+        <section id="module-3" class="module" data-module-id="3">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 3 von 8</div>
+              <h2 data-i18n-de="Entscheidungsgrenze" data-i18n-en="Decision boundary">Entscheidungsgrenze</h2>
+              <p class="module-summary" data-i18n-de="Du siehst geometrisch, wie aus Wahrscheinlichkeiten eine Ja/Nein-Grenze wird." data-i18n-en="You see geometrically how probabilities become a yes-or-no boundary.">Du siehst geometrisch, wie aus Wahrscheinlichkeiten eine Ja/Nein-Grenze wird.</p>
+            </div>
+            <div id="module-status-3" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Stell dir einen Türsteher in Bamberg vor. Wenn sein Bauchgefühl mindestens 50 % sagt, darf jemand rein. Sonst nicht. Diese unsichtbare Linie zwischen „rein“ und „nicht rein“ ist die Entscheidungsgrenze.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Mit zwei Merkmalen ist die <button class="glossary-term" type="button" data-term="Decision Boundary" data-definition="Die Entscheidungsgrenze ist die Linie oder Fläche, auf der das Modell gerade zwischen zwei Klassen kippt. Auf der einen Seite sagt es Klasse 0, auf der anderen Klasse 1.">Decision Boundary</button> eine Gerade. Sie hängt nur von den Modellparametern ab, nicht von einer einzelnen Beobachtung.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Formel</strong>
+            <p><code>b₀ + b₁x₁ + b₂x₂ = 0</code></p>
+            <p>Genau auf dieser Linie ist der Score null. Die Sigmoid-Funktion liefert dort 0,5. Damit liegt genau dort die Grenze zwischen beiden Klassen.</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel aus dem Notebook</h3>
+            <pre class="language-python"><code># Wahrscheinlichkeiten statt nur harter Klassen
+proba = lr.predict_proba(X_test)[:, 1]
+
+# Ab 0.5 wird Klasse 1 vorhergesagt
+y_pred = (proba &gt;= 0.5).astype(int)
+
+print(proba[:3])
+print(y_pred[:3])</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? <code>predict_proba</code> liefert die Wahrscheinlichkeit für Klasse 1. Erst der gewählte Threshold macht daraus eine 0 oder 1.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Grenze verschieben</h3>
+            <p class="lead">Bewege Achsenabschnitt und Steigungen. Du siehst sofort, wie viele Beispiele auf der falschen Seite landen.</p>
+            <div class="module-grid">
+              <div>
+                <div class="control">
+                  <label for="boundary-b0"><span>b₀</span><span id="boundary-b0-value">-3.0</span></label>
+                  <input id="boundary-b0" type="range" min="-6" max="2" step="0.1" value="-3" aria-label="Achsenabschnitt der Entscheidungsgrenze">
+                </div>
+                <div class="control">
+                  <label for="boundary-b1"><span>b₁</span><span id="boundary-b1-value">1.0</span></label>
+                  <input id="boundary-b1" type="range" min="-2" max="2" step="0.1" value="1" aria-label="Gewicht für Merkmal 1">
+                </div>
+                <div class="control">
+                  <label for="boundary-b2"><span>b₂</span><span id="boundary-b2-value">1.0</span></label>
+                  <input id="boundary-b2" type="range" min="-2" max="2" step="0.1" value="1" aria-label="Gewicht für Merkmal 2">
+                </div>
+                <div class="metric-grid">
+                  <div class="metric-card"><strong>Korrekt</strong><span id="boundary-correct">0</span></div>
+                  <div class="metric-card"><strong>Fehler</strong><span id="boundary-errors">0</span></div>
+                  <div class="metric-card"><strong>Threshold</strong><span>0.5</span></div>
+                  <div class="metric-card"><strong>Faustregel</strong><span>x₁ + x₂ ≈ 3</span></div>
+                </div>
+              </div>
+              <div class="plot-shell">
+                <canvas id="boundary-chart" height="280" aria-label="Streudiagramm mit Entscheidungsgrenze" role="img"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="exercise-card">
+            <h4>🏋️ Übung: Threshold anwenden</h4>
+            <p class="exercise-instruction">Im Notebook taucht <code>predict_proba</code> auf. Ergänze die Zeile, die aus Wahrscheinlichkeiten mit einem Threshold von 0,5 harte Klassen macht.</p>
+            <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre class="language-python"><code>import numpy as np
+
+proba = np.array([0.18, 0.52, 0.77, 0.41])
+y_pred = # ??? DEINE LÖSUNG ???
+
+print(y_pred.tolist())</code></pre>
+            <details class="hint">
+              <summary>💡 Tipp anzeigen</summary>
+              <p>Alles ab 0,5 wird zu Klasse 1, alles darunter zu Klasse 0.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ Lösung anzeigen</summary>
+              <pre class="language-python"><code>import numpy as np
+
+proba = np.array([0.18, 0.52, 0.77, 0.41])
+y_pred = (proba &gt;= 0.5).astype(int)
+
+print(y_pred.tolist())</code></pre>
+              <p class="expected-output">Erwartete Ausgabe: <code>[0, 1, 1, 0]</code></p>
+            </details>
+          </div>
+          <div id="quiz-3" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Die Grenze liegt nicht „in den Daten“, sondern im Modell. Ein anderer Threshold oder andere Gewichte verschieben sie sofort.</p>
+        </section>
+
+        <section id="module-4" class="module" data-module-id="4">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 4 von 8</div>
+              <h2 data-i18n-de="Kostenfunktion: Log-Loss" data-i18n-en="Cost function: log-loss">Kostenfunktion: Log-Loss</h2>
+              <p class="module-summary" data-i18n-de="Du verstehst, warum falsche Selbstsicherheit härter bestraft wird als vorsichtige Unsicherheit." data-i18n-en="You understand why wrong overconfidence is punished harder than careful uncertainty.">Du verstehst, warum falsche Selbstsicherheit härter bestraft wird als vorsichtige Unsicherheit.</p>
+            </div>
+            <div id="module-status-4" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Ein Wettermoderator sagt mit 99 % Sicherheit Sonne voraus. Dann regnet es. Das ist peinlicher als eine ehrliche 55:45-Vorhersage. Genau dieses Verhalten modelliert Log-Loss.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Bei der logistischen Regression wollen wir Wahrscheinlichkeiten lernen, die zu den echten Klassen passen. Ein Modell soll besonders dann hohe Strafen bekommen, wenn es mit großer Sicherheit falsch liegt.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Formel</strong>
+            <p><code>J(b) = -\frac{1}{n}\sum [y_i \ln(p_i) + (1-y_i)\ln(1-p_i)]</code></p>
+            <p>Für <code>y = 1</code> zählt nur <code>-ln(p)</code>. Für <code>y = 0</code> zählt nur <code>-ln(1-p)</code>. Wenn die falsche Wahrscheinlichkeit extrem wird, explodiert der Verlust.</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel</h3>
+            <pre class="language-python"><code>import numpy as np
+
+p = 0.91                  # Modell ist sehr sicher
+y = 1                     # echte Klasse
+
+log_loss = -(y * np.log(p) + (1 - y) * np.log(1 - p))
+print(round(log_loss, 3))</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? Liegt das Modell richtig und ist sicher, bleibt der Log-Loss klein. Würde hier statt 0.91 eine 0.01 stehen, wäre die Strafe riesig.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Strafzettel für falsche Sicherheit</h3>
+            <div class="mode-row" aria-label="Tatsächliche Klasse wählen">
+              <button id="loss-class-1" class="mode-btn" type="button">Tatsächliche Klasse = 1</button>
+              <button id="loss-class-0" class="mode-btn" type="button">Tatsächliche Klasse = 0</button>
+            </div>
+            <div class="control">
+              <label for="loss-probability"><span>Vorhergesagte Wahrscheinlichkeit p</span><span id="loss-probability-value">0.50</span></label>
+              <input id="loss-probability" type="range" min="0.01" max="0.99" step="0.01" value="0.5" aria-label="Wahrscheinlichkeit für Klasse 1">
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card"><strong>Log-Loss</strong><span id="loss-value">0.693</span></div>
+              <div class="metric-card"><strong>Lesart</strong><span id="loss-reading">Mittlere Unsicherheit</span></div>
+              <div class="metric-card"><strong>Klasse</strong><span id="loss-class-label">1</span></div>
+              <div class="metric-card"><strong>Warnung</strong><span id="loss-warning">Bei falscher Selbstsicherheit steigt die Strafe steil.</span></div>
+            </div>
+            <div class="module-grid">
+              <div class="plot-shell">
+                <canvas id="loss-chart-positive" height="230" aria-label="Log-Loss-Kurve für Klasse 1" role="img"></canvas>
+              </div>
+              <div class="plot-shell">
+                <canvas id="loss-chart-negative" height="230" aria-label="Log-Loss-Kurve für Klasse 0" role="img"></canvas>
+              </div>
+            </div>
+          </div>
+          <div id="quiz-4" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Nicht jeder Fehler ist gleich schlimm. Log-Loss gewichtet vor allem die gefährliche Mischung aus „sicher“ und „falsch“.</p>
+        </section>
+
+        <section id="module-5" class="module" data-module-id="5">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 5 von 8</div>
+              <h2 data-i18n-de="Training mit Gradient Descent" data-i18n-en="Training with gradient descent">Training mit Gradient Descent</h2>
+              <p class="module-summary" data-i18n-de="Du siehst live, wie Gewichte angepasst werden, damit der Log-Loss sinkt und die Sigmoid-Kurve besser zu den Daten passt." data-i18n-en="You watch weights being updated so log-loss decreases and the sigmoid curve fits the data better.">Du siehst live, wie Gewichte angepasst werden, damit der Log-Loss sinkt und die Sigmoid-Kurve besser zu den Daten passt.</p>
+            </div>
+            <div id="module-status-5" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Stell dir vor, du wanderst im Nebel bergab. Du siehst nicht das ganze Tal, aber du spürst in jeder Runde die lokale Steigung. Genau so justiert Gradient Descent die Parameter des Modells.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Für logistische Regression gibt es keine bequeme geschlossene OLS-Lösung. Deshalb wird der Log-Loss Schritt für Schritt minimiert, bis die Gewichte eine gute Trennkurve ergeben.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Update-Idee</strong>
+            <p><code>b_j := b_j - \alpha \cdot \frac{\partial J(b)}{\partial b_j}</code></p>
+            <p>Die Lernrate <code>\alpha</code> steuert, wie groß ein Schritt ist. Zu klein ist langsam, zu groß kann über das Ziel hinausschießen.</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel</h3>
+            <pre class="language-python"><code>score = b0 + b1 * x
+p = 1 / (1 + np.exp(-score))
+
+gradient_b1 = (p - y) * x
+b1 = b1 - alpha * gradient_b1</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? Erst wird aus dem linearen Score eine Wahrscheinlichkeit. Danach misst der Gradient, in welche Richtung das Gewicht verschoben werden muss.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Bergab auf dem Log-Loss-Berg</h3>
+            <div class="small-actions">
+              <button id="training-step" class="btn secondary" type="button">Ein Schritt</button>
+              <button id="training-play" class="btn" type="button">Auto-Play</button>
+              <button id="training-reset" class="btn ghost" type="button">Zurücksetzen</button>
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card"><strong>Schritte</strong><span id="training-steps">0</span></div>
+              <div class="metric-card"><strong>b₀</strong><span id="training-b0">0.000</span></div>
+              <div class="metric-card"><strong>b₁</strong><span id="training-b1">0.000</span></div>
+              <div class="metric-card"><strong>Log-Loss</strong><span id="training-loss">0.693</span></div>
+            </div>
+            <div class="module-grid">
+              <div class="plot-shell">
+                <canvas id="training-chart" height="260" aria-label="Sigmoid-Kurve beim Training" role="img"></canvas>
+              </div>
+              <div class="plot-shell">
+                <canvas id="training-loss-chart" height="260" aria-label="Log-Loss-Verlauf beim Training" role="img"></canvas>
+              </div>
+            </div>
+          </div>
+          <div id="quiz-5" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Das Modell wird nicht magisch „klug“, sondern tastet sich in kleinen Updates zu besseren Gewichten vor.</p>
+        </section>
+
+        <section id="module-6" class="module" data-module-id="6">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 6 von 8</div>
+              <h2 data-i18n-de="Der sklearn-Workflow" data-i18n-en="The sklearn workflow">Der sklearn-Workflow</h2>
+              <p class="module-summary" data-i18n-de="Du verbindest Daten, Modell, Vorhersage und Konfusionsmatrix zu einem vollständigen Praxisablauf." data-i18n-en="You connect data, model, prediction and confusion matrix into a complete practical workflow.">Du verbindest Daten, Modell, Vorhersage und Konfusionsmatrix zu einem vollständigen Praxisablauf.</p>
+            </div>
+            <div id="module-status-6" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Eine Hochschule bewertet Bewerbungen. GMAT, GPA und Berufserfahrung fließen in die Frage ein: Zulassen oder ablehnen? Das ist ein typisches binäres Klassifikationsproblem.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Im Workflow trennst du zuerst Merkmale und Zielvariable, teilst in Train und Test, trainierst das Modell und prüfst anschließend die Ergebnisse mit einer Konfusionsmatrix.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Praxisfolge</strong>
+            <p><code>Daten → X und y → train_test_split → LogisticRegression().fit() → predict() → confusion_matrix()</code></p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel aus dem Notebook</h3>
+            <pre class="language-python"><code>from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+
+X = df[["gmat", "gpa", "work_experience"]]
+y = df["admitted"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(confusion_matrix(y_test, y_pred))</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? Das ist die kompakte sklearn-Kette direkt aus dem Notebook: Daten vorbereiten, Modell fitten, Vorhersagen erzeugen und anschließend die Fehlerarten zählen.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Workflow zum Anklicken</h3>
+            <p class="lead">Gehe den Ablauf in der richtigen Reihenfolge durch. Nach dem letzten Schritt baut sich die Konfusionsmatrix auf.</p>
+            <div id="workflow-buttons" class="step-buttons" aria-label="Schritte im sklearn-Workflow"></div>
+            <div id="workflow-status" class="status-note">Schritt 1 wartet auf dich.</div>
+            <div class="module-grid">
+              <div class="plot-shell">
+                <pre class="language-python"><code id="workflow-code"></code></pre>
+              </div>
+              <div class="matrix-card">
+                <h4>Konfusionsmatrix</h4>
+                <table class="matrix-table" aria-label="Konfusionsmatrix des Workflows">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Vorhersage 0</th>
+                      <th>Vorhersage 1</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>Tatsächlich 0</th>
+                      <td id="workflow-tn">-</td>
+                      <td id="workflow-fp">-</td>
+                    </tr>
+                    <tr>
+                      <th>Tatsächlich 1</th>
+                      <td id="workflow-fn">-</td>
+                      <td id="workflow-tp">-</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="exercise-card">
+            <h4>🏋️ Übung: Kompletter Workflow</h4>
+            <p class="exercise-instruction">Hier ist der sklearn-Ablauf aus dem Notebook stark vereinfacht. Ergänze die Modellzeile so, dass Training und Vorhersage möglich werden.</p>
+            <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre class="language-python"><code>import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+df = pd.DataFrame({
+    "gmat": [580, 620, 690, 710, 520, 640],
+    "gpa": [2.8, 3.1, 3.6, 3.8, 2.4, 3.2],
+    "work_experience": [1, 2, 4, 5, 0, 3],
+    "admitted": [0, 0, 1, 1, 0, 1]
+})
+
+X = df[["gmat", "gpa", "work_experience"]]
+y = df["admitted"]
+model = # ??? DEINE LÖSUNG ???
+model.fit(X, y)
+
+print(model.predict(X).tolist())</code></pre>
+            <details class="hint">
+              <summary>💡 Tipp anzeigen</summary>
+              <p>Das Modell stammt direkt aus sklearn und trägt denselben Namen wie das Kapitel.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ Lösung anzeigen</summary>
+              <pre class="language-python"><code>import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+df = pd.DataFrame({
+    "gmat": [580, 620, 690, 710, 520, 640],
+    "gpa": [2.8, 3.1, 3.6, 3.8, 2.4, 3.2],
+    "work_experience": [1, 2, 4, 5, 0, 3],
+    "admitted": [0, 0, 1, 1, 0, 1]
+})
+
+X = df[["gmat", "gpa", "work_experience"]]
+y = df["admitted"]
+model = LogisticRegression()
+model.fit(X, y)
+
+print(model.predict(X).tolist())</code></pre>
+              <p class="expected-output">Erwartete Ausgabe: <code>[0, 0, 1, 1, 0, 1]</code></p>
+            </details>
+          </div>
+          <div id="quiz-6" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Ein gutes Verständnis von <code>X</code>, <code>y</code> und der Trennung zwischen Training und Test ist oft wichtiger als tausend Parameteroptionen.</p>
+        </section>
+
+        <section id="module-7" class="module" data-module-id="7">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 7 von 8</div>
+              <h2 data-i18n-de="Threshold und Metriken" data-i18n-en="Threshold and metrics">Threshold und Metriken</h2>
+              <p class="module-summary" data-i18n-de="Du lernst, dass der Threshold ein Geschäftsentscheid ist und Metriken immer vom Kontext abhängen." data-i18n-en="You learn that the threshold is a business decision and metrics always depend on context.">Du lernst, dass der Threshold ein Geschäftsentscheid ist und Metriken immer vom Kontext abhängen.</p>
+            </div>
+            <div id="module-status-7" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Ein Rauchmelder kann empfindlich oder streng eingestellt werden. Bei einem sehr niedrigen Threshold löst er oft Alarm aus. Bei einem hohen Threshold übersieht er eher echte Brände.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Threshold senken erhöht meist den Recall, weil mehr echte Positivfälle gefunden werden. Dafür steigen oft die False Positives. Threshold erhöhen macht häufig das Gegenteil.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Merksatz</strong>
+            <p><button class="glossary-term" type="button" data-term="Threshold" data-definition="Der Threshold ist die Schwelle, ab der eine Wahrscheinlichkeit als Klasse 1 gezählt wird. Unterhalb der Schwelle wird Klasse 0 vorhergesagt.">Threshold</button> ist kein Naturgesetz. Er ist eine Entscheidung darüber, welche Art von Fehler im jeweiligen Geschäftsfall teurer ist.</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel</h3>
+            <pre class="language-python"><code>proba = model.predict_proba(X_test)[:, 1]
+threshold = 0.30
+y_pred = (proba &gt;= threshold).astype(int)
+
+print(confusion_matrix(y_test, y_pred))</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? Du änderst nicht das Modell, sondern nur die Schwelle, ab der du „Ja“ sagst. Dadurch verschieben sich alle Metriken.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Alarmanlage justieren</h3>
+            <div class="control">
+              <label for="threshold-slider"><span>Threshold</span><span id="threshold-value">0.50</span></label>
+              <input id="threshold-slider" type="range" min="0.05" max="0.95" step="0.01" value="0.5" aria-label="Threshold für die Klassifikation">
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card"><strong>Precision</strong><span id="metric-precision">0.00</span></div>
+              <div class="metric-card"><strong>Recall</strong><span id="metric-recall">0.00</span></div>
+              <div class="metric-card"><strong>F1</strong><span id="metric-f1">0.00</span></div>
+              <div class="metric-card"><strong>Accuracy</strong><span id="metric-accuracy">0.00</span></div>
+            </div>
+            <div class="module-grid">
+              <div class="matrix-card">
+                <h4>Konfusionsmatrix</h4>
+                <table class="matrix-table" aria-label="Konfusionsmatrix bei variablem Threshold">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Vorhersage 0</th>
+                      <th>Vorhersage 1</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>Tatsächlich 0</th>
+                      <td id="threshold-tn">0</td>
+                      <td id="threshold-fp">0</td>
+                    </tr>
+                    <tr>
+                      <th>Tatsächlich 1</th>
+                      <td id="threshold-fn">0</td>
+                      <td id="threshold-tp">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="plot-shell">
+                <canvas id="roc-chart" height="260" aria-label="ROC-Kurve mit aktuellem Threshold" role="img"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="exercise-card">
+            <h4>🏋️ Übung: Threshold ändern</h4>
+            <p class="exercise-instruction">Erzeuge harte Vorhersagen mit einem niedrigeren Threshold. So siehst du direkt, wie mehr Fälle positiv werden.</p>
+            <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre class="language-python"><code>import numpy as np
+
+proba = np.array([0.18, 0.33, 0.44, 0.76, 0.91])
+threshold = 0.40
+y_pred = # ??? DEINE LÖSUNG ???
+
+print(y_pred.tolist())</code></pre>
+            <details class="hint">
+              <summary>💡 Tipp anzeigen</summary>
+              <p>Wieder gilt: Alles ab dem Threshold wird zu 1.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ Lösung anzeigen</summary>
+              <pre class="language-python"><code>import numpy as np
+
+proba = np.array([0.18, 0.33, 0.44, 0.76, 0.91])
+threshold = 0.40
+y_pred = (proba &gt;= threshold).astype(int)
+
+print(y_pred.tolist())</code></pre>
+              <p class="expected-output">Erwartete Ausgabe: <code>[0, 0, 1, 1, 1]</code></p>
+            </details>
+          </div>
+          <div id="quiz-7" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Der beste Threshold hängt vom Schadenprofil ab. In Medizin, Betrugserkennung oder Bewerbungsfiltern kann dieselbe Metrik zu ganz anderen Entscheidungen führen.</p>
+        </section>
+
+        <section id="module-8" class="module" data-module-id="8">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 8 von 8</div>
+              <h2 data-i18n-de="Multiclass-Klassifikation" data-i18n-en="Multiclass classification">Multiclass-Klassifikation</h2>
+              <p class="module-summary" data-i18n-de="Du siehst, wie aus vielen binären Entscheidungen ein Modell für drei Klassen wird." data-i18n-en="You see how many binary decisions become a model for three classes.">Du siehst, wie aus vielen binären Entscheidungen ein Modell für drei Klassen wird.</p>
+            </div>
+            <div id="module-status-8" class="module-status">⚪ Offen</div>
+          </div>
+          <div class="story-grid">
+            <div class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Der Türsteher entscheidet nicht nur über „rein“ oder „nicht rein“. Auf dem Wochenmarkt sortiert er jetzt Äpfel, Birnen und Bananen. Dafür braucht er mehrere kleine Ja/Nein-Modelle.</p>
+            </div>
+            <div class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Bei One-vs-Rest bekommt jede Klasse ihr eigenes binäres Modell. Alle Modelle liefern Wahrscheinlichkeiten. Gewonnen hat die Klasse mit dem höchsten Wert.</p>
+            </div>
+          </div>
+          <div class="formula-block">
+            <strong>Merksatz</strong>
+            <p><button class="glossary-term" type="button" data-term="One-vs-Rest" data-definition="Bei One-vs-Rest wird für jede Klasse ein eigenes Ja/Nein-Modell trainiert. Für drei Klassen gibt es also drei binäre Modelle.">One-vs-Rest</button> zerlegt ein Problem mit vielen Klassen in mehrere binäre Fragen: „Ist es meine Klasse oder nicht?“</p>
+          </div>
+          <div class="code-wrap">
+            <h3>Code-Beispiel aus dem Notebook</h3>
+            <pre class="language-python"><code>from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+
+data = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, test_size=0.3, stratify=data.target, random_state=42
+)
+
+model = LogisticRegression(max_iter=200)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(classification_report(y_test, y_pred))</code></pre>
+            <div class="helper-note code-explain">Was passiert hier? Die Iris-Daten haben drei Klassen. sklearn übernimmt die One-vs-Rest-Logik intern und liefert am Ende Kennzahlen pro Klasse.</div>
+          </div>
+          <div class="plot-card">
+            <h3>Interaktive Demo: Drei Klassen auf einen Blick</h3>
+            <div class="control">
+              <label for="multiclass-x"><span>Petal Length</span><span id="multiclass-x-value">4.8</span></label>
+              <input id="multiclass-x" type="range" min="1.0" max="7.0" step="0.1" value="4.8" aria-label="Blütenblattlänge">
+            </div>
+            <div class="control">
+              <label for="multiclass-y"><span>Petal Width</span><span id="multiclass-y-value">1.6</span></label>
+              <input id="multiclass-y" type="range" min="0.1" max="2.6" step="0.1" value="1.6" aria-label="Blütenblattbreite">
+            </div>
+            <div class="metric-grid">
+              <div class="metric-card"><strong>Vorhersage</strong><span id="multiclass-prediction">Versicolor</span></div>
+              <div class="metric-card"><strong>Score Setosa</strong><span id="score-setosa">0.00</span></div>
+              <div class="metric-card"><strong>Score Versicolor</strong><span id="score-versicolor">0.00</span></div>
+              <div class="metric-card"><strong>Score Virginica</strong><span id="score-virginica">0.00</span></div>
+            </div>
+            <div class="legend-row">
+              <span class="legend-chip"><span class="legend-dot" style="background:#4f7a6a;"></span>Setosa</span>
+              <span class="legend-chip"><span class="legend-dot" style="background:#9a6b4a;"></span>Versicolor</span>
+              <span class="legend-chip"><span class="legend-dot" style="background:#173262;"></span>Virginica</span>
+              <span class="legend-chip"><span class="legend-dot" style="background:#631832;"></span>Dein Punkt</span>
+            </div>
+            <div class="plot-shell">
+              <canvas id="multiclass-canvas" width="760" height="420" aria-label="Mehrklassen-Streudiagramm mit Entscheidungsregionen" role="img"></canvas>
+            </div>
+          </div>
+          <div class="exercise-card">
+            <h4>🏋️ Übung: Iris klassifizieren</h4>
+            <p class="exercise-instruction">Hier übernimmst du den Kern aus dem Multiclass-Notebook. Ergänze die Datenlade-Zeile und trainiere anschließend das Modell.</p>
+            <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+            <pre class="language-python"><code>from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+
+data = # ??? DEINE LÖSUNG ???
+X = data.data
+y = data.target
+
+model = LogisticRegression(max_iter=200)
+model.fit(X, y)
+
+print(model.predict(X[:3]).tolist())</code></pre>
+            <details class="hint">
+              <summary>💡 Tipp anzeigen</summary>
+              <p>Die Funktion heißt genauso wie der Datensatz.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ Lösung anzeigen</summary>
+              <pre class="language-python"><code>from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+
+data = load_iris()
+X = data.data
+y = data.target
+
+model = LogisticRegression(max_iter=200)
+model.fit(X, y)
+
+print(model.predict(X[:3]).tolist())</code></pre>
+              <p class="expected-output">Erwartete Ausgabe: <code>[0, 0, 0]</code></p>
+            </details>
+          </div>
+          <div id="quiz-8" class="quiz-shell"></div>
+          <p class="reflection">Was nimmst du mit? Multiclass bedeutet nicht automatisch ein völlig neues Modell. Oft ist es dieselbe Grundidee, nur mehrfach parallel gestellt.</p>
+        </section>
+      </div>
+
+      <footer class="footer-card">
+        <div class="card-kicker" data-i18n-de="Teil des Gesamtlehrpfads" data-i18n-en="Part of the full learning path">Teil des Gesamtlehrpfads</div>
+        <p class="lead" data-i18n-de="Dieses Kapitel gehört zum Pfad Lineare Regression, Bias/Varianz, Regularisierung, Gradient Descent, Evaluation Metrics, Feature Engineering und KNN." data-i18n-en="This chapter belongs to the path of linear regression, bias/variance, regularisation, gradient descent, evaluation metrics, feature engineering and KNN.">Dieses Kapitel gehört zum Pfad Lineare Regression, Bias/Varianz, Regularisierung, Gradient Descent, Evaluation Metrics, Feature Engineering und KNN.</p>
+        <div class="footer-links">
+          <a class="btn ghost" href="klassifikation_metriken_interaktion.html">Zurück zu Evaluation Metrics</a>
+          <a class="btn" href="feature_engineering.html">Weiter zu Feature Engineering</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    window.DataSciencePageI18n = {
+      title: {
+        de: "Logistische Regression | Der Türsteher-Simulator",
+        en: "Logistic Regression | The bouncer simulator"
+      },
+      description: {
+        de: "Interaktives Kapitel zur logistischen Regression mit Sigmoid, Entscheidungsgrenze, Log-Loss, Gradient Descent, sklearn-Workflow, Threshold und Multiclass-Klassifikation.",
+        en: "Interactive chapter on logistic regression with sigmoid, decision boundary, log-loss, gradient descent, sklearn workflow, threshold and multiclass classification."
+      },
+      exact: {
+        "Warum Klassifikation?": "Why classification?",
+        "Die Sigmoid-Funktion": "The sigmoid function",
+        "Entscheidungsgrenze": "Decision boundary",
+        "Kostenfunktion: Log-Loss": "Cost function: log-loss",
+        "Training mit Gradient Descent": "Training with gradient descent",
+        "Der sklearn-Workflow": "The sklearn workflow",
+        "Threshold und Metriken": "Threshold and metrics",
+        "Multiclass-Klassifikation": "Multiclass classification",
+        "Bias-Detektiv-Rang": "Bias detective rank",
+        "Rang: Anfänger": "Rank: Beginner",
+        "Rang: Fortgeschritten": "Rank: Advanced",
+        "Rang: Profi": "Rank: Pro",
+        "Noch offen: Wahrscheinlichkeiten sicher lesen.": "Still open: read probabilities with confidence.",
+        "Du erkennst Muster, erklärst Thresholds und denkst bereits in Fehlerarten.": "You recognise patterns, explain thresholds and already think in error types.",
+        "Du argumentierst wie ein Modell-Analyst und kannst Entscheidungen fachlich begründen.": "You reason like a model analyst and can justify decisions professionally.",
+        "Ein Schritt": "One step",
+        "Zurücksetzen": "Reset",
+        "Kapitel zurücksetzen": "Reset chapter",
+        "Schritt 1 wartet auf dich.": "Step 1 is waiting for you.",
+        "Konfusionsmatrix": "Confusion matrix",
+        "Tatsächliche Klasse = 1": "Actual class = 1",
+        "Tatsächliche Klasse = 0": "Actual class = 0",
+        "Zum aktuellen Modul": "Go to current module",
+        "Zurück zu Evaluation Metrics": "Back to evaluation metrics",
+        "Weiter zu Feature Engineering": "Continue to feature engineering",
+        "Alltagsszene": "Everyday scene",
+        "ML-Sprache": "ML language",
+        "Merksatz": "Key takeaway",
+        "Formel": "Formula",
+        "Update-Idee": "Update idea",
+        "Praxisfolge": "Practical sequence",
+        "Code-Beispiel": "Code example",
+        "Code-Beispiel aus dem Notebook": "Code example from the notebook",
+        "Interaktion: Sortiere die Probleme": "Interaction: sort the problems",
+        "Interaktive Demo: Ziehe am Dimmer": "Interactive demo: move the dimmer",
+        "Interaktive Demo: Grenze verschieben": "Interactive demo: move the boundary",
+        "Interaktive Demo: Strafzettel für falsche Sicherheit": "Interactive demo: penalty ticket for wrong confidence",
+        "Interaktive Demo: Bergab auf dem Log-Loss-Berg": "Interactive demo: downhill on the log-loss mountain",
+        "Interaktive Demo: Workflow zum Anklicken": "Interactive demo: click through the workflow",
+        "Interaktive Demo: Alarmanlage justieren": "Interactive demo: tune the alarm system",
+        "Interaktive Demo: Drei Klassen auf einen Blick": "Interactive demo: three classes at a glance",
+        "Wahrscheinlichkeit": "Probability",
+        "Deutung": "Interpretation",
+        "Grenzfall links": "Left extreme",
+        "Grenzfall rechts": "Right extreme",
+        "Korrekt": "Correct",
+        "Fehler": "Errors",
+        "Faustregel": "Rule of thumb",
+        "Log-Loss": "Log loss",
+        "Lesart": "Reading",
+        "Klasse": "Class",
+        "Warnung": "Warning",
+        "Schritte": "Steps",
+        "Vorhersage": "Prediction",
+        "Score Setosa": "Setosa score",
+        "Score Versicolor": "Versicolor score",
+        "Score Virginica": "Virginica score",
+        "Prüfen": "Check",
+        "Zurücksetzen": "Reset",
+        "Auto-Play": "Auto play",
+        "🏋️ Übung: Sigmoid-Werte prüfen": "🏋️ Exercise: check sigmoid values",
+        "🏋️ Übung: Threshold anwenden": "🏋️ Exercise: apply a threshold",
+        "🏋️ Übung: Kompletter Workflow": "🏋️ Exercise: full workflow",
+        "🏋️ Übung: Threshold ändern": "🏋️ Exercise: change the threshold",
+        "🏋️ Übung: Iris klassifizieren": "🏋️ Exercise: classify Iris",
+        "💡 Tipp anzeigen": "💡 Show hint",
+        "✅ Lösung anzeigen": "✅ Show solution",
+        "Erwartete Ausgabe:": "Expected output:",
+        "Dein Punkt": "Your point",
+        "Feature Engineering": "Feature engineering",
+        "Vorhersage 0": "Prediction 0",
+        "Vorhersage 1": "Prediction 1",
+        "Tatsächlich 0": "Actual 0",
+        "Tatsächlich 1": "Actual 1"
+      }
+    };
+  </script>
+  <script>
+    (function () {
+      "use strict";
+
+      var STORAGE_KEY = "ds-logistic-regression-state-v1";
+      var AUTO_PLAY_ID = null;
+      var currentLossClass = 1;
+      var currentLang = "de";
+
+      var modules = [
+        { id: 1, title: { de: "Warum Klassifikation?", en: "Why classification?" }, short: { de: "Regression oder Klasse?", en: "Regression or class?" } },
+        { id: 2, title: { de: "Die Sigmoid-Funktion", en: "The sigmoid function" }, short: { de: "Score wird Wahrscheinlichkeit", en: "A score becomes a probability" } },
+        { id: 3, title: { de: "Entscheidungsgrenze", en: "Decision boundary" }, short: { de: "Die Grenze im Raum sehen", en: "Seeing the boundary in space" } },
+        { id: 4, title: { de: "Kostenfunktion: Log-Loss", en: "Cost function: log-loss" }, short: { de: "Falsche Sicherheit wird teuer", en: "Wrong confidence becomes expensive" } },
+        { id: 5, title: { de: "Training mit Gradient Descent", en: "Training with gradient descent" }, short: { de: "Gewichte Schritt für Schritt lernen", en: "Learning weights step by step" } },
+        { id: 6, title: { de: "Der sklearn-Workflow", en: "The sklearn workflow" }, short: { de: "Von X und y bis zur Matrix", en: "From X and y to the matrix" } },
+        { id: 7, title: { de: "Threshold und Metriken", en: "Threshold and metrics" }, short: { de: "Der Regler für den Geschäftsfall", en: "The dial for the business case" } },
+        { id: 8, title: { de: "Multiclass-Klassifikation", en: "Multiclass classification" }, short: { de: "Viele Klassen mit One-vs-Rest", en: "Many classes with one-vs-rest" } }
+      ];
+
+      var quizzes = {
+        1: [
+          {
+            q: { de: "Welches Problem ist Klassifikation?", en: "Which problem is classification?" },
+            options: { de: ["Hauspreis schätzen", "Ob eine E-Mail Spam ist", "Temperatur morgen vorhersagen"], en: ["Estimate a house price", "Whether an email is spam", "Predict tomorrow's temperature"] },
+            correct: 1,
+            explanation: { de: "Spam oder kein Spam ist eine Kategorie, also Klassifikation.", en: "Spam or not spam is a category, so it is classification." }
+          },
+          {
+            q: { de: "Was ist bei binärer Klassifikation typisch?", en: "What is typical for binary classification?" },
+            options: { de: ["y ist oft 0 oder 1", "y ist immer eine Kommazahl", "y ist die Anzahl der Datensätze"], en: ["y is often 0 or 1", "y is always a decimal number", "y is the number of data points"] },
+            correct: 0,
+            explanation: { de: "Bei binären Problemen steht y häufig für die Klassen 0 und 1.", en: "In binary problems, y often stands for the classes 0 and 1." }
+          },
+          {
+            q: { de: "Warum reicht lineare Regression für Ja/Nein-Fragen oft nicht?", en: "Why is linear regression often not enough for yes-or-no questions?" },
+            options: { de: ["Sie liefert nur ganze Zahlen", "Sie kann Werte unter 0 oder über 1 ausgeben", "Sie braucht keine Daten"], en: ["It only produces whole numbers", "It can output values below 0 or above 1", "It does not need data"] },
+            correct: 1,
+            explanation: { de: "Freie Zahlen außerhalb von 0 bis 1 sind als Wahrscheinlichkeit unpraktisch.", en: "Free values outside 0 to 1 are impractical as probabilities." }
+          }
+        ],
+        2: [
+          {
+            q: { de: "Was macht die Sigmoid-Funktion?", en: "What does the sigmoid function do?" },
+            options: { de: ["Sie sortiert Daten", "Sie macht aus jedem Score eine Zahl zwischen 0 und 1", "Sie entfernt Ausreißer"], en: ["It sorts data", "It turns every score into a number between 0 and 1", "It removes outliers"] },
+            correct: 1,
+            explanation: { de: "Genau das ist ihre Kernaufgabe im Modell.", en: "That is exactly its core job in the model." }
+          },
+          {
+            q: { de: "Welcher Wert kommt bei t = 0 heraus?", en: "Which value do you get at t = 0?" },
+            options: { de: ["0", "1", "0.5"], en: ["0", "1", "0.5"] },
+            correct: 2,
+            explanation: { de: "Bei t = 0 liegt die Sigmoid genau bei 0,5.", en: "At t = 0 the sigmoid is exactly 0.5." }
+          },
+          {
+            q: { de: "Was bedeutet ein sehr negativer Score?", en: "What does a very negative score mean?" },
+            options: { de: ["Wahrscheinlichkeit nahe 0", "Wahrscheinlichkeit nahe 1", "Immer 0,5"], en: ["Probability close to 0", "Probability close to 1", "Always 0.5"] },
+            correct: 0,
+            explanation: { de: "Sehr negative Scores führen zu Wahrscheinlichkeiten nahe 0.", en: "Very negative scores lead to probabilities close to 0." }
+          }
+        ],
+        3: [
+          {
+            q: { de: "Wo liegt die Entscheidungsgrenze?", en: "Where is the decision boundary?" },
+            options: { de: ["Dort, wo der Score 0 ist", "Dort, wo immer die meisten Punkte liegen", "Nur bei x = 1"], en: ["Where the score is 0", "Where most points happen to be", "Only at x = 1"] },
+            correct: 0,
+            explanation: { de: "Bei Score 0 liefert die Sigmoid 0,5. Das ist die Kippstelle.", en: "At score 0 the sigmoid returns 0.5. That is the tipping point." }
+          },
+          {
+            q: { de: "Was liefert predict_proba?", en: "What does predict_proba return?" },
+            options: { de: ["Nur 0 oder 1", "Die Wahrscheinlichkeit je Klasse", "Immer die Konfusionsmatrix"], en: ["Only 0 or 1", "The probability for each class", "Always the confusion matrix"] },
+            correct: 1,
+            explanation: { de: "predict_proba gibt Wahrscheinlichkeiten zurück, nicht nur harte Klassen.", en: "predict_proba returns probabilities, not just hard classes." }
+          },
+          {
+            q: { de: "Was verändert der Threshold?", en: "What does the threshold change?" },
+            options: { de: ["Die Trainingsdaten", "Die Form der Sigmoid-Funktion", "Ab wann eine Wahrscheinlichkeit zu Klasse 1 wird"], en: ["The training data", "The shape of the sigmoid function", "From which point a probability becomes class 1"] },
+            correct: 2,
+            explanation: { de: "Der Threshold legt die Entscheidungsregel fest.", en: "The threshold sets the decision rule." }
+          }
+        ],
+        4: [
+          {
+            q: { de: "Was bestraft Log-Loss besonders stark?", en: "What does log-loss punish especially hard?" },
+            options: { de: ["Sehr kleine Datensätze", "Falsche, aber vorsichtige Vorhersagen", "Falsche Selbstsicherheit"], en: ["Very small data sets", "Wrong but cautious predictions", "Wrong overconfidence"] },
+            correct: 2,
+            explanation: { de: "Wenn das Modell sicher falsch liegt, steigt der Log-Loss stark an.", en: "If the model is confidently wrong, log-loss rises sharply." }
+          },
+          {
+            q: { de: "Warum nutzt logistische Regression nicht einfach MSE?", en: "Why doesn't logistic regression simply use MSE?" },
+            options: { de: ["Weil MSE keine Zahlen akzeptiert", "Weil die Optimierung dann ungünstiger wird", "Weil MSE nur für KNN gilt"], en: ["Because MSE does not accept numbers", "Because optimisation becomes less suitable", "Because MSE only works for KNN"] },
+            correct: 1,
+            explanation: { de: "Mit Sigmoid ist MSE für die Optimierung unpraktischer als Log-Loss.", en: "With sigmoid, MSE is less practical for optimisation than log-loss." }
+          },
+          {
+            q: { de: "Wie groß ist die Strafe bei y = 1 und p nahe 1?", en: "How large is the penalty when y = 1 and p is close to 1?" },
+            options: { de: ["Klein", "Unendlich groß", "Immer genau 1"], en: ["Small", "Infinitely large", "Always exactly 1"] },
+            correct: 0,
+            explanation: { de: "Wenn das Modell richtig und sicher ist, bleibt der Verlust klein.", en: "If the model is right and confident, the loss stays small." }
+          }
+        ],
+        5: [
+          {
+            q: { de: "Was macht Gradient Descent bei logistische Regression?", en: "What does gradient descent do in logistic regression?" },
+            options: { de: ["Sortiert die Klassen alphabetisch", "Passt die Gewichte schrittweise an", "Ersetzt die Daten"], en: ["Sorts classes alphabetically", "Adjusts the weights step by step", "Replaces the data"] },
+            correct: 1,
+            explanation: { de: "Gradient Descent minimiert den Log-Loss durch kleine Updates.", en: "Gradient descent minimises log-loss through small updates." }
+          },
+          {
+            q: { de: "Wofür steht die Lernrate α?", en: "What does the learning rate α stand for?" },
+            options: { de: ["Für die Zahl der Features", "Für die Schrittgröße des Updates", "Für den Threshold"], en: ["For the number of features", "For the update step size", "For the threshold"] },
+            correct: 1,
+            explanation: { de: "α steuert, wie groß jeder Optimierungsschritt ausfällt.", en: "α controls how large each optimisation step becomes." }
+          },
+          {
+            q: { de: "Was passiert bei zu großer Lernrate oft?", en: "What often happens when the learning rate is too large?" },
+            options: { de: ["Das Training wird stabiler", "Das Modell springt über das Ziel hinaus", "Die Sigmoid wird linear"], en: ["Training becomes more stable", "The model jumps past the target", "The sigmoid becomes linear"] },
+            correct: 1,
+            explanation: { de: "Zu große Schritte machen die Optimierung unruhig.", en: "Steps that are too large make optimisation unstable." }
+          }
+        ],
+        6: [
+          {
+            q: { de: "Was ist X im sklearn-Workflow?", en: "What is X in the sklearn workflow?" },
+            options: { de: ["Die Zielvariable", "Die Merkmale", "Die Vorhersage"], en: ["The target variable", "The features", "The prediction"] },
+            correct: 1,
+            explanation: { de: "X enthält die erklärenden Variablen oder Features.", en: "X contains the explanatory variables or features." }
+          },
+          {
+            q: { de: "Warum trennt man in Train und Test?", en: "Why do we split into train and test?" },
+            options: { de: ["Damit mehr Daten verloren gehen", "Damit Generalisierung geprüft werden kann", "Damit die Konfusionsmatrix verschwindet"], en: ["So more data gets lost", "So generalisation can be checked", "So the confusion matrix disappears"] },
+            correct: 1,
+            explanation: { de: "Nur so siehst du, wie das Modell auf neue Daten reagiert.", en: "Only then can you see how the model reacts to new data." }
+          },
+          {
+            q: { de: "Was zeigt die Konfusionsmatrix?", en: "What does the confusion matrix show?" },
+            options: { de: ["Nur die Accuracy", "Welche Fehlerarten und Treffer das Modell produziert", "Nur den Threshold"], en: ["Only the accuracy", "Which error types and hits the model produces", "Only the threshold"] },
+            correct: 1,
+            explanation: { de: "TP, TN, FP und FN machen die Fehlerstruktur sichtbar.", en: "TP, TN, FP and FN make the error structure visible." }
+          }
+        ],
+        7: [
+          {
+            q: { de: "Was passiert oft, wenn du den Threshold senkst?", en: "What often happens when you lower the threshold?" },
+            options: { de: ["Recall steigt", "Precision steigt immer", "Es gibt keine Änderung"], en: ["Recall increases", "Precision always increases", "Nothing changes"] },
+            correct: 0,
+            explanation: { de: "Ein niedriger Threshold markiert mehr Fälle als positiv und findet dadurch mehr echte Positive.", en: "A lower threshold marks more cases as positive and therefore finds more true positives." }
+          },
+          {
+            q: { de: "Wann ist ein hoher Threshold sinnvoll?", en: "When is a high threshold useful?" },
+            options: { de: ["Wenn False Positives besonders teuer sind", "Wenn Recall maximal sein muss", "Wenn du Multiclass machst"], en: ["When false positives are especially costly", "When recall must be maximal", "When you work with multiclass"] },
+            correct: 0,
+            explanation: { de: "Ein hoher Threshold ist strenger und reduziert oft False Positives.", en: "A high threshold is stricter and often reduces false positives." }
+          },
+          {
+            q: { de: "Was zeigt ein Punkt auf der ROC-Kurve?", en: "What does one point on the ROC curve show?" },
+            options: { de: ["Einen Datensatz", "Eine bestimmte Threshold-Einstellung", "Die Lernrate"], en: ["One data set", "A particular threshold setting", "The learning rate"] },
+            correct: 1,
+            explanation: { de: "Jeder ROC-Punkt gehört zu einem Threshold.", en: "Each ROC point belongs to one threshold." }
+          }
+        ],
+        8: [
+          {
+            q: { de: "Was bedeutet One-vs-Rest?", en: "What does one-vs-rest mean?" },
+            options: { de: ["Alle Klassen werden zu einer zusammengefasst", "Für jede Klasse gibt es ein Ja/Nein-Modell", "Das Modell nutzt keine Wahrscheinlichkeiten"], en: ["All classes are merged into one", "Each class gets its own yes-or-no model", "The model uses no probabilities"] },
+            correct: 1,
+            explanation: { de: "Genau das ist die OvR-Idee.", en: "That is exactly the OvR idea." }
+          },
+          {
+            q: { de: "Welcher Datensatz wird im Notebook für Multiclass genutzt?", en: "Which data set is used in the notebook for multiclass?" },
+            options: { de: ["Titanic", "Housing", "Iris"], en: ["Titanic", "Housing", "Iris"] },
+            correct: 2,
+            explanation: { de: "Das Multiclass-Notebook nutzt den Iris-Datensatz.", en: "The multiclass notebook uses the Iris data set." }
+          },
+          {
+            q: { de: "Wie wird die endgültige Klasse gewählt?", en: "How is the final class chosen?" },
+            options: { de: ["Die Klasse mit der höchsten Wahrscheinlichkeit gewinnt", "Immer Klasse 0", "Die mittlere Klasse gewinnt"], en: ["The class with the highest probability wins", "Always class 0", "The middle class wins"] },
+            correct: 0,
+            explanation: { de: "Bei Multiclass zählt am Ende der höchste Score bzw. die höchste Wahrscheinlichkeit.", en: "In multiclass problems, the highest score or probability wins." }
+          }
+        ]
+      };
+
+      var badges = [
+        { id: "badge-dimmer", icon: "🔦", title: { de: "Dimmer-Meister", en: "Dimmer master" }, description: { de: "Sigmoid sicher gelesen", en: "Reads sigmoid safely" }, modules: [2] },
+        { id: "badge-boundary", icon: "🚧", title: { de: "Grenzwächter", en: "Boundary guard" }, description: { de: "Grenze sauber verstanden", en: "Understands the boundary" }, modules: [3] },
+        { id: "badge-loss", icon: "⚖️", title: { de: "Strafrichter", en: "Penalty judge" }, description: { de: "Log-Loss erklärt", en: "Can explain log-loss" }, modules: [4] },
+        { id: "badge-workflow", icon: "🔧", title: { de: "Workflow-Profi", en: "Workflow pro" }, description: { de: "sklearn-Ablauf gemeistert", en: "Masters the sklearn flow" }, modules: [6] },
+        { id: "badge-threshold", icon: "🔔", title: { de: "Alarm-Einsteller", en: "Alarm tuner" }, description: { de: "Threshold bewusst gewählt", en: "Chooses thresholds deliberately" }, modules: [7] },
+        { id: "badge-flowers", icon: "🌸", title: { de: "Blumen-Kenner", en: "Flower expert" }, description: { de: "Multiclass sicher gelöst", en: "Handles multiclass safely" }, modules: [8] }
+      ];
+
+      var sidebarOpen = true;
+      var intersectionObserver = null;
+      var activeModuleId = 1;
+      var boundaryData = [
+        { x: 0.7, y: 0.6, label: 0 }, { x: 1.0, y: 0.8, label: 0 }, { x: 1.4, y: 0.9, label: 0 },
+        { x: 1.5, y: 1.2, label: 0 }, { x: 1.8, y: 1.1, label: 0 }, { x: 2.0, y: 0.9, label: 0 },
+        { x: 2.2, y: 1.4, label: 1 }, { x: 2.5, y: 1.6, label: 1 }, { x: 2.8, y: 1.9, label: 1 },
+        { x: 3.1, y: 1.5, label: 1 }, { x: 3.3, y: 1.8, label: 1 }, { x: 2.7, y: 1.2, label: 1 }
+      ];
+
+      var thresholdData = {
+        yTrue: [0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
+        proba: [0.10, 0.22, 0.38, 0.42, 0.55, 0.63, 0.71, 0.78, 0.81, 0.93]
+      };
+
+      var workflowSteps = [
+        {
+          title: { de: "1. Daten laden", en: "1. Load data" },
+          code: "df = pd.DataFrame(candidates)",
+          note: { de: "Ohne saubere Tabelle gibt es keinen Modellstart.", en: "Without a clean table there is no model start." }
+        },
+        {
+          title: { de: "2. X und y trennen", en: "2. Split X and y" },
+          code: "X = df[['gmat', 'gpa', 'work_experience']]\ny = df['admitted']",
+          note: { de: "Jetzt ist klar, was das Modell sieht und was es lernen soll.", en: "Now it is clear what the model sees and what it has to learn." }
+        },
+        {
+          title: { de: "3. Train/Test-Split", en: "3. Train/test split" },
+          code: "X_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.25, random_state=42\n)",
+          note: { de: "Der Testblock bleibt als ehrlicher Prüfbereich unangetastet.", en: "The test block stays untouched as an honest evaluation area." }
+        },
+        {
+          title: { de: "4. Modell trainieren", en: "4. Train the model" },
+          code: "model = LogisticRegression()\nmodel.fit(X_train, y_train)",
+          note: { de: "Hier lernt die logistische Regression aus den Trainingsdaten.", en: "This is where logistic regression learns from the training data." }
+        },
+        {
+          title: { de: "5. Vorhersagen prüfen", en: "5. Check predictions" },
+          code: "y_pred = model.predict(X_test)\nconfusion_matrix(y_test, y_pred)",
+          note: { de: "Jetzt zeigt die Konfusionsmatrix, welche Fehlerarten entstanden sind.", en: "Now the confusion matrix shows which types of errors occurred." }
+        }
+      ];
+
+      var trainingState = null;
+      var charts = {};
+      var state = loadState();
+
+      function hasStorage() {
+        try {
+          var probe = "__ds_logreg_probe__";
+          window.localStorage.setItem(probe, "1");
+          window.localStorage.removeItem(probe);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function baseState() {
+        return {
+          completedModules: [],
+          correctAnswers: {},
+          points: 0,
+          demoDone: {},
+          badges: [],
+          sorterAnswers: {},
+          workflowIndex: 0,
+          training: null
+        };
+      }
+
+      function loadState() {
+        if (!hasStorage()) {
+          return baseState();
+        }
+        try {
+          var parsed = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "null");
+          return Object.assign(baseState(), parsed || {});
+        } catch (error) {
+          return baseState();
+        }
+      }
+
+      function saveState() {
+        if (!hasStorage()) {
+          return;
+        }
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function getLang() {
+        var stored = window.localStorage.getItem("asdm-ds-language");
+        return stored === "en" ? "en" : "de";
+      }
+
+      function t(de, en) {
+        return currentLang === "en" ? en : de;
+      }
+
+      function localized(value) {
+        return value && typeof value === "object" && !Array.isArray(value) ? value[currentLang] : value;
+      }
+
+      function setSelectorText(selector, de, en) {
+        var node = document.querySelector(selector);
+        if (node) {
+          node.textContent = currentLang === "en" ? en : de;
+        }
+      }
+
+      function setSelectorHtml(selector, de, en) {
+        var node = document.querySelector(selector);
+        if (node) {
+          node.innerHTML = currentLang === "en" ? en : de;
+        }
+      }
+
+      function setSelectorAttr(selector, attr, de, en) {
+        var node = document.querySelector(selector);
+        if (node) {
+          node.setAttribute(attr, currentLang === "en" ? en : de);
+        }
+      }
+
+      function setGlossarySentence(selector, leftDe, leftEn, buttonDe, buttonEn, definitionDe, definitionEn, rightDe, rightEn) {
+        var node = document.querySelector(selector);
+        if (!node) {
+          return;
+        }
+        var button = node.querySelector(".glossary-term");
+        if (!button) {
+          return;
+        }
+        var textNodes = Array.prototype.filter.call(node.childNodes, function (child) {
+          return child.nodeType === Node.TEXT_NODE;
+        });
+        if (textNodes[0]) {
+          textNodes[0].nodeValue = currentLang === "en" ? leftEn : leftDe;
+        }
+        if (textNodes[1]) {
+          textNodes[1].nodeValue = currentLang === "en" ? rightEn : rightDe;
+        }
+        button.textContent = currentLang === "en" ? buttonEn : buttonDe;
+        button.setAttribute("data-definition", currentLang === "en" ? definitionEn : definitionDe);
+      }
+
+      function translateCodeBlocks() {
+        setSelectorText("#module-1 .code-wrap pre code", [
+          "# Zwei Probleme klar unterscheiden",
+          "temperature_tomorrow = 18.7   # Regression: Zahl vorhersagen",
+          "will_rain = 1                 # Klassifikation: Klasse 0 oder 1",
+          "",
+          "print(\"Regression:\", temperature_tomorrow)",
+          "print(\"Klassifikation:\", will_rain)"
+        ].join("\n"), [
+          "# Clearly separate two problems",
+          "temperature_tomorrow = 18.7   # Regression: predict a number",
+          "will_rain = 1                 # Classification: class 0 or 1",
+          "",
+          "print(\"Regression:\", temperature_tomorrow)",
+          "print(\"Classification:\", will_rain)"
+        ].join("\n"));
+
+        setSelectorText("#module-2 .code-wrap pre code", [
+          "from scipy.special import expit",
+          "",
+          "score = -1.2                     # Rohwert des Modells",
+          "probability = expit(score)       # Sigmoid macht daraus 0 bis 1",
+          "",
+          "print(round(probability, 3))     # 0.231"
+        ].join("\n"), [
+          "from scipy.special import expit",
+          "",
+          "score = -1.2                     # raw model score",
+          "probability = expit(score)       # sigmoid turns it into 0 to 1",
+          "",
+          "print(round(probability, 3))     # 0.231"
+        ].join("\n"));
+
+        setSelectorText("#module-3 .code-wrap pre code", [
+          "# Wahrscheinlichkeiten statt nur harter Klassen",
+          "proba = lr.predict_proba(X_test)[:, 1]",
+          "",
+          "# Ab 0.5 wird Klasse 1 vorhergesagt",
+          "y_pred = (proba >= 0.5).astype(int)",
+          "",
+          "print(proba[:3])",
+          "print(y_pred[:3])"
+        ].join("\n"), [
+          "# Probabilities instead of only hard classes",
+          "proba = lr.predict_proba(X_test)[:, 1]",
+          "",
+          "# Class 1 is predicted from 0.5 onward",
+          "y_pred = (proba >= 0.5).astype(int)",
+          "",
+          "print(proba[:3])",
+          "print(y_pred[:3])"
+        ].join("\n"));
+
+        setSelectorText("#module-4 .code-wrap pre code", [
+          "import numpy as np",
+          "",
+          "p = 0.91                  # Modell ist sehr sicher",
+          "y = 1                     # echte Klasse",
+          "",
+          "log_loss = -(y * np.log(p) + (1 - y) * np.log(1 - p))",
+          "print(round(log_loss, 3))"
+        ].join("\n"), [
+          "import numpy as np",
+          "",
+          "p = 0.91                  # model is very confident",
+          "y = 1                     # true class",
+          "",
+          "log_loss = -(y * np.log(p) + (1 - y) * np.log(1 - p))",
+          "print(round(log_loss, 3))"
+        ].join("\n"));
+
+        if (window.Prism && typeof window.Prism.highlightAllUnder === "function") {
+          window.Prism.highlightAllUnder(document.getElementById("content"));
+        }
+      }
+
+      function applyChapterTranslations() {
+        currentLang = getLang();
+
+        for (var index = 0; index < modules.length; index += 1) {
+          setSelectorText("#module-" + (index + 1) + " .module-index", "Modul " + (index + 1) + " von 8", "Module " + (index + 1) + " of 8");
+        }
+
+        setSelectorText("#sidebar-toggle", "☰ Module", "☰ Modules");
+        setSelectorAttr("#sidebar-toggle", "aria-label", "Navigation ein- oder ausblenden", "Show or hide navigation");
+
+        setSelectorText("#module-1 .callout:nth-of-type(1) p", "Stell dir vor, du arbeitest bei der Post in Köln. Vor dir landen Sendungen auf dem Tisch: Brief oder Paket? Du musst nicht den exakten Wert ausrechnen, sondern eine Kategorie vergeben. Genau so arbeitet ein Klassifikationsmodell.", "Imagine you work at a post office in Cologne. Items land on your desk: letter or parcel? You do not need the exact value, you need to assign a category. That is exactly how a classification model works.");
+        setSelectorHtml("#module-1 .callout:nth-of-type(2) p", "Bei Regression ist die Zielvariable eine Zahl, etwa ein Hauspreis. Bei Klassifikation ist die Zielvariable eine Klasse, zum Beispiel <span class=\"glossary-term\">Spam</span> oder <span class=\"glossary-term\">kein Spam</span>. Für binäre Klassifikation gilt oft <code>y ∈ {0, 1}</code>.", "In regression, the target variable is a number, for example a house price. In classification, the target variable is a class, for example <span class=\"glossary-term\">spam</span> or <span class=\"glossary-term\">not spam</span>. For binary classification, <code>y ∈ {0, 1}</code> is common.");
+        setSelectorText("#module-1 .formula-block p", "Die logistische Regression sagt nicht direkt „Ja“ oder „Nein“, sondern zuerst eine Wahrscheinlichkeit für Klasse 1. Erst danach wird diese Wahrscheinlichkeit über einen Schwellenwert in eine Entscheidung übersetzt.", "Logistic regression does not say “yes” or “no” directly. It first outputs a probability for class 1. Only afterwards is that probability turned into a decision via a threshold.");
+        setSelectorText("#module-1 .code-explain", "Was passiert hier? Die erste Variable ist eine echte Zahl. Die zweite Variable steht für eine Klasse. Genau diese andere Zielstruktur macht einen anderen Modelltyp nötig.", "What happens here? The first variable is a real number. The second variable stands for a class. That different target structure is exactly why a different model type is needed.");
+        setSelectorText("#module-1 .plot-card .lead", "Ordne die Situationen der passenden Problemart zu. So spürst du sofort den Unterschied zwischen „Zahl schätzen“ und „Klasse entscheiden“.", "Assign each situation to the right problem type. You will immediately feel the difference between “estimating a number” and “deciding on a class”.");
+        setSelectorText("#module-1 .reflection", "Was nimmst du mit? Wenn du nur zwischen Klassen unterscheiden willst, ist eine saubere Wahrscheinlichkeit oft hilfreicher als eine freie Zahl.", "What do you take away? If you only want to distinguish between classes, a clean probability is often more useful than a free number.");
+
+        setSelectorText("#module-2 .callout:nth-of-type(1) p", "Ein normaler Lichtschalter kennt nur an oder aus. Ein Dimmer kennt viele Zwischenstufen. Die Sigmoid-Funktion ist der Dimmer des Modells: Sie übersetzt jeden Rohwert in eine Wahrscheinlichkeit zwischen 0 % und 100 %.", "A normal light switch only knows on or off. A dimmer knows many intermediate levels. The sigmoid function is the model's dimmer: it translates every raw score into a probability between 0% and 100%.");
+        setSelectorHtml("#module-2 .callout:nth-of-type(2) p", "Das Modell berechnet zunächst einen Score <code>t = b₀ + b₁x₁ + ...</code>. Dieser Score kann jede Zahl annehmen. Erst die Sigmoid-Funktion macht daraus eine sinnvolle Wahrscheinlichkeit.", "The model first calculates a score <code>t = b₀ + b₁x₁ + ...</code>. That score can take any value. Only the sigmoid function turns it into a meaningful probability.");
+        setSelectorHtml("#module-2 .formula-block p:nth-of-type(2)", "Für sehr kleine Werte geht die Kurve gegen 0. Für sehr große Werte geht sie gegen 1. Bei <code>t = 0</code> liegt sie genau bei 0,5.", "For very small values the curve approaches 0. For very large values it approaches 1. At <code>t = 0</code> it is exactly 0.5.");
+        setSelectorHtml("#module-2 .code-explain", "Was passiert hier? <code>expit</code> ist die Sigmoid-Funktion aus dem Notebook. Ein negativer Score führt zu einer kleinen Wahrscheinlichkeit.", "What happens here? <code>expit</code> is the sigmoid function from the notebook. A negative score leads to a small probability.");
+        setSelectorText("#module-2 .reflection", "Was nimmst du mit? Die Sigmoid-Funktion ist keine Deko, sondern der entscheidende Schritt, der eine freie Rechenwelt in eine Wahrscheinlichkeitswelt übersetzt.", "What do you take away? The sigmoid function is not decoration. It is the crucial step that translates a world of unrestricted scores into a world of probabilities.");
+        setSelectorText("#module-2 .exercise-instruction", "Übertrage die Sigmoid-Idee in ein minimales Python-Beispiel. Ergänze genau die eine Zeile, die den Score in eine Wahrscheinlichkeit umwandelt.", "Transfer the sigmoid idea into a minimal Python example. Fill in exactly the one line that turns the score into a probability.");
+        setSelectorText("#module-2 .exercise-context", "📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.", "📓 Open your Jupyter notebook or Google Colab and try it yourself.");
+        setSelectorText("#module-2 .hint p", "In Python schreibst du die Formel mit exp(-t), also zum Beispiel 1 / (1 + exp(-t)).", "In Python, you write the formula with exp(-t), for example 1 / (1 + exp(-t)).");
+        setSelectorHtml("#module-2 .solution .expected-output", "Erwartete Ausgabe: <code>0.731</code>", "Expected output: <code>0.731</code>");
+
+        setSelectorText("#module-3 .callout:nth-of-type(1) p", "Stell dir einen Türsteher in Bamberg vor. Wenn sein Bauchgefühl mindestens 50 % sagt, darf jemand rein. Sonst nicht. Diese unsichtbare Linie zwischen „rein“ und „nicht rein“ ist die Entscheidungsgrenze.", "Imagine a bouncer in Bamberg. If his gut feeling says at least 50%, someone gets in. Otherwise not. That invisible line between “inside” and “not inside” is the decision boundary.");
+        setGlossarySentence("#module-3 .callout:nth-of-type(2) p", "Mit zwei Merkmalen ist die ", "With two features, the ", "Decision Boundary", "Decision boundary", "Die Entscheidungsgrenze ist die Linie oder Fläche, auf der das Modell gerade zwischen zwei Klassen kippt. Auf der einen Seite sagt es Klasse 0, auf der anderen Klasse 1.", "The decision boundary is the line or surface where the model flips between two classes. On one side it predicts class 0, on the other side class 1.", " eine Gerade. Sie hängt nur von den Modellparametern ab, nicht von einer einzelnen Beobachtung.", " is a line. It depends only on the model parameters, not on one single observation.");
+        setSelectorHtml("#module-3 .formula-block p:nth-of-type(2)", "Genau auf dieser Linie ist der Score null. Die Sigmoid-Funktion liefert dort 0,5. Damit liegt genau dort die Grenze zwischen beiden Klassen.", "Exactly on that line, the score is zero. The sigmoid function returns 0.5 there. That is why the boundary between both classes lies exactly there.");
+        setSelectorHtml("#module-3 .code-explain", "Was passiert hier? <code>predict_proba</code> liefert die Wahrscheinlichkeit für Klasse 1. Erst der gewählte Threshold macht daraus eine 0 oder 1.", "What happens here? <code>predict_proba</code> returns the probability for class 1. Only the chosen threshold turns it into a 0 or a 1.");
+        setSelectorText("#module-3 .plot-card .lead", "Bewege Achsenabschnitt und Steigungen. Du siehst sofort, wie viele Beispiele auf der falschen Seite landen.", "Move the intercept and the slopes. You immediately see how many examples end up on the wrong side.");
+        setSelectorText("#module-3 .reflection", "Was nimmst du mit? Die Grenze liegt nicht „in den Daten“, sondern im Modell. Ein anderer Threshold oder andere Gewichte verschieben sie sofort.", "What do you take away? The boundary does not live “inside the data”, it lives in the model. A different threshold or different weights move it immediately.");
+        setSelectorText("#module-3 .exercise-instruction", "Im Notebook taucht predict_proba auf. Ergänze die Zeile, die aus Wahrscheinlichkeiten mit einem Threshold von 0,5 harte Klassen macht.", "In the notebook you saw predict_proba. Fill in the line that turns probabilities into hard classes with a threshold of 0.5.");
+        setSelectorText("#module-3 .exercise-context", "📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.", "📓 Open your Jupyter notebook or Google Colab and try it yourself.");
+        setSelectorText("#module-3 .hint p", "Alles ab 0,5 wird zu Klasse 1, alles darunter zu Klasse 0.", "Everything from 0.5 onward becomes class 1, everything below becomes class 0.");
+        setSelectorHtml("#module-3 .solution .expected-output", "Erwartete Ausgabe: <code>[0, 1, 1, 0]</code>", "Expected output: <code>[0, 1, 1, 0]</code>");
+
+        setSelectorText("#module-4 .callout:nth-of-type(1) p", "Ein Wettermoderator sagt mit 99 % Sicherheit Sonne voraus. Dann regnet es. Das ist peinlicher als eine ehrliche 55:45-Vorhersage. Genau dieses Verhalten modelliert Log-Loss.", "A weather presenter predicts sunshine with 99% certainty. Then it rains. That is more embarrassing than an honest 55:45 forecast. Log-loss models exactly this behaviour.");
+        setSelectorText("#module-4 .callout:nth-of-type(2) p", "Bei der logistischen Regression wollen wir Wahrscheinlichkeiten lernen, die zu den echten Klassen passen. Ein Modell soll besonders dann hohe Strafen bekommen, wenn es mit großer Sicherheit falsch liegt.", "In logistic regression, we want to learn probabilities that fit the true classes. A model should receive especially high penalties when it is confidently wrong.");
+        setSelectorHtml("#module-4 .formula-block p:nth-of-type(2)", "Für <code>y = 1</code> zählt nur <code>-ln(p)</code>. Für <code>y = 0</code> zählt nur <code>-ln(1-p)</code>. Wenn die falsche Wahrscheinlichkeit extrem wird, explodiert der Verlust.", "For <code>y = 1</code>, only <code>-ln(p)</code> matters. For <code>y = 0</code>, only <code>-ln(1-p)</code> matters. When the wrong probability becomes extreme, the loss explodes.");
+        setSelectorText("#module-4 .code-explain", "Was passiert hier? Liegt das Modell richtig und ist sicher, bleibt der Log-Loss klein. Würde hier statt 0.91 eine 0.01 stehen, wäre die Strafe riesig.", "What happens here? If the model is right and confident, log-loss stays small. If 0.91 were replaced with 0.01 here, the penalty would be huge.");
+        setSelectorText("label[for='loss-probability'] span:first-child", "Vorhergesagte Wahrscheinlichkeit p", "Predicted probability p");
+        setSelectorText("#module-4 .reflection", "Was nimmst du mit? Nicht jeder Fehler ist gleich schlimm. Log-Loss gewichtet vor allem die gefährliche Mischung aus „sicher“ und „falsch“.", "What do you take away? Not every error is equally bad. Log-loss especially weights the dangerous mix of “confident” and “wrong”.");
+
+        setSelectorText("#module-5 .callout:nth-of-type(1) p", "Stell dir vor, du wanderst im Nebel bergab. Du siehst nicht das ganze Tal, aber du spürst in jeder Runde die lokale Steigung. Genau so justiert Gradient Descent die Parameter des Modells.", "Imagine you are walking downhill in the fog. You cannot see the whole valley, but in each round you can feel the local slope. That is exactly how gradient descent adjusts the model parameters.");
+        setSelectorText("#module-5 .callout:nth-of-type(2) p", "Für logistische Regression gibt es keine bequeme geschlossene OLS-Lösung. Deshalb wird der Log-Loss Schritt für Schritt minimiert, bis die Gewichte eine gute Trennkurve ergeben.", "For logistic regression there is no convenient closed-form OLS solution. That is why log-loss is minimised step by step until the weights create a good separating curve.");
+        setSelectorHtml("#module-5 .formula-block p:nth-of-type(2)", "Die Lernrate <code>\\alpha</code> steuert, wie groß ein Schritt ist. Zu klein ist langsam, zu groß kann über das Ziel hinausschießen.", "The learning rate <code>\\alpha</code> controls how large one step is. Too small is slow, too large can overshoot the target.");
+        setSelectorText("#module-5 .code-explain", "Was passiert hier? Erst wird aus dem linearen Score eine Wahrscheinlichkeit. Danach misst der Gradient, in welche Richtung das Gewicht verschoben werden muss.", "What happens here? First, the linear score becomes a probability. Afterwards, the gradient measures in which direction the weight must be moved.");
+        setSelectorText("#module-5 .reflection", "Was nimmst du mit? Das Modell wird nicht magisch „klug“, sondern tastet sich in kleinen Updates zu besseren Gewichten vor.", "What do you take away? The model does not become “smart” magically. It feels its way towards better weights through small updates.");
+
+        setSelectorText("#module-6 .callout:nth-of-type(1) p", "Eine Hochschule bewertet Bewerbungen. GMAT, GPA und Berufserfahrung fließen in die Frage ein: Zulassen oder ablehnen? Das ist ein typisches binäres Klassifikationsproblem.", "A university evaluates applications. GMAT, GPA and work experience all contribute to the question: admit or reject? That is a typical binary classification problem.");
+        setSelectorText("#module-6 .callout:nth-of-type(2) p", "Im Workflow trennst du zuerst Merkmale und Zielvariable, teilst in Train und Test, trainierst das Modell und prüfst anschließend die Ergebnisse mit einer Konfusionsmatrix.", "In the workflow, you first separate features and target variable, split into train and test, train the model and then inspect the results with a confusion matrix.");
+        setSelectorHtml("#module-6 .formula-block p", "<code>Daten → X und y → train_test_split → LogisticRegression().fit() → predict() → confusion_matrix()</code>", "<code>Data → X and y → train_test_split → LogisticRegression().fit() → predict() → confusion_matrix()</code>");
+        setSelectorText("#module-6 .code-explain", "Was passiert hier? Das ist die kompakte sklearn-Kette direkt aus dem Notebook: Daten vorbereiten, Modell fitten, Vorhersagen erzeugen und anschließend die Fehlerarten zählen.", "What happens here? This is the compact sklearn chain directly from the notebook: prepare the data, fit the model, create predictions and then count the types of errors.");
+        setSelectorText("#module-6 .plot-card .lead", "Gehe den Ablauf in der richtigen Reihenfolge durch. Nach dem letzten Schritt baut sich die Konfusionsmatrix auf.", "Go through the sequence in the correct order. After the final step, the confusion matrix builds itself up.");
+        setSelectorText("#module-6 .reflection", "Was nimmst du mit? Ein gutes Verständnis von X, y und der Trennung zwischen Training und Test ist oft wichtiger als tausend Parameteroptionen.", "What do you take away? A good understanding of X, y and the split between training and test is often more important than a thousand parameter options.");
+        setSelectorText("#module-6 .exercise-instruction", "Hier ist der sklearn-Ablauf aus dem Notebook stark vereinfacht. Ergänze die Modellzeile so, dass Training und Vorhersage möglich werden.", "Here the sklearn workflow from the notebook is heavily simplified. Fill in the model line so that training and prediction become possible.");
+        setSelectorText("#module-6 .exercise-context", "📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.", "📓 Open your Jupyter notebook or Google Colab and try it yourself.");
+        setSelectorText("#module-6 .hint p", "Das Modell stammt direkt aus sklearn und trägt denselben Namen wie das Kapitel.", "The model comes directly from sklearn and has the same name as the chapter.");
+        setSelectorHtml("#module-6 .solution .expected-output", "Erwartete Ausgabe: <code>[0, 0, 1, 1, 0, 1]</code>", "Expected output: <code>[0, 0, 1, 1, 0, 1]</code>");
+
+        setSelectorText("#module-7 .callout:nth-of-type(1) p", "Ein Rauchmelder kann empfindlich oder streng eingestellt werden. Bei einem sehr niedrigen Threshold löst er oft Alarm aus. Bei einem hohen Threshold übersieht er eher echte Brände.", "A smoke detector can be tuned to be sensitive or strict. With a very low threshold it often triggers an alarm. With a high threshold it is more likely to miss real fires.");
+        setSelectorText("#module-7 .callout:nth-of-type(2) p", "Threshold senken erhöht meist den Recall, weil mehr echte Positivfälle gefunden werden. Dafür steigen oft die False Positives. Threshold erhöhen macht häufig das Gegenteil.", "Lowering the threshold usually increases recall because more true positive cases are found. In return, false positives often rise. Raising the threshold often does the opposite.");
+        setGlossarySentence("#module-7 .formula-block p", "", "", "Threshold", "Threshold", "Der Threshold ist die Schwelle, ab der eine Wahrscheinlichkeit als Klasse 1 gezählt wird. Unterhalb der Schwelle wird Klasse 0 vorhergesagt.", "The threshold is the cutoff at which a probability is counted as class 1. Below the cutoff, class 0 is predicted.", " ist kein Naturgesetz. Er ist eine Entscheidung darüber, welche Art von Fehler im jeweiligen Geschäftsfall teurer ist.", " is not a law of nature. It is a decision about which type of error is more expensive in the given business case.");
+        setSelectorText("#module-7 .code-explain", "Was passiert hier? Du änderst nicht das Modell, sondern nur die Schwelle, ab der du „Ja“ sagst. Dadurch verschieben sich alle Metriken.", "What happens here? You do not change the model, only the cutoff from which you say “yes”. That shifts all metrics.");
+        setSelectorText("#module-7 .reflection", "Was nimmst du mit? Der beste Threshold hängt vom Schadenprofil ab. In Medizin, Betrugserkennung oder Bewerbungsfiltern kann dieselbe Metrik zu ganz anderen Entscheidungen führen.", "What do you take away? The best threshold depends on the cost profile. In medicine, fraud detection or application filters, the same metric can lead to very different decisions.");
+        setSelectorText("#module-7 .exercise-instruction", "Erzeuge harte Vorhersagen mit einem niedrigeren Threshold. So siehst du direkt, wie mehr Fälle positiv werden.", "Create hard predictions with a lower threshold. This lets you see directly how more cases become positive.");
+        setSelectorText("#module-7 .exercise-context", "📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.", "📓 Open your Jupyter notebook or Google Colab and try it yourself.");
+        setSelectorText("#module-7 .hint p", "Wieder gilt: Alles ab dem Threshold wird zu 1.", "Again, everything from the threshold onward becomes 1.");
+        setSelectorHtml("#module-7 .solution .expected-output", "Erwartete Ausgabe: <code>[0, 0, 1, 1, 1]</code>", "Expected output: <code>[0, 0, 1, 1, 1]</code>");
+
+        setSelectorText("#module-8 .callout:nth-of-type(1) p", "Der Türsteher entscheidet nicht nur über „rein“ oder „nicht rein“. Auf dem Wochenmarkt sortiert er jetzt Äpfel, Birnen und Bananen. Dafür braucht er mehrere kleine Ja/Nein-Modelle.", "The bouncer no longer decides only “inside” or “not inside”. At the weekly market he now sorts apples, pears and bananas. For that he needs several small yes-or-no models.");
+        setSelectorText("#module-8 .callout:nth-of-type(2) p", "Bei One-vs-Rest bekommt jede Klasse ihr eigenes binäres Modell. Alle Modelle liefern Wahrscheinlichkeiten. Gewonnen hat die Klasse mit dem höchsten Wert.", "With one-vs-rest, each class gets its own binary model. All models output probabilities. The class with the highest value wins.");
+        setGlossarySentence("#module-8 .formula-block p", "", "", "One-vs-Rest", "One-vs-rest", "Bei One-vs-Rest wird für jede Klasse ein eigenes Ja/Nein-Modell trainiert. Für drei Klassen gibt es also drei binäre Modelle.", "In one-vs-rest, one yes-or-no model is trained for each class. For three classes, this means three binary models.", " zerlegt ein Problem mit vielen Klassen in mehrere binäre Fragen: „Ist es meine Klasse oder nicht?“", " breaks a many-class problem into several binary questions: “Is it my class or not?”");
+        setSelectorText("#module-8 .code-explain", "Was passiert hier? Die Iris-Daten haben drei Klassen. sklearn übernimmt die One-vs-Rest-Logik intern und liefert am Ende Kennzahlen pro Klasse.", "What happens here? The Iris data has three classes. sklearn handles the one-vs-rest logic internally and returns metrics per class at the end.");
+        setSelectorText("label[for='multiclass-x'] span:first-child", "Blütenblattlänge", "Petal length");
+        setSelectorText("label[for='multiclass-y'] span:first-child", "Blütenblattbreite", "Petal width");
+        setSelectorText("#module-8 .reflection", "Was nimmst du mit? Multiclass bedeutet nicht automatisch ein völlig neues Modell. Oft ist es dieselbe Grundidee, nur mehrfach parallel gestellt.", "What do you take away? Multiclass does not automatically mean a completely new model. Often it is the same basic idea, just asked several times in parallel.");
+        setSelectorText("#module-8 .exercise-instruction", "Hier übernimmst du den Kern aus dem Multiclass-Notebook. Ergänze die Datenlade-Zeile und trainiere anschließend das Modell.", "Here you take over the core from the multiclass notebook. Fill in the data-loading line and then train the model.");
+        setSelectorText("#module-8 .exercise-context", "📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.", "📓 Open your Jupyter notebook or Google Colab and try it yourself.");
+        setSelectorText("#module-8 .hint p", "Die Funktion heißt genauso wie der Datensatz.", "The function has the same name as the data set.");
+        setSelectorHtml("#module-8 .solution .expected-output", "Erwartete Ausgabe: <code>[0, 0, 0]</code>", "Expected output: <code>[0, 0, 0]</code>");
+
+        setSelectorText(".footer-links .btn:last-child", "Weiter zu Feature Engineering", "Continue to feature engineering");
+
+        translateCodeBlocks();
+        refreshChartLanguage();
+      }
+
+      function ensureCorrectBucket(moduleId) {
+        if (!state.correctAnswers[moduleId]) {
+          state.correctAnswers[moduleId] = [];
+        }
+        return state.correctAnswers[moduleId];
+      }
+
+      function addPoints(points) {
+        state.points += points;
+        saveState();
+        updateProgressUI();
+      }
+
+      function markDemoDone(moduleId) {
+        if (state.demoDone[moduleId]) {
+          return;
+        }
+        state.demoDone[moduleId] = true;
+        addPoints(5);
+      }
+
+      function completeModule(moduleId) {
+        if (state.completedModules.indexOf(moduleId) === -1) {
+          state.completedModules.push(moduleId);
+          state.completedModules.sort(function (a, b) { return a - b; });
+          saveState();
+          updateProgressUI();
+          checkBadges();
+        }
+      }
+
+      function getRank() {
+        if (state.points > 140) {
+          return { label: t("Profi", "Pro"), note: t("Du argumentierst wie ein Modell-Analyst und kannst Entscheidungen fachlich begründen.", "You reason like a model analyst and can justify decisions professionally.") };
+        }
+        if (state.points > 60) {
+          return { label: t("Fortgeschritten", "Advanced"), note: t("Du erkennst Muster, erklärst Thresholds und denkst bereits in Fehlerarten.", "You recognise patterns, explain thresholds and already think in error types.") };
+        }
+        return { label: t("Anfänger", "Beginner"), note: t("Noch offen: Wahrscheinlichkeiten sicher lesen.", "Still open: read probabilities with confidence.") };
+      }
+
+      function checkBadges() {
+        badges.forEach(function (badge) {
+          var earned = badge.modules.every(function (moduleId) {
+            return state.completedModules.indexOf(moduleId) !== -1;
+          });
+          if (earned && state.badges.indexOf(badge.id) === -1) {
+            state.badges.push(badge.id);
+          }
+        });
+        saveState();
+        renderBadges();
+      }
+
+      function renderNav() {
+        var nav = document.getElementById("module-nav");
+        nav.innerHTML = modules.map(function (module) {
+          var done = state.completedModules.indexOf(module.id) !== -1;
+              var status = done ? "✅" : (activeModuleId === module.id ? "🔵" : "⚪");
+              return ""
+                + "<a class=\"nav-item" + (activeModuleId === module.id ? " is-active" : "") + "\" href=\"#module-" + module.id + "\" data-module-link=\"" + module.id + "\">"
+            + "<div class=\"nav-copy\"><strong>" + status + " " + t("Modul", "Module") + " " + module.id + "</strong><span>" + localized(module.title) + "</span></div>"
+            + "<div class=\"nav-meta\">" + (done ? t("sicher", "secure") : t("offen", "open")) + "</div>"
+            + "</a>";
+        }).join("");
+      }
+
+      function renderBadges() {
+        var root = document.getElementById("sidebar-badges");
+        root.innerHTML = badges.map(function (badge) {
+          var earned = state.badges.indexOf(badge.id) !== -1;
+          return ""
+            + "<div class=\"badge-item" + (earned ? " is-earned" : "") + "\">"
+            + "<span class=\"badge-icon\" aria-hidden=\"true\">" + badge.icon + "</span>"
+            + "<div><strong>" + localized(badge.title) + "</strong><div>" + localized(badge.description) + "</div></div>"
+            + "</div>";
+        }).join("");
+      }
+
+      function updateProgressUI() {
+        var completed = state.completedModules.length;
+        var percent = Math.round((completed / modules.length) * 100);
+        document.getElementById("sidebar-progress-label").textContent = t(completed + " von " + modules.length + " Modulen erledigt", completed + " of " + modules.length + " modules completed");
+        document.getElementById("sidebar-points-label").textContent = t(state.points + " Punkte", state.points + " points");
+        document.getElementById("stage-progress-label").textContent = t(percent + " Prozent abgeschlossen", percent + " percent completed");
+        document.getElementById("stage-points-label").textContent = t(state.points + " Punkte gesammelt", state.points + " points earned");
+        document.getElementById("sidebar-progress-fill").style.width = percent + "%";
+        document.getElementById("stage-progress-fill").style.width = percent + "%";
+
+        modules.forEach(function (module) {
+          var node = document.getElementById("module-status-" + module.id);
+          var done = state.completedModules.indexOf(module.id) !== -1;
+          node.textContent = done ? "✅ " + t("Erledigt", "Done") : "⚪ " + t("Offen", "Open");
+          node.classList.toggle("is-complete", done);
+        });
+
+        var rank = getRank();
+        document.getElementById("rank-label").textContent = t("Rang: " + rank.label, "Rank: " + rank.label);
+        document.getElementById("rank-note").textContent = rank.note;
+        renderNav();
+        renderBadges();
+      }
+
+      function renderQuiz(moduleId) {
+        var root = document.getElementById("quiz-" + moduleId);
+        root.innerHTML = quizzes[moduleId].map(function (question, questionIndex) {
+          return ""
+            + "<fieldset class=\"quiz-question\">"
+            + "<legend>" + localized(question.q) + "</legend>"
+            + "<div class=\"quiz-options\">"
+            + localized(question.options).map(function (option, optionIndex) {
+              var inputId = "m" + moduleId + "-q" + questionIndex + "-o" + optionIndex;
+              return ""
+                + "<label class=\"quiz-option\" for=\"" + inputId + "\">"
+                + "<input type=\"radio\" name=\"m" + moduleId + "-q" + questionIndex + "\" id=\"" + inputId + "\" value=\"" + optionIndex + "\">"
+                + "<span>" + option + "</span>"
+                + "</label>";
+            }).join("")
+            + "</div>"
+            + "</fieldset>";
+        }).join("")
+          + "<div class=\"button-row\">"
+          + "<button class=\"btn secondary\" type=\"button\" data-quiz-check=\"" + moduleId + "\">" + t("Quiz prüfen", "Check quiz") + "</button>"
+          + "<button class=\"btn ghost\" type=\"button\" data-quiz-reset=\"" + moduleId + "\">" + t("Antworten leeren", "Clear answers") + "</button>"
+          + "</div>"
+          + "<div id=\"quiz-feedback-" + moduleId + "\" class=\"quiz-feedback\" aria-live=\"polite\"></div>";
+      }
+
+      function resetQuizSelection(moduleId) {
+        document.querySelectorAll("#quiz-" + moduleId + " input[type='radio']").forEach(function (input) {
+          input.checked = false;
+        });
+        document.querySelectorAll("#quiz-" + moduleId + " .quiz-option").forEach(function (option) {
+          option.classList.remove("is-correct", "is-wrong");
+        });
+        setQuizFeedback(moduleId, "", "");
+      }
+
+      function setQuizFeedback(moduleId, type, message) {
+        var box = document.getElementById("quiz-feedback-" + moduleId);
+        box.className = "quiz-feedback";
+        if (!message) {
+          box.textContent = "";
+          return;
+        }
+        box.textContent = message;
+        box.classList.add("is-visible");
+        if (type) {
+          box.classList.add(type);
+        }
+      }
+
+      function checkQuiz(moduleId) {
+        var correctBucket = ensureCorrectBucket(moduleId);
+        var allAnswered = true;
+        var allCorrect = true;
+        var explanations = [];
+
+        quizzes[moduleId].forEach(function (question, questionIndex) {
+          var selected = document.querySelector("input[name='m" + moduleId + "-q" + questionIndex + "']:checked");
+          var options = document.querySelectorAll("#quiz-" + moduleId + " input[name='m" + moduleId + "-q" + questionIndex + "']");
+          options.forEach(function (input) {
+            input.closest(".quiz-option").classList.remove("is-correct", "is-wrong");
+          });
+
+          if (!selected) {
+            allAnswered = false;
+            allCorrect = false;
+            explanations.push(t("Frage " + (questionIndex + 1) + " ist noch offen.", "Question " + (questionIndex + 1) + " is still open."));
+            return;
+          }
+
+          var selectedValue = Number(selected.value);
+          var selectedLabel = selected.closest(".quiz-option");
+          if (selectedValue === question.correct) {
+            selectedLabel.classList.add("is-correct");
+            if (!correctBucket[questionIndex]) {
+              correctBucket[questionIndex] = true;
+              addPoints(10);
+            }
+          } else {
+            selectedLabel.classList.add("is-wrong");
+            allCorrect = false;
+            explanations.push(t("Frage " + (questionIndex + 1) + ": " + localized(question.explanation), "Question " + (questionIndex + 1) + ": " + localized(question.explanation)));
+          }
+        });
+
+        saveState();
+
+        if (!allAnswered) {
+          setQuizFeedback(moduleId, "is-warning", explanations.join(" "));
+          updateProgressUI();
+          return;
+        }
+
+        if (allCorrect) {
+          completeModule(moduleId);
+          setQuizFeedback(moduleId, "is-success", t("Perfekt. Alle Antworten stimmen. Das Modul gilt jetzt als sicher.", "Perfect. All answers are correct. The module now counts as secure."));
+          if (window.DataScienceCelebration && typeof window.DataScienceCelebration.launch === "function") {
+            window.DataScienceCelebration.launch({ pieceCount: 22, duration: 2300 });
+          }
+        } else {
+          setQuizFeedback(moduleId, "is-danger", explanations.join(" "));
+        }
+
+        updateProgressUI();
+      }
+
+      function bindQuizActions() {
+        document.querySelectorAll("[data-quiz-check]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            checkQuiz(Number(button.getAttribute("data-quiz-check")));
+          });
+        });
+        document.querySelectorAll("[data-quiz-reset]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            resetQuizSelection(Number(button.getAttribute("data-quiz-reset")));
+          });
+        });
+      }
+
+      function initSorter() {
+        var data = [
+          { label: { de: "Hauspreis für eine Wohnung schätzen", en: "Estimate the price of an apartment" }, type: "regression" },
+          { label: { de: "Ob morgen Regen fällt", en: "Whether it will rain tomorrow" }, type: "classification" },
+          { label: { de: "Spam oder kein Spam", en: "Spam or not spam" }, type: "classification" },
+          { label: { de: "Kilometerstand in einem Jahr", en: "Mileage after one year" }, type: "regression" }
+        ];
+        var root = document.getElementById("classification-sorter");
+        root.innerHTML = data.map(function (item, index) {
+          return ""
+            + "<div class=\"classify-item\">"
+            + "<strong>" + localized(item.label) + "</strong>"
+            + "<div class=\"classify-actions\">"
+            + "<button class=\"ghost-btn\" type=\"button\" data-sorter=\"" + index + "\" data-value=\"regression\">" + t("Regression", "Regression") + "</button>"
+            + "<button class=\"ghost-btn\" type=\"button\" data-sorter=\"" + index + "\" data-value=\"classification\">" + t("Klassifikation", "Classification") + "</button>"
+            + "</div>"
+            + "</div>";
+        }).join("");
+
+        if (!root.dataset.bound) {
+          root.addEventListener("click", function (event) {
+            var button = event.target.closest("[data-sorter]");
+            if (!button) {
+              return;
+            }
+            markDemoDone(1);
+            var index = button.getAttribute("data-sorter");
+            var value = button.getAttribute("data-value");
+            state.sorterAnswers[index] = value;
+            saveState();
+            root.querySelectorAll("[data-sorter='" + index + "']").forEach(function (node) {
+              node.classList.remove("btn");
+              node.classList.add("ghost-btn");
+            });
+            button.classList.remove("ghost-btn");
+            button.classList.add("btn");
+          });
+          root.dataset.bound = "true";
+        }
+
+        var checkButton = document.getElementById("check-sorter");
+        if (!checkButton.dataset.bound) {
+          checkButton.addEventListener("click", function () {
+            var correct = 0;
+            data.forEach(function (item, index) {
+              if (state.sorterAnswers[index] === item.type) {
+                correct += 1;
+              }
+            });
+            var box = document.getElementById("sorter-feedback");
+            box.className = "quiz-feedback is-visible " + (correct === data.length ? "is-success" : "is-warning");
+            box.textContent = correct === data.length
+              ? t("Sauber klassifiziert. Genau darum geht es bei binären Entscheidungen.", "Nicely classified. That is exactly what binary decisions are about.")
+              : t("Du hast " + correct + " von " + data.length + " richtig. Prüfe: Regen und Spam sind Klassen, Hauspreis und Kilometerstand sind Zahlen.", "You got " + correct + " of " + data.length + " right. Check again: rain and spam are classes, house price and mileage are numbers.");
+          });
+          checkButton.dataset.bound = "true";
+        }
+
+        var resetButton = document.getElementById("reset-sorter");
+        if (!resetButton.dataset.bound) {
+          resetButton.addEventListener("click", function () {
+            state.sorterAnswers = {};
+            saveState();
+            initSorter();
+            document.getElementById("sorter-feedback").className = "quiz-feedback";
+            document.getElementById("sorter-feedback").textContent = "";
+          });
+          resetButton.dataset.bound = "true";
+        }
+
+        Object.keys(state.sorterAnswers).forEach(function (index) {
+          var selector = "[data-sorter='" + index + "'][data-value='" + state.sorterAnswers[index] + "']";
+          var selected = root.querySelector(selector);
+          if (selected) {
+            selected.classList.remove("ghost-btn");
+            selected.classList.add("btn");
+          }
+        });
+      }
+
+      function initSigmoidChart() {
+        var xs = [];
+        var ys = [];
+        for (var i = -100; i <= 100; i += 1) {
+          var x = i / 10;
+          xs.push(x);
+          ys.push(sigmoid(x));
+        }
+        charts.sigmoid = new Chart(document.getElementById("sigmoid-chart"), {
+          type: "line",
+          data: {
+            labels: xs,
+            datasets: [
+              { label: "Sigmoid", data: ys, borderColor: "#173262", borderWidth: 3, pointRadius: 0, tension: 0.2 },
+              { label: "Aktueller Punkt", data: [{ x: 0, y: 0.5 }], parsing: false, showLine: false, pointRadius: 6, pointBackgroundColor: "#631832" }
+            ]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { title: { display: true, text: "Score t" } },
+              y: { min: 0, max: 1, title: { display: true, text: "Wahrscheinlichkeit" } }
+            }
+          })
+        });
+        updateSigmoid(false);
+      }
+
+      function sigmoid(value) {
+        return 1 / (1 + Math.exp(-value));
+      }
+
+      function updateSigmoid(trackDemo) {
+        var input = document.getElementById("sigmoid-input");
+        var score = Number(input.value);
+        var probability = sigmoid(score);
+        document.getElementById("sigmoid-value").textContent = score.toFixed(1);
+        document.getElementById("sigmoid-probability").textContent = (probability * 100).toFixed(1) + " %";
+        document.getElementById("sigmoid-meaning").textContent =
+          probability > 0.8 ? t("Fast sicher Ja.", "Almost certainly yes.")
+          : probability < 0.2 ? t("Fast sicher Nein.", "Almost certainly no.")
+          : t("50:50, der Türsteher ist unsicher.", "Fifty-fifty, the bouncer is unsure.");
+        charts.sigmoid.data.datasets[1].data = [{ x: score, y: probability }];
+        charts.sigmoid.update("none");
+        if (trackDemo) {
+          markDemoDone(2);
+        }
+      }
+
+      function initBoundaryChart() {
+        charts.boundary = new Chart(document.getElementById("boundary-chart"), {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Klasse 0",
+                data: boundaryData.filter(function (row) { return row.label === 0; }),
+                backgroundColor: "#4f7a6a"
+              },
+              {
+                label: "Klasse 1",
+                data: boundaryData.filter(function (row) { return row.label === 1; }),
+                backgroundColor: "#173262"
+              },
+              {
+                label: "Grenze",
+                type: "line",
+                data: [],
+                borderColor: "#631832",
+                borderWidth: 3,
+                pointRadius: 0
+              }
+            ]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { min: 0, max: 4, title: { display: true, text: "x₁" } },
+              y: { min: 0, max: 3, title: { display: true, text: "x₂" } }
+            }
+          })
+        });
+        updateBoundary(false);
+      }
+
+      function boundaryLinePoints(b0, b1, b2) {
+        var x1 = 0;
+        var x2 = 4;
+        if (Math.abs(b2) < 0.05) {
+          return [{ x: -b0 / (b1 || 0.1), y: 0 }, { x: -b0 / (b1 || 0.1), y: 3 }];
+        }
+        return [
+          { x: x1, y: (-b0 - b1 * x1) / b2 },
+          { x: x2, y: (-b0 - b1 * x2) / b2 }
+        ];
+      }
+
+      function updateBoundary(trackDemo) {
+        var b0 = Number(document.getElementById("boundary-b0").value);
+        var b1 = Number(document.getElementById("boundary-b1").value);
+        var b2 = Number(document.getElementById("boundary-b2").value);
+        document.getElementById("boundary-b0-value").textContent = b0.toFixed(1);
+        document.getElementById("boundary-b1-value").textContent = b1.toFixed(1);
+        document.getElementById("boundary-b2-value").textContent = b2.toFixed(1);
+        charts.boundary.data.datasets[2].data = boundaryLinePoints(b0, b1, b2);
+        charts.boundary.update("none");
+        var correct = 0;
+        boundaryData.forEach(function (row) {
+          var score = b0 + b1 * row.x + b2 * row.y;
+          var pred = score >= 0 ? 1 : 0;
+          if (pred === row.label) {
+            correct += 1;
+          }
+        });
+        document.getElementById("boundary-correct").textContent = String(correct);
+        document.getElementById("boundary-errors").textContent = String(boundaryData.length - correct);
+        if (trackDemo) {
+          markDemoDone(3);
+        }
+      }
+
+      function initLossCharts() {
+        var probs = [];
+        var positive = [];
+        var negative = [];
+        for (var i = 1; i <= 99; i += 1) {
+          var p = i / 100;
+          probs.push(p);
+          positive.push(-Math.log(p));
+          negative.push(-Math.log(1 - p));
+        }
+        charts.lossPositive = new Chart(document.getElementById("loss-chart-positive"), {
+          type: "line",
+          data: {
+            labels: probs,
+            datasets: [
+              { label: "y = 1", data: positive, borderColor: "#173262", borderWidth: 3, pointRadius: 0, tension: 0.15 },
+              { label: "Punkt", data: [{ x: 0.5, y: -Math.log(0.5) }], parsing: false, showLine: false, pointRadius: 6, pointBackgroundColor: "#631832" }
+            ]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { min: 0, max: 1, title: { display: true, text: "p" } },
+              y: { min: 0, max: 5, title: { display: true, text: "Verlust" } }
+            }
+          })
+        });
+        charts.lossNegative = new Chart(document.getElementById("loss-chart-negative"), {
+          type: "line",
+          data: {
+            labels: probs,
+            datasets: [
+              { label: "y = 0", data: negative, borderColor: "#9a6b4a", borderWidth: 3, pointRadius: 0, tension: 0.15 },
+              { label: "Punkt", data: [{ x: 0.5, y: -Math.log(0.5) }], parsing: false, showLine: false, pointRadius: 6, pointBackgroundColor: "#631832" }
+            ]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { min: 0, max: 1, title: { display: true, text: "p" } },
+              y: { min: 0, max: 5, title: { display: true, text: "Verlust" } }
+            }
+          })
+        });
+        updateLoss(false);
+      }
+
+      function updateLoss(trackDemo) {
+        var p = Number(document.getElementById("loss-probability").value);
+        var loss = currentLossClass === 1 ? -Math.log(p) : -Math.log(1 - p);
+        document.getElementById("loss-probability-value").textContent = p.toFixed(2);
+        document.getElementById("loss-value").textContent = loss.toFixed(3);
+        document.getElementById("loss-class-label").textContent = String(currentLossClass);
+        document.getElementById("loss-reading").textContent =
+          loss < 0.2 ? t("Sehr guter Treffer", "Very good hit")
+          : loss < 0.7 ? t("Mittlere Unsicherheit", "Medium uncertainty")
+          : t("Teurer Fehlgriff", "Expensive miss");
+        document.getElementById("loss-warning").textContent =
+          currentLossClass === 1 ? t("Bei p nahe 0 explodiert die Strafe.", "When p is close to 0 the penalty explodes.") : t("Bei p nahe 1 explodiert die Strafe.", "When p is close to 1 the penalty explodes.");
+        charts.lossPositive.data.datasets[1].data = [{ x: p, y: -Math.log(p) }];
+        charts.lossNegative.data.datasets[1].data = [{ x: p, y: -Math.log(1 - p) }];
+        charts.lossPositive.update("none");
+        charts.lossNegative.update("none");
+        if (trackDemo) {
+          markDemoDone(4);
+        }
+      }
+
+      function resetTrainingState() {
+        trainingState = {
+          x: [-3, -2, -1, 0, 1, 2, 3],
+          y: [0, 0, 0, 0, 1, 1, 1],
+          b0: 0,
+          b1: 0,
+          alpha: 0.25,
+          step: 0,
+          lossHistory: [0.693]
+        };
+      }
+
+      function trainingLoss() {
+        var total = 0;
+        trainingState.x.forEach(function (x, index) {
+          var y = trainingState.y[index];
+          var p = sigmoid(trainingState.b0 + trainingState.b1 * x);
+          total += -(y * Math.log(p + 1e-9) + (1 - y) * Math.log(1 - p + 1e-9));
+        });
+        return total / trainingState.x.length;
+      }
+
+      function trainingStep() {
+        var grad0 = 0;
+        var grad1 = 0;
+        trainingState.x.forEach(function (x, index) {
+          var y = trainingState.y[index];
+          var p = sigmoid(trainingState.b0 + trainingState.b1 * x);
+          grad0 += (p - y);
+          grad1 += (p - y) * x;
+        });
+        grad0 /= trainingState.x.length;
+        grad1 /= trainingState.x.length;
+        trainingState.b0 -= trainingState.alpha * grad0;
+        trainingState.b1 -= trainingState.alpha * grad1;
+        trainingState.step += 1;
+        trainingState.lossHistory.push(trainingLoss());
+        state.training = trainingState;
+        saveState();
+      }
+
+      function initTrainingCharts() {
+        if (state.training && Array.isArray(state.training.lossHistory)) {
+          trainingState = state.training;
+        } else {
+          resetTrainingState();
+        }
+
+        charts.training = new Chart(document.getElementById("training-chart"), {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Daten",
+                data: trainingState.x.map(function (x, index) { return { x: x, y: trainingState.y[index] }; }),
+                backgroundColor: trainingState.y.map(function (y) { return y ? "#173262" : "#4f7a6a"; })
+              },
+              {
+                label: "Sigmoid",
+                type: "line",
+                data: [],
+                borderColor: "#631832",
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0.2
+              }
+            ]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { min: -3.2, max: 3.2, title: { display: true, text: "x" } },
+              y: { min: -0.05, max: 1.05, title: { display: true, text: "p(y=1)" } }
+            }
+          })
+        });
+
+        charts.trainingLoss = new Chart(document.getElementById("training-loss-chart"), {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [{ label: "Log-Loss", data: [], borderColor: "#173262", borderWidth: 3, pointRadius: 0, tension: 0.2 }]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { title: { display: true, text: "Schritt" } },
+              y: { min: 0, title: { display: true, text: "Log-Loss" } }
+            }
+          })
+        });
+
+        updateTrainingCharts();
+
+        document.getElementById("training-step").addEventListener("click", function () {
+          trainingStep();
+          updateTrainingCharts();
+          markDemoDone(5);
+        });
+        document.getElementById("training-play").addEventListener("click", function () {
+          if (AUTO_PLAY_ID) {
+            window.clearInterval(AUTO_PLAY_ID);
+            AUTO_PLAY_ID = null;
+            this.textContent = t("Auto-Play", "Auto play");
+            return;
+          }
+          var button = this;
+          button.textContent = t("Stoppen", "Stop");
+          AUTO_PLAY_ID = window.setInterval(function () {
+            trainingStep();
+            updateTrainingCharts();
+            markDemoDone(5);
+            if (trainingState.step >= 20) {
+              window.clearInterval(AUTO_PLAY_ID);
+              AUTO_PLAY_ID = null;
+              button.textContent = t("Auto-Play", "Auto play");
+            }
+          }, 380);
+        });
+        document.getElementById("training-reset").addEventListener("click", function () {
+          if (AUTO_PLAY_ID) {
+            window.clearInterval(AUTO_PLAY_ID);
+            AUTO_PLAY_ID = null;
+            document.getElementById("training-play").textContent = t("Auto-Play", "Auto play");
+          }
+          resetTrainingState();
+          state.training = trainingState;
+          saveState();
+          updateTrainingCharts();
+        });
+      }
+
+      function updateTrainingCharts() {
+        var line = [];
+        for (var i = -30; i <= 30; i += 1) {
+          var x = i / 10;
+          line.push({ x: x, y: sigmoid(trainingState.b0 + trainingState.b1 * x) });
+        }
+        charts.training.data.datasets[1].data = line;
+        charts.training.update("none");
+        charts.trainingLoss.data.labels = trainingState.lossHistory.map(function (_, index) { return index; });
+        charts.trainingLoss.data.datasets[0].data = trainingState.lossHistory;
+        charts.trainingLoss.update("none");
+
+        document.getElementById("training-steps").textContent = String(trainingState.step);
+        document.getElementById("training-b0").textContent = trainingState.b0.toFixed(3);
+        document.getElementById("training-b1").textContent = trainingState.b1.toFixed(3);
+        document.getElementById("training-loss").textContent = trainingState.lossHistory[trainingState.lossHistory.length - 1].toFixed(3);
+      }
+
+      function initWorkflow() {
+        var buttons = document.getElementById("workflow-buttons");
+        buttons.innerHTML = workflowSteps.map(function (step, index) {
+          return "<button class=\"mode-btn\" type=\"button\" data-workflow-step=\"" + index + "\">" + localized(step.title) + "</button>";
+        }).join("");
+        buttons.addEventListener("click", function (event) {
+          var button = event.target.closest("[data-workflow-step]");
+          if (!button) {
+            return;
+          }
+          state.workflowIndex = Number(button.getAttribute("data-workflow-step")) + 1;
+          saveState();
+          updateWorkflow();
+          markDemoDone(6);
+        });
+        updateWorkflow();
+      }
+
+      function updateWorkflow() {
+        var index = Math.max(0, Math.min(workflowSteps.length, state.workflowIndex || 0));
+        document.querySelectorAll("[data-workflow-step]").forEach(function (button, buttonIndex) {
+          button.textContent = localized(workflowSteps[buttonIndex].title);
+          button.classList.toggle("is-active", buttonIndex < index);
+        });
+        var code = index > 0 ? workflowSteps[index - 1].code : t("# Klicke einen Schritt an", "# Click one step");
+        document.getElementById("workflow-code").textContent = code;
+        if (window.Prism && window.Prism.highlightElement) {
+          window.Prism.highlightElement(document.getElementById("workflow-code"));
+        }
+        document.getElementById("workflow-status").textContent = index > 0 ? localized(workflowSteps[index - 1].note) : t("Schritt 1 wartet auf dich.", "Step 1 is waiting for you.");
+        document.getElementById("workflow-tn").textContent = index === workflowSteps.length ? "4" : "-";
+        document.getElementById("workflow-fp").textContent = index === workflowSteps.length ? "1" : "-";
+        document.getElementById("workflow-fn").textContent = index === workflowSteps.length ? "1" : "-";
+        document.getElementById("workflow-tp").textContent = index === workflowSteps.length ? "4" : "-";
+      }
+
+      function rocPoints() {
+        var thresholds = [];
+        for (var tValue = 0; tValue <= 100; tValue += 5) {
+          thresholds.push(tValue / 100);
+        }
+        return thresholds.map(function (threshold) {
+          var cm = confusionAtThreshold(threshold);
+          return { x: cm.fpr, y: cm.tpr };
+        });
+      }
+
+      function confusionAtThreshold(threshold) {
+        var tp = 0, tn = 0, fp = 0, fn = 0;
+        thresholdData.proba.forEach(function (proba, index) {
+          var pred = proba >= threshold ? 1 : 0;
+          var truth = thresholdData.yTrue[index];
+          if (pred === 1 && truth === 1) { tp += 1; }
+          if (pred === 0 && truth === 0) { tn += 1; }
+          if (pred === 1 && truth === 0) { fp += 1; }
+          if (pred === 0 && truth === 1) { fn += 1; }
+        });
+        var precision = tp + fp === 0 ? 0 : tp / (tp + fp);
+        var recall = tp + fn === 0 ? 0 : tp / (tp + fn);
+        var accuracy = (tp + tn) / thresholdData.proba.length;
+        var f1 = precision + recall === 0 ? 0 : 2 * precision * recall / (precision + recall);
+        var fpr = fp + tn === 0 ? 0 : fp / (fp + tn);
+        var tpr = recall;
+        return { tp: tp, tn: tn, fp: fp, fn: fn, precision: precision, recall: recall, accuracy: accuracy, f1: f1, fpr: fpr, tpr: tpr };
+      }
+
+      function initThresholdDemo() {
+        charts.roc = new Chart(document.getElementById("roc-chart"), {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "ROC",
+                type: "line",
+                data: rocPoints(),
+                parsing: false,
+                borderColor: "#173262",
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0.15
+              },
+              {
+                label: "Aktueller Threshold",
+                data: [{ x: 0, y: 0 }],
+                parsing: false,
+                pointBackgroundColor: "#631832",
+                pointRadius: 6
+              }
+            ]
+          },
+          options: baseChartOptions({
+            scales: {
+              x: { min: 0, max: 1, title: { display: true, text: "False Positive Rate" } },
+              y: { min: 0, max: 1, title: { display: true, text: "True Positive Rate" } }
+            }
+          })
+        });
+        updateThreshold(false);
+      }
+
+      function updateThreshold(trackDemo) {
+        var threshold = Number(document.getElementById("threshold-slider").value);
+        var cm = confusionAtThreshold(threshold);
+        document.getElementById("threshold-value").textContent = threshold.toFixed(2);
+        document.getElementById("threshold-tn").textContent = String(cm.tn);
+        document.getElementById("threshold-fp").textContent = String(cm.fp);
+        document.getElementById("threshold-fn").textContent = String(cm.fn);
+        document.getElementById("threshold-tp").textContent = String(cm.tp);
+        document.getElementById("metric-precision").textContent = cm.precision.toFixed(2);
+        document.getElementById("metric-recall").textContent = cm.recall.toFixed(2);
+        document.getElementById("metric-f1").textContent = cm.f1.toFixed(2);
+        document.getElementById("metric-accuracy").textContent = cm.accuracy.toFixed(2);
+        charts.roc.data.datasets[1].data = [{ x: cm.fpr, y: cm.tpr }];
+        charts.roc.update("none");
+        if (trackDemo) {
+          markDemoDone(7);
+        }
+      }
+
+      function initMulticlassDemo() {
+        drawMulticlass();
+        updateMulticlass(false);
+      }
+
+      function multiclassScores(x, y) {
+        return {
+          setosa: 5.3 - 0.95 * x - 1.5 * y,
+          versicolor: -1.4 + 0.6 * x + 0.1 * y - 0.18 * Math.pow(x - 4.4, 2),
+          virginica: -4.6 + 0.78 * x + 1.1 * y
+        };
+      }
+
+      function drawMulticlass() {
+        var canvas = document.getElementById("multiclass-canvas");
+        var ctx = canvas.getContext("2d");
+        var width = canvas.width;
+        var height = canvas.height;
+        var pad = 54;
+        var minX = 1.0, maxX = 7.0, minY = 0.1, maxY = 2.6;
+
+        function scaleX(value) {
+          return pad + (value - minX) / (maxX - minX) * (width - pad * 2);
+        }
+        function scaleY(value) {
+          return height - pad - (value - minY) / (maxY - minY) * (height - pad * 2);
+        }
+
+        ctx.clearRect(0, 0, width, height);
+        for (var gx = minX; gx <= maxX; gx += 0.08) {
+          for (var gy = minY; gy <= maxY; gy += 0.05) {
+            var scores = multiclassScores(gx, gy);
+            var predicted = "setosa";
+            if (scores.versicolor > scores[predicted]) { predicted = "versicolor"; }
+            if (scores.virginica > scores[predicted]) { predicted = "virginica"; }
+            ctx.fillStyle = predicted === "setosa" ? "rgba(79,122,106,0.16)" : predicted === "versicolor" ? "rgba(154,107,74,0.16)" : "rgba(23,50,98,0.16)";
+            ctx.fillRect(scaleX(gx), scaleY(gy), 6, 6);
+          }
+        }
+
+        ctx.strokeStyle = "#b6bcc8";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(pad, pad, width - pad * 2, height - pad * 2);
+
+        ctx.fillStyle = "#695f68";
+        ctx.font = "12px Avenir Next, sans-serif";
+        ctx.fillText(t("Blütenblattbreite", "Petal width"), 10, pad - 10);
+        ctx.fillText(t("Blütenblattlänge", "Petal length"), width / 2 - 32, height - 16);
+
+        var points = [
+          { x: 1.5, y: 0.2, c: "#4f7a6a" }, { x: 1.7, y: 0.3, c: "#4f7a6a" }, { x: 1.4, y: 0.2, c: "#4f7a6a" },
+          { x: 4.5, y: 1.4, c: "#9a6b4a" }, { x: 4.8, y: 1.6, c: "#9a6b4a" }, { x: 4.2, y: 1.3, c: "#9a6b4a" },
+          { x: 5.6, y: 2.0, c: "#173262" }, { x: 5.9, y: 2.2, c: "#173262" }, { x: 6.2, y: 2.1, c: "#173262" }
+        ];
+        points.forEach(function (point) {
+          ctx.beginPath();
+          ctx.fillStyle = point.c;
+          ctx.arc(scaleX(point.x), scaleY(point.y), 6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        var currentX = Number(document.getElementById("multiclass-x").value);
+        var currentY = Number(document.getElementById("multiclass-y").value);
+        ctx.beginPath();
+        ctx.fillStyle = "#631832";
+        ctx.arc(scaleX(currentX), scaleY(currentY), 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function updateMulticlass(trackDemo) {
+        var x = Number(document.getElementById("multiclass-x").value);
+        var y = Number(document.getElementById("multiclass-y").value);
+        var scores = multiclassScores(x, y);
+        document.getElementById("multiclass-x-value").textContent = x.toFixed(1);
+        document.getElementById("multiclass-y-value").textContent = y.toFixed(1);
+        document.getElementById("score-setosa").textContent = scores.setosa.toFixed(2);
+        document.getElementById("score-versicolor").textContent = scores.versicolor.toFixed(2);
+        document.getElementById("score-virginica").textContent = scores.virginica.toFixed(2);
+        var predicted = "Setosa";
+        var best = scores.setosa;
+        if (scores.versicolor > best) {
+          best = scores.versicolor;
+          predicted = "Versicolor";
+        }
+        if (scores.virginica > best) {
+          predicted = "Virginica";
+        }
+        document.getElementById("multiclass-prediction").textContent = predicted;
+        drawMulticlass();
+        if (trackDemo) {
+          markDemoDone(8);
+        }
+      }
+
+      function refreshChartLanguage() {
+        if (charts.sigmoid) {
+          charts.sigmoid.data.datasets[0].label = t("Sigmoid", "Sigmoid");
+          charts.sigmoid.data.datasets[1].label = t("Aktueller Punkt", "Current point");
+          charts.sigmoid.options.scales.x.title.text = t("Score t", "Score t");
+          charts.sigmoid.options.scales.y.title.text = t("Wahrscheinlichkeit", "Probability");
+          charts.sigmoid.update("none");
+        }
+        if (charts.boundary) {
+          charts.boundary.data.datasets[0].label = t("Klasse 0", "Class 0");
+          charts.boundary.data.datasets[1].label = t("Klasse 1", "Class 1");
+          charts.boundary.data.datasets[2].label = t("Grenze", "Boundary");
+          charts.boundary.options.scales.x.title.text = "x₁";
+          charts.boundary.options.scales.y.title.text = "x₂";
+          charts.boundary.update("none");
+        }
+        if (charts.lossPositive) {
+          charts.lossPositive.data.datasets[0].label = "y = 1";
+          charts.lossPositive.data.datasets[1].label = t("Punkt", "Point");
+          charts.lossPositive.options.scales.x.title.text = "p";
+          charts.lossPositive.options.scales.y.title.text = t("Verlust", "Loss");
+          charts.lossPositive.update("none");
+        }
+        if (charts.lossNegative) {
+          charts.lossNegative.data.datasets[0].label = "y = 0";
+          charts.lossNegative.data.datasets[1].label = t("Punkt", "Point");
+          charts.lossNegative.options.scales.x.title.text = "p";
+          charts.lossNegative.options.scales.y.title.text = t("Verlust", "Loss");
+          charts.lossNegative.update("none");
+        }
+        if (charts.training) {
+          charts.training.data.datasets[0].label = t("Daten", "Data");
+          charts.training.data.datasets[1].label = t("Sigmoid", "Sigmoid");
+          charts.training.options.scales.x.title.text = "x";
+          charts.training.options.scales.y.title.text = t("p(y=1)", "p(y=1)");
+          charts.training.update("none");
+        }
+        if (charts.trainingLoss) {
+          charts.trainingLoss.data.datasets[0].label = t("Log-Loss", "Log loss");
+          charts.trainingLoss.options.scales.x.title.text = t("Schritt", "Step");
+          charts.trainingLoss.options.scales.y.title.text = t("Log-Loss", "Log loss");
+          charts.trainingLoss.update("none");
+        }
+        if (charts.roc) {
+          charts.roc.data.datasets[0].label = "ROC";
+          charts.roc.data.datasets[1].label = t("Aktueller Threshold", "Current threshold");
+          charts.roc.options.scales.x.title.text = t("False Positive Rate", "False positive rate");
+          charts.roc.options.scales.y.title.text = t("True Positive Rate", "True positive rate");
+          charts.roc.update("none");
+        }
+      }
+
+      function baseChartOptions(overrides) {
+        return Object.assign({
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: "#231A24",
+                font: { family: "Avenir Next" }
+              }
+            },
+            tooltip: {
+              backgroundColor: "#231A24",
+              titleFont: { family: "Avenir Next" },
+              bodyFont: { family: "Avenir Next" }
+            }
+          },
+          scales: {
+            x: { ticks: { color: "#695f68" }, grid: { color: "rgba(35,26,36,0.08)" } },
+            y: { ticks: { color: "#695f68" }, grid: { color: "rgba(35,26,36,0.08)" } }
+          }
+        }, overrides || {});
+      }
+
+      function bindGlobalActions() {
+        document.getElementById("sigmoid-input").addEventListener("input", function () {
+          updateSigmoid(true);
+        });
+        ["boundary-b0", "boundary-b1", "boundary-b2"].forEach(function (id) {
+          document.getElementById(id).addEventListener("input", function () {
+            updateBoundary(true);
+          });
+        });
+        document.getElementById("loss-probability").addEventListener("input", function () {
+          updateLoss(true);
+        });
+        document.getElementById("loss-class-1").addEventListener("click", function () {
+          currentLossClass = 1;
+          this.classList.add("is-active");
+          document.getElementById("loss-class-0").classList.remove("is-active");
+          updateLoss(true);
+        });
+        document.getElementById("loss-class-0").addEventListener("click", function () {
+          currentLossClass = 0;
+          this.classList.add("is-active");
+          document.getElementById("loss-class-1").classList.remove("is-active");
+          updateLoss(true);
+        });
+        document.getElementById("loss-class-1").classList.add("is-active");
+        document.getElementById("threshold-slider").addEventListener("input", function () {
+          updateThreshold(true);
+        });
+        document.getElementById("multiclass-x").addEventListener("input", function () {
+          updateMulticlass(true);
+        });
+        document.getElementById("multiclass-y").addEventListener("input", function () {
+          updateMulticlass(true);
+        });
+
+        document.getElementById("jump-next-open").addEventListener("click", function () {
+          var openModule = modules.find(function (module) {
+            return state.completedModules.indexOf(module.id) === -1;
+          }) || modules[modules.length - 1];
+          document.getElementById("module-" + openModule.id).scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        document.getElementById("reset-logistic-progress").addEventListener("click", function () {
+          window.localStorage.removeItem(STORAGE_KEY);
+          state = baseState();
+          resetTrainingState();
+          renderPageState();
+        });
+
+        document.getElementById("sidebar-toggle").addEventListener("click", function () {
+          sidebarOpen = !sidebarOpen;
+          document.getElementById("sidebar").hidden = !sidebarOpen;
+        });
+      }
+
+      function setupObserver() {
+        if (intersectionObserver) {
+          intersectionObserver.disconnect();
+        }
+        intersectionObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              activeModuleId = Number(entry.target.getAttribute("data-module-id"));
+              document.getElementById("sticky-title").textContent = localized(modules[activeModuleId - 1].title);
+              renderNav();
+            }
+          });
+        }, { rootMargin: "-20% 0px -55% 0px", threshold: 0.05 });
+        document.querySelectorAll(".module").forEach(function (section) {
+          intersectionObserver.observe(section);
+        });
+      }
+
+      function renderPageState() {
+        currentLang = getLang();
+        modules.forEach(function (module) {
+          renderQuiz(module.id);
+        });
+        bindQuizActions();
+        initSorter();
+        updateProgressUI();
+        updateWorkflow();
+        document.getElementById("sticky-title").textContent = localized(modules[activeModuleId - 1].title);
+        if (charts.sigmoid) {
+          updateSigmoid(false);
+          updateBoundary(false);
+          updateLoss(false);
+          updateTrainingCharts();
+          updateThreshold(false);
+          updateMulticlass(false);
+        }
+      }
+
+      function init() {
+        currentLang = getLang();
+        modules.forEach(function (module) {
+          renderQuiz(module.id);
+        });
+        bindQuizActions();
+        initSorter();
+        initSigmoidChart();
+        initBoundaryChart();
+        initLossCharts();
+        initTrainingCharts();
+        initWorkflow();
+        initThresholdDemo();
+        initMulticlassDemo();
+        bindGlobalActions();
+        updateProgressUI();
+        setupObserver();
+        applyChapterTranslations();
+        if (window.renderMathInElement) {
+          window.renderMathInElement(document.body, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "\\(", right: "\\)", display: false }
+            ]
+          });
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+      window.addEventListener("ds-language-change", function () {
+        currentLang = getLang();
+        renderPageState();
+        applyChapterTranslations();
+      });
+    })();
+  </script>
+  <script defer src="lernstand_manager.js"></script>
+</body>
+</html>

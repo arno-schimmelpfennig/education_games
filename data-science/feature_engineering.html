@@ -1,0 +1,2920 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Engineering | Data Science</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <style>
+    :root {
+      --bg: #edf3fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fbff;
+      --ink: #1f2a3c;
+      --muted: #5e6d86;
+      --brand: #173262;
+      --accent: #6f2d45;
+      --gold: #f2b94b;
+      --gold-soft: #fff6d8;
+      --ok: #1f8b4c;
+      --warn: #b45309;
+      --danger: #b42318;
+      --line: #d7dfed;
+      --shadow: 0 16px 34px rgba(20, 39, 74, 0.12);
+      --shadow-soft: 0 10px 24px rgba(20, 39, 74, 0.08);
+      --radius: 16px;
+      --header-height: 72px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 90% 0%, #f8fbff 0%, var(--bg) 46%, #e7eef8 100%);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+      border-right: 1px solid var(--line);
+    }
+
+    #stage {
+      min-width: 0;
+      overflow-y: auto;
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .brandline {
+      color: #667691;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      color: var(--brand);
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      margin-top: 8px;
+      font-size: 1.78rem;
+      line-height: 1.08;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+    }
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    p,
+    li {
+      line-height: 1.52;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .lead {
+      margin-top: 8px;
+      color: #4a5b75;
+      font-size: 0.95rem;
+    }
+
+    .card,
+    .module,
+    .hero,
+    .header-shell,
+    .workflow-card,
+    .formula-card,
+    .demo-card,
+    .quiz-card,
+    .summary-card,
+    .footer-nav {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card,
+    .hero,
+    .header-shell,
+    .summary-card,
+    .footer-nav {
+      padding: 14px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 12px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 12px;
+    }
+
+    .hero-note,
+    .info-strip,
+    .callout,
+    .status-banner,
+    .quiz-feedback,
+    .demo-note,
+    .snowman-task,
+    .path-status {
+      border-radius: 12px;
+      padding: 10px 11px;
+      border: 1px solid #d8e2f1;
+      background: #fbfdff;
+      color: #4b5b76;
+      font-size: 0.88rem;
+    }
+
+    .callout.warn,
+    .status-banner.warn,
+    .quiz-feedback.warn {
+      border-color: #eed4bc;
+      background: #fff7ee;
+      color: var(--warn);
+    }
+
+    .callout.danger {
+      border-color: #f0d0d0;
+      background: #fff7f7;
+      color: var(--danger);
+    }
+
+    .callout.ok,
+    .quiz-feedback.ok {
+      border-color: #c8dfcf;
+      background: #f3fbf4;
+      color: var(--ok);
+    }
+
+    .chip-row,
+    .meta-grid,
+    .stars-grid,
+    .quiz-actions,
+    .demo-actions,
+    .footer-links,
+    .bucket-grid,
+    .slot-grid,
+    .tech-grid,
+    .stats-grid,
+    .workflow-grid,
+    .architecture-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .chip {
+      border: 1px solid #d4deee;
+      border-radius: 12px;
+      background: #fbfdff;
+      padding: 10px;
+      color: #4f5f79;
+      font-size: 0.84rem;
+      text-align: center;
+    }
+
+    .chip strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #213f69;
+    }
+
+    .progress-wrap {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: #44556f;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #e8eef8;
+      overflow: hidden;
+    }
+
+    .progress-bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--brand), #2e5693);
+      transition: width 0.3s ease;
+    }
+
+    .points-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(111, 45, 69, 0.22);
+      background: linear-gradient(180deg, #fff9fb 0%, #ffffff 100%);
+      font-size: 0.88rem;
+      color: #4d5c74;
+    }
+
+    .stars-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      margin-top: 10px;
+    }
+
+    .star-badge {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      padding: 8px 4px;
+      border-radius: 12px;
+      border: 1px solid #dbe4f1;
+      background: #fbfdff;
+      font-size: 0.76rem;
+      color: #61708a;
+      text-align: center;
+    }
+
+    .star-badge svg {
+      width: 28px;
+      height: 28px;
+      fill: #cfd7e6;
+      transition: transform 0.3s ease, fill 0.3s ease, filter 0.3s ease;
+    }
+
+    .star-badge.active {
+      border-color: rgba(242, 185, 75, 0.55);
+      background: linear-gradient(180deg, #fff9e6 0%, #ffffff 100%);
+      color: #7a5a09;
+    }
+
+    .star-badge.active svg {
+      fill: var(--gold);
+      filter: drop-shadow(0 0 10px rgba(242, 185, 75, 0.5));
+      transform: scale(1.08);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1.05); }
+      50% { transform: scale(1.14); }
+    }
+
+    .section-nav {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .section-link {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #d7dfed;
+      background: #fbfdff;
+      text-decoration: none;
+      color: #40516c;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .section-link:hover,
+    .section-link.active {
+      border-color: #aec0df;
+      background: #eef4ff;
+      transform: translateY(-1px);
+    }
+
+    .section-link.done {
+      border-color: #bdd8c3;
+      background: #f3fbf4;
+      color: #2d6943;
+    }
+
+    .section-index {
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: #e8eef8;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .section-link.done .section-index {
+      background: #dff0e2;
+      color: var(--ok);
+    }
+
+    .section-status {
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .header-shell {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.92);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      min-height: var(--header-height);
+    }
+
+    .header-shell p {
+      color: #51627c;
+      max-width: 720px;
+    }
+
+    .header-tag {
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(111, 45, 69, 0.25);
+      background: #fff9fb;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .module {
+      padding: 16px;
+      scroll-margin-top: calc(var(--header-height) + 18px);
+      display: grid;
+      gap: 14px;
+    }
+
+    .module-header {
+      display: grid;
+      gap: 10px;
+    }
+
+    .module-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6a7892;
+      font-weight: 700;
+    }
+
+    .module-title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .module-badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #edf3ff;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .workflow-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .workflow-step {
+      position: relative;
+      min-height: 98px;
+      padding: 12px 10px;
+      border-radius: 14px;
+      border: 1px solid #d7dfed;
+      background: #fbfdff;
+      color: #4b5b76;
+      font-size: 0.84rem;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+
+    .workflow-step.highlight {
+      border-color: rgba(242, 185, 75, 0.7);
+      background: linear-gradient(180deg, #fff7de 0%, #fffdf4 100%);
+      box-shadow: 0 10px 24px rgba(242, 185, 75, 0.18);
+    }
+
+    .workflow-step strong {
+      color: #213f69;
+    }
+
+    .workflow-step::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 20px;
+      height: 2px;
+      background: #b9c8de;
+    }
+
+    .workflow-step:nth-child(5)::after,
+    .workflow-step:nth-child(10)::after {
+      display: none;
+    }
+
+    .bar-split {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .bar-line {
+      display: grid;
+      gap: 6px;
+    }
+
+    .bar-line label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: #52627b;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      height: 14px;
+      border-radius: 999px;
+      background: #e9eef8;
+      overflow: hidden;
+    }
+
+    .bar-track span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      transform-origin: left center;
+      animation: grow 1s ease both;
+    }
+
+    @keyframes grow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #dbe4f2;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      color: #4a5b75;
+    }
+
+    th,
+    td {
+      padding: 8px 9px;
+      border: 1px solid #dbe4f2;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f4f8ff;
+      color: #2f4771;
+      font-weight: 700;
+    }
+
+    .cell-cat {
+      background: rgba(23, 50, 98, 0.07);
+      color: #173262;
+      font-weight: 600;
+    }
+
+    .cell-num {
+      background: rgba(31, 139, 76, 0.08);
+      color: #25633d;
+      font-weight: 600;
+    }
+
+    .cell-missing {
+      background: rgba(180, 35, 24, 0.08);
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    details {
+      border: 1px solid #d7dfed;
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 10px 12px;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #27426d;
+      outline: none;
+    }
+
+    details[open] summary {
+      margin-bottom: 8px;
+    }
+
+    .formula-line {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #dbe4f2;
+      color: #263d63;
+    }
+
+    .formula-words {
+      display: grid;
+      gap: 6px;
+      color: #51627d;
+      font-size: 0.87rem;
+    }
+
+    pre[class*="language-"] {
+      margin: 0;
+      border-radius: 14px;
+      box-shadow: var(--shadow-soft);
+      font-size: 0.82rem;
+    }
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(99,24,50,0.05), rgba(23,50,98,0.04));
+      box-shadow: var(--shadow-soft);
+    }
+    .exercise-instruction, .exercise-context {
+      margin: 0;
+      color: #51627d;
+      line-height: 1.6;
+    }
+    .exercise-context {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #dbe4f2;
+      background: #ffffff;
+    }
+    .exercise-card details {
+      margin: 0;
+      border-radius: 12px;
+      border: 1px solid #dbe4f2;
+      background: #ffffff;
+    }
+    .exercise-card details summary {
+      padding: 10px 12px;
+      font-weight: 700;
+      color: #2f466f;
+    }
+    .exercise-card details p {
+      margin: 0;
+      padding: 0 12px 12px;
+      color: #51627d;
+    }
+    .exercise-card .solution pre[class*="language-"] {
+      margin: 0 12px 12px;
+    }
+    .expected-output {
+      padding-top: 0;
+      font-weight: 600;
+      color: #173262;
+    }
+
+    .demo-card,
+    .formula-card,
+    .quiz-card,
+    .workflow-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+
+    .demo-card,
+    .formula-card,
+    .workflow-card {
+      box-shadow: var(--shadow-soft);
+    }
+
+    .demo-card {
+      display: grid;
+      gap: 12px;
+    }
+
+    .demo-controls {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .control-group {
+      display: grid;
+      gap: 6px;
+    }
+
+    .control-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #4c5c76;
+    }
+
+    select,
+    input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      border-radius: 12px;
+      border: 1px solid #c8d5ea;
+      background: #fff;
+      padding: 10px;
+      color: #2f466f;
+    }
+
+    .button,
+    .ghost-button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .button:hover,
+    .ghost-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(20, 39, 74, 0.12);
+    }
+
+    .button {
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #345a95);
+    }
+
+    .ghost-button {
+      background: #eef3fb;
+      color: #27426d;
+      border: 1px solid #c6d3e9;
+    }
+
+    .demo-actions,
+    .quiz-actions {
+      grid-auto-flow: column;
+      justify-content: start;
+    }
+
+    .demo-actions button,
+    .quiz-actions button {
+      width: fit-content;
+    }
+
+    .histogram {
+      display: grid;
+      gap: 8px;
+    }
+
+    .hist-row {
+      display: grid;
+      grid-template-columns: 86px 1fr 58px;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #4a5b75;
+    }
+
+    .hist-bar {
+      height: 14px;
+      border-radius: 999px;
+      background: #e8eef8;
+      overflow: hidden;
+    }
+
+    .hist-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #173262, #6f2d45);
+      transition: width 0.35s ease;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat-box {
+      border: 1px solid #dbe4f2;
+      border-radius: 12px;
+      background: #fbfdff;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #4f5f79;
+    }
+
+    .stat-box strong {
+      display: block;
+      color: #213f69;
+      margin-top: 4px;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quiz-option {
+      display: flex;
+      gap: 8px;
+      align-items: start;
+      padding: 10px 11px;
+      border-radius: 12px;
+      border: 1px solid #dbe4f2;
+      background: #fbfdff;
+      color: #465774;
+    }
+
+    .quiz-option input {
+      margin-top: 3px;
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      min-height: 54px;
+    }
+
+    .module-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding-top: 4px;
+      border-top: 1px dashed #d7dfed;
+    }
+
+    .module-footer .mini-star {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #5d6d87;
+    }
+
+    .module-footer .mini-star svg {
+      width: 22px;
+      height: 22px;
+      fill: #cfd7e6;
+      transition: fill 0.3s ease, filter 0.3s ease;
+    }
+
+    .module-footer .mini-star.active {
+      color: #7a5a09;
+    }
+
+    .module-footer .mini-star.active svg {
+      fill: var(--gold);
+      filter: drop-shadow(0 0 8px rgba(242, 185, 75, 0.48));
+    }
+
+    .drag-pool,
+    .bucket,
+    .slot-list {
+      min-height: 74px;
+      border: 2px dashed #c8d5ea;
+      border-radius: 14px;
+      background: #f9fbff;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .bucket {
+      min-height: 120px;
+      background: #ffffff;
+    }
+
+    .bucket h4 {
+      width: 100%;
+      font-size: 0.9rem;
+      color: #27426d;
+      margin-bottom: 2px;
+    }
+
+    .drag-chip,
+    .slot-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: #eef3fb;
+      color: #27426d;
+      border: 1px solid #c6d3e9;
+      cursor: grab;
+      user-select: none;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .drag-chip.dragging,
+    .slot-item.dragging {
+      opacity: 0.45;
+    }
+
+    .bucket.is-over,
+    .drag-pool.is-over,
+    .slot-list.is-over {
+      border-color: #7aa0d9;
+      background: #eef4ff;
+    }
+
+    .slot-list {
+      display: grid;
+      gap: 8px;
+      background: #ffffff;
+    }
+
+    .slot-item {
+      justify-content: space-between;
+      width: 100%;
+      border-radius: 12px;
+      background: #fbfdff;
+      cursor: grab;
+    }
+
+    .slot-number {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: #e8eef8;
+      color: var(--brand);
+      font-size: 0.76rem;
+    }
+
+    .architecture-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .node-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .arch-node {
+      position: relative;
+      border: 1px solid #d7dfed;
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 12px;
+      color: #495973;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .arch-node:hover,
+    .arch-node.active {
+      border-color: #afc2e1;
+      background: #eef4ff;
+      transform: translateY(-1px);
+    }
+
+    .arch-node strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #213f69;
+    }
+
+    .arch-node.pipeline {
+      background: linear-gradient(180deg, #fff8ec 0%, #ffffff 100%);
+      border-color: rgba(242, 185, 75, 0.55);
+    }
+
+    .explanation-box {
+      border: 1px solid #dbe4f2;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 12px;
+      color: #4d5c74;
+      min-height: 196px;
+    }
+
+    .boundary-box {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #dbe4f2;
+      background: #fbfdff;
+    }
+
+    .boundary-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.84rem;
+      color: #4c5c76;
+    }
+
+    .boundary-pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #eef3fb;
+      color: #27426d;
+      border: 1px solid #c6d3e9;
+      font-weight: 700;
+    }
+
+    .footer-nav {
+      display: grid;
+      gap: 12px;
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .path-link {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #173262, #2d4f84);
+    }
+
+    .path-link.secondary {
+      background: #eef3fb;
+      color: #27426d;
+      border: 1px solid #c6d3e9;
+    }
+
+    .print-only {
+      display: none;
+    }
+
+    @media (max-width: 1120px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .hero-grid,
+      .module-grid,
+      .architecture-grid,
+      .footer-links {
+        grid-template-columns: 1fr;
+      }
+
+      .workflow-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .chip-row,
+      .stats-grid,
+      .stars-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      #stage,
+      #sidebar {
+        padding: 14px;
+      }
+
+      .workflow-grid,
+      .chip-row,
+      .stats-grid,
+      .stars-grid,
+      .demo-controls,
+      .bucket-grid,
+      .footer-links {
+        grid-template-columns: 1fr;
+      }
+
+      .module-title-row,
+      .header-shell {
+        display: grid;
+      }
+
+      .quiz-actions,
+      .demo-actions {
+        grid-auto-flow: row;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #111827;
+      }
+
+      #app {
+        display: block;
+      }
+
+      #sidebar,
+      .button,
+      .ghost-button,
+      .quiz-actions,
+      .demo-actions,
+      .path-link {
+        display: none !important;
+      }
+
+      #stage {
+        padding: 0;
+        overflow: visible;
+      }
+
+      .header-shell {
+        position: static;
+        box-shadow: none;
+      }
+
+      .module,
+      .hero,
+      .summary-card,
+      .footer-nav {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+
+      .print-only {
+        display: block;
+        margin-bottom: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+      <h1>Feature Engineering<br>Die Daten-Kueche</h1>
+      <p class="lead">Von rohen Zutaten zu modellfaehigen Merkmalen: Imputation, Encoding, Scaling, neue Features und Pipelines in einer einzigen Browser-Seite.</p>
+
+      <div class="card">
+        <strong>Was lernst du hier in 10-15 Minuten pro Modul?</strong>
+        <p>Wie du Rohdaten vorbereitest, ohne Data Leakage zu erzeugen, und wie daraus ein sauberer, reproduzierbarer ML-Workflow entsteht.</p>
+        <div class="progress-wrap" aria-live="polite">
+          <div class="progress-label">
+            <span>Gesamtfortschritt</span>
+            <span id="progress-text">0%</span>
+          </div>
+          <div class="progress-bar" aria-hidden="true"><span id="progress-bar-fill"></span></div>
+        </div>
+        <div class="points-box">
+          <span>Punkte aus Quizzes</span>
+          <strong id="points-total">0</strong>
+        </div>
+        <div class="stars-grid" id="stars-grid" aria-label="Kuechensterne"></div>
+      </div>
+
+      <div class="card">
+        <strong>Didaktischer Modus</strong>
+        <div class="info-strip">Start mit Alltagssprache, dann Fachbegriff, dann Formel, dann Code, dann ein kleines Tun-im-Browser.</div>
+        <div class="info-strip">Warnhinweise zu Data Leakage tauchen absichtlich mehrfach auf, damit der Arbeitsablauf haengen bleibt.</div>
+      </div>
+
+      <nav class="section-nav" id="section-nav">
+        <a class="section-link" href="#module-0" data-module-link="module-0">
+          <span class="section-index">0</span>
+          <span>Warum Feature Engineering?</span>
+          <span class="section-status" data-module-status="module-0">0%</span>
+        </a>
+        <a class="section-link" href="#module-1" data-module-link="module-1">
+          <span class="section-index">1</span>
+          <span>Imputation</span>
+          <span class="section-status" data-module-status="module-1">0%</span>
+        </a>
+        <a class="section-link" href="#module-2" data-module-link="module-2">
+          <span class="section-index">2</span>
+          <span>Categorical Encoding</span>
+          <span class="section-status" data-module-status="module-2">0%</span>
+        </a>
+        <a class="section-link" href="#module-3" data-module-link="module-3">
+          <span class="section-index">3</span>
+          <span>Scaling</span>
+          <span class="section-status" data-module-status="module-3">0%</span>
+        </a>
+        <a class="section-link" href="#module-4" data-module-link="module-4">
+          <span class="section-index">4</span>
+          <span>Expansion und Binning</span>
+          <span class="section-status" data-module-status="module-4">0%</span>
+        </a>
+        <a class="section-link" href="#module-5" data-module-link="module-5">
+          <span class="section-index">5</span>
+          <span>Pipeline und ColumnTransformer</span>
+          <span class="section-status" data-module-status="module-5">0%</span>
+        </a>
+        <a class="section-link" href="#summary" data-module-link="summary">
+          <span class="section-index">S</span>
+          <span>Zusammenfassung</span>
+          <span class="section-status" data-module-status="summary">bereit</span>
+        </a>
+      </nav>
+
+      <div class="card">
+        <strong>Navigation im Pfad</strong>
+        <div class="path-status">Dieses Kapitel liegt im aktiven Kernpfad zwischen Logistischer Regression und KNN, kann aber auch eigenständig bearbeitet werden.</div>
+        <div class="footer-links">
+          <a class="path-link secondary" href="logistic_regression.html">Zurück zu Logistische Regression</a>
+          <a class="path-link" href="knn_grundlagen_interaktion.html">Weiter zu KNN-Grundlagen</a>
+        </div>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <div class="print-only">
+        <h1>Feature Engineering - Die Daten-Kueche</h1>
+        <p>Standalone-Kapitel fuer den Data-Science-Lernpfad.</p>
+      </div>
+
+      <header class="header-shell">
+        <div>
+          <div class="brandline">Kapitelansicht</div>
+          <h2>Feature Engineering - Die Daten-Kueche</h2>
+          <p>Rohdaten muessen gewaschen, sortiert, portioniert und in ein verarbeitbares Rezept gebracht werden, bevor ein Modell sinnvoll lernen kann.</p>
+        </div>
+        <div class="header-tag">Browser-only | localStorage | Quiz-Feedback sofort</div>
+      </header>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <h2 id="hero-title">Warum dieses Kapitel jetzt passt</h2>
+        <div class="hero-grid">
+          <div class="hero-note">
+            <strong>Alltagssprache zuerst</strong>
+            <p>Wenn Zutaten fehlen, andere Einheiten nutzen oder Worte statt Zahlen vorliegen, kann der Koch-Automat kein gutes Gericht bauen. Genau so stolpern ML-Modelle ueber unvorbereitete Daten.</p>
+          </div>
+          <div class="hero-note">
+            <strong>Was du am Ende koennen sollst</strong>
+            <p>Du erkennst Merkmalstypen, vermeidest Data Leakage, kombinierst Vorverarbeitungsschritte in einer Pipeline und kannst eine kleine Projekt-Routine begruenden.</p>
+          </div>
+        </div>
+        <div class="chip-row">
+          <div class="chip"><strong>Ziel</strong>Koerpermasse von Pinguinen abschaetzen</div>
+          <div class="chip"><strong>Datensatz</strong>Palmer Penguins als Demo</div>
+          <div class="chip"><strong>Warnsignal</strong>Erst splitten, dann vorbereiten</div>
+        </div>
+      </section>
+
+      <section class="module" id="module-0" data-module="module-0">
+        <div class="module-header">
+          <div class="module-kicker">Modul 0 | Daten-Kueche</div>
+          <div class="module-title-row">
+            <div>
+              <h2>Warum brauchen wir Feature Engineering?</h2>
+              <p>Analogie: Die Kochbox kommt roh. Erst waschen, schneiden und portionieren, dann kann der Ofen etwas Sinnvolles daraus machen.</p>
+            </div>
+            <div class="module-badge">ca. 15 Min.</div>
+          </div>
+        </div>
+
+        <div class="workflow-card">
+          <h3>ML-Workflow im Ueberblick</h3>
+          <p>Feature Engineering sitzt mitten zwischen Datenverstehen und Modelltraining. Es ist die Bruecke zwischen Rohdaten und lernbaren Signalen.</p>
+          <div class="workflow-grid" aria-label="Workflow des maschinellen Lernens">
+            <div class="workflow-step"><strong>1. Business Goal</strong><span>Welche Frage soll beantwortet werden?</span></div>
+            <div class="workflow-step"><strong>2. Daten sammeln</strong><span>Welche Quellen liefern passende Beobachtungen?</span></div>
+            <div class="workflow-step"><strong>3. Train-Test-Split</strong><span>Pruefung und Lernen trennen.</span></div>
+            <div class="workflow-step"><strong>4. EDA</strong><span>Verteilungen, Luecken und Auffaelligkeiten ansehen.</span></div>
+            <div class="workflow-step highlight"><strong>5. Feature Engineering</strong><span>Imputieren, codieren, skalieren, ableiten.</span></div>
+            <div class="workflow-step"><strong>6. Hyperparameter</strong><span>Verfahren sauber einstellen.</span></div>
+            <div class="workflow-step"><strong>7. Modelltraining</strong><span>Das Modell lernt auf den Trainingsdaten.</span></div>
+            <div class="workflow-step"><strong>8. Validierung</strong><span>Zwischenpruefen und vergleichen.</span></div>
+            <div class="workflow-step"><strong>9. Test Score</strong><span>Endgueltige Leistung abschaetzen.</span></div>
+            <div class="workflow-step"><strong>10. Deploy & Monitor</strong><span>Im Betrieb beobachten und nachsteuern.</span></div>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="workflow-card">
+            <h3>Warum ist der Schritt so gross?</h3>
+            <p>In vielen Projekten faellt der groesste Teil der Zeit nicht auf das Modell, sondern auf Datenvorbereitung. Das ist keine Nebensache, sondern der eigentliche Hebel fuer gute oder schlechte Vorhersagen.</p>
+            <div class="bar-split" aria-label="Zeitverteilung im Projekt">
+              <div class="bar-line">
+                <label><span>Daten vorbereiten</span><span>70%</span></label>
+                <div class="bar-track"><span style="width:70%; background: linear-gradient(90deg, #173262, #234b85);"></span></div>
+              </div>
+              <div class="bar-line">
+                <label><span>Modell trainieren</span><span>20%</span></label>
+                <div class="bar-track"><span style="width:20%; background: linear-gradient(90deg, #6f2d45, #90506b);"></span></div>
+              </div>
+              <div class="bar-line">
+                <label><span>Rest</span><span>10%</span></label>
+                <div class="bar-track"><span style="width:10%; background: linear-gradient(90deg, #f2b94b, #f6cd77);"></span></div>
+              </div>
+            </div>
+            <div class="callout danger" style="margin-top:10px;">
+              <strong>Data Leakage Merksatz</strong><br>
+              Immer erst Train-Test-Split, dann Feature Engineering. Sonst schaut das Modell bei der Pruefung ab.
+            </div>
+          </div>
+
+          <div class="workflow-card">
+            <h3>Techniken auf einen Blick</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Technik</th>
+                    <th>Was sie macht</th>
+                    <th>Kuechen-Analogie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Imputation</td><td>Fehlende Werte fuellen</td><td>Fehlende Zutat ersetzen</td></tr>
+                  <tr><td>Categorical Encoding</td><td>Worte in Zahlen uebersetzen</td><td>Farbcodes fuer Muelltrennung</td></tr>
+                  <tr><td>Feature Scaling</td><td>Werte auf vergleichbare Skalen bringen</td><td>Gramm und Liter nebeneinander lesbar machen</td></tr>
+                  <tr><td>Discretization</td><td>Zahlen in Gruppen einteilen</td><td>Kleidergroessen statt exakter Masse</td></tr>
+                  <tr><td>Feature Expansion</td><td>Neue Merkmale ableiten</td><td>Gewuerzmischung aus Einzelgewuerzen</td></tr>
+                  <tr><td>Pipeline</td><td>Alles reproduzierbar automatisieren</td><td>Thermomix mit festen Programmen</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="workflow-card">
+            <h3>Palmer Penguins als Beispiel</h3>
+            <p>Ziel: Die Koerpermasse `body_mass_g` vorhersagen. In den Features liegen Textspalten, Zahlen und fehlende Werte gemischt vor.</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>species</th>
+                    <th>island</th>
+                    <th>bill_length_mm</th>
+                    <th>bill_depth_mm</th>
+                    <th>flipper_length_mm</th>
+                    <th>sex</th>
+                    <th>body_mass_g</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-cat">Adelie</td>
+                    <td class="cell-cat">Torgersen</td>
+                    <td class="cell-num">39.1</td>
+                    <td class="cell-num">18.7</td>
+                    <td class="cell-num">181</td>
+                    <td class="cell-cat">Male</td>
+                    <td class="cell-num">3750</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-cat">Adelie</td>
+                    <td class="cell-cat">Torgersen</td>
+                    <td class="cell-num">39.5</td>
+                    <td class="cell-num">17.4</td>
+                    <td class="cell-num">186</td>
+                    <td class="cell-cat">Female</td>
+                    <td class="cell-num">3800</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-cat">Chinstrap</td>
+                    <td class="cell-cat">Dream</td>
+                    <td class="cell-num">50.0</td>
+                    <td class="cell-num">19.5</td>
+                    <td class="cell-missing">NaN</td>
+                    <td class="cell-cat">Female</td>
+                    <td class="cell-num">3600</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-cat">Gentoo</td>
+                    <td class="cell-cat">Biscoe</td>
+                    <td class="cell-num">46.1</td>
+                    <td class="cell-num">13.2</td>
+                    <td class="cell-num">211</td>
+                    <td class="cell-missing">NaN</td>
+                    <td class="cell-num">4500</td>
+                  </tr>
+                  <tr>
+                    <td class="cell-cat">Gentoo</td>
+                    <td class="cell-cat">Biscoe</td>
+                    <td class="cell-num">50.0</td>
+                    <td class="cell-num">16.3</td>
+                    <td class="cell-num">230</td>
+                    <td class="cell-cat">Male</td>
+                    <td class="cell-num">5700</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <h3>Best Practice als Ablauf</h3>
+            <div class="boundary-box">
+              <div class="boundary-row">
+                <span class="boundary-pill">Datensatz</span>
+                <span>&rarr;</span>
+                <span class="boundary-pill">Train-Test-Split</span>
+                <span>&rarr;</span>
+                <span class="boundary-pill">fit nur auf Train</span>
+                <span>&rarr;</span>
+                <span class="boundary-pill">transform auf Test</span>
+              </div>
+              <div class="boundary-row">
+                <span class="boundary-pill">Rohdaten</span>
+                <span>&rarr;</span>
+                <span class="boundary-pill">Features</span>
+                <span>&rarr;</span>
+                <span class="boundary-pill">Modell</span>
+                <span>&rarr;</span>
+                <span class="boundary-pill">ehrlicher Test</span>
+              </div>
+            </div>
+            <div class="callout warn" style="margin-top:10px;">
+              Wenn du vor dem Split imputierst oder skalierst, kennt dein Modell schon Informationen aus den spaeteren Testdaten.
+            </div>
+          </div>
+        </div>
+
+        <div class="formula-card">
+          <h3>Code-Startpunkt</h3>
+          <pre><code class="language-python"># Daten laden
+import pandas as pd
+df = pd.read_csv("penguins.csv")
+
+# Features und Ziel trennen
+numerical_features = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm"]
+categorical_features = ["species", "island", "sex"]
+target_variable = "body_mass_g"
+
+X = df[numerical_features + categorical_features]
+y = df[target_variable]
+
+# Train-Test-Split (immer zuerst!)
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, shuffle=True
+)</code></pre>
+        </div>
+
+        <div class="quiz-card" data-quiz="module-0">
+          <h3>Quiz: Was passiert mit rohen Daten im Modell?</h3>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="quiz-module-0" value="a">Das Modell lernt perfekt.</label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-0" value="b">Das Modell macht oft ungenauere Vorhersagen.</label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-0" value="c">Das Modell stuerzt immer ab.</label>
+          </div>
+          <div class="quiz-actions">
+            <button class="button" type="button" data-check-quiz="module-0">Antwort pruefen</button>
+          </div>
+          <div class="quiz-feedback" id="feedback-module-0" aria-live="polite">Noch offen.</div>
+        </div>
+
+        <div class="module-footer">
+          <div class="mini-star" data-mini-star="module-0">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"/></svg>
+            <span>Badge fuer dieses Modul</span>
+          </div>
+          <span class="section-status" id="module-status-module-0">Noch nicht abgeschlossen</span>
+        </div>
+      </section>
+
+      <section class="module" id="module-1" data-module="module-1">
+        <div class="module-header">
+          <div class="module-kicker">Modul 1 | Fehlende Zutaten</div>
+          <div class="module-title-row">
+            <div>
+              <h2>Imputation: Fehlende Zutaten ergaenzen</h2>
+              <p>Analogie: Wenn beim Kochen Salz fehlt, ersetzt du es nicht zufaellig, sondern mit einer plausiblen Regel.</p>
+            </div>
+            <div class="module-badge">ca. 30 Min.</div>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="workflow-card">
+            <h3>Strategien auf einen Blick</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Strategie</th>
+                    <th>Beschreibung</th>
+                    <th>Wann?</th>
+                    <th>Kueche</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>mean</code></td><td>Durchschnitt</td><td>Normalere Zahlenwerte</td><td>Durchschnittliche Gewuerzmenge</td></tr>
+                  <tr><td><code>median</code></td><td>Mittlerer Wert</td><td>Bei Ausreissern</td><td>Mittlere Backzeit</td></tr>
+                  <tr><td><code>most_frequent</code></td><td>Haeufigster Wert</td><td>Text und Kategorien</td><td>Beliebteste Beilage</td></tr>
+                  <tr><td><code>constant</code></td><td>Fester Ersatz</td><td>Wenn Standard bekannt ist</td><td>Immer 200 Grad</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout danger" style="margin-top:10px;">
+              <strong>Data Leakage</strong><br>
+              <code>.fit()</code> nur auf Trainingsdaten. Auf Testdaten nur <code>.transform()</code>.
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <h3>SimpleImputer in Worten</h3>
+            <div class="formula-words">
+              <p><strong><code>.fit()</code></strong> = Der Imputer schaut auf Trainingsdaten und merkt sich den Ersatzwert.</p>
+              <p><strong><code>.transform()</code></strong> = Der gemerkte Wert wird spaeter eingesetzt.</p>
+              <p><strong><code>.fit_transform()</code></strong> = Beides zusammen, aber nur auf Trainingsdaten sinnvoll.</p>
+            </div>
+            <details>
+              <summary>Median-Formel oeffnen</summary>
+              <div class="formula-line">\( \mathrm{Median}(x) = \begin{cases} x_{\left(\frac{n+1}{2}\right)} & \text{wenn } n \text{ ungerade} \\ \frac{x_{\left(\frac{n}{2}\right)} + x_{\left(\frac{n}{2}+1\right)}}{2} & \text{wenn } n \text{ gerade} \end{cases} \)</div>
+              <div class="formula-words">
+                <p>Sortiere zuerst alle vorhandenen Werte. Bei ungerader Anzahl nimmst du den echten Mittelwert der Positionen. Bei gerader Anzahl mittelt man die beiden mittleren Werte.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <h3>Interaktive Demo: Fehlende Flossenlaenge ersetzen</h3>
+          <p>Waehle eine Strategie und fuehre die Imputation auf einem kleinen Trainingsausschnitt aus.</p>
+          <div class="demo-controls">
+            <div class="control-group">
+              <label for="imputation-strategy">Strategie</label>
+              <select id="imputation-strategy" aria-label="Imputationsstrategie waehlen">
+                <option value="mean">mean</option>
+                <option value="median" selected>median</option>
+                <option value="most_frequent">most_frequent</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Aktion</label>
+              <div class="demo-actions">
+                <button class="button" type="button" id="run-imputation">Imputation ausfuehren</button>
+                <button class="ghost-button" type="button" id="reset-imputation">Reset</button>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>flipper_length_mm</th>
+                </tr>
+              </thead>
+              <tbody id="imputation-table-body"></tbody>
+            </table>
+          </div>
+          <div class="demo-note" id="imputation-note">Noch nichts angewendet.</div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>🏋️ Übung: Fehlende Werte mit dem Median auffüllen</h4>
+          <p class="exercise-instruction">Baue einen kleinen Datensatz mit einer Lücke und ergänze die fehlende Zeile so, dass der Median als Ersatzwert gelernt und eingesetzt wird. So übst du genau das Muster aus dem Notebook in einer handlichen Mini-Version.</p>
+          <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+          <pre class="language-python"><code class="language-python">from sklearn.impute import SimpleImputer
+
+X_train = [[180.0], [182.0], [185.0], [None]]
+imputer = SimpleImputer(strategy="median")
+
+# ??? DEINE LÖSUNG ???
+print(filled[-1][0])</code></pre>
+          <details class="hint">
+            <summary>💡 Tipp anzeigen</summary>
+            <p>Der Imputer braucht erst <code>fit_transform</code> auf den Trainingsdaten, damit die Lücke durch den Median ersetzt wird.</p>
+          </details>
+          <details class="solution">
+            <summary>✅ Lösung anzeigen</summary>
+            <pre class="language-python"><code class="language-python">from sklearn.impute import SimpleImputer
+
+X_train = [[180.0], [182.0], [185.0], [None]]
+imputer = SimpleImputer(strategy="median")
+
+filled = imputer.fit_transform(X_train)
+print(filled[-1][0])</code></pre>
+            <p class="expected-output">Erwartete Ausgabe: 182.0</p>
+          </details>
+        </div>
+
+        <div class="formula-card">
+          <h3>Code-Beispiel</h3>
+          <pre><code class="language-python">from sklearn.impute import SimpleImputer
+
+# Imputer fuer Kategorien
+sex_imputer = SimpleImputer(strategy="most_frequent")
+sex_imputer.fit(X_train[["sex"]])
+
+X_train["sex"] = sex_imputer.transform(X_train[["sex"]])
+X_test["sex"] = sex_imputer.transform(X_test[["sex"]])
+
+# Imputer fuer Zahlen
+num_imputer = SimpleImputer(strategy="median")
+num_imputer.fit(X_train[["flipper_length_mm", "bill_depth_mm"]])
+
+X_train[["flipper_length_mm", "bill_depth_mm"]] = num_imputer.transform(
+    X_train[["flipper_length_mm", "bill_depth_mm"]]
+)</code></pre>
+        </div>
+
+        <div class="quiz-card" data-quiz="module-1">
+          <h3>Quiz: Wie imputiert man Testdaten?</h3>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="quiz-module-1" value="a"><code>imputer.fit_transform(X_test)</code></label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-1" value="b"><code>imputer.transform(X_test)</code></label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-1" value="c"><code>imputer.fit(X_test)</code></label>
+          </div>
+          <div class="quiz-actions">
+            <button class="button" type="button" data-check-quiz="module-1">Antwort pruefen</button>
+          </div>
+          <div class="quiz-feedback" id="feedback-module-1" aria-live="polite">Noch offen.</div>
+        </div>
+
+        <div class="module-footer">
+          <div class="mini-star" data-mini-star="module-1">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"/></svg>
+            <span>Kuechenstern fuer Imputation</span>
+          </div>
+          <span class="section-status" id="module-status-module-1">Noch nicht abgeschlossen</span>
+        </div>
+      </section>
+
+      <section class="module" id="module-2" data-module="module-2">
+        <div class="module-header">
+          <div class="module-kicker">Modul 2 | Worte werden Zahlen</div>
+          <div class="module-title-row">
+            <div>
+              <h2>Categorical Encoding</h2>
+              <p>Analogie: Muelltrennung, Schulnoten und Groessenklassen zeigen, dass manche Kategorien keine Reihenfolge haben und andere schon.</p>
+            </div>
+            <div class="module-badge">ca. 30 Min.</div>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="workflow-card">
+            <h3>OneHotEncoder oder OrdinalEncoder?</h3>
+            <div class="meta-grid">
+              <div class="callout">
+                <strong>Nominal</strong><br>
+                Keine Reihenfolge. Beispiele: Tierart, Insel, Farbe, Bundesland. Meist sicher mit One-Hot-Encoding.
+              </div>
+              <div class="callout">
+                <strong>Ordinal</strong><br>
+                Reihenfolge zaehlt. Beispiele: Schulnote, Energieklasse, T-Shirt-Groesse. Dann ist OrdinalEncoder sinnvoll.
+              </div>
+            </div>
+            <div class="callout warn" style="margin-top:10px;">
+              Wenn du nominale Daten ordinal codierst, erfindest du kuenstliche Abstaende wie "Apfel &lt; Banane &lt; Kirsche".
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h3>Vorher / Nachher: One-Hot-Encoding</h3>
+            <div class="table-wrap">
+              <table id="encoding-table">
+                <thead>
+                  <tr><th>#</th><th>species</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>1</td><td>Adelie</td></tr>
+                  <tr><td>2</td><td>Chinstrap</td></tr>
+                  <tr><td>3</td><td>Gentoo</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="demo-actions">
+              <button class="button" type="button" id="run-encoding">Encodieren</button>
+              <button class="ghost-button" type="button" id="reset-encoding">Reset</button>
+            </div>
+            <div class="demo-note" id="encoding-note">Mit <code>drop='first'</code> erkennt man Adelie daran, dass beide neuen Spalten 0 sind.</div>
+          </div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>🏋️ Übung: Kategorien in Dummy-Spalten umwandeln</h4>
+          <p class="exercise-instruction">Wandle drei Tierarten in Dummy-Spalten um und lasse eine Referenzkategorie weg. Ergänze die Lücke so, dass du die Form der neuen Tabelle kontrollieren kannst.</p>
+          <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+          <pre class="language-python"><code class="language-python">import pandas as pd
+
+species = pd.Series(["Adelie", "Chinstrap", "Gentoo"])
+
+# ??? DEINE LÖSUNG ???
+print(encoded.shape)</code></pre>
+          <details class="hint">
+            <summary>💡 Tipp anzeigen</summary>
+            <p>Nutze <code>pd.get_dummies</code> und setze <code>drop_first=True</code>, damit eine Referenzkategorie übrig bleibt.</p>
+          </details>
+          <details class="solution">
+            <summary>✅ Lösung anzeigen</summary>
+            <pre class="language-python"><code class="language-python">import pandas as pd
+
+species = pd.Series(["Adelie", "Chinstrap", "Gentoo"])
+
+encoded = pd.get_dummies(species, drop_first=True)
+print(encoded.shape)</code></pre>
+            <p class="expected-output">Erwartete Ausgabe: (3, 2)</p>
+          </details>
+        </div>
+
+        <div class="formula-card">
+          <h3>Code-Beispiel</h3>
+          <pre><code class="language-python">from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
+
+species_encoder = OneHotEncoder(
+    drop="first",
+    handle_unknown="ignore",
+    sparse_output=False
+)
+
+species_encoder.fit(X_train[["species"]])
+species_encoded = species_encoder.transform(X_train[["species"]])
+
+edu_encoder = OrdinalEncoder(
+    categories=[["Hauptschule", "Realschule", "Abitur", "Bachelor", "Master", "Doktor"]],
+    dtype=int
+)</code></pre>
+        </div>
+
+        <div class="quiz-card" data-quiz="module-2">
+          <h3>Drag-and-Drop: Nominal oder Ordinal?</h3>
+          <p>Ziehe jede Variable in den passenden Kasten. Erst danach pruefen.</p>
+          <div class="bucket-grid" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);">
+            <div>
+              <h4 style="margin-bottom:8px;">Ablage</h4>
+              <div class="drag-pool" id="encoding-pool" data-dropzone="encoding-pool"></div>
+            </div>
+            <div class="bucket" id="bucket-nominal" data-dropzone="nominal">
+              <h4>Nominal</h4>
+            </div>
+            <div class="bucket" id="bucket-ordinal" data-dropzone="ordinal">
+              <h4>Ordinal</h4>
+            </div>
+          </div>
+          <div class="quiz-actions">
+            <button class="button" type="button" id="check-encoding-dnd">Zuordnung pruefen</button>
+            <button class="ghost-button" type="button" id="reset-encoding-dnd">Reset</button>
+          </div>
+          <div class="quiz-feedback" id="feedback-module-2" aria-live="polite">Noch offen.</div>
+        </div>
+
+        <div class="module-footer">
+          <div class="mini-star" data-mini-star="module-2">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"/></svg>
+            <span>Kuechenstern fuer Encoding</span>
+          </div>
+          <span class="section-status" id="module-status-module-2">Noch nicht abgeschlossen</span>
+        </div>
+      </section>
+
+      <section class="module" id="module-3" data-module="module-3">
+        <div class="module-header">
+          <div class="module-kicker">Modul 3 | Alles auf eine Waage</div>
+          <div class="module-title-row">
+            <div>
+              <h2>Feature Scaling</h2>
+              <p>Analogie: Einkommen in Euro und Alter in Jahren darf das Modell nicht nur wegen der Groesse der Zahlen ungleich gewichten.</p>
+            </div>
+            <div class="module-badge">ca. 30 Min.</div>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="formula-card">
+            <h3>Skalierungsarten und Formeln</h3>
+            <details open>
+              <summary>MinMaxScaler</summary>
+              <div class="formula-line">\( x_{\mathrm{scaled}} = \frac{x - x_{\min}}{x_{\max} - x_{\min}} \)</div>
+              <div class="formula-words">
+                <p>Alle Werte werden auf den Bereich zwischen 0 und 1 gestaucht. Das ist anschaulich, aber ausreisser-empfindlich.</p>
+              </div>
+            </details>
+            <details>
+              <summary>StandardScaler</summary>
+              <div class="formula-line">\( z = \frac{x - \mu}{\sigma} \)</div>
+              <div class="formula-words">
+                <p>Der Mittelwert wird 0, die Standardabweichung 1. Das passt oft gut, wenn die Verteilung halbwegs normal wirkt.</p>
+              </div>
+            </details>
+            <details>
+              <summary>RobustScaler</summary>
+              <div class="formula-line">\( x_{\mathrm{robust}} = \frac{x - \mathrm{median}(x)}{\mathrm{IQR}} \)</div>
+              <div class="formula-words">
+                <p>Median und Interquartilsabstand reagieren viel weniger empfindlich auf extreme Ausreisser.</p>
+              </div>
+            </details>
+            <details>
+              <summary>Log-Transformation</summary>
+              <div class="formula-line">\( x_{\log} = \log(x + c) \)</div>
+              <div class="formula-words">
+                <p>Hilft bei schiefen Verteilungen, funktioniert aber nur fuer positive Werte.</p>
+              </div>
+            </details>
+          </div>
+
+          <div class="workflow-card">
+            <h3>Wann ist Scaling wichtig?</h3>
+            <div class="callout">
+              Distanzbasierte Verfahren wie KNN und SVM reagieren sehr direkt auf Groessenordnungen. Auch Regularisierung wird unfair, wenn manche Merkmale riesige Skalen haben.
+            </div>
+            <div class="callout warn" style="margin-top:10px;">
+              Ein Ausreisser wie 300 mm Schnabellaenge kann MinMax und StandardScaler deutlich mitziehen. RobustScaler bleibt gelassener.
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <h3>Interaktive Vorher/Nachher-Visualisierung</h3>
+          <p>Die Basiswerte enthalten absichtlich einen Ausreisser. Wechsle den Scaler und beobachte Histogramm und Kennzahlen.</p>
+          <div class="demo-controls">
+            <div class="control-group">
+              <label for="scaler-select">Scaler</label>
+              <select id="scaler-select" aria-label="Scaler waehlen">
+                <option value="raw">Rohdaten</option>
+                <option value="minmax">MinMaxScaler</option>
+                <option value="standard">StandardScaler</option>
+                <option value="robust" selected>RobustScaler</option>
+                <option value="log">Log-Transformation</option>
+              </select>
+            </div>
+          </div>
+          <div class="histogram" id="histogram"></div>
+          <div class="stats-grid">
+            <div class="stat-box">Min<strong id="stat-min">0</strong></div>
+            <div class="stat-box">Max<strong id="stat-max">0</strong></div>
+            <div class="stat-box">Mean<strong id="stat-mean">0</strong></div>
+            <div class="stat-box">Std<strong id="stat-std">0</strong></div>
+          </div>
+          <div class="demo-note" id="scaler-note">RobustScaler ist bei Ausreissern oft die sicherste Standardwahl.</div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>🏋️ Übung: Einen Zahlenwert auf 0 bis 1 skalieren</h4>
+          <p class="exercise-instruction">Skaliere drei einfache Werte mit dem MinMaxScaler. Ergänze die Lücke so, dass du den mittleren Wert nach der Transformation ablesen kannst.</p>
+          <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+          <pre class="language-python"><code class="language-python">from sklearn.preprocessing import MinMaxScaler
+
+values = [[10.0], [20.0], [30.0]]
+scaler = MinMaxScaler()
+
+# ??? DEINE LÖSUNG ???
+print(scaled[1][0])</code></pre>
+          <details class="hint">
+            <summary>💡 Tipp anzeigen</summary>
+            <p>Wende <code>fit_transform</code> auf die Liste an. Der mittlere Rohwert landet genau in der Mitte der neuen Skala.</p>
+          </details>
+          <details class="solution">
+            <summary>✅ Lösung anzeigen</summary>
+            <pre class="language-python"><code class="language-python">from sklearn.preprocessing import MinMaxScaler
+
+values = [[10.0], [20.0], [30.0]]
+scaler = MinMaxScaler()
+
+scaled = scaler.fit_transform(values)
+print(scaled[1][0])</code></pre>
+            <p class="expected-output">Erwartete Ausgabe: 0.5</p>
+          </details>
+        </div>
+
+        <div class="formula-card">
+          <h3>Code-Beispiel</h3>
+          <pre><code class="language-python">from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
+
+minmax = MinMaxScaler(feature_range=(0, 1))
+minmax.fit(X_train[["bill_length_mm", "flipper_length_mm"]])
+X_train_scaled = minmax.transform(X_train[["bill_length_mm", "flipper_length_mm"]])
+
+standard = StandardScaler()
+standard.fit(X_train[["bill_length_mm"]])
+
+robust = RobustScaler()
+robust.fit(X_train[["bill_length_mm"]])</code></pre>
+        </div>
+
+        <div class="quiz-card" data-quiz="module-3">
+          <h3>Quiz: Welcher Scaler passt zum Ausreisser?</h3>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="quiz-module-3" value="a">MinMaxScaler</label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-3" value="b">StandardScaler</label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-3" value="c">RobustScaler</label>
+          </div>
+          <div class="quiz-actions">
+            <button class="button" type="button" data-check-quiz="module-3">Antwort pruefen</button>
+          </div>
+          <div class="quiz-feedback" id="feedback-module-3" aria-live="polite">Noch offen.</div>
+        </div>
+
+        <div class="module-footer">
+          <div class="mini-star" data-mini-star="module-3">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"/></svg>
+            <span>Kuechenstern fuer Scaling</span>
+          </div>
+          <span class="section-status" id="module-status-module-3">Noch nicht abgeschlossen</span>
+        </div>
+      </section>
+
+      <section class="module" id="module-4" data-module="module-4">
+        <div class="module-header">
+          <div class="module-kicker">Modul 4 | Neue Zutaten</div>
+          <div class="module-title-row">
+            <div>
+              <h2>Feature Expansion und Discretization</h2>
+              <p>Analogie: Aus Mehl und Wasser wird Teig, und aus exakten Massen werden Groessenklassen wie S, M, L.</p>
+            </div>
+            <div class="module-badge">ca. 20 Min.</div>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="workflow-card">
+            <h3>Discretization</h3>
+            <p><code>KBinsDiscretizer</code> verwandelt kontinuierliche Zahlen in Gruppen. Das kann Rauschen reduzieren oder lineare Modelle flexibler machen.</p>
+            <div class="callout">
+              <strong>quantile</strong> sorgt fuer etwa gleich viele Faelle pro Bin.<br>
+              <strong>uniform</strong> setzt gleich breite Intervalle.
+            </div>
+            <div class="callout warn" style="margin-top:10px;">
+              Schlechte Bin-Grenzen kosten Information. Nutze Binning gezielt, nicht automatisch.
+            </div>
+          </div>
+
+          <div class="workflow-card">
+            <h3>PolynomialFeatures</h3>
+            <p>Mit <code>degree=2</code> entstehen Quadrate und Interaktionsterme. Damit kann ein lineares Modell gekruemmtere Zusammenhaenge indirekt lernen.</p>
+            <div class="callout danger">
+              Erst skalieren, dann expandieren. Sonst koennen die Werte stark explodieren und Regularisierung oder Distanzlogik verzerren.
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <h3>Interaktive Demo: Bins und neue Features</h3>
+          <div class="demo-controls">
+            <div class="control-group">
+              <label for="bin-count">Anzahl Bins: <span id="bin-count-label">5</span></label>
+              <input id="bin-count" type="range" min="3" max="10" step="1" value="5">
+            </div>
+            <div class="control-group">
+              <label for="bin-strategy">Strategie</label>
+              <select id="bin-strategy">
+                <option value="quantile" selected>quantile</option>
+                <option value="uniform">uniform</option>
+              </select>
+            </div>
+          </div>
+          <div class="boundary-box">
+            <div class="boundary-row"><strong>Aktuelle Bin-Grenzen</strong></div>
+            <div class="boundary-row" id="bin-boundaries"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>bill_length_mm</th><th>zugewiesener Bin</th></tr>
+              </thead>
+              <tbody id="bin-table-body"></tbody>
+            </table>
+          </div>
+          <div class="demo-actions">
+            <button class="button" type="button" id="expand-features">PolynomialFeatures zeigen</button>
+            <button class="ghost-button" type="button" id="reset-expansion">Reset</button>
+          </div>
+          <div class="demo-note" id="expansion-note">Noch keine Expansion sichtbar.</div>
+        </div>
+
+        <div class="formula-card">
+          <h3>Code-Beispiele</h3>
+          <pre><code class="language-python">from sklearn.preprocessing import KBinsDiscretizer, PolynomialFeatures
+
+binner = KBinsDiscretizer(
+    n_bins=5,
+    encode="onehot-dense",
+    strategy="quantile"
+)
+binner.fit(X_train[["bill_length_mm"]])
+
+poly = PolynomialFeatures(
+    degree=2,
+    interaction_only=False,
+    include_bias=False
+)
+# Eingabe: [bill_length, flipper_length]
+# Ausgabe: [bill, flipper, bill^2, bill*flipper, flipper^2]</code></pre>
+        </div>
+
+        <div class="quiz-card" data-quiz="module-4">
+          <h3>Quiz: Was erzeugt <code>interaction_only=True</code>?</h3>
+          <div class="quiz-options">
+            <label class="quiz-option"><input type="radio" name="quiz-module-4" value="a">[A, B, A^2, B^2]</label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-4" value="b">[A, B, A*B]</label>
+            <label class="quiz-option"><input type="radio" name="quiz-module-4" value="c">[A^2, A*B, B^2]</label>
+          </div>
+          <div class="quiz-actions">
+            <button class="button" type="button" data-check-quiz="module-4">Antwort pruefen</button>
+          </div>
+          <div class="quiz-feedback" id="feedback-module-4" aria-live="polite">Noch offen.</div>
+        </div>
+
+        <div class="module-footer">
+          <div class="mini-star" data-mini-star="module-4">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"/></svg>
+            <span>Kuechenstern fuer neue Features</span>
+          </div>
+          <span class="section-status" id="module-status-module-4">Noch nicht abgeschlossen</span>
+        </div>
+      </section>
+
+      <section class="module" id="module-5" data-module="module-5">
+        <div class="module-header">
+          <div class="module-kicker">Modul 5 | Rezept automatisieren</div>
+          <div class="module-title-row">
+            <div>
+              <h2>Pipeline und ColumnTransformer</h2>
+              <p>Analogie: Ein Kuechenteam arbeitet parallel an unterschiedlichen Zutaten, waehrend die Pipeline die Schritte fuer jede Zutat nacheinander organisiert.</p>
+            </div>
+            <div class="module-badge">ca. 30 Min.</div>
+          </div>
+        </div>
+
+        <div class="architecture-grid">
+          <div class="demo-card">
+            <h3>Klickbare Architektur</h3>
+            <div class="node-grid" id="architecture-nodes">
+              <button class="arch-node pipeline active" type="button" data-node="overall">
+                <strong>Gesamt-Pipeline</strong>
+                FE und Modell in einem Objekt.
+              </button>
+              <button class="arch-node" type="button" data-node="columntransformer">
+                <strong>ColumnTransformer</strong>
+                Unterschiedliche Spalten parallel behandeln.
+              </button>
+              <button class="arch-node" type="button" data-node="sexpipeline">
+                <strong>sex_pipeline</strong>
+                Imputer, dann OneHotEncoder.
+              </button>
+              <button class="arch-node" type="button" data-node="flipperpipeline">
+                <strong>flipper_pipeline</strong>
+                Median-Imputation, dann RobustScaler.
+              </button>
+              <button class="arch-node" type="button" data-node="model">
+                <strong>LinearRegression</strong>
+                Lernt auf den vorbereiteten Merkmalen.
+              </button>
+            </div>
+          </div>
+          <div class="explanation-box" id="architecture-explanation" aria-live="polite">
+            <h3>Gesamt-Pipeline</h3>
+            <p>Ein einziges Objekt verwaltet Vorverarbeitung und Modell gemeinsam. Dadurch bleibt der Ablauf reproduzierbar: <code>.fit(X_train, y_train)</code> lernt alles auf den Trainingsdaten, <code>.predict(X_test)</code> transformiert nur und sagt dann vorher.</p>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <div class="workflow-card">
+            <h3>Warum ColumnTransformer und Pipeline zusammen?</h3>
+            <div class="callout">
+              <strong>ColumnTransformer</strong> arbeitet parallel auf unterschiedlichen Spaltenlisten. Ideal, wenn Textspalten anders behandelt werden als Zahlen.
+            </div>
+            <div class="callout" style="margin-top:10px;">
+              <strong>Pipeline</strong> fuehrt Schritte nacheinander aus. Ideal, wenn auf derselben Spalte erst imputiert und dann skaliert werden soll.
+            </div>
+            <div class="callout danger" style="margin-top:10px;">
+              Genau diese Kapselung schuetzt vor versehentlichen <code>fit()</code>-Aufrufen auf Testdaten.
+            </div>
+          </div>
+
+          <div class="formula-card">
+            <h3>Code-Beispiel</h3>
+            <pre><code class="language-python">from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, RobustScaler
+
+sex_pipeline = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("ohe", OneHotEncoder(drop="first", sparse_output=False))
+])
+
+flipper_pipeline = Pipeline(steps=[
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", RobustScaler())
+])
+
+preprocessor = ColumnTransformer(transformers=[
+    ("sex", sex_pipeline, ["sex"]),
+    ("species", OneHotEncoder(drop="first", sparse_output=False), ["species"]),
+    ("flipper", flipper_pipeline, ["flipper_length_mm"]),
+    ("bill", RobustScaler(), ["bill_length_mm"])
+])
+
+model = Pipeline(steps=[
+    ("preprocessing", preprocessor),
+    ("regression", LinearRegression())
+])</code></pre>
+          </div>
+        </div>
+
+        <div class="exercise-card">
+          <h4>🏋️ Übung: Eine vollständige Modell-Pipeline zusammensetzen</h4>
+          <p class="exercise-instruction">Baue die letzten beiden Schritte einer Modell-Pipeline zusammen. Ergänze die Lücken so, dass zuerst der Vorverarbeiter und danach die lineare Regression in der Pipeline stehen.</p>
+          <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+          <pre class="language-python"><code class="language-python">from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+
+preprocessor = ColumnTransformer([
+    ("num", StandardScaler(), ["temp"])
+])
+
+model = Pipeline(steps=[
+    # ??? DEINE LÖSUNG ???
+])
+
+print(list(model.named_steps.keys()))</code></pre>
+          <details class="hint">
+            <summary>💡 Tipp anzeigen</summary>
+            <p>Die Schritt-Namen sollen <code>preprocessing</code> und <code>regression</code> heißen, genau in dieser Reihenfolge.</p>
+          </details>
+          <details class="solution">
+            <summary>✅ Lösung anzeigen</summary>
+            <pre class="language-python"><code class="language-python">from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+
+preprocessor = ColumnTransformer([
+    ("num", StandardScaler(), ["temp"])
+])
+
+model = Pipeline(steps=[
+    ("preprocessing", preprocessor),
+    ("regression", LinearRegression())
+])
+
+print(list(model.named_steps.keys()))</code></pre>
+            <p class="expected-output">Erwartete Ausgabe: ['preprocessing', 'regression']</p>
+          </details>
+        </div>
+
+        <div class="quiz-card" data-quiz="module-5">
+          <h3>Drag-and-Drop: Bringe die Schritte in die richtige Reihenfolge</h3>
+          <p>Ordne die vier Schritte vom sauberen Start bis zur Testbewertung.</p>
+          <div class="slot-grid">
+            <div class="slot-list" id="pipeline-order-list" data-dropzone="pipeline-order"></div>
+          </div>
+          <div class="quiz-actions">
+            <button class="button" type="button" id="check-pipeline-order">Reihenfolge pruefen</button>
+            <button class="ghost-button" type="button" id="reset-pipeline-order">Reset</button>
+          </div>
+          <div class="quiz-feedback" id="feedback-module-5" aria-live="polite">Noch offen.</div>
+        </div>
+
+        <div class="module-footer">
+          <div class="mini-star" data-mini-star="module-5">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"/></svg>
+            <span>Kuechenstern fuer Pipeline</span>
+          </div>
+          <span class="section-status" id="module-status-module-5">Noch nicht abgeschlossen</span>
+        </div>
+      </section>
+
+      <section class="summary-card" id="summary">
+        <h2>Die Daten-Kueche - Zusammenfassung</h2>
+        <p>Wenn alle Module abgeschlossen sind, leuchten alle Sterne auf. Der rote Faden bleibt derselbe: erst Typ erkennen, dann passende Vorbereitung, dann reproduzierbar in eine Pipeline packen.</p>
+        <div class="stars-grid" id="summary-stars" aria-hidden="true"></div>
+
+        <div class="table-wrap" style="margin-top:12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Technik</th>
+                <th>Kernfrage</th>
+                <th>Warnung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Imputation</td><td>Wie gehe ich mit Luecken um?</td><td>Nie auf Testdaten fitten.</td></tr>
+              <tr><td>Encoding</td><td>Hat die Kategorie eine Reihenfolge?</td><td>Ordinal nur nutzen, wenn Reihenfolge echt ist.</td></tr>
+              <tr><td>Scaling</td><td>Dominieren grosse Zahlen die Logik?</td><td>Ausreisser koennen einfache Skalen verzerren.</td></tr>
+              <tr><td>Discretization</td><td>Hilft Gruppierung mehr als exakter Wert?</td><td>Zu grobe Bins kosten Details.</td></tr>
+              <tr><td>Expansion</td><td>Brauche ich Interaktionen oder Kruemmung?</td><td>Erst skalieren, dann erweitern.</td></tr>
+              <tr><td>Pipeline</td><td>Wie halte ich den Ablauf sauber?</td><td>Einzelschritte ohne Kapselung sind fehleranfaellig.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="module-grid" style="margin-top:12px;">
+          <div class="workflow-card">
+            <h3>Snowman-Uebung</h3>
+            <p>Baue fuer diesen Datensatz eine komplette Pipeline. Ziel ist <code>height_snowman_cm</code>.</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>temp</th>
+                    <th>lunch</th>
+                    <th>dinner</th>
+                    <th>precipitation</th>
+                    <th>height_snowman_cm</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>-3</td><td>soup</td><td>pizza</td><td>yes</td><td>100</td></tr>
+                  <tr><td>5</td><td>sandwich</td><td>pizza</td><td>no</td><td>0</td></tr>
+                  <tr><td>0</td><td>soup</td><td>noodles</td><td>yes</td><td>75</td></tr>
+                  <tr><td>7</td><td>burger</td><td class="cell-missing">NaN</td><td>yes</td><td>0</td></tr>
+                  <tr><td class="cell-missing">NaN</td><td>salad</td><td>fishsticks</td><td>yes</td><td>35</td></tr>
+                  <tr><td>-6</td><td>sandwich</td><td>noodles</td><td>yes</td><td>170</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="snowman-task">
+            <strong>Aufgabe fuer den Transfer</strong>
+            <p>1. Teile die Spalten in binaer, kategorisch und numerisch.</p>
+            <p>2. Entscheide pro Spaltengruppe, welche Imputation passt.</p>
+            <p>3. Encodiere Textspalten sauber und skaliere numerische Spalten bei Bedarf.</p>
+            <p>4. Fasse alles in einem <code>ColumnTransformer</code> plus <code>Pipeline</code> zusammen.</p>
+            <p>5. Begruende, wo du besonders auf Data Leakage achten musst.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer-nav">
+        <h3>Naechste Schritte im Lehrpfad</h3>
+        <p>Als Nächstes geht es im Kernpfad mit KNN weiter. Wenn du den roten Faden erneut von vorn durchgehen willst, springst du zum Start des neuen Lernpfads zurück.</p>
+        <div class="footer-links">
+          <a class="path-link secondary" href="logistic_regression.html">← Zurück: Logistische Regression</a>
+          <a class="path-link" href="knn_grundlagen_interaktion.html">Weiter: KNN-Grundlagen →</a>
+        </div>
+        <div class="footer-links">
+          <a class="path-link secondary" href="linear_regression.html">Zum Lernpfad-Start</a>
+          <a class="path-link secondary" href="../index.html">Zur Gesamtuebersicht</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const moduleIds = ["module-0", "module-1", "module-2", "module-3", "module-4", "module-5"];
+    const storageKey = "featureEngineeringKitchenStateV1";
+    const defaultState = {
+      completed: Object.fromEntries(moduleIds.map((id) => [id, false])),
+      attempts: Object.fromEntries(moduleIds.map((id) => [id, 0])),
+      points: 0
+    };
+
+    const mcAnswers = {
+      "module-0": "b",
+      "module-1": "b",
+      "module-3": "c",
+      "module-4": "b"
+    };
+
+    const mcMessages = {
+      "module-0": {
+        success: "Richtig. Rohe Daten enthalten Luecken, Text und unterschiedliche Skalen. Das fuehrt oft zu schlechteren Vorhersagen.",
+        fail: "Noch nicht. Viele Modelle laufen zwar formal, lernen auf rohen Daten aber deutlich schlechter oder koennen bestimmte Spalten gar nicht lesen."
+      },
+      "module-1": {
+        success: "Richtig. Testdaten werden nur transformiert. Das gelernte Wissen stammt ausschliesslich aus den Trainingsdaten.",
+        fail: "Noch nicht. Sobald du auf Testdaten fitten wuerdest, entstuende Data Leakage."
+      },
+      "module-3": {
+        success: "Richtig. RobustScaler nutzt Median und IQR und bleibt deshalb bei einzelnen Ausreissern stabiler.",
+        fail: "Noch nicht. MinMax und StandardScaler werden beide staerker von extremen Werten beeinflusst."
+      },
+      "module-4": {
+        success: "Richtig. Die Original-Features bleiben erhalten, dazu kommt nur der Interaktionsterm A*B.",
+        fail: "Noch nicht. Bei <code>interaction_only=True</code> fallen Quadrate weg."
+      }
+    };
+
+    const architectureCopy = {
+      overall: {
+        title: "Gesamt-Pipeline",
+        body: "Ein einziges Objekt verwaltet Vorverarbeitung und Modell gemeinsam. Dadurch bleibt der Ablauf reproduzierbar: .fit(X_train, y_train) lernt alles auf den Trainingsdaten, .predict(X_test) transformiert nur und sagt dann vorher."
+      },
+      columntransformer: {
+        title: "ColumnTransformer",
+        body: "Er verteilt verschiedene Vorverarbeitungen parallel auf unterschiedliche Spaltenlisten. Textspalten koennen also encodiert werden, waehrend numerische Spalten gleichzeitig imputiert und skaliert werden."
+      },
+      sexpipeline: {
+        title: "sex_pipeline",
+        body: "Hier laufen die Schritte nacheinander auf derselben Spalte: zuerst fehlende Werte per most_frequent ersetzen, dann die kategorische Spalte mit OneHotEncoder in Zahlen uebersetzen."
+      },
+      flipperpipeline: {
+        title: "flipper_pipeline",
+        body: "Auch das ist eine serielle Kette: erst Median-Imputation fuer fehlende Flossenlaengen, dann RobustScaler fuer eine ausreisserresistentere Skala."
+      },
+      model: {
+        title: "LinearRegression",
+        body: "Das Modell selbst sieht nur die bereits transformierte Matrix. Gerade deshalb lohnt sich sauberes Feature Engineering: schlechte Vorbereitung bleibt auch mit einem guten Modell schlecht."
+      }
+    };
+
+    const state = loadState();
+
+    function cloneDefaultState() {
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey));
+        if (!parsed) return cloneDefaultState();
+        return {
+          completed: { ...defaultState.completed, ...(parsed.completed || {}) },
+          attempts: { ...defaultState.attempts, ...(parsed.attempts || {}) },
+          points: Number(parsed.points || 0)
+        };
+      } catch (error) {
+        return cloneDefaultState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function createStarMarkup(label) {
+      return `
+        <div class="star-badge" data-star="${label}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.3l2.9 5.88 6.49.94-4.69 4.57 1.11 6.47L12 17.08 6.19 20.16 7.3 13.69 2.61 9.12l6.49-.94L12 2.3z"></path></svg>
+          <span>${label}</span>
+        </div>
+      `;
+    }
+
+    function activateStars(container, completedCount) {
+      [...container.querySelectorAll("[data-star]")].forEach((star, index) => {
+        star.classList.toggle("active", index < completedCount);
+      });
+    }
+
+    function renderStars() {
+      const starsGrid = document.getElementById("stars-grid");
+      const summaryStars = document.getElementById("summary-stars");
+      const labels = ["M0", "M1", "M2", "M3", "M4", "M5"];
+      starsGrid.innerHTML = labels.map(createStarMarkup).join("");
+      summaryStars.innerHTML = labels.map(createStarMarkup).join("");
+      const completedCount = moduleIds.filter((id) => state.completed[id]).length;
+      activateStars(starsGrid, completedCount);
+      activateStars(summaryStars, completedCount);
+    }
+
+    function updateProgress() {
+      const completedCount = moduleIds.filter((id) => state.completed[id]).length;
+      const percent = Math.round((completedCount / moduleIds.length) * 100);
+      document.getElementById("progress-text").textContent = `${percent}%`;
+      document.getElementById("progress-bar-fill").style.width = `${percent}%`;
+      document.getElementById("points-total").textContent = state.points;
+      renderStars();
+
+      moduleIds.forEach((id) => {
+        const statusEl = document.querySelector(`[data-module-status="${id}"]`);
+        const sectionLink = document.querySelector(`[data-module-link="${id}"]`);
+        const footerStatus = document.getElementById(`module-status-${id}`);
+        const miniStar = document.querySelector(`[data-mini-star="${id}"]`);
+        if (state.completed[id]) {
+          statusEl.textContent = "100%";
+          sectionLink.classList.add("done");
+          footerStatus.textContent = "Abgeschlossen";
+          miniStar.classList.add("active");
+        } else {
+          statusEl.textContent = "0%";
+          sectionLink.classList.remove("done");
+          footerStatus.textContent = "Noch nicht abgeschlossen";
+          miniStar.classList.remove("active");
+        }
+      });
+
+      const summaryStatus = document.querySelector('[data-module-status="summary"]');
+      summaryStatus.textContent = completedCount === moduleIds.length ? "komplett" : "bereit";
+    }
+
+    function markCompleted(moduleId) {
+      if (!state.completed[moduleId]) {
+        const attempts = state.attempts[moduleId] || 0;
+        const gained = attempts === 0 ? 3 : attempts === 1 ? 1 : 0;
+        state.points += gained;
+        state.completed[moduleId] = true;
+        saveState();
+        updateProgress();
+        return gained;
+      }
+      saveState();
+      updateProgress();
+      return 0;
+    }
+
+    function countAttempt(moduleId) {
+      state.attempts[moduleId] = (state.attempts[moduleId] || 0) + 1;
+      saveState();
+    }
+
+    function setupMcQuizzes() {
+      document.querySelectorAll("[data-check-quiz]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const moduleId = button.dataset.checkQuiz;
+          const feedback = document.getElementById(`feedback-${moduleId}`);
+          const checked = document.querySelector(`input[name="quiz-${moduleId}"]:checked`);
+          if (!checked) {
+            feedback.className = "quiz-feedback warn";
+            feedback.textContent = "Bitte zuerst eine Antwort waehlen.";
+            return;
+          }
+          if (checked.value === mcAnswers[moduleId]) {
+            const gained = markCompleted(moduleId);
+            feedback.className = "quiz-feedback ok";
+            feedback.innerHTML = `${mcMessages[moduleId].success} ${gained > 0 ? `+${gained} Punkte.` : "Bereits abgeschlossen."}`;
+          } else {
+            countAttempt(moduleId);
+            feedback.className = "quiz-feedback warn";
+            feedback.innerHTML = mcMessages[moduleId].fail;
+          }
+        });
+      });
+    }
+
+    const imputationValues = [181, 186, null, 197, 193, null, 201, 197, 190, 195];
+    const encodingItems = [
+      { label: "Augenfarbe", answer: "nominal" },
+      { label: "Schuhgroesse", answer: "ordinal" },
+      { label: "Bundesland", answer: "nominal" },
+      { label: "Energieklasse", answer: "ordinal" },
+      { label: "Automarke", answer: "nominal" },
+      { label: "Schulnote", answer: "ordinal" }
+    ];
+    const scalerBase = [33, 35, 38, 40, 42, 45, 46, 48, 50, 59, 300];
+    const binnerValues = [32.1, 38.6, 40.2, 42.3, 44.8, 46.2, 47.9, 49.5, 52.0, 59.6];
+    const pipelineOrderBase = [
+      "model.score(X_test, y_test)",
+      "Train-Test-Split",
+      "model.fit(X_train, y_train)",
+      "Pipeline definieren (Imputer -> Encoder -> Scaler)"
+    ];
+    const pipelineOrderCorrect = [
+      "Train-Test-Split",
+      "Pipeline definieren (Imputer -> Encoder -> Scaler)",
+      "model.fit(X_train, y_train)",
+      "model.score(X_test, y_test)"
+    ];
+
+    function renderImputationTable(values, replacementIndexes = [], replacementValue = null) {
+      const tbody = document.getElementById("imputation-table-body");
+      tbody.innerHTML = values.map((value, index) => {
+        const isMissing = value === null;
+        const isReplaced = replacementIndexes.includes(index);
+        const cssClass = isReplaced ? "cell-num" : isMissing ? "cell-missing" : "";
+        const content = isMissing ? "NaN" : value;
+        const shown = isReplaced && replacementValue !== null ? replacementValue : content;
+        return `<tr><td>${index + 1}</td><td class="${cssClass}">${shown}</td></tr>`;
+      }).join("");
+    }
+
+    function setupImputationDemo() {
+      renderImputationTable(imputationValues);
+      const note = document.getElementById("imputation-note");
+      document.getElementById("run-imputation").addEventListener("click", () => {
+        const strategy = document.getElementById("imputation-strategy").value;
+        const present = imputationValues.filter((value) => value !== null);
+        let learnedValue = null;
+        if (strategy === "mean") {
+          learnedValue = (present.reduce((sum, value) => sum + value, 0) / present.length).toFixed(1);
+        } else if (strategy === "median") {
+          const sorted = [...present].sort((a, b) => a - b);
+          learnedValue = ((sorted[3] + sorted[4]) / 2).toFixed(1);
+        } else {
+          learnedValue = "197";
+        }
+        const replacementIndexes = imputationValues.reduce((result, value, index) => {
+          if (value === null) result.push(index);
+          return result;
+        }, []);
+        renderImputationTable(imputationValues, replacementIndexes, learnedValue);
+        note.innerHTML = `Der Imputer hat gelernt: <strong>${strategy}</strong> = <strong>${learnedValue}</strong> mm. Auf Testdaten wuerdest du jetzt nur noch <code>transform()</code> aufrufen.`;
+      });
+
+      document.getElementById("reset-imputation").addEventListener("click", () => {
+        renderImputationTable(imputationValues);
+        note.textContent = "Noch nichts angewendet.";
+      });
+    }
+
+    function setupEncodingDemo() {
+      const table = document.getElementById("encoding-table");
+      const note = document.getElementById("encoding-note");
+      document.getElementById("run-encoding").addEventListener("click", () => {
+        table.innerHTML = `
+          <thead>
+            <tr><th>#</th><th>species_Chinstrap</th><th>species_Gentoo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>0</td><td>0</td></tr>
+            <tr><td>2</td><td>1</td><td>0</td></tr>
+            <tr><td>3</td><td>0</td><td>1</td></tr>
+          </tbody>
+        `;
+        note.innerHTML = "Mit <code>drop='first'</code> steht Adelie implizit fuer die Zeile mit zwei Nullen.";
+      });
+
+      document.getElementById("reset-encoding").addEventListener("click", () => {
+        table.innerHTML = `
+          <thead>
+            <tr><th>#</th><th>species</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Adelie</td></tr>
+            <tr><td>2</td><td>Chinstrap</td></tr>
+            <tr><td>3</td><td>Gentoo</td></tr>
+          </tbody>
+        `;
+        note.innerHTML = "Mit <code>drop='first'</code> erkennt man Adelie daran, dass beide neuen Spalten 0 sind.";
+      });
+    }
+
+    function mean(values) {
+      return values.reduce((sum, value) => sum + value, 0) / values.length;
+    }
+
+    function std(values, avg) {
+      return Math.sqrt(values.reduce((sum, value) => sum + ((value - avg) ** 2), 0) / values.length);
+    }
+
+    function median(values) {
+      const sorted = [...values].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+    }
+
+    function quantile(sortedValues, q) {
+      const pos = (sortedValues.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sortedValues[base + 1] !== undefined) {
+        return sortedValues[base] + rest * (sortedValues[base + 1] - sortedValues[base]);
+      }
+      return sortedValues[base];
+    }
+
+    function transformScaler(type) {
+      if (type === "raw") {
+        return scalerBase.slice();
+      }
+      if (type === "minmax") {
+        const min = Math.min(...scalerBase);
+        const max = Math.max(...scalerBase);
+        return scalerBase.map((value) => (value - min) / (max - min));
+      }
+      if (type === "standard") {
+        const avg = mean(scalerBase);
+        const sigma = std(scalerBase, avg);
+        return scalerBase.map((value) => (value - avg) / sigma);
+      }
+      if (type === "robust") {
+        const med = median(scalerBase);
+        const sorted = [...scalerBase].sort((a, b) => a - b);
+        const q1 = quantile(sorted, 0.25);
+        const q3 = quantile(sorted, 0.75);
+        const iqr = q3 - q1;
+        return scalerBase.map((value) => (value - med) / iqr);
+      }
+      return scalerBase.map((value) => Math.log(value + 1));
+    }
+
+    function buildHistogram(values) {
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const width = max - min || 1;
+      const bins = Array.from({ length: 8 }, (_, index) => {
+        const start = min + (width / 8) * index;
+        const end = index === 7 ? max : min + (width / 8) * (index + 1);
+        const count = values.filter((value) => index === 7 ? value >= start && value <= end : value >= start && value < end).length;
+        return { start, end, count };
+      });
+      return bins;
+    }
+
+    function setupScalingDemo() {
+      const histogram = document.getElementById("histogram");
+      const note = document.getElementById("scaler-note");
+      const copy = {
+        raw: "Rohdaten: Der Ausreisser dominiert sofort die Spannweite.",
+        minmax: "MinMaxScaler: Alles liegt zwischen 0 und 1, aber der Ausreisser drueckt den Rest eng zusammen.",
+        standard: "StandardScaler: Zentriert auf 0, bleibt aber immer noch ausreisser-empfindlich.",
+        robust: "RobustScaler: Median und IQR stabilisieren die Skala trotz Ausreisser.",
+        log: "Log-Transformation: Schiefe Verteilungen werden gestaucht, wenn alle Werte positiv sind."
+      };
+
+      function renderScaler(type) {
+        const values = transformScaler(type);
+        const bins = buildHistogram(values);
+        const maxCount = Math.max(...bins.map((bin) => bin.count), 1);
+        histogram.innerHTML = bins.map((bin, index) => {
+          const label = `${index + 1}`;
+          const percent = (bin.count / maxCount) * 100;
+          return `
+            <div class="hist-row">
+              <span>Bin ${label}</span>
+              <div class="hist-bar"><span style="width:${percent}%;"></span></div>
+              <span>${bin.count}</span>
+            </div>
+          `;
+        }).join("");
+        const avg = mean(values);
+        const sigma = std(values, avg);
+        document.getElementById("stat-min").textContent = Math.min(...values).toFixed(2);
+        document.getElementById("stat-max").textContent = Math.max(...values).toFixed(2);
+        document.getElementById("stat-mean").textContent = avg.toFixed(2);
+        document.getElementById("stat-std").textContent = sigma.toFixed(2);
+        note.textContent = copy[type];
+      }
+
+      renderScaler("robust");
+      document.getElementById("scaler-select").addEventListener("change", (event) => {
+        renderScaler(event.target.value);
+      });
+    }
+
+    function buildBoundaries(strategy, nBins) {
+      const sorted = [...binnerValues].sort((a, b) => a - b);
+      if (strategy === "uniform") {
+        const min = sorted[0];
+        const max = sorted[sorted.length - 1];
+        const step = (max - min) / nBins;
+        return Array.from({ length: nBins + 1 }, (_, index) => Number((min + (step * index)).toFixed(1)));
+      }
+      return Array.from({ length: nBins + 1 }, (_, index) => Number(quantile(sorted, index / nBins).toFixed(1)));
+    }
+
+    function assignBin(value, boundaries) {
+      for (let index = 0; index < boundaries.length - 1; index += 1) {
+        const start = boundaries[index];
+        const end = boundaries[index + 1];
+        if (index === boundaries.length - 2) {
+          if (value >= start && value <= end) return index;
+        } else if (value >= start && value < end) {
+          return index;
+        }
+      }
+      return boundaries.length - 2;
+    }
+
+    function setupBinnerDemo() {
+      const slider = document.getElementById("bin-count");
+      const strategySelect = document.getElementById("bin-strategy");
+      const label = document.getElementById("bin-count-label");
+      const boundariesEl = document.getElementById("bin-boundaries");
+      const tbody = document.getElementById("bin-table-body");
+      const note = document.getElementById("expansion-note");
+
+      function renderBins() {
+        const nBins = Number(slider.value);
+        const strategy = strategySelect.value;
+        label.textContent = nBins;
+        const boundaries = buildBoundaries(strategy, nBins);
+        boundariesEl.innerHTML = boundaries.map((value) => `<span class="boundary-pill">${value}</span>`).join("<span>&rarr;</span>");
+        tbody.innerHTML = binnerValues.map((value) => `<tr><td>${value.toFixed(1)}</td><td>Bin ${assignBin(value, boundaries)}</td></tr>`).join("");
+      }
+
+      renderBins();
+      slider.addEventListener("input", renderBins);
+      strategySelect.addEventListener("change", renderBins);
+
+      document.getElementById("expand-features").addEventListener("click", () => {
+        note.innerHTML = "Eingabe [bill_length=43, flipper_length=197] wird zu <strong>[43, 197, 1849, 8471, 38809]</strong>. Mit <code>interaction_only=True</code> bliebe <strong>[43, 197, 8471]</strong> uebrig.";
+      });
+      document.getElementById("reset-expansion").addEventListener("click", () => {
+        note.textContent = "Noch keine Expansion sichtbar.";
+      });
+    }
+
+    function setupArchitecture() {
+      const explanation = document.getElementById("architecture-explanation");
+      document.querySelectorAll("[data-node]").forEach((node) => {
+        node.addEventListener("click", () => {
+          document.querySelectorAll("[data-node]").forEach((item) => item.classList.remove("active"));
+          node.classList.add("active");
+          const content = architectureCopy[node.dataset.node];
+          explanation.innerHTML = `<h3>${content.title}</h3><p>${content.body}</p>`;
+        });
+      });
+    }
+
+    function createDragChip(text, extra = {}) {
+      const chip = document.createElement("div");
+      chip.className = "drag-chip";
+      chip.draggable = true;
+      chip.textContent = text;
+      Object.entries(extra).forEach(([key, value]) => chip.dataset[key] = value);
+      addDragEvents(chip);
+      return chip;
+    }
+
+    function createSlotItem(text) {
+      const item = document.createElement("div");
+      item.className = "slot-item";
+      item.draggable = true;
+      item.dataset.value = text;
+      item.innerHTML = `<span class="slot-number"></span><span>${text}</span>`;
+      addDragEvents(item);
+      return item;
+    }
+
+    let draggedElement = null;
+
+    function addDragEvents(element) {
+      element.addEventListener("dragstart", () => {
+        draggedElement = element;
+        element.classList.add("dragging");
+      });
+      element.addEventListener("dragend", () => {
+        element.classList.remove("dragging");
+        draggedElement = null;
+      });
+    }
+
+    function wireDropzone(zone) {
+      zone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        zone.classList.add("is-over");
+      });
+      zone.addEventListener("dragleave", () => {
+        zone.classList.remove("is-over");
+      });
+      zone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        zone.classList.remove("is-over");
+        if (!draggedElement) return;
+        if (zone.classList.contains("slot-list")) {
+          const afterElement = [...zone.querySelectorAll(".slot-item")].find((item) => {
+            const rect = item.getBoundingClientRect();
+            return event.clientY < rect.top + (rect.height / 2);
+          });
+          if (afterElement) {
+            zone.insertBefore(draggedElement, afterElement);
+          } else {
+            zone.appendChild(draggedElement);
+          }
+          updateSlotNumbers();
+          return;
+        }
+        zone.appendChild(draggedElement);
+      });
+    }
+
+    function updateSlotNumbers() {
+      document.querySelectorAll("#pipeline-order-list .slot-item").forEach((item, index) => {
+        const number = item.querySelector(".slot-number");
+        number.textContent = index + 1;
+      });
+    }
+
+    function setupEncodingDnd() {
+      const pool = document.getElementById("encoding-pool");
+      const nominal = document.getElementById("bucket-nominal");
+      const ordinal = document.getElementById("bucket-ordinal");
+      [pool, nominal, ordinal].forEach(wireDropzone);
+
+      function render() {
+        pool.innerHTML = "";
+        nominal.innerHTML = "<h4>Nominal</h4>";
+        ordinal.innerHTML = "<h4>Ordinal</h4>";
+        encodingItems.forEach((item) => {
+          pool.appendChild(createDragChip(item.label, { answer: item.answer }));
+        });
+      }
+
+      render();
+
+      document.getElementById("check-encoding-dnd").addEventListener("click", () => {
+        const feedback = document.getElementById("feedback-module-2");
+        const allPlaced = pool.querySelectorAll(".drag-chip").length === 0;
+        const nominalCorrect = [...nominal.querySelectorAll(".drag-chip")].every((chip) => chip.dataset.answer === "nominal");
+        const ordinalCorrect = [...ordinal.querySelectorAll(".drag-chip")].every((chip) => chip.dataset.answer === "ordinal");
+        if (allPlaced && nominalCorrect && ordinalCorrect && nominal.querySelectorAll(".drag-chip").length === 3 && ordinal.querySelectorAll(".drag-chip").length === 3) {
+          const gained = markCompleted("module-2");
+          feedback.className = "quiz-feedback ok";
+          feedback.innerHTML = `Richtig. OneHotEncoder passt fuer nominale Merkmale, OrdinalEncoder fuer echte Reihenfolgen. ${gained > 0 ? `+${gained} Punkte.` : "Bereits abgeschlossen."}`;
+        } else {
+          countAttempt("module-2");
+          feedback.className = "quiz-feedback warn";
+          feedback.textContent = "Noch nicht. Pruefe besonders, ob wirklich nur geordnete Kategorien im Ordinal-Kasten liegen.";
+        }
+      });
+
+      document.getElementById("reset-encoding-dnd").addEventListener("click", () => {
+        render();
+        const feedback = document.getElementById("feedback-module-2");
+        feedback.className = "quiz-feedback";
+        feedback.textContent = "Noch offen.";
+      });
+    }
+
+    function setupPipelineOrder() {
+      const list = document.getElementById("pipeline-order-list");
+      wireDropzone(list);
+
+      function render() {
+        list.innerHTML = "";
+        pipelineOrderBase.forEach((entry) => {
+          list.appendChild(createSlotItem(entry));
+        });
+        updateSlotNumbers();
+      }
+
+      render();
+
+      document.getElementById("check-pipeline-order").addEventListener("click", () => {
+        const current = [...list.querySelectorAll(".slot-item")].map((item) => item.dataset.value);
+        const feedback = document.getElementById("feedback-module-5");
+        const correct = current.length === pipelineOrderCorrect.length && current.every((value, index) => value === pipelineOrderCorrect[index]);
+        if (correct) {
+          const gained = markCompleted("module-5");
+          feedback.className = "quiz-feedback ok";
+          feedback.innerHTML = `Richtig. Erst splitten, dann Pipeline definieren, dann fitten, dann auf Testdaten auswerten. ${gained > 0 ? `+${gained} Punkte.` : "Bereits abgeschlossen."}`;
+        } else {
+          countAttempt("module-5");
+          feedback.className = "quiz-feedback warn";
+          feedback.textContent = "Noch nicht. Wenn Fit vor dem Split kommt, schleicht sich Data Leakage ein.";
+        }
+      });
+
+      document.getElementById("reset-pipeline-order").addEventListener("click", () => {
+        render();
+        const feedback = document.getElementById("feedback-module-5");
+        feedback.className = "quiz-feedback";
+        feedback.textContent = "Noch offen.";
+      });
+    }
+
+    function setupObserver() {
+      const links = [...document.querySelectorAll("[data-module-link]")];
+      const sections = [...document.querySelectorAll("[data-module]"), document.getElementById("summary")];
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          links.forEach((link) => link.classList.remove("active"));
+          const id = entry.target.id;
+          const activeLink = document.querySelector(`[data-module-link="${id}"]`);
+          if (activeLink) activeLink.classList.add("active");
+        });
+      }, { threshold: 0.35 });
+      sections.forEach((section) => observer.observe(section));
+    }
+
+    function hydrateCompletedMessages() {
+      moduleIds.forEach((moduleId) => {
+        if (!state.completed[moduleId]) return;
+        const feedback = document.getElementById(`feedback-${moduleId}`);
+        if (feedback) {
+          feedback.className = "quiz-feedback ok";
+          feedback.textContent = "Bereits abgeschlossen. Du kannst das Quiz jederzeit erneut als Selbstcheck nutzen.";
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.renderMathInElement) {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true }
+          ]
+        });
+      }
+
+      updateProgress();
+      setupMcQuizzes();
+      setupImputationDemo();
+      setupEncodingDemo();
+      setupScalingDemo();
+      setupBinnerDemo();
+      setupArchitecture();
+      setupEncodingDnd();
+      setupPipelineOrder();
+      setupObserver();
+      hydrateCompletedMessages();
+    });
+  </script>
+  <script defer src="lernstand_manager.js"></script>
+</body>
+</html>

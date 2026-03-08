@@ -1171,7 +1171,7 @@
           <p>Wenn etwas unklar ist, spring zu Thema 7 oder 8 zurueck. Wenn klar: gehe weiter zu Thema 10 (Regularization).</p>
           <div class="path-status" id="final-quiz-status">Abschluss-Quiz wird nach Schritt 6 angeboten.</div>
           <button id="open-final-quiz" class="secondary" hidden>Abschluss-Quiz starten</button>
-          <a class="path-link" href="regularization_interaktion.html">Weiter zu Thema 10: Regularization (L1/L2)</a>
+          <a class="path-link" href="regularization_ml.html">Weiter zu Regularisierung im Machine Learning</a>
           <a class="path-link" href="matrix_interaktion.html">Zu Thema 8: Matrix verstehen</a>
           <a class="path-link" href="distanzmetriken_und_scaling_interaktion.html">Zu Thema 7: Distanzmetriken und Scaling</a>
           <button id="replay-topic" class="secondary" hidden>Dieses Thema erneut durchspielen</button>
@@ -1179,10 +1179,10 @@
       </div>
 
       <div class="extension-box">
-        <div class="extension-kicker">Erweiterung</div>
-        <strong>Berufsnaher Einstieg in Code</strong>
-        <p>Vom Rechenprinzip zur Praxis: ein geführter Python-Weg mit Training, Vorhersage und OLS-Interpretation.</p>
-        <a class="extension-link" href="lineare_regression_code_praxis.html">Code-Praxis (Python) im Popup öffnen</a>
+        <div class="extension-kicker">Vertiefung</div>
+        <strong>Zurück in Kapitel mit Übungen</strong>
+        <p>Wenn du Python parallel üben willst, springe in die neu aufgebauten Kapitel mit eingebetteten Aufgaben und Lösungen.</p>
+        <a class="extension-link" href="lineare_regression_interaktion.html">Zu Linearer Regression mit Übungen</a>
       </div>
 
       <div class="ctrl-group">
@@ -1196,25 +1196,25 @@
       <section class="codepath-bar" aria-label="Codepfad Navigation">
         <div class="codepath-title">
           <span class="label-with-tip">
-            Codepfad
+            Übungspfad
             <span class="tip-wrap">
               <button type="button" class="tip-icon" aria-label="Hilfe zum Codepfad">i</button>
-              <span class="tip-text">Codepfad = die passende Code-Praxis zum aktuellen Thema. Hier lernt ihr, wie aus Zeilen und Gewichten die Rechenregel X * w + b für viele Vorhersagen entsteht.</span>
+              <span class="tip-text">Übungspfad = die Kapitel des neuen Lernpfads mit eingebetteten Python-Aufgaben. Dort könnt ihr die Theorie direkt mit kleinen Code-Snippets nachbauen.</span>
             </span>
           </span>
         </div>
         <div class="codepath-steps">
-          <a class="codepath-step active" href="lineare_regression_code_praxis.html">
+          <a class="codepath-step" href="lineare_regression_interaktion.html">
             <span class="codepath-index">1</span>
             <span>Linear Regression</span>
           </a>
-          <a class="codepath-step is-disabled" href="gradient_descent_code_praxis.html" aria-disabled="true" tabindex="-1">
+          <a class="codepath-step" href="gradient_descent_interaktion.html">
             <span class="codepath-index">2</span>
             <span>Gradient Descent</span>
           </a>
-          <a class="codepath-step is-disabled" href="predictive_modeling_code_praxis.html" aria-disabled="true" tabindex="-1">
+          <a class="codepath-step" href="regularization_ml.html">
             <span class="codepath-index">3</span>
-            <span>Predictive Modeling</span>
+            <span>Regularisierung</span>
           </a>
         </div>
       </section>
@@ -2004,5 +2004,6 @@ x_row .* w_row (elementweise)
     closeErrorDialog();
     updateStepContent();
   </script>
+  <script defer src="lernstand_manager.js"></script>
 </body>
 </html>

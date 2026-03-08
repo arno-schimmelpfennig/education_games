@@ -1,0 +1,2562 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decision Trees | Data Science</title>
+  <meta name="description" content="Interaktives Kapitel zu Decision Trees mit Ja/Nein-Fragen, Purity, Gini, Rekursion, Pruning und Notebook-Übungen.">
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --text: #231a24;
+      --text-light: #695f68;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --line: #ddd1d8;
+      --success: #4f7a6a;
+      --success-soft: #f1f6f3;
+      --success-line: #c2d3cb;
+      --danger: #8c3a4a;
+      --danger-soft: #f8f1f3;
+      --danger-line: #d9bec6;
+      --warning: #9a6b4a;
+      --warning-soft: #f8f3ef;
+      --warning-line: #dfcdc1;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 960px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.08), transparent 36%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 42%, #f3f1f4 100%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    #stage {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card { padding: 14px; margin-top: 14px; }
+    .sidebar-card p, .module p, .module li { line-height: 1.6; }
+
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.02em; }
+    h1 { margin-top: 8px; font-size: 1.92rem; line-height: 1.08; color: var(--primary); }
+    h2 { font-size: 1.35rem; color: var(--primary); }
+    h3 { font-size: 1rem; color: var(--primary); }
+    h4 { font-size: 0.95rem; color: var(--text); }
+
+    .lead { margin-top: 10px; font-size: 0.96rem; color: var(--text-light); }
+    .card-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .meta-grid,
+    .chip-row,
+    .badge-grid,
+    .footer-links,
+    .module-grid,
+    .button-row,
+    .quiz-options,
+    .demo-grid,
+    .mini-grid,
+    .workflow-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .chip-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .button-row,
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .quiz-feedback,
+    .formula-block,
+    .callout,
+    .exercise-card,
+    .helper-note,
+    .result-box,
+    .workflow-chip {
+      border-radius: 14px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .chip { text-align: center; font-size: 0.84rem; }
+
+    .btn,
+    .sidebar-toggle,
+    .choice-btn,
+    .quiz-option,
+    .split-choice,
+    .workflow-choice {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .choice-btn,
+    .quiz-option,
+    .split-choice,
+    .workflow-choice {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .choice-btn:hover,
+    .quiz-option:hover,
+    .split-choice:hover,
+    .workflow-choice:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #ede4e9;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    .nav-link {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      background: rgba(23, 50, 98, 0.06);
+      border-color: rgba(23, 50, 98, 0.14);
+      transform: translateX(2px);
+    }
+
+    .nav-index {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-light);
+      flex: 0 0 32px;
+    }
+
+    .nav-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .nav-meta {
+      color: var(--text-light);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .hero {
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .hero-banner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.84rem;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    #content {
+      display: grid;
+      gap: 16px;
+      max-width: var(--content-max);
+    }
+
+    .module {
+      padding: 18px;
+      scroll-margin-top: 120px;
+    }
+
+    .module-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .module-index {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .module-summary {
+      margin-top: 6px;
+      color: var(--text-light);
+      max-width: 56ch;
+    }
+
+    .module-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: var(--secondary);
+      background: var(--secondary-light);
+      white-space: nowrap;
+    }
+
+    .module-status.is-complete {
+      color: var(--success);
+      background: var(--success-soft);
+    }
+
+    .module-grid,
+    .demo-grid,
+    .mini-grid,
+    .workflow-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .formula-block code {
+      font-size: 0.95rem;
+      white-space: normal;
+    }
+
+    .plot-card {
+      padding: 14px;
+      background: linear-gradient(180deg, #fff 0%, #faf7f9 100%);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .plot-shell {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      min-height: 260px;
+    }
+
+    .tree-canvas,
+    .decision-svg,
+    .gini-svg {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+    }
+
+    .control {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--text-light);
+      font-size: 0.88rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+    }
+
+    .code-wrap {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    pre {
+      margin: 0;
+      background: #1e293b;
+      color: #f8fafc;
+      border-radius: 16px;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      overflow: auto;
+      padding: 14px;
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+
+    .exercise-card {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .exercise-instruction,
+    .exercise-context,
+    .expected-output {
+      margin: 0;
+    }
+
+    details.hint, details.solution {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    details.hint summary, details.solution summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .quiz-shell {
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .quiz-question {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .quiz-question legend {
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+
+    .quiz-options {
+      grid-template-columns: 1fr;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .quiz-option input {
+      margin: 0;
+    }
+
+    .quiz-option.is-correct {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+
+    .quiz-option.is-wrong {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: var(--danger);
+    }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .quiz-feedback.is-visible { display: block; }
+    .quiz-feedback.is-success {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+    .quiz-feedback.is-warning {
+      background: var(--warning-soft);
+      border-color: var(--warning-line);
+      color: var(--warning);
+    }
+
+    .reflection {
+      margin-top: 14px;
+      background: linear-gradient(180deg, #fff7ea 0%, #fff 100%);
+      color: var(--text);
+    }
+
+    .badge-grid {
+      margin-top: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .badge-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 11px 12px;
+    }
+
+    .badge-item.is-earned {
+      border-color: rgba(23, 50, 98, 0.22);
+      background: linear-gradient(135deg, #fff7ea, #fff);
+    }
+
+    .badge-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.14), rgba(23, 50, 98, 0.14));
+      color: var(--primary);
+      font-size: 1.2rem;
+      flex: 0 0 44px;
+    }
+
+    .progress-copy {
+      font-size: 0.84rem;
+      color: var(--text-light);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .split-choice,
+    .workflow-choice {
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .split-choice.is-selected,
+    .workflow-choice.is-selected {
+      background: var(--secondary-light);
+      border-color: rgba(23, 50, 98, 0.22);
+      color: var(--secondary);
+    }
+
+    .tree-box {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px dashed rgba(99, 24, 50, 0.24);
+      background: #fff;
+    }
+
+    .tree-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tree-node {
+      min-width: 120px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      text-align: center;
+    }
+
+    .tree-node.root {
+      background: var(--primary-light);
+      border-color: rgba(99, 24, 50, 0.18);
+    }
+
+    .tree-node.leaf {
+      background: #f8fbff;
+      border-color: rgba(23, 50, 98, 0.18);
+    }
+
+    .tree-node.hidden {
+      opacity: 0.2;
+    }
+
+    .tree-node.active {
+      outline: 3px solid rgba(23, 50, 98, 0.18);
+    }
+
+    .leaf-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--secondary);
+      background: var(--secondary-light);
+    }
+
+    .mini-grid .result-box strong,
+    .status-note strong,
+    .helper-note strong {
+      color: var(--secondary);
+    }
+
+    .workflow-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .workflow-choice.is-done {
+      background: var(--success-soft);
+      border-color: var(--success-line);
+      color: var(--success);
+    }
+
+    .workflow-choice.is-wrong {
+      background: var(--danger-soft);
+      border-color: var(--danger-line);
+      color: var(--danger);
+    }
+
+    .footer-card {
+      padding: 18px;
+      margin-top: 16px;
+      max-width: var(--content-max);
+    }
+
+    .sidebar-toggle {
+      display: none;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .plot-caption {
+      margin-top: 10px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 980px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sidebar-toggle { display: inline-flex; }
+      #sidebar[data-collapsed="true"] .sidebar-inner { display: none; }
+      .hero-grid,
+      .module-grid,
+      .demo-grid,
+      .mini-grid,
+      .workflow-grid,
+      .meta-grid,
+      .chip-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="sidebar-inner" data-i18n-de="Kapitelübersicht ein-/ausklappen" data-i18n-en="Toggle chapter overview">Kapitelübersicht ein-/ausklappen</button>
+      <div class="sidebar-inner" id="sidebar-inner">
+        <div class="brandline" data-i18n-de="Data Science Lernpfad" data-i18n-en="Data Science learning path">Data Science Lernpfad</div>
+        <h1 data-i18n-de="Decision Trees" data-i18n-en="Decision Trees">Decision Trees</h1>
+        <p class="lead" data-i18n-de="Der Paket-Entscheider zeigt dir, wie ein Baum aus Ja/Nein-Fragen lernt, Gruppen trennt und warum zu viele Äste schnell zu viel des Guten werden." data-i18n-en="The parcel decider shows how a tree learns from yes/no questions, separates groups, and why too many branches can quickly become too much of a good thing.">Der Paket-Entscheider zeigt dir, wie ein Baum aus Ja/Nein-Fragen lernt, Gruppen trennt und warum zu viele Äste schnell zu viel des Guten werden.</p>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Fortschritt" data-i18n-en="Progress">Fortschritt</div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="overall-progress"></div>
+          </div>
+          <div class="progress-label">
+            <span id="progress-steps" data-i18n-de="0 von 8 Modulen sicher" data-i18n-en="0 of 8 modules secure">0 von 8 Modulen sicher</span>
+            <span id="progress-points">0 Punkte</span>
+          </div>
+          <p class="lead" style="margin-top:10px;" data-i18n-de="Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten kannst du direkt korrigieren." data-i18n-en="A module only counts as secure once all quiz questions have been answered correctly at least once. You can correct wrong answers immediately.">Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten kannst du direkt korrigieren.</p>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Baum-Rang" data-i18n-en="Tree rank">Baum-Rang</div>
+          <div id="sidebar-rank">Rang: Anfänger</div>
+          <p class="lead" id="rank-copy" data-i18n-de="Noch offen: Splits sicher lesen und Überanpassung erkennen." data-i18n-en="Still open: read splits confidently and recognise overfitting.">Noch offen: Splits sicher lesen und Überanpassung erkennen.</p>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Module" data-i18n-en="Modules">Module</div>
+          <nav aria-label="Module">
+            <a class="nav-link" href="#module-1" data-module-link="module-1">
+              <span class="nav-index">1</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Baum als Fragebogen" data-i18n-en="Tree as a questionnaire">Baum als Fragebogen</strong>
+                <span class="nav-meta" data-module-status="module-1" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-2" data-module-link="module-2">
+              <span class="nav-index">2</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Grenzen im Raum" data-i18n-en="Boundaries in space">Grenzen im Raum</strong>
+                <span class="nav-meta" data-module-status="module-2" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-3" data-module-link="module-3">
+              <span class="nav-index">3</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Best Split & Purity" data-i18n-en="Best split and purity">Best Split & Purity</strong>
+                <span class="nav-meta" data-module-status="module-3" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-4" data-module-link="module-4">
+              <span class="nav-index">4</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Gini verstehen" data-i18n-en="Understanding Gini">Gini verstehen</strong>
+                <span class="nav-meta" data-module-status="module-4" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-5" data-module-link="module-5">
+              <span class="nav-index">5</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Rekursion" data-i18n-en="Recursion">Rekursion</strong>
+                <span class="nav-meta" data-module-status="module-5" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-6" data-module-link="module-6">
+              <span class="nav-index">6</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Vorhersage im Blatt" data-i18n-en="Prediction in a leaf">Vorhersage im Blatt</strong>
+                <span class="nav-meta" data-module-status="module-6" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-7" data-module-link="module-7">
+              <span class="nav-index">7</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Overfitting & Pruning" data-i18n-en="Overfitting and pruning">Overfitting & Pruning</strong>
+                <span class="nav-meta" data-module-status="module-7" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-8" data-module-link="module-8">
+              <span class="nav-index">8</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Praxisworkflow" data-i18n-en="Practical workflow">Praxisworkflow</strong>
+                <span class="nav-meta" data-module-status="module-8" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker" data-i18n-de="Badges" data-i18n-en="Badges">Badges</div>
+          <div class="badge-grid">
+            <div class="badge-item" id="badge-basics">
+              <div class="badge-icon" aria-hidden="true">🌱</div>
+              <div>
+                <strong data-i18n-de="Wurzel-Leser" data-i18n-en="Root reader">Wurzel-Leser</strong>
+                <span data-i18n-de="Module 1 und 2 sicher gelöst" data-i18n-en="Modules 1 and 2 solved securely">Module 1 und 2 sicher gelöst</span>
+              </div>
+            </div>
+            <div class="badge-item" id="badge-purity">
+              <div class="badge-icon" aria-hidden="true">🧪</div>
+              <div>
+                <strong data-i18n-de="Reinheits-Prüfer" data-i18n-en="Purity inspector">Reinheits-Prüfer</strong>
+                <span data-i18n-de="Module 3 und 4 sicher gelöst" data-i18n-en="Modules 3 and 4 solved securely">Module 3 und 4 sicher gelöst</span>
+              </div>
+            </div>
+            <div class="badge-item" id="badge-path">
+              <div class="badge-icon" aria-hidden="true">🧭</div>
+              <div>
+                <strong data-i18n-de="Pfad-Scout" data-i18n-en="Path scout">Pfad-Scout</strong>
+                <span data-i18n-de="Module 5 und 6 sicher gelöst" data-i18n-en="Modules 5 and 6 solved securely">Module 5 und 6 sicher gelöst</span>
+              </div>
+            </div>
+            <div class="badge-item" id="badge-pruning">
+              <div class="badge-icon" aria-hidden="true">✂️</div>
+              <div>
+                <strong data-i18n-de="Baum-Gärtner" data-i18n-en="Tree gardener">Baum-Gärtner</strong>
+                <span data-i18n-de="Module 7 und 8 sicher gelöst" data-i18n-en="Modules 7 and 8 solved securely">Module 7 und 8 sicher gelöst</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <div class="sticky-shell hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-banner" data-i18n-de="8 Module · Notebook-Übungen · lokaler Lernstand" data-i18n-en="8 modules · notebook exercises · local progress saving">8 Module · Notebook-Übungen · lokaler Lernstand</div>
+            <h2 style="margin-top:10px;" data-i18n-de="Was lernst du in 10 Minuten pro Abschnitt?" data-i18n-en="What will you learn in 10 minutes per section?">Was lernst du in 10 Minuten pro Abschnitt?</h2>
+            <p class="lead" data-i18n-de="Du verstehst, wie Decision Trees Fragen auswählen, Gruppen möglichst sauber trennen, mit Gini messen und mit Pruning vor Überanpassung geschützt werden." data-i18n-en="You will understand how decision trees choose questions, separate groups as cleanly as possible, measure this with Gini, and are protected from overfitting through pruning.">Du verstehst, wie Decision Trees Fragen auswählen, Gruppen möglichst sauber trennen, mit Gini messen und mit Pruning vor Überanpassung geschützt werden.</p>
+            <div class="chip-row">
+              <div class="chip"><strong data-i18n-de="Alltag" data-i18n-en="Everyday life">Alltag</strong><span data-i18n-de="Paketlogistik, Wetter und Servicefälle statt trockener Symbolik." data-i18n-en="Parcel logistics, weather and service cases instead of dry symbolism.">Paketlogistik, Wetter und Servicefälle statt trockener Symbolik.</span></div>
+              <div class="chip"><strong data-i18n-de="Didaktik" data-i18n-en="Didactics">Didaktik</strong><span data-i18n-de="Erst Bild im Kopf, dann Ja/Nein-Regel, dann Purity, dann Python." data-i18n-en="First a mental picture, then a yes/no rule, then purity, then Python.">Erst Bild im Kopf, dann Ja/Nein-Regel, dann Purity, dann Python.</span></div>
+              <div class="chip"><strong data-i18n-de="Selbststudium" data-i18n-en="Self-study">Selbststudium</strong><span data-i18n-de="Jeder Schritt ist allein lösbar und bleibt nach dem Schließen des Browsers gespeichert." data-i18n-en="Every step can be solved alone and stays saved after closing the browser.">Jeder Schritt ist allein lösbar und bleibt nach dem Schließen des Browsers gespeichert.</span></div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <div class="meta-card">
+              <strong data-i18n-de="Davor" data-i18n-en="Before">Davor</strong>
+              <span data-i18n-de="Distanzmetriken und Scaling" data-i18n-en="Distance metrics and scaling">Distanzmetriken und Scaling</span>
+            </div>
+            <div class="meta-card">
+              <strong data-i18n-de="Optional davor" data-i18n-en="Optional before">Optional davor</strong>
+              <span data-i18n-de="Feature Engineering" data-i18n-en="Feature engineering">Feature Engineering</span>
+            </div>
+            <div class="meta-card">
+              <strong data-i18n-de="Danach" data-i18n-en="After">Danach</strong>
+              <span data-i18n-de="Ensemble Methods" data-i18n-en="Ensemble methods">Ensemble Methods</span>
+            </div>
+            <div class="status-note" data-i18n-de="Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>." data-i18n-en="Every quiz question solved correctly for the first time gives <strong>10 points</strong>. Every demo you try gives <strong>5 points</strong>.">Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>.</div>
+            <div class="button-row">
+              <button id="jump-next-open" class="btn" type="button" data-i18n-de="Zum aktuellen Modul" data-i18n-en="Go to current module">Zum aktuellen Modul</button>
+              <button id="reset-tree-progress" class="btn ghost" type="button" data-i18n-de="Kapitel zurücksetzen" data-i18n-en="Reset chapter">Kapitel zurücksetzen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="content">
+        <section class="module lesson-step" id="module-1">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 1</div>
+              <h2 data-i18n-de="Baum als Fragebogen" data-i18n-en="Tree as a questionnaire">Baum als Fragebogen</h2>
+              <p class="module-summary" data-i18n-de="Du lernst Root, Branch, Leaf und Stump als einfache Ja/Nein-Kette kennen." data-i18n-en="You learn root, branch, leaf and stump as a simple yes/no chain.">Du lernst Root, Branch, Leaf und Stump als einfache Ja/Nein-Kette kennen.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-1" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Stell dir einen Paketdienst in Köln vor. Die Disposition fragt nicht alles gleichzeitig, sondern eine Sache nach der anderen: Ist Wochenende? Regnet es? Ist die Route stark ausgelastet? Genau so funktioniert ein Decision Tree. Er führt dich mit Ja/Nein-Fragen durch einen kleinen Fragebogen." data-i18n-en="Imagine a parcel service in Cologne. Dispatch does not ask everything at once, but one thing after another: Is it the weekend? Is it raining? Is the route heavily loaded? That is exactly how a decision tree works. It guides you through a small questionnaire with yes/no questions.">Stell dir einen Paketdienst in Köln vor. Die Disposition fragt nicht alles gleichzeitig, sondern eine Sache nach der anderen: Ist Wochenende? Regnet es? Ist die Route stark ausgelastet? Genau so funktioniert ein Decision Tree. Er führt dich mit Ja/Nein-Fragen durch einen kleinen Fragebogen.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="Die erste Frage sitzt an der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Wurzelknoten&quot; data-term-en=&quot;Root node&quot; data-definition-de=&quot;Der Wurzelknoten ist der Startpunkt des Baums. Hier wird die erste Frage gestellt, die die Daten in zwei Gruppen teilt.&quot; data-definition-en=&quot;The root node is the start of the tree. It asks the first question and splits the data into two groups.&quot;>Wurzel</button>. Jede Antwort führt über einen Ast zu einer neuen Frage. Am Ende landest du in einem <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Blatt&quot; data-term-en=&quot;Leaf&quot; data-definition-de=&quot;Ein Blatt ist ein Endpunkt des Baums. Dort steht die finale Vorhersage.&quot; data-definition-en=&quot;A leaf is an end point of the tree. That is where the final prediction lives.&quot;>Blatt</button>, also bei der Vorhersage." data-i18n-html-en="The first question sits at the <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Wurzelknoten&quot; data-term-en=&quot;Root node&quot; data-definition-de=&quot;Der Wurzelknoten ist der Startpunkt des Baums. Hier wird die erste Frage gestellt, die die Daten in zwei Gruppen teilt.&quot; data-definition-en=&quot;The root node is the start of the tree. It asks the first question and splits the data into two groups.&quot;>root</button>. Each answer follows a branch to a new question. In the end you land in a <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Blatt&quot; data-term-en=&quot;Leaf&quot; data-definition-de=&quot;Ein Blatt ist ein Endpunkt des Baums. Dort steht die finale Vorhersage.&quot; data-definition-en=&quot;A leaf is an end point of the tree. That is where the final prediction lives.&quot;>leaf</button>, meaning the prediction.">Die erste Frage sitzt an der <button class="glossary-term" type="button" data-term-de="Wurzelknoten" data-term-en="Root node" data-definition-de="Der Wurzelknoten ist der Startpunkt des Baums. Hier wird die erste Frage gestellt, die die Daten in zwei Gruppen teilt." data-definition-en="The root node is the start of the tree. It asks the first question and splits the data into two groups.">Wurzel</button>. Jede Antwort führt über einen Ast zu einer neuen Frage. Am Ende landest du in einem <button class="glossary-term" type="button" data-term-de="Blatt" data-term-en="Leaf" data-definition-de="Ein Blatt ist ein Endpunkt des Baums. Dort steht die finale Vorhersage." data-definition-en="A leaf is an end point of the tree. That is where the final prediction lives.">Blatt</button>, also bei der Vorhersage.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Frage statt Formel" data-i18n-en="Question instead of formula">Frage statt Formel</h3>
+            <p data-i18n-de="Ein Decision Tree denkt in Regeln wie <code>wenn Wochenende = ja, dann verspätet</code>. Ein Baum mit nur einer einzigen Frage heißt <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Stumpf&quot; data-term-en=&quot;Stump&quot; data-definition-de=&quot;Ein Stumpf ist ein sehr kleiner Decision Tree mit nur einer einzigen Entscheidung.&quot; data-definition-en=&quot;A stump is a very small decision tree with only one decision.&quot;>Stumpf</button>." data-i18n-en="A decision tree thinks in rules such as <code>if weekend = yes, then delayed</code>. A tree with only one single question is called a <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Stumpf&quot; data-term-en=&quot;Stump&quot; data-definition-de=&quot;Ein Stumpf ist ein sehr kleiner Decision Tree mit nur einer einzigen Entscheidung.&quot; data-definition-en=&quot;A stump is a very small decision tree with only one decision.&quot;>stump</button>.">Ein Decision Tree denkt in Regeln wie <code>wenn Wochenende = ja, dann verspätet</code>. Ein Baum mit nur einer einzigen Frage heißt <button class="glossary-term" type="button" data-term-de="Stumpf" data-term-en="Stump" data-definition-de="Ein Stumpf ist ein sehr kleiner Decision Tree mit nur einer einzigen Entscheidung." data-definition-en="A stump is a very small decision tree with only one decision.">Stumpf</button>.</p>
+          </div>
+
+          <div class="demo-grid">
+            <div class="plot-card">
+              <h3 data-i18n-de="Interaktive Demo" data-i18n-en="Interactive demo">Interaktive Demo</h3>
+              <div class="control">
+                <label for="dispatch-weekend"><span data-i18n-de="Wochenende" data-i18n-en="Weekend">Wochenende</span><span id="dispatch-weekend-value">Nein</span></label>
+                <select id="dispatch-weekend" aria-label="Wochenende auswählen">
+                  <option value="0" data-i18n-de="Nein" data-i18n-en="No">Nein</option>
+                  <option value="1" data-i18n-de="Ja" data-i18n-en="Yes">Ja</option>
+                </select>
+              </div>
+              <div class="control">
+                <label for="dispatch-rain"><span data-i18n-de="Regen" data-i18n-en="Rain">Regen</span><span id="dispatch-rain-value">Nein</span></label>
+                <select id="dispatch-rain" aria-label="Regen auswählen">
+                  <option value="0" data-i18n-de="Nein" data-i18n-en="No">Nein</option>
+                  <option value="1" data-i18n-de="Ja" data-i18n-en="Yes">Ja</option>
+                </select>
+              </div>
+              <div class="control">
+                <label for="dispatch-load"><span data-i18n-de="Route ausgelastet" data-i18n-en="Route busy">Route ausgelastet</span><span id="dispatch-load-value">Nein</span></label>
+                <select id="dispatch-load" aria-label="Routenauslastung auswählen">
+                  <option value="0" data-i18n-de="Nein" data-i18n-en="No">Nein</option>
+                  <option value="1" data-i18n-de="Ja" data-i18n-en="Yes">Ja</option>
+                </select>
+              </div>
+              <button id="run-dispatch" class="btn secondary" type="button" data-i18n-de="Pfad prüfen" data-i18n-en="Check path">Pfad prüfen</button>
+            </div>
+            <div class="plot-card">
+              <h3 data-i18n-de="Baum-Pfad" data-i18n-en="Tree path">Baum-Pfad</h3>
+              <div class="tree-box" id="dispatch-tree"></div>
+              <div class="result-box" id="dispatch-result"></div>
+            </div>
+          </div>
+
+          <div id="quiz-1" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ein Baum ist kein Zauber. Er ist erst einmal nur eine sauber geordnete Kette von Fragen." data-i18n-en="What do you take away? A tree is not magic. At first it is simply a neatly ordered chain of questions.">Was nimmst du mit? Ein Baum ist kein Zauber. Er ist erst einmal nur eine sauber geordnete Kette von Fragen.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-2">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 2</div>
+              <h2 data-i18n-de="Grenzen im Raum" data-i18n-en="Boundaries in space">Grenzen im Raum</h2>
+              <p class="module-summary" data-i18n-de="Du siehst, wie ein Baum in einer Punktwolke achsenparallele Grenzen zieht." data-i18n-en="You see how a tree draws axis-aligned boundaries in a cloud of points.">Du siehst, wie ein Baum in einer Punktwolke achsenparallele Grenzen zieht.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-2" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Bei einem Straßenfest möchtest du vorhersagen, ob Besucher eher Eis oder Kaffee kaufen. Zwei Merkmale reichen für den Anfang: Temperatur und Wind. Ein Baum legt nun einfache Grenzen fest, zum Beispiel: über 24 °C eher Eis, darunter eher Kaffee." data-i18n-en="At a street festival you want to predict whether visitors are more likely to buy ice cream or coffee. Two features are enough to start: temperature and wind. A tree now places simple boundaries, for example: above 24°C more likely ice cream, below that more likely coffee.">Bei einem Straßenfest möchtest du vorhersagen, ob Besucher eher Eis oder Kaffee kaufen. Zwei Merkmale reichen für den Anfang: Temperatur und Wind. Ein Baum legt nun einfache Grenzen fest, zum Beispiel: über 24 °C eher Eis, darunter eher Kaffee.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-de="Im zweidimensionalen Raum entstehen keine diagonalen Grenzen wie bei manch anderem Modell, sondern rechteckige Bereiche. Der Baum trennt immer entlang einer Achse: <code>Temperatur &lt; Schwelle</code> oder <code>Wind &lt; Schwelle</code>." data-i18n-en="In two-dimensional space, decision trees do not create diagonal boundaries like some other models, but rectangular regions. The tree always splits along one axis: <code>temperature &lt; threshold</code> or <code>wind &lt; threshold</code>.">Im zweidimensionalen Raum entstehen keine diagonalen Grenzen wie bei manch anderem Modell, sondern rechteckige Bereiche. Der Baum trennt immer entlang einer Achse: <code>Temperatur &lt; Schwelle</code> oder <code>Wind &lt; Schwelle</code>.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Regel im Bild" data-i18n-en="Rule in the picture">Regel im Bild</h3>
+            <p data-i18n-de="Eine erste Trennung kann so aussehen: <code>wenn Temperatur &lt; 24, dann links, sonst rechts</code>. Danach darf jede Seite ihre eigene nächste Frage bekommen." data-i18n-en="A first split could look like this: <code>if temperature &lt; 24, go left, otherwise go right</code>. After that, each side may get its own next question.">Eine erste Trennung kann so aussehen: <code>wenn Temperatur &lt; 24, dann links, sonst rechts</code>. Danach darf jede Seite ihre eigene nächste Frage bekommen.</p>
+          </div>
+
+          <div class="demo-grid">
+            <div class="plot-card">
+              <h3 data-i18n-de="Interaktive Grenze" data-i18n-en="Interactive boundary">Interaktive Grenze</h3>
+              <div class="control">
+                <label for="split-axis"><span data-i18n-de="Trennachse" data-i18n-en="Split axis">Trennachse</span><span id="split-axis-value">Temperatur</span></label>
+                <select id="split-axis" aria-label="Achse auswählen">
+                  <option value="x" data-i18n-de="Temperatur" data-i18n-en="Temperature">Temperatur</option>
+                  <option value="y" data-i18n-de="Wind" data-i18n-en="Wind">Wind</option>
+                </select>
+              </div>
+              <div class="control">
+                <label for="split-threshold"><span data-i18n-de="Schwelle" data-i18n-en="Threshold">Schwelle</span><span id="split-threshold-value">24</span></label>
+                <input id="split-threshold" type="range" min="12" max="34" value="24" step="1" aria-label="Schwelle für den ersten Split">
+              </div>
+              <div class="result-box" id="boundary-stats"></div>
+            </div>
+            <div class="plot-card">
+              <h3 data-i18n-de="Punktwolke" data-i18n-en="Point cloud">Punktwolke</h3>
+              <div class="plot-shell">
+                <svg id="boundary-svg" class="decision-svg" viewBox="0 0 340 250" role="img" aria-label="Punktwolke mit Entscheidungsgrenze"></svg>
+              </div>
+              <p class="plot-caption" data-i18n-de="Blau steht hier für Kaffee, Bordeaux für Eis. Die Linie zeigt nur den ersten Split." data-i18n-en="Blue stands for coffee, burgundy for ice cream. The line shows only the first split.">Blau steht hier für Kaffee, Bordeaux für Eis. Die Linie zeigt nur den ersten Split.</p>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Ersten Baum trainieren" data-i18n-en="Exercise: train your first tree">Übung: Ersten Baum trainieren</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Das Beispiel kommt direkt aus dem Visualisierungs-Notebook. Ergänze die Modellzeile und trainiere den Baum mit den vorhandenen Daten." data-i18n-en="This example comes directly from the visualisation notebook. Complete the model line and train the tree with the given data.">Das Beispiel kommt direkt aus dem Visualisierungs-Notebook. Ergänze die Modellzeile und trainiere den Baum mit den vorhandenen Daten.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+X = [[1, 1], [1, 2], [2, 1], [3, 3], [3, 4], [4, 3]]
+y = [0, 0, 0, 1, 1, 1]
+
+tree = # ??? DEINE LÖSUNG ???
+tree.fit(X, y)
+
+print(tree.tree_.node_count)</code></pre>
+            <details class="hint">
+              <summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary>
+              <p data-i18n-de="Nutze denselben Klassennamen wie im Import und setze für Reproduzierbarkeit einen Zufallswert." data-i18n-en="Use the same classifier name as in the import and set a random state for reproducibility.">Nutze denselben Klassennamen wie im Import und setze für Reproduzierbarkeit einen Zufallswert.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary>
+              <pre><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+X = [[1, 1], [1, 2], [2, 1], [3, 3], [3, 4], [4, 3]]
+y = [0, 0, 0, 1, 1, 1]
+
+tree = DecisionTreeClassifier(random_state=42)
+tree.fit(X, y)
+
+print(tree.tree_.node_count)</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>3</code>" data-i18n-en="Expected output: <code>3</code>">Erwartete Ausgabe: <code>3</code></p>
+            </details>
+          </div>
+
+          <div id="quiz-2" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ein Baum zieht erst einfache Zäune. Viele kleine Rechtecke entstehen nur, wenn der Baum weiterwachsen darf." data-i18n-en="What do you take away? A tree first draws simple fences. Many small rectangles only appear when the tree is allowed to grow further.">Was nimmst du mit? Ein Baum zieht erst einfache Zäune. Viele kleine Rechtecke entstehen nur, wenn der Baum weiterwachsen darf.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-3">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 3</div>
+              <h2 data-i18n-de="Best Split & Purity" data-i18n-en="Best split and purity">Best Split & Purity</h2>
+              <p class="module-summary" data-i18n-de="Du lernst zuerst ohne Formel, warum ein guter Split möglichst homogene Gruppen erzeugt." data-i18n-en="You first learn without formulas why a good split creates groups that are as homogeneous as possible.">Du lernst zuerst ohne Formel, warum ein guter Split möglichst homogene Gruppen erzeugt.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-3" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Stell dir zwei Kisten mit Retouren vor: in der einen fast nur beschädigte Ware, in der anderen fast nur unbeschädigte. Das ist praktisch. Viel schwieriger wäre es, wenn in beiden Kisten jeweils die Hälfte beschädigt und unbeschädigt läge. Genau diese Klarheit sucht ein Baum." data-i18n-en="Imagine two boxes of returned goods: one containing almost only damaged items, the other almost only undamaged ones. That is practical. It would be much harder if both boxes contained half damaged and half undamaged items. That clarity is exactly what a tree is looking for.">Stell dir zwei Kisten mit Retouren vor: in der einen fast nur beschädigte Ware, in der anderen fast nur unbeschädigte. Das ist praktisch. Viel schwieriger wäre es, wenn in beiden Kisten jeweils die Hälfte beschädigt und unbeschädigt läge. Genau diese Klarheit sucht ein Baum.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="Der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Vor Gini kannst du dir merken: Je eindeutiger links und rechts werden, desto besser." data-i18n-html-en="The <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>best split</button> is the question and threshold that separate the groups most cleanly. Before Gini, remember this: the more clearly left and right separate, the better.">Der <button class="glossary-term" type="button" data-term-de="Best Split" data-term-en="Best split" data-definition-de="Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt." data-definition-en="The best split is the question and threshold that separate the data most cleanly.">Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Vor Gini kannst du dir merken: Je eindeutiger links und rechts werden, desto besser.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Purity in einem Satz" data-i18n-en="Purity in one sentence">Purity in einem Satz</h3>
+            <p data-i18n-de="Wenn links fast nur Klasse A und rechts fast nur Klasse B liegt, ist der Split gut. Wenn beide Seiten bunt gemischt bleiben, bringt die Frage wenig." data-i18n-en="If the left side contains almost only class A and the right side almost only class B, the split is good. If both sides remain mixed, the question is not very useful.">Wenn links fast nur Klasse A und rechts fast nur Klasse B liegt, ist der Split gut. Wenn beide Seiten bunt gemischt bleiben, bringt die Frage wenig.</p>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Wähle den besten Split" data-i18n-en="Choose the best split">Wähle den besten Split</h3>
+            <div class="button-row" id="split-choice-row"></div>
+            <div class="mini-grid">
+              <div class="result-box" id="split-choice-explain"></div>
+              <div class="result-box" id="split-choice-score"></div>
+            </div>
+          </div>
+
+          <div id="quiz-3" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Der Baum sucht keine schöne Theorie, sondern die Frage, die Ordnung in die Daten bringt." data-i18n-en="What do you take away? The tree is not looking for a pretty theory, but for the question that brings order into the data.">Was nimmst du mit? Der Baum sucht keine schöne Theorie, sondern die Frage, die Ordnung in die Daten bringt.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-4">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 4</div>
+              <h2 data-i18n-de="Gini verstehen" data-i18n-en="Understanding Gini">Gini verstehen</h2>
+              <p class="module-summary" data-i18n-de="Du verbindest die Purity-Idee jetzt mit einer einfachen Kennzahl." data-i18n-en="You now connect the purity idea with a simple metric.">Du verbindest die Purity-Idee jetzt mit einer einfachen Kennzahl.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-4" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Wenn du in einer Schublade fast nur rote Stifte findest, greifst du sicher. Wenn dort rote und blaue Stifte halb halb liegen, wirst du häufiger danebengreifen. Genau diese Unsicherheit misst Gini." data-i18n-en="If a drawer contains almost only red pens, you reach confidently. If it contains red and blue pens fifty-fifty, you will reach wrong more often. Gini measures exactly this uncertainty.">Wenn du in einer Schublade fast nur rote Stifte findest, greifst du sicher. Wenn dort rote und blaue Stifte halb halb liegen, wirst du häufiger danebengreifen. Genau diese Unsicherheit misst Gini.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Gini-Impurity&quot; data-term-en=&quot;Gini impurity&quot; data-definition-de=&quot;Gini-Impurity misst, wie gemischt eine Gruppe ist. 0 bedeutet komplett rein, 0,5 ist bei zwei Klassen die stärkste Mischung.&quot; data-definition-en=&quot;Gini impurity measures how mixed a group is. 0 means completely pure, 0.5 is the most mixed case for two classes.&quot;>Gini</button> misst, wie gemischt ein Knoten ist. Bei zwei Klassen gilt grob: rein = 0, maximal gemischt = 0,5." data-i18n-html-en="<button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Gini-Impurity&quot; data-term-en=&quot;Gini impurity&quot; data-definition-de=&quot;Gini-Impurity misst, wie gemischt eine Gruppe ist. 0 bedeutet komplett rein, 0,5 ist bei zwei Klassen die stärkste Mischung.&quot; data-definition-en=&quot;Gini impurity measures how mixed a group is. 0 means completely pure, 0.5 is the most mixed case for two classes.&quot;>Gini</button> measures how mixed a node is. With two classes, roughly: pure = 0, maximally mixed = 0.5."><button class="glossary-term" type="button" data-term-de="Gini-Impurity" data-term-en="Gini impurity" data-definition-de="Gini-Impurity misst, wie gemischt eine Gruppe ist. 0 bedeutet komplett rein, 0,5 ist bei zwei Klassen die stärkste Mischung." data-definition-en="Gini impurity measures how mixed a group is. 0 means completely pure, 0.5 is the most mixed case for two classes.">Gini</button> misst, wie gemischt ein Knoten ist. Bei zwei Klassen gilt grob: rein = 0, maximal gemischt = 0,5.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Formel" data-i18n-en="Formula">Formel</h3>
+            <p><code>Gini = 1 - (p0² + p1²)</code></p>
+            <p data-i18n-de="Wenn eine Klasse fast alles ausmacht, wird die Summe der Quadrate groß und Gini klein. Wenn beide Klassen gleich stark sind, bleibt Gini hoch." data-i18n-en="If one class dominates, the sum of squares becomes large and Gini becomes small. If both classes are equally strong, Gini stays high.">Wenn eine Klasse fast alles ausmacht, wird die Summe der Quadrate groß und Gini klein. Wenn beide Klassen gleich stark sind, bleibt Gini hoch.</p>
+          </div>
+
+          <div class="demo-grid">
+            <div class="plot-card">
+              <h3 data-i18n-de="Gini-Regler" data-i18n-en="Gini slider">Gini-Regler</h3>
+              <div class="control">
+                <label for="gini-ratio"><span data-i18n-de="Anteil Klasse Bordeaux" data-i18n-en="Share of burgundy class">Anteil Klasse Bordeaux</span><span id="gini-ratio-value">50 %</span></label>
+                <input id="gini-ratio" type="range" min="0" max="100" value="50" step="1" aria-label="Anteil der Klasse Bordeaux">
+              </div>
+              <div class="result-box" id="gini-result"></div>
+            </div>
+            <div class="plot-card">
+              <h3 data-i18n-de="Mischung im Blatt" data-i18n-en="Mix in the leaf">Mischung im Blatt</h3>
+              <div class="plot-shell">
+                <svg id="gini-svg" class="gini-svg" viewBox="0 0 340 220" role="img" aria-label="Visualisierung der Gini-Mischung"></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Baum begrenzen" data-i18n-en="Exercise: limit the tree">Übung: Baum begrenzen</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Auch diese Aufgabe basiert auf dem Visualisierungs-Notebook. Ergänze den Hyperparameter für einen flacheren Baum und prüfe danach die Tiefe." data-i18n-en="This task also comes from the visualisation notebook. Add the hyperparameter for a shallower tree and then check the depth.">Auch diese Aufgabe basiert auf dem Visualisierungs-Notebook. Ergänze den Hyperparameter für einen flacheren Baum und prüfe danach die Tiefe.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+X = [[1, 1], [1, 2], [2, 1], [3, 3], [3, 4], [4, 3]]
+y = [0, 0, 0, 1, 1, 1]
+
+tree = DecisionTreeClassifier(# ??? DEINE LÖSUNG ???, random_state=42)
+tree.fit(X, y)
+
+print(tree.tree_.max_depth)</code></pre>
+            <details class="hint">
+              <summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary>
+              <p data-i18n-de="Der Hyperparameter begrenzt die Tiefe direkt." data-i18n-en="The hyperparameter limits depth directly.">Der Hyperparameter begrenzt die Tiefe direkt.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary>
+              <pre><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+X = [[1, 1], [1, 2], [2, 1], [3, 3], [3, 4], [4, 3]]
+y = [0, 0, 0, 1, 1, 1]
+
+tree = DecisionTreeClassifier(max_depth=2, random_state=42)
+tree.fit(X, y)
+
+print(tree.tree_.max_depth)</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>1</code> oder <code>2</code>, je nach Datenlage höchstens aber 2." data-i18n-en="Expected output: <code>1</code> or <code>2</code>, depending on the data, but never more than 2.">Erwartete Ausgabe: <code>1</code> oder <code>2</code>, je nach Datenlage höchstens aber 2.</p>
+            </details>
+          </div>
+
+          <div id="quiz-4" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Gini ist keine fremde Magie. Er ist nur eine Zahl für die Unordnung in einer Gruppe." data-i18n-en="What do you take away? Gini is not foreign magic. It is simply a number for the disorder inside a group.">Was nimmst du mit? Gini ist keine fremde Magie. Er ist nur eine Zahl für die Unordnung in einer Gruppe.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-5">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 5</div>
+              <h2 data-i18n-de="Rekursion" data-i18n-en="Recursion">Rekursion</h2>
+              <p class="module-summary" data-i18n-de="Du verstehst, dass der Baum dieselbe Split-Logik immer wieder auf Teilmengen anwendet." data-i18n-en="You understand that the tree applies the same split logic over and over to subsets.">Du verstehst, dass der Baum dieselbe Split-Logik immer wieder auf Teilmengen anwendet.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-5" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Ein guter Sachbearbeiter hört nach der ersten Antwort nicht auf. Er fragt in jeder Teilgruppe neu: Was ist jetzt die nützlichste nächste Frage? Genau dieses Wiederholen derselben Logik nennt man Rekursion." data-i18n-en="A good case worker does not stop after the first answer. In each subgroup they ask again: what is now the most useful next question? Repeating the same logic like this is called recursion.">Ein guter Sachbearbeiter hört nach der ersten Antwort nicht auf. Er fragt in jeder Teilgruppe neu: Was ist jetzt die nützlichste nächste Frage? Genau dieses Wiederholen derselben Logik nennt man Rekursion.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-de="Nach jedem Split betrachtet der Baum die linke und rechte Teilmenge getrennt. Für beide Seiten sucht er wieder den besten Split, bis ein Stoppkriterium erreicht ist, zum Beispiel maximale Tiefe oder zu wenige Beobachtungen." data-i18n-en="After every split, the tree looks at the left and right subset separately. For both sides it searches again for the best split until a stopping criterion is reached, for example maximum depth or too few observations.">Nach jedem Split betrachtet der Baum die linke und rechte Teilmenge getrennt. Für beide Seiten sucht er wieder den besten Split, bis ein Stoppkriterium erreicht ist, zum Beispiel maximale Tiefe oder zu wenige Beobachtungen.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Pseudocode" data-i18n-en="Pseudocode">Pseudocode</h3>
+            <p><code>wenn Knoten rein oder zu klein: stop<br>sonst: best_split finden und links/rechts weiterbauen</code></p>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Baum wachsen lassen" data-i18n-en="Let the tree grow">Baum wachsen lassen</h3>
+            <div class="button-row">
+              <button id="grow-tree-step" class="btn secondary" type="button" data-i18n-de="Nächste Gabelung" data-i18n-en="Next split">Nächste Gabelung</button>
+              <button id="grow-tree-reset" class="btn ghost" type="button" data-i18n-de="Zurücksetzen" data-i18n-en="Reset">Zurücksetzen</button>
+            </div>
+            <div class="tree-box" id="recursion-tree"></div>
+            <div class="result-box" id="recursion-result"></div>
+          </div>
+
+          <div id="quiz-5" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Rekursion ist hier nichts Mystisches. Es ist nur: dieselbe Frage-Logik wiederholen, bis genug Ordnung entstanden ist." data-i18n-en="What do you take away? Recursion is nothing mystical here. It simply means repeating the same question logic until enough order has emerged.">Was nimmst du mit? Rekursion ist hier nichts Mystisches. Es ist nur: dieselbe Frage-Logik wiederholen, bis genug Ordnung entstanden ist.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-6">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 6</div>
+              <h2 data-i18n-de="Vorhersage im Blatt" data-i18n-en="Prediction in a leaf">Vorhersage im Blatt</h2>
+              <p class="module-summary" data-i18n-de="Du verfolgst einzelne Fälle durch den Baum und lernst Mehrheitsklasse versus Mittelwert kennen." data-i18n-en="You follow single cases through the tree and learn majority class versus mean value.">Du verfolgst einzelne Fälle durch den Baum und lernst Mehrheitsklasse versus Mittelwert kennen.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-6" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Ein neues Paket kommt herein. Jetzt stellt der Baum nicht mehr abstrakte Fragen an alte Daten, sondern schickt genau diesen einen Fall durch seine Äste. Unten im Blatt steht dann die Entscheidung: pünktlich oder verspätet." data-i18n-en="A new parcel arrives. Now the tree no longer asks abstract questions about old data, but sends this one case through its branches. At the bottom in the leaf sits the decision: on time or delayed.">Ein neues Paket kommt herein. Jetzt stellt der Baum nicht mehr abstrakte Fragen an alte Daten, sondern schickt genau diesen einen Fall durch seine Äste. Unten im Blatt steht dann die Entscheidung: pünktlich oder verspätet.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-de="Bei Klassifikation gibt das Blatt meist die Mehrheitsklasse zurück. Bei Regression gibt das Blatt den durchschnittlichen Zielwert der Trainingsfälle in diesem Blatt zurück." data-i18n-en="For classification, the leaf usually returns the majority class. For regression, the leaf returns the average target value of the training cases inside that leaf.">Bei Klassifikation gibt das Blatt meist die Mehrheitsklasse zurück. Bei Regression gibt das Blatt den durchschnittlichen Zielwert der Trainingsfälle in diesem Blatt zurück.</p>
+            </div>
+          </div>
+
+          <div class="demo-grid">
+            <div class="plot-card">
+              <h3 data-i18n-de="Neuen Fall schicken" data-i18n-en="Send a new case">Neuen Fall schicken</h3>
+              <div class="control">
+                <label for="leaf-temp"><span data-i18n-de="Temperatur" data-i18n-en="Temperature">Temperatur</span><span id="leaf-temp-value">22 °C</span></label>
+                <input id="leaf-temp" type="range" min="8" max="34" value="22" step="1" aria-label="Temperatur des Falls">
+              </div>
+              <div class="control">
+                <label for="leaf-windy"><span data-i18n-de="Windig" data-i18n-en="Windy">Windig</span><span id="leaf-windy-value">Nein</span></label>
+                <select id="leaf-windy" aria-label="Windig auswählen">
+                  <option value="0" data-i18n-de="Nein" data-i18n-en="No">Nein</option>
+                  <option value="1" data-i18n-de="Ja" data-i18n-en="Yes">Ja</option>
+                </select>
+              </div>
+              <div class="control">
+                <label for="leaf-holiday"><span data-i18n-de="Feiertag" data-i18n-en="Holiday">Feiertag</span><span id="leaf-holiday-value">Nein</span></label>
+                <select id="leaf-holiday" aria-label="Feiertag auswählen">
+                  <option value="0" data-i18n-de="Nein" data-i18n-en="No">Nein</option>
+                  <option value="1" data-i18n-de="Ja" data-i18n-en="Yes">Ja</option>
+                </select>
+              </div>
+              <button id="run-leaf-demo" class="btn secondary" type="button" data-i18n-de="Fall durchlaufen" data-i18n-en="Run case">Fall durchlaufen</button>
+            </div>
+            <div class="plot-card">
+              <h3 data-i18n-de="Pfad und Ergebnis" data-i18n-en="Path and result">Pfad und Ergebnis</h3>
+              <div class="tree-box" id="leaf-tree"></div>
+              <div class="result-box" id="leaf-result"></div>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Tree Regression" data-i18n-en="Exercise: tree regression">Übung: Tree Regression</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Diese Übung stammt aus dem Visualisierungs-Notebook mit dem Regressor. Ergänze die Vorhersagezeile für einen Produktionswert von 3750." data-i18n-en="This exercise comes from the visualisation notebook with the regressor. Complete the prediction line for a production value of 3750.">Diese Übung stammt aus dem Visualisierungs-Notebook mit dem Regressor. Ergänze die Vorhersagezeile für einen Produktionswert von 3750.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">import numpy as np
+from sklearn.tree import DecisionTreeRegressor
+
+X = np.array([[1000], [2000], [3000], [4000], [5000]])
+y = np.array([12, 18, 27, 27, 35])
+
+tree = DecisionTreeRegressor(random_state=42)
+tree.fit(X, y)
+
+pred = # ??? DEINE LÖSUNG ???
+print(pred[0])</code></pre>
+            <details class="hint">
+              <summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary>
+              <p data-i18n-de="Die Eingabe muss ein zweidimensionales Array sein." data-i18n-en="The input must be a two-dimensional array.">Die Eingabe muss ein zweidimensionales Array sein.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary>
+              <pre><code class="language-python">import numpy as np
+from sklearn.tree import DecisionTreeRegressor
+
+X = np.array([[1000], [2000], [3000], [4000], [5000]])
+y = np.array([12, 18, 27, 27, 35])
+
+tree = DecisionTreeRegressor(random_state=42)
+tree.fit(X, y)
+
+pred = tree.predict(np.array([[3750]]))
+print(pred[0])</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: <code>27.0</code>" data-i18n-en="Expected output: <code>27.0</code>">Erwartete Ausgabe: <code>27.0</code></p>
+            </details>
+          </div>
+
+          <div id="quiz-6" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Eine Vorhersage ist bei Bäumen immer: Fall hineinschicken, Pfad verfolgen, Blatt lesen." data-i18n-en="What do you take away? With trees, a prediction always means: send the case in, follow the path, read the leaf.">Was nimmst du mit? Eine Vorhersage ist bei Bäumen immer: Fall hineinschicken, Pfad verfolgen, Blatt lesen.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-7">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 7</div>
+              <h2 data-i18n-de="Overfitting & Pruning" data-i18n-en="Overfitting and pruning">Overfitting & Pruning</h2>
+              <p class="module-summary" data-i18n-de="Du erkennst, warum ein sehr tiefer Baum Trainingsdaten auswendig lernen kann und wie du ihn begrenzt." data-i18n-en="You recognise why a very deep tree can memorise training data and how to limit it.">Du erkennst, warum ein sehr tiefer Baum Trainingsdaten auswendig lernen kann und wie du ihn begrenzt.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-7" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Wenn du für jeden Ausnahmefall eine Extraregel aufschreibst, wirkt dein Regelwerk auf bekannte Fälle perfekt. In der echten Welt wird es aber oft brüchig. Genau das passiert, wenn ein Baum zu viele winzige Blätter bildet." data-i18n-en="If you write a special rule for every exception, your rule set looks perfect on known cases. In the real world, however, it often becomes brittle. That is exactly what happens when a tree creates too many tiny leaves.">Wenn du für jeden Ausnahmefall eine Extraregel aufschreibst, wirkt dein Regelwerk auf bekannte Fälle perfekt. In der echten Welt wird es aber oft brüchig. Genau das passiert, wenn ein Baum zu viele winzige Blätter bildet.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-html-de="Bäume neigen zu <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Overfitting&quot; data-term-en=&quot;Overfitting&quot; data-definition-de=&quot;Overfitting bedeutet: Das Modell lernt Trainingsdaten zu detailliert und generalisiert auf neue Daten schlechter.&quot; data-definition-en=&quot;Overfitting means the model learns the training data too specifically and generalises worse to new data.&quot;>Overfitting</button>. Gegenmittel sind zum Beispiel <code>max_depth</code>, <code>min_samples_leaf</code> oder <code>max_leaf_nodes</code>. Diese Regeln bremsen das Wachstum des Baums." data-i18n-html-en="Trees tend toward <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Overfitting&quot; data-term-en=&quot;Overfitting&quot; data-definition-de=&quot;Overfitting bedeutet: Das Modell lernt Trainingsdaten zu detailliert und generalisiert auf neue Daten schlechter.&quot; data-definition-en=&quot;Overfitting means the model learns the training data too specifically and generalises worse to new data.&quot;>overfitting</button>. Antidotes include <code>max_depth</code>, <code>min_samples_leaf</code> or <code>max_leaf_nodes</code>. These rules slow down the growth of the tree.">Bäume neigen zu <button class="glossary-term" type="button" data-term-de="Overfitting" data-term-en="Overfitting" data-definition-de="Overfitting bedeutet: Das Modell lernt Trainingsdaten zu detailliert und generalisiert auf neue Daten schlechter." data-definition-en="Overfitting means the model learns the training data too specifically and generalises worse to new data.">Overfitting</button>. Gegenmittel sind zum Beispiel <code>max_depth</code>, <code>min_samples_leaf</code> oder <code>max_leaf_nodes</code>. Diese Regeln bremsen das Wachstum des Baums.</p>
+            </div>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Tiefe gegen Generalisierung" data-i18n-en="Depth versus generalisation">Tiefe gegen Generalisierung</h3>
+            <div class="control">
+              <label for="depth-slider"><span data-i18n-de="max_depth" data-i18n-en="max_depth">max_depth</span><span id="depth-slider-value">4</span></label>
+              <input id="depth-slider" type="range" min="1" max="8" value="4" step="1" aria-label="max_depth wählen">
+            </div>
+            <div class="mini-grid">
+              <div class="result-box" id="depth-train"></div>
+              <div class="result-box" id="depth-test"></div>
+              <div class="result-box" id="depth-nodes"></div>
+              <div class="result-box" id="depth-recommendation"></div>
+            </div>
+          </div>
+
+          <div class="exercise-card">
+            <h4>🏋️ <span data-i18n-de="Übung: Train/Test vergleichen" data-i18n-en="Exercise: compare train and test">Übung: Train/Test vergleichen</span></h4>
+            <p class="exercise-instruction" data-i18n-de="Die Aufgabe basiert auf dem Klassifikations-Notebook. Ergänze die beiden Modellzeilen und vergleiche danach Trainings- und Testgüte." data-i18n-en="This task is based on the classification notebook. Complete the two model lines and compare training and test performance afterwards.">Die Aufgabe basiert auf dem Klassifikations-Notebook. Ergänze die beiden Modellzeilen und vergleiche danach Trainings- und Testgüte.</p>
+            <p class="exercise-context">📓 <span data-i18n-de="Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus." data-i18n-en="Open your Jupyter notebook or Google Colab and try it yourself.">Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</span></p>
+            <pre><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+X_train = [[1], [2], [3], [4], [5], [6]]
+y_train = [0, 0, 0, 1, 1, 1]
+X_test = [[1.5], [2.5], [4.5], [5.5]]
+y_test = [0, 0, 1, 1]
+
+deep_tree = # ??? DEINE LÖSUNG ???
+shallow_tree = # ??? DEINE LÖSUNG ???
+
+deep_tree.fit(X_train, y_train)
+shallow_tree.fit(X_train, y_train)
+
+print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test, y_test), 2))</code></pre>
+            <details class="hint">
+              <summary>💡 <span data-i18n-de="Tipp anzeigen" data-i18n-en="Show hint">Tipp anzeigen</span></summary>
+              <p data-i18n-de="Ein Modell hat keine Begrenzung, das andere nutzt eine kleine Tiefe." data-i18n-en="One model has no limit, the other uses a small depth.">Ein Modell hat keine Begrenzung, das andere nutzt eine kleine Tiefe.</p>
+            </details>
+            <details class="solution">
+              <summary>✅ <span data-i18n-de="Lösung anzeigen" data-i18n-en="Show solution">Lösung anzeigen</span></summary>
+              <pre><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+X_train = [[1], [2], [3], [4], [5], [6]]
+y_train = [0, 0, 0, 1, 1, 1]
+X_test = [[1.5], [2.5], [4.5], [5.5]]
+y_test = [0, 0, 1, 1]
+
+deep_tree = DecisionTreeClassifier(random_state=42)
+shallow_tree = DecisionTreeClassifier(max_depth=2, random_state=42)
+
+deep_tree.fit(X_train, y_train)
+shallow_tree.fit(X_train, y_train)
+
+print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test, y_test), 2))</code></pre>
+              <p class="expected-output" data-i18n-de="Erwartete Ausgabe: zwei Zahlen wie <code>1.0 1.0</code> oder ähnlich. Entscheidend ist der Vergleich der Modelle." data-i18n-en="Expected output: two numbers such as <code>1.0 1.0</code> or similar. The important part is comparing the models.">Erwartete Ausgabe: zwei Zahlen wie <code>1.0 1.0</code> oder ähnlich. Entscheidend ist der Vergleich der Modelle.</p>
+            </details>
+          </div>
+
+          <div id="quiz-7" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ein guter Baum ist nicht der buschigste, sondern derjenige, der auf neuen Daten stabil bleibt." data-i18n-en="What do you take away? A good tree is not the bushiest one, but the one that stays stable on new data.">Was nimmst du mit? Ein guter Baum ist nicht der buschigste, sondern derjenige, der auf neuen Daten stabil bleibt.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-8">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 8</div>
+              <h2 data-i18n-de="Praxisworkflow" data-i18n-en="Practical workflow">Praxisworkflow</h2>
+              <p class="module-summary" data-i18n-de="Du bringst Training, Visualisierung, Vorhersage und Kontrolle in die richtige Reihenfolge." data-i18n-en="You put training, visualisation, prediction and checking into the right order.">Du bringst Training, Visualisierung, Vorhersage und Kontrolle in die richtige Reihenfolge.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-8" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Alltagsszene" data-i18n-en="Everyday scene">Alltagsszene</h3>
+              <p data-i18n-de="Im Job reicht es nicht, nur einen Baum hübsch zu zeichnen. Du brauchst einen Ablauf: Daten trennen, Modell trainieren, Baum lesen, Wahrscheinlichkeiten prüfen, Testdaten anschauen und erst dann entscheiden." data-i18n-en="At work it is not enough to simply draw a pretty tree. You need a workflow: split the data, train the model, read the tree, check probabilities, inspect test data and only then decide.">Im Job reicht es nicht, nur einen Baum hübsch zu zeichnen. Du brauchst einen Ablauf: Daten trennen, Modell trainieren, Baum lesen, Wahrscheinlichkeiten prüfen, Testdaten anschauen und erst dann entscheiden.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
+              <p data-i18n-de="Im Notebook tauchen dafür oft dieselben Schritte auf: <code>train_test_split</code>, <code>DecisionTreeClassifier</code>, <code>fit</code>, <code>plot_tree</code>, <code>predict_proba</code> und eine Metrik auf Testdaten." data-i18n-en="In the notebook you often see the same steps: <code>train_test_split</code>, <code>DecisionTreeClassifier</code>, <code>fit</code>, <code>plot_tree</code>, <code>predict_proba</code> and a metric on test data.">Im Notebook tauchen dafür oft dieselben Schritte auf: <code>train_test_split</code>, <code>DecisionTreeClassifier</code>, <code>fit</code>, <code>plot_tree</code>, <code>predict_proba</code> und eine Metrik auf Testdaten.</p>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <h3 data-i18n-de="Merksatz" data-i18n-en="Rule of thumb">Merksatz</h3>
+            <p data-i18n-de="Erst sauber trennen, dann trainieren, dann verstehen, dann bewerten. Sonst verwechselst du Trainingserfolg mit echter Generalisierung." data-i18n-en="First split cleanly, then train, then understand, then evaluate. Otherwise you confuse training success with true generalisation.">Erst sauber trennen, dann trainieren, dann verstehen, dann bewerten. Sonst verwechselst du Trainingserfolg mit echter Generalisierung.</p>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Workflow ordnen" data-i18n-en="Order the workflow">Workflow ordnen</h3>
+            <p class="plot-caption" data-i18n-de="Klicke die Schritte in der richtigen Reihenfolge an." data-i18n-en="Click the steps in the correct order.">Klicke die Schritte in der richtigen Reihenfolge an.</p>
+            <div class="workflow-grid" id="workflow-grid"></div>
+            <div class="result-box" id="workflow-result"></div>
+          </div>
+
+          <div id="quiz-8" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Decision Trees sind besonders stark, wenn du den Weg von der Frage bis zum Blatt erklären kannst, statt nur einen Score zu nennen." data-i18n-en="What do you take away? Decision trees are especially strong when you can explain the path from the question to the leaf instead of just naming a score.">Was nimmst du mit? Decision Trees sind besonders stark, wenn du den Weg von der Frage bis zum Blatt erklären kannst, statt nur einen Score zu nennen.</p>
+        </section>
+      </div>
+
+      <footer class="footer-card">
+        <div class="card-kicker" data-i18n-de="Teil des Gesamtlehrpfads" data-i18n-en="Part of the full learning path">Teil des Gesamtlehrpfads</div>
+        <p class="lead" data-i18n-de="Dieses Kapitel gehört zum Pfad Decision Trees, Ensemble Methods, Matrix und Matrizenmultiplikation." data-i18n-en="This chapter belongs to the path of decision trees, ensemble methods, matrices and matrix multiplication.">Dieses Kapitel gehört zum Pfad Decision Trees, Ensemble Methods, Matrix und Matrizenmultiplikation.</p>
+        <div class="footer-links">
+          <a class="btn ghost" href="distanzmetriken_und_scaling_interaktion.html" data-i18n-de="Zurück zu Distanzmetriken und Scaling" data-i18n-en="Back to distance metrics and scaling">Zurück zu Distanzmetriken und Scaling</a>
+          <a class="btn ghost" href="feature_engineering.html" data-i18n-de="Optional: Feature Engineering" data-i18n-en="Optional: feature engineering">Optional: Feature Engineering</a>
+          <a class="btn" href="ensemble_methods_interaktion.html" data-i18n-de="Weiter zu Ensemble Methods" data-i18n-en="Continue to ensemble methods">Weiter zu Ensemble Methods</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    window.DataSciencePageI18n = {
+      title: {
+        de: "Decision Trees | Der Paket-Entscheider",
+        en: "Decision Trees | The parcel decider"
+      },
+      description: {
+        de: "Interaktives Kapitel zu Decision Trees mit Ja/Nein-Fragen, Purity, Gini, Rekursion, Pruning und Notebook-Übungen.",
+        en: "Interactive chapter on decision trees with yes/no questions, purity, Gini, recursion, pruning and notebook exercises."
+      },
+      exact: {
+        "Baum-Rang": "Tree rank",
+        "Rang: Anfänger": "Rank: Beginner",
+        "Rang: Fortgeschritten": "Rank: Advanced",
+        "Rang: Profi": "Rank: Pro",
+        "Zurück zu Distanzmetriken und Scaling": "Back to distance metrics and scaling",
+        "Weiter zu Ensemble Methods": "Continue to ensemble methods",
+        "Optional: Feature Engineering": "Optional: feature engineering",
+        "0 Punkte": "0 points",
+        "0 von 8 Modulen sicher": "0 of 8 modules secure"
+      }
+    };
+  </script>
+  <script src="lernstand_manager.js" defer></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var STORAGE_KEY = "asdm-decision-tree-state-v1";
+      var MODULES = [
+        { id: "module-1", badge: "badge-basics" },
+        { id: "module-2", badge: "badge-basics" },
+        { id: "module-3", badge: "badge-purity" },
+        { id: "module-4", badge: "badge-purity" },
+        { id: "module-5", badge: "badge-path" },
+        { id: "module-6", badge: "badge-path" },
+        { id: "module-7", badge: "badge-pruning" },
+        { id: "module-8", badge: "badge-pruning" }
+      ];
+
+      var QUIZZES = {
+        "module-1": [
+          {
+            id: "q1",
+            question: {
+              de: "Was ist bei einem Decision Tree die Wurzel?",
+              en: "What is the root in a decision tree?"
+            },
+            options: [
+              { value: "a", de: "Die erste Frage des Baums", en: "The first question of the tree" },
+              { value: "b", de: "Der letzte Knoten", en: "The final node" },
+              { value: "c", de: "Die Testdaten", en: "The test data" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Die Wurzel ist der Startpunkt. Hier stellt der Baum seine erste Trennfrage.",
+              en: "The root is the starting point. This is where the tree asks its first split question."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Was liefert ein Blatt?",
+              en: "What does a leaf return?"
+            },
+            options: [
+              { value: "a", de: "Eine weitere Trainingsrunde", en: "Another training round" },
+              { value: "b", de: "Die finale Vorhersage", en: "The final prediction" },
+              { value: "c", de: "Immer einen Mittelwert, auch bei Klassifikation", en: "Always a mean value, even in classification" }
+            ],
+            correct: "b",
+            explanation: {
+              de: "Im Blatt endet der Pfad. Dort steht die Vorhersage des Modells.",
+              en: "The path ends in the leaf. That is where the model prediction lives."
+            }
+          }
+        ],
+        "module-2": [
+          {
+            id: "q1",
+            question: {
+              de: "Wie trennt ein klassischer Decision Tree im 2D-Raum?",
+              en: "How does a classical decision tree split in 2D space?"
+            },
+            options: [
+              { value: "a", de: "Nur diagonal", en: "Only diagonally" },
+              { value: "b", de: "Immer entlang einer Achse", en: "Always along one axis" },
+              { value: "c", de: "Gar nicht sichtbar", en: "Not visibly at all" }
+            ],
+            correct: "b",
+            explanation: {
+              de: "Die Grenzen sind achsenparallel, also vertikal oder horizontal.",
+              en: "The boundaries are axis-aligned, so they are vertical or horizontal."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Was passiert nach dem ersten Split?",
+              en: "What happens after the first split?"
+            },
+            options: [
+              { value: "a", de: "Links und rechts können eigene neue Fragen bekommen", en: "Left and right can get their own next questions" },
+              { value: "b", de: "Das Training ist zwingend beendet", en: "Training must end immediately" },
+              { value: "c", de: "Alle Punkte werden gelöscht", en: "All points are deleted" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Ein Baum darf beide Teilmengen getrennt weiter aufteilen.",
+              en: "A tree may continue splitting both subsets separately."
+            }
+          }
+        ],
+        "module-3": [
+          {
+            id: "q1",
+            question: {
+              de: "Woran erkennst du einen guten Split zuerst ganz intuitiv?",
+              en: "How do you recognise a good split intuitively at first?"
+            },
+            options: [
+              { value: "a", de: "Beide Seiten bleiben möglichst gemischt", en: "Both sides stay as mixed as possible" },
+              { value: "b", de: "Die Gruppen werden klarer und homogener", en: "The groups become clearer and more homogeneous" },
+              { value: "c", de: "Der Baum wird automatisch tiefer", en: "The tree automatically becomes deeper" }
+            ],
+            correct: "b",
+            explanation: {
+              de: "Ein guter Split bringt Ordnung hinein: links eher die eine Klasse, rechts eher die andere.",
+              en: "A good split creates order: one class tends to go left, the other tends to go right."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Was beschreibt Purity?",
+              en: "What does purity describe?"
+            },
+            options: [
+              { value: "a", de: "Wie sauber eine Gruppe nur noch aus einer Klasse besteht", en: "How cleanly a group consists of just one class" },
+              { value: "b", de: "Wie schnell der Code läuft", en: "How fast the code runs" },
+              { value: "c", de: "Wie groß die Datei ist", en: "How large the file is" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Purity meint Homogenität: möglichst wenig Mischung im Knoten.",
+              en: "Purity means homogeneity: as little mixture in the node as possible."
+            }
+          }
+        ],
+        "module-4": [
+          {
+            id: "q1",
+            question: {
+              de: "Welcher Gini-Wert ist bei zwei Klassen am reinsten?",
+              en: "Which Gini value is the purest with two classes?"
+            },
+            options: [
+              { value: "a", de: "0", en: "0" },
+              { value: "b", de: "0,5", en: "0.5" },
+              { value: "c", de: "1", en: "1" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "0 bedeutet: Der Knoten enthält praktisch nur eine Klasse.",
+              en: "0 means the node contains essentially only one class."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Wann ist Gini bei zwei Klassen am höchsten?",
+              en: "When is Gini highest with two classes?"
+            },
+            options: [
+              { value: "a", de: "Bei 100 zu 0", en: "At 100 to 0" },
+              { value: "b", de: "Bei 90 zu 10", en: "At 90 to 10" },
+              { value: "c", de: "Bei 50 zu 50", en: "At 50 to 50" }
+            ],
+            correct: "c",
+            explanation: {
+              de: "50 zu 50 ist die größte Mischung und daher die höchste Unreinheit.",
+              en: "50 to 50 is the strongest mix and therefore the highest impurity."
+            }
+          }
+        ],
+        "module-5": [
+          {
+            id: "q1",
+            question: {
+              de: "Was bedeutet Rekursion im Baumkontext?",
+              en: "What does recursion mean in the tree context?"
+            },
+            options: [
+              { value: "a", de: "Immer dieselbe Frage auf alle Daten gleichzeitig", en: "Always the same question on all data at once" },
+              { value: "b", de: "Die Split-Logik wiederholt sich auf Teilmengen", en: "The split logic repeats on subsets" },
+              { value: "c", de: "Das Modell wird linear", en: "The model becomes linear" }
+            ],
+            correct: "b",
+            explanation: {
+              de: "Nach jeder Teilung schaut der Baum in jeder Teilmenge neu nach dem besten Split.",
+              en: "After every split, the tree searches for the best split again inside each subset."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Was kann ein sinnvolles Stoppkriterium sein?",
+              en: "What can be a reasonable stopping criterion?"
+            },
+            options: [
+              { value: "a", de: "max_depth", en: "max_depth" },
+              { value: "b", de: "Die Tastaturfarbe", en: "The keyboard colour" },
+              { value: "c", de: "Die Bildschirmhelligkeit", en: "The screen brightness" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Typische Kriterien sind maximale Tiefe oder zu wenige Beobachtungen pro Blatt.",
+              en: "Typical criteria are maximum depth or too few observations per leaf."
+            }
+          }
+        ],
+        "module-6": [
+          {
+            id: "q1",
+            question: {
+              de: "Wie entsteht bei Klassifikation die Vorhersage im Blatt oft?",
+              en: "How is the prediction in a leaf often formed for classification?"
+            },
+            options: [
+              { value: "a", de: "Als Mehrheitsklasse", en: "As the majority class" },
+              { value: "b", de: "Immer als Durchschnitt aller Features", en: "Always as the average of all features" },
+              { value: "c", de: "Zufällig", en: "Randomly" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Bei Klassifikation entscheidet häufig die Mehrheit der Trainingsbeispiele im Blatt.",
+              en: "For classification, the majority of training examples in the leaf often decides."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Was gibt ein Regressionsblatt typischerweise zurück?",
+              en: "What does a regression leaf typically return?"
+            },
+            options: [
+              { value: "a", de: "Einen Mittelwert des Zielwerts", en: "A mean value of the target" },
+              { value: "b", de: "Eine Klasse 0 oder 1", en: "A class 0 or 1" },
+              { value: "c", de: "Den Gini-Wert", en: "The Gini value" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Bei Regression steht im Blatt meist der durchschnittliche Zielwert der dort gelandeten Trainingsfälle.",
+              en: "For regression, a leaf usually contains the average target value of the training cases that landed there."
+            }
+          }
+        ],
+        "module-7": [
+          {
+            id: "q1",
+            question: {
+              de: "Woran erkennst du Overfitting oft zuerst?",
+              en: "How do you often recognise overfitting first?"
+            },
+            options: [
+              { value: "a", de: "Trainingsgüte sehr hoch, Testgüte deutlich schlechter", en: "Training performance very high, test performance clearly worse" },
+              { value: "b", de: "Trainings- und Testgüte sind beide schlecht", en: "Training and test performance are both poor" },
+              { value: "c", de: "Die Datei hat viele Zeilen", en: "The file has many lines" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Ein überangepasster Baum merkt sich Trainingsdaten zu stark und fällt auf neuen Daten ab.",
+              en: "An overfit tree memorises the training data too strongly and drops on new data."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Welcher Parameter bremst das Wachstum des Baums direkt?",
+              en: "Which parameter directly slows the growth of the tree?"
+            },
+            options: [
+              { value: "a", de: "max_depth", en: "max_depth" },
+              { value: "b", de: "shuffle", en: "shuffle" },
+              { value: "c", de: "copy", en: "copy" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Mit max_depth setzt du eine harte Obergrenze für die Tiefe des Baums.",
+              en: "With max_depth, you set a hard upper limit on the depth of the tree."
+            }
+          }
+        ],
+        "module-8": [
+          {
+            id: "q1",
+            question: {
+              de: "Welcher Schritt sollte vor dem Training kommen?",
+              en: "Which step should come before training?"
+            },
+            options: [
+              { value: "a", de: "train_test_split", en: "train_test_split" },
+              { value: "b", de: "predict_proba", en: "predict_proba" },
+              { value: "c", de: "plot_tree", en: "plot_tree" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Erst sauber in Trainings- und Testdaten teilen, dann trainieren.",
+              en: "First split cleanly into training and test data, then train."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Warum schaust du nach dem Training auf Testdaten?",
+              en: "Why do you look at test data after training?"
+            },
+            options: [
+              { value: "a", de: "Um echte Generalisierung zu prüfen", en: "To check real generalisation" },
+              { value: "b", de: "Nur damit der Code länger wird", en: "Only to make the code longer" },
+              { value: "c", de: "Weil der Baum sonst keine Blätter hat", en: "Because otherwise the tree has no leaves" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Nur neue Daten zeigen dir, ob dein Baum mehr kann als bloß auswendig lernen.",
+              en: "Only new data show whether your tree can do more than memorise."
+            }
+          }
+        ]
+      };
+
+      var UI = {
+        de: {
+          open: "Offen",
+          secure: "Sicher gelöst",
+          progressSteps: function (done, total) { return done + " von " + total + " Modulen sicher"; },
+          points: function (value) { return value + " Punkte"; },
+          rankBeginner: "Rang: Anfänger",
+          rankAdvanced: "Rang: Fortgeschritten",
+          rankPro: "Rang: Profi",
+          rankCopyBeginner: "Noch offen: Splits sicher lesen und Überanpassung erkennen.",
+          rankCopyAdvanced: "Du trennst Daten sauber und kannst Purity, Gini und Pfade verständlich erklären.",
+          rankCopyPro: "Du argumentierst wie ein Tree-Analyst und erkennst, wann ein Baum zu tief wächst.",
+          quizTitle: "Quiz",
+          checkQuiz: "Antworten prüfen",
+          chooseAll: "Bitte beantworte zuerst alle Fragen in diesem Quiz.",
+          remaining: function (list) { return "Noch offen: " + list.join(", ") + "."; },
+          allCorrect: "Perfekt. Dieses Modul ist jetzt sicher gelöst.",
+          firstSplitStats: function (leftMajority, rightMajority, score) { return "Links dominiert " + leftMajority + ", rechts dominiert " + rightMajority + ". Purity-Score: " + score + " / 10."; },
+          splitAxisX: "Temperatur",
+          splitAxisY: "Wind",
+          coffee: "Kaffee",
+          icecream: "Eis",
+          dispatchOnTime: "Vorhersage: eher pünktlich.",
+          dispatchLate: "Vorhersage: eher verspätet.",
+          dispatchPath1: "Wurzel: Wochenende?",
+          dispatchPath2Weekend: "Ja -> direkt ins Blatt 'verspätet'.",
+          dispatchPath2Rain: "Nein -> nächste Frage: Regen?",
+          dispatchPath3Rain: "Ja -> Blatt 'verspätet'.",
+          dispatchPath3Load: "Nein -> nächste Frage: Route ausgelastet?",
+          dispatchPath4Load: "Ja -> Blatt 'leicht verspätet'.",
+          dispatchPath4Fast: "Nein -> Blatt 'pünktlich'.",
+          splitAExplain: "Split A trennt die Gruppen am klarsten. Links bleibt fast nur Bordeaux, rechts fast nur Blau.",
+          splitBExplain: "Split B lässt beide Seiten zu gemischt. Die Frage bringt wenig Ordnung.",
+          splitCExplain: "Split C ist besser als B, aber nicht so sauber wie A.",
+          splitScore: function (score) { return "Reinheits-Score: " + score + " von 10"; },
+          giniText: function (value, label) { return "Gini = " + value + ". " + label; },
+          giniPure: "Fast reine Gruppe: sichere Vorhersage.",
+          giniMixed: "Stark gemischt: hohe Unsicherheit.",
+          giniMiddle: "Schon brauchbar, aber noch nicht ganz sauber.",
+          recursion0: "Noch kein Split. Alle Fälle liegen gemeinsam im Wurzelknoten.",
+          recursion1: "Erster Split: Temperatur < 18 trennt kalte von warmen Tagen.",
+          recursion2: "Zweiter Split rechts: Wind trennt ruhige von stürmischen warmen Tagen.",
+          recursion3: "Dritter Split links: Feiertag trennt Ausnahmen vom Normalfall.",
+          leafPrediction: function (label, detail) { return "Vorhersage: " + label + ". " + detail; },
+          leafDelayed: "verspätet",
+          leafOntime: "pünktlich",
+          leafMedium: "leicht verspätet",
+          leafDetailHoliday: "Feiertag führt direkt in ein Blatt mit wenig Kapazität.",
+          leafDetailCold: "Kalte Tage landen im Blatt mit weniger Nachfrage und schnellerer Route.",
+          leafDetailWind: "Warmer, windiger Tag: mittlere Auslastung.",
+          leafDetailWarm: "Warmer, ruhiger Tag: hohe Nachfrage, aber gute Planung.",
+          depthTrain: function (value) { return "Training-Score: " + value; },
+          depthTest: function (value) { return "Test-Score: " + value; },
+          depthNodes: function (nodes) { return "Knoten: " + nodes; },
+          depthGood: "Guter Bereich: genug flexibel, aber noch nicht nervös.",
+          depthUnder: "Noch zu grob: Bias ist hier höher als nötig.",
+          depthOver: "Achtung Overfitting: der Baum merkt sich zu viele Details.",
+          workflowStart: "Starte mit dem ersten sinnvollen Schritt.",
+          workflowNext: function (count, total) { return "Gut. " + count + " von " + total + " Schritten sitzen."; },
+          workflowDone: "Workflow komplett. So sieht ein sauberer Notebook-Ablauf aus.",
+          workflowWrong: "Dieser Schritt kommt später. Denk an: erst trennen, dann trainieren, dann lesen und prüfen.",
+          sidebarOpen: "Kapitelübersicht ein-/ausklappen",
+          yes: "Ja",
+          no: "Nein"
+        },
+        en: {
+          open: "Open",
+          secure: "Solved securely",
+          progressSteps: function (done, total) { return done + " of " + total + " modules secure"; },
+          points: function (value) { return value + " points"; },
+          rankBeginner: "Rank: Beginner",
+          rankAdvanced: "Rank: Advanced",
+          rankPro: "Rank: Pro",
+          rankCopyBeginner: "Still open: read splits confidently and recognise overfitting.",
+          rankCopyAdvanced: "You separate data cleanly and can explain purity, Gini and paths clearly.",
+          rankCopyPro: "You argue like a tree analyst and recognise when a tree grows too deep.",
+          quizTitle: "Quiz",
+          checkQuiz: "Check answers",
+          chooseAll: "Please answer all questions in this quiz first.",
+          remaining: function (list) { return "Still open: " + list.join(", ") + "."; },
+          allCorrect: "Perfect. This module is now solved securely.",
+          firstSplitStats: function (leftMajority, rightMajority, score) { return "Left is dominated by " + leftMajority + ", right is dominated by " + rightMajority + ". Purity score: " + score + " / 10."; },
+          splitAxisX: "Temperature",
+          splitAxisY: "Wind",
+          coffee: "Coffee",
+          icecream: "Ice cream",
+          dispatchOnTime: "Prediction: likely on time.",
+          dispatchLate: "Prediction: likely delayed.",
+          dispatchPath1: "Root: weekend?",
+          dispatchPath2Weekend: "Yes -> directly into the 'delayed' leaf.",
+          dispatchPath2Rain: "No -> next question: rain?",
+          dispatchPath3Rain: "Yes -> leaf 'delayed'.",
+          dispatchPath3Load: "No -> next question: route busy?",
+          dispatchPath4Load: "Yes -> leaf 'slightly delayed'.",
+          dispatchPath4Fast: "No -> leaf 'on time'.",
+          splitAExplain: "Split A separates the groups most clearly. The left side stays mostly burgundy, the right side mostly blue.",
+          splitBExplain: "Split B leaves both sides too mixed. The question creates little order.",
+          splitCExplain: "Split C is better than B, but not as clean as A.",
+          splitScore: function (score) { return "Purity score: " + score + " out of 10"; },
+          giniText: function (value, label) { return "Gini = " + value + ". " + label; },
+          giniPure: "Almost pure group: confident prediction.",
+          giniMixed: "Strongly mixed: high uncertainty.",
+          giniMiddle: "Already useful, but not fully clean yet.",
+          recursion0: "No split yet. All cases sit together in the root node.",
+          recursion1: "First split: temperature < 18 separates cold from warm days.",
+          recursion2: "Second split on the right: wind separates calm from stormy warm days.",
+          recursion3: "Third split on the left: holiday separates exceptions from the regular case.",
+          leafPrediction: function (label, detail) { return "Prediction: " + label + ". " + detail; },
+          leafDelayed: "delayed",
+          leafOntime: "on time",
+          leafMedium: "slightly delayed",
+          leafDetailHoliday: "A holiday leads directly into a leaf with lower capacity.",
+          leafDetailCold: "Cold days land in a leaf with lower demand and a faster route.",
+          leafDetailWind: "Warm, windy day: medium load.",
+          leafDetailWarm: "Warm, calm day: high demand, but good planning.",
+          depthTrain: function (value) { return "Training score: " + value; },
+          depthTest: function (value) { return "Test score: " + value; },
+          depthNodes: function (nodes) { return "Nodes: " + nodes; },
+          depthGood: "Good zone: flexible enough, but not nervous yet.",
+          depthUnder: "Still too coarse: bias is higher than necessary here.",
+          depthOver: "Watch out for overfitting: the tree memorises too many details.",
+          workflowStart: "Start with the first sensible step.",
+          workflowNext: function (count, total) { return "Good. " + count + " of " + total + " steps are in place."; },
+          workflowDone: "Workflow complete. This is what a clean notebook process looks like.",
+          workflowWrong: "That step comes later. Think: first split, then train, then read and check.",
+          sidebarOpen: "Toggle chapter overview",
+          yes: "Yes",
+          no: "No"
+        }
+      };
+
+      var BOUNDARY_POINTS = [
+        { x: 15, y: 28, label: 0 }, { x: 17, y: 22, label: 0 }, { x: 19, y: 18, label: 0 },
+        { x: 21, y: 16, label: 0 }, { x: 23, y: 14, label: 0 }, { x: 25, y: 15, label: 1 },
+        { x: 27, y: 12, label: 1 }, { x: 29, y: 10, label: 1 }, { x: 31, y: 11, label: 1 },
+        { x: 33, y: 8, label: 1 }
+      ];
+
+      var SPLIT_CHOICES = {
+        A: { score: 9, explain: "splitAExplain" },
+        B: { score: 4, explain: "splitBExplain" },
+        C: { score: 7, explain: "splitCExplain" }
+      };
+
+      var DEPTH_SERIES = {
+        train: [0.66, 0.73, 0.81, 0.88, 0.95, 0.99, 1.0, 1.0],
+        test: [0.65, 0.71, 0.79, 0.84, 0.82, 0.78, 0.74, 0.69],
+        nodes: [3, 7, 11, 19, 31, 45, 63, 79]
+      };
+
+      var WORKFLOW_ORDER = ["split", "fit", "plot", "predict", "score"];
+      var WORKFLOW_LABELS = {
+        split: { de: "train_test_split", en: "train_test_split" },
+        fit: { de: "fit()", en: "fit()" },
+        plot: { de: "plot_tree()", en: "plot_tree()" },
+        predict: { de: "predict_proba()", en: "predict_proba()" },
+        score: { de: "Testmetrik berechnen", en: "compute test metric" }
+      };
+
+      var sidebar = document.getElementById("sidebar");
+      var state = loadState();
+
+      function currentLang() {
+        return document.documentElement.lang === "en" ? "en" : "de";
+      }
+
+      function t(key) {
+        var lang = currentLang();
+        return UI[lang][key];
+      }
+
+      function loadState() {
+        var fallback = {
+          points: 0,
+          completed: {},
+          solvedQuestions: {},
+          earnedKeys: {},
+          celebrated: {},
+          activeModule: "module-1",
+          workflowDone: false,
+          workflowIndex: 0
+        };
+        try {
+          var raw = window.localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            return fallback;
+          }
+          return Object.assign({}, fallback, JSON.parse(raw));
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function saveState() {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+          return;
+        }
+      }
+
+      function addPoints(key, value) {
+        if (state.earnedKeys[key]) {
+          return;
+        }
+        state.earnedKeys[key] = true;
+        state.points += value;
+        saveState();
+        renderProgress();
+      }
+
+      function awardDemo(moduleId) {
+        addPoints("demo-" + moduleId, 5);
+      }
+
+      function completeQuestion(moduleId, questionId) {
+        state.solvedQuestions[moduleId] = state.solvedQuestions[moduleId] || {};
+        if (state.solvedQuestions[moduleId][questionId]) {
+          return;
+        }
+        state.solvedQuestions[moduleId][questionId] = true;
+        addPoints("quiz-" + moduleId + "-" + questionId, 10);
+        saveState();
+      }
+
+      function isModuleComplete(moduleId) {
+        var questions = QUIZZES[moduleId] || [];
+        var solved = state.solvedQuestions[moduleId] || {};
+        return questions.length > 0 && questions.every(function (question) {
+          return Boolean(solved[question.id]);
+        });
+      }
+
+      function markModuleComplete(moduleId) {
+        if (state.completed[moduleId]) {
+          return;
+        }
+        state.completed[moduleId] = true;
+        saveState();
+      }
+
+      function updateCompletionFromSolved() {
+        MODULES.forEach(function (module) {
+          if (isModuleComplete(module.id)) {
+            markModuleComplete(module.id);
+          }
+        });
+      }
+
+      function getRank() {
+        if (state.points > 110) {
+          return "pro";
+        }
+        if (state.points > 50) {
+          return "advanced";
+        }
+        return "beginner";
+      }
+
+      function renderProgress() {
+        updateCompletionFromSolved();
+        var done = MODULES.filter(function (module) { return state.completed[module.id]; }).length;
+        document.getElementById("overall-progress").style.width = ((done / MODULES.length) * 100) + "%";
+        document.getElementById("progress-steps").textContent = t("progressSteps")(done, MODULES.length);
+        document.getElementById("progress-points").textContent = t("points")(state.points);
+
+        var rank = getRank();
+        var rankLabel = rank === "pro" ? t("rankPro") : rank === "advanced" ? t("rankAdvanced") : t("rankBeginner");
+        var rankCopy = rank === "pro" ? t("rankCopyPro") : rank === "advanced" ? t("rankCopyAdvanced") : t("rankCopyBeginner");
+        document.getElementById("sidebar-rank").textContent = rankLabel;
+        document.getElementById("rank-copy").textContent = rankCopy;
+
+        MODULES.forEach(function (module) {
+          var complete = Boolean(state.completed[module.id]);
+          var navMeta = document.querySelector('[data-module-status="' + module.id + '"]');
+          var pill = document.querySelector('[data-module-pill="' + module.id + '"]');
+          if (navMeta) {
+            navMeta.textContent = complete ? t("secure") : t("open");
+          }
+          if (pill) {
+            pill.textContent = complete ? t("secure") : t("open");
+            pill.classList.toggle("is-complete", complete);
+          }
+        });
+
+        document.getElementById("badge-basics").classList.toggle("is-earned", state.completed["module-1"] && state.completed["module-2"]);
+        document.getElementById("badge-purity").classList.toggle("is-earned", state.completed["module-3"] && state.completed["module-4"]);
+        document.getElementById("badge-path").classList.toggle("is-earned", state.completed["module-5"] && state.completed["module-6"]);
+        document.getElementById("badge-pruning").classList.toggle("is-earned", state.completed["module-7"] && state.completed["module-8"]);
+      }
+
+      function renderQuizzes() {
+        Object.keys(QUIZZES).forEach(function (moduleId) {
+          var shell = document.getElementById("quiz-" + moduleId.split("-")[1]);
+          if (!shell) {
+            return;
+          }
+          shell.innerHTML = "";
+          var title = document.createElement("h3");
+          title.textContent = t("quizTitle");
+          shell.appendChild(title);
+
+          QUIZZES[moduleId].forEach(function (question, index) {
+            var fieldset = document.createElement("fieldset");
+            fieldset.className = "quiz-question";
+            fieldset.dataset.moduleId = moduleId;
+            fieldset.dataset.questionId = question.id;
+
+            var legend = document.createElement("legend");
+            legend.textContent = (index + 1) + ". " + question.question[currentLang()];
+            fieldset.appendChild(legend);
+
+            var optionsWrap = document.createElement("div");
+            optionsWrap.className = "quiz-options";
+
+            question.options.forEach(function (option) {
+              var label = document.createElement("label");
+              label.className = "quiz-option";
+
+              var input = document.createElement("input");
+              input.type = "radio";
+              input.name = moduleId + "-" + question.id;
+              input.value = option.value;
+              input.setAttribute("aria-label", option[currentLang()]);
+
+              var text = document.createElement("span");
+              text.textContent = option[currentLang()];
+
+              label.appendChild(input);
+              label.appendChild(text);
+              optionsWrap.appendChild(label);
+            });
+
+            fieldset.appendChild(optionsWrap);
+            shell.appendChild(fieldset);
+          });
+
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn secondary";
+          button.textContent = t("checkQuiz");
+          button.addEventListener("click", function () {
+            checkQuiz(moduleId);
+          });
+          shell.appendChild(button);
+
+          var feedback = document.createElement("div");
+          feedback.className = "quiz-feedback";
+          feedback.id = "feedback-" + moduleId;
+          shell.appendChild(feedback);
+        });
+      }
+
+      function checkQuiz(moduleId) {
+        var questions = QUIZZES[moduleId];
+        var unanswered = false;
+        var missing = [];
+
+        questions.forEach(function (question, index) {
+          var selected = document.querySelector('input[name="' + moduleId + "-" + question.id + '"]:checked');
+          if (!selected) {
+            unanswered = true;
+            missing.push(String(index + 1));
+          }
+        });
+
+        var feedback = document.getElementById("feedback-" + moduleId);
+        feedback.className = "quiz-feedback is-visible";
+
+        if (unanswered) {
+          feedback.classList.add("is-warning");
+          feedback.textContent = t("chooseAll");
+          return;
+        }
+
+        var stillOpen = [];
+        questions.forEach(function (question, index) {
+          var selected = document.querySelector('input[name="' + moduleId + "-" + question.id + '"]:checked');
+          var labels = document.querySelectorAll('input[name="' + moduleId + "-" + question.id + '"]');
+          labels.forEach(function (input) {
+            input.parentElement.classList.remove("is-correct", "is-wrong");
+          });
+          if (selected.value === question.correct) {
+            selected.parentElement.classList.add("is-correct");
+            completeQuestion(moduleId, question.id);
+          } else {
+            selected.parentElement.classList.add("is-wrong");
+          }
+          if (!state.solvedQuestions[moduleId] || !state.solvedQuestions[moduleId][question.id]) {
+            stillOpen.push(String(index + 1));
+          }
+        });
+
+        if (stillOpen.length === 0) {
+          feedback.classList.add("is-success");
+          feedback.textContent = t("allCorrect");
+          markModuleComplete(moduleId);
+          if (!state.celebrated[moduleId] && window.DataScienceCelebration && typeof window.DataScienceCelebration.launch === "function") {
+            state.celebrated[moduleId] = true;
+            window.DataScienceCelebration.launch({ pieceCount: 24, duration: 2300 });
+          }
+        } else {
+          feedback.classList.add("is-warning");
+          feedback.textContent = t("remaining")(stillOpen);
+        }
+
+        saveState();
+        renderProgress();
+      }
+
+      function renderDispatchTree() {
+        var weekend = document.getElementById("dispatch-weekend").value === "1";
+        var rain = document.getElementById("dispatch-rain").value === "1";
+        var load = document.getElementById("dispatch-load").value === "1";
+        document.getElementById("dispatch-weekend-value").textContent = weekend ? t("yes") : t("no");
+        document.getElementById("dispatch-rain-value").textContent = rain ? t("yes") : t("no");
+        document.getElementById("dispatch-load-value").textContent = load ? t("yes") : t("no");
+
+        var html = [
+          '<div class="tree-row">',
+          '<div class="tree-node root active"><strong>' + t("dispatchPath1") + '</strong></div>',
+          '</div>',
+          '<div class="tree-row">',
+          '<div class="tree-node' + (weekend ? " leaf active" : "") + '"><strong>' + (currentLang() === "de" ? "Ja" : "Yes") + '</strong><br><span>' + t("dispatchPath2Weekend") + '</span></div>',
+          '<div class="tree-node' + (!weekend ? " active" : "") + '"><strong>' + (currentLang() === "de" ? "Nein" : "No") + '</strong><br><span>' + t("dispatchPath2Rain") + '</span></div>',
+          '</div>'
+        ];
+
+        if (!weekend) {
+          html.push('<div class="tree-row">');
+          html.push('<div class="tree-node' + (rain ? " leaf active" : "") + '"><strong>' + (currentLang() === "de" ? "Regen: Ja" : "Rain: yes") + '</strong><br><span>' + t("dispatchPath3Rain") + '</span></div>');
+          html.push('<div class="tree-node' + (!rain ? " active" : "") + '"><strong>' + (currentLang() === "de" ? "Regen: Nein" : "Rain: no") + '</strong><br><span>' + t("dispatchPath3Load") + '</span></div>');
+          html.push('</div>');
+        }
+
+        if (!weekend && !rain) {
+          html.push('<div class="tree-row">');
+          html.push('<div class="tree-node' + (load ? " leaf active" : "") + '"><strong>' + (currentLang() === "de" ? "Auslastung: Ja" : "Load: yes") + '</strong><br><span>' + t("dispatchPath4Load") + '</span></div>');
+          html.push('<div class="tree-node' + (!load ? " leaf active" : "") + '"><strong>' + (currentLang() === "de" ? "Auslastung: Nein" : "Load: no") + '</strong><br><span>' + t("dispatchPath4Fast") + '</span></div>');
+          html.push('</div>');
+        }
+
+        document.getElementById("dispatch-tree").innerHTML = html.join("");
+        var result = weekend || rain ? t("dispatchLate") : load ? t("leafPrediction")(t("leafMedium"), t("leafDetailWind")) : t("dispatchOnTime");
+        document.getElementById("dispatch-result").textContent = result;
+      }
+
+      function renderBoundary() {
+        var axis = document.getElementById("split-axis").value;
+        var threshold = Number(document.getElementById("split-threshold").value);
+        document.getElementById("split-threshold-value").textContent = String(threshold);
+        document.getElementById("split-axis-value").textContent = axis === "x" ? t("splitAxisX") : t("splitAxisY");
+
+        var svg = document.getElementById("boundary-svg");
+        var width = 340;
+        var height = 250;
+        var padding = 28;
+        var xScale = function (value) { return padding + ((value - 12) / (34 - 12)) * (width - padding * 2); };
+        var yScale = function (value) { return height - padding - ((value - 8) / (28 - 8)) * (height - padding * 2); };
+
+        var leftCounts = [0, 0];
+        var rightCounts = [0, 0];
+        var circles = BOUNDARY_POINTS.map(function (point) {
+          var left = axis === "x" ? point.x < threshold : point.y < threshold;
+          if (left) {
+            leftCounts[point.label] += 1;
+          } else {
+            rightCounts[point.label] += 1;
+          }
+          return '<circle cx="' + xScale(point.x) + '" cy="' + yScale(point.y) + '" r="8" fill="' + (point.label ? "#631832" : "#173262") + '" opacity="0.95"></circle>';
+        }).join("");
+
+        var line;
+        if (axis === "x") {
+          var x = xScale(threshold);
+          line = '<line x1="' + x + '" y1="18" x2="' + x + '" y2="' + (height - 18) + '" stroke="#9a6b4a" stroke-width="4" stroke-dasharray="8 6"></line>';
+        } else {
+          var y = yScale(threshold);
+          line = '<line x1="18" y1="' + y + '" x2="' + (width - 18) + '" y2="' + y + '" stroke="#9a6b4a" stroke-width="4" stroke-dasharray="8 6"></line>';
+        }
+
+        svg.innerHTML = ''
+          + '<rect x="12" y="12" width="316" height="226" rx="16" fill="#ffffff" stroke="#ddd1d8"></rect>'
+          + line
+          + circles
+          + '<text x="170" y="244" text-anchor="middle" font-size="12" fill="#695f68">' + t("splitAxisX") + '</text>'
+          + '<text x="18" y="126" text-anchor="middle" font-size="12" fill="#695f68" transform="rotate(-90 18 126)">' + t("splitAxisY") + '</text>';
+
+        var leftMajority = leftCounts[1] > leftCounts[0] ? t("icecream") : t("coffee");
+        var rightMajority = rightCounts[1] > rightCounts[0] ? t("icecream") : t("coffee");
+        var score = ((Math.max(leftCounts[0], leftCounts[1]) + Math.max(rightCounts[0], rightCounts[1])) / BOUNDARY_POINTS.length * 10).toFixed(1);
+        document.getElementById("boundary-stats").textContent = t("firstSplitStats")(leftMajority, rightMajority, score);
+      }
+
+      function renderSplitChoices() {
+        var row = document.getElementById("split-choice-row");
+        row.innerHTML = "";
+        Object.keys(SPLIT_CHOICES).forEach(function (key) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "split-choice";
+          button.textContent = "Split " + key;
+          if (state.selectedSplit === key) {
+            button.classList.add("is-selected");
+          }
+          button.addEventListener("click", function () {
+            state.selectedSplit = key;
+            awardDemo("module-3");
+            saveState();
+            renderSplitChoices();
+          });
+          row.appendChild(button);
+        });
+
+        var chosen = SPLIT_CHOICES[state.selectedSplit || "A"];
+        document.getElementById("split-choice-explain").textContent = t(chosen.explain);
+        document.getElementById("split-choice-score").textContent = t("splitScore")(chosen.score);
+      }
+
+      function renderGini() {
+        var ratio = Number(document.getElementById("gini-ratio").value);
+        document.getElementById("gini-ratio-value").textContent = ratio + " %";
+        var p = ratio / 100;
+        var gini = (1 - (p * p + (1 - p) * (1 - p))).toFixed(2);
+        var label = ratio === 50 ? t("giniMixed") : (ratio <= 15 || ratio >= 85) ? t("giniPure") : t("giniMiddle");
+        document.getElementById("gini-result").textContent = t("giniText")(gini, label);
+
+        var width = 340;
+        var burgundyWidth = Math.max(0, Math.min(width - 40, (width - 40) * p));
+        document.getElementById("gini-svg").innerHTML = ''
+          + '<rect x="20" y="70" width="' + (width - 40) + '" height="60" rx="18" fill="#f5f5f7" stroke="#ddd1d8"></rect>'
+          + '<rect x="20" y="70" width="' + burgundyWidth + '" height="60" rx="18" fill="#631832"></rect>'
+          + '<rect x="' + (20 + burgundyWidth) + '" y="70" width="' + ((width - 40) - burgundyWidth) + '" height="60" rx="18" fill="#173262"></rect>'
+          + '<text x="170" y="48" text-anchor="middle" font-size="14" fill="#231a24">Gini ' + gini + '</text>'
+          + '<text x="92" y="106" text-anchor="middle" font-size="13" fill="#ffffff">' + ratio + '%</text>'
+          + '<text x="250" y="106" text-anchor="middle" font-size="13" fill="#ffffff">' + (100 - ratio) + '%</text>';
+      }
+
+      function renderRecursion() {
+        var step = state.recursionStep || 0;
+        var tree = document.getElementById("recursion-tree");
+        var result = document.getElementById("recursion-result");
+        tree.innerHTML = ''
+          + '<div class="tree-row">'
+          + '<div class="tree-node root ' + (step >= 0 ? 'active' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Alle Fälle' : 'All cases') + '</strong><br><span>30</span></div>'
+          + '</div>'
+          + '<div class="tree-row">'
+          + '<div class="tree-node ' + (step >= 1 ? '' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Kalt' : 'Cold') + '</strong><br><span>12</span></div>'
+          + '<div class="tree-node ' + (step >= 1 ? '' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Warm' : 'Warm') + '</strong><br><span>18</span></div>'
+          + '</div>'
+          + '<div class="tree-row">'
+          + '<div class="tree-node leaf ' + (step >= 3 ? '' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Feiertag' : 'Holiday') + '</strong><br><span>3</span></div>'
+          + '<div class="tree-node leaf ' + (step >= 3 ? '' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Normal' : 'Regular') + '</strong><br><span>9</span></div>'
+          + '<div class="tree-node leaf ' + (step >= 2 ? '' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Windig' : 'Windy') + '</strong><br><span>7</span></div>'
+          + '<div class="tree-node leaf ' + (step >= 2 ? '' : 'hidden') + '"><strong>' + (currentLang() === "de" ? 'Ruhig' : 'Calm') + '</strong><br><span>11</span></div>'
+          + '</div>';
+
+        result.textContent = step === 0 ? t("recursion0") : step === 1 ? t("recursion1") : step === 2 ? t("recursion2") : t("recursion3");
+      }
+
+      function renderLeafDemo() {
+        var temp = Number(document.getElementById("leaf-temp").value);
+        var windy = document.getElementById("leaf-windy").value === "1";
+        var holiday = document.getElementById("leaf-holiday").value === "1";
+        document.getElementById("leaf-temp-value").textContent = temp + " °C";
+        document.getElementById("leaf-windy-value").textContent = windy ? t("yes") : t("no");
+        document.getElementById("leaf-holiday-value").textContent = holiday ? t("yes") : t("no");
+
+        var path = [];
+        var label;
+        var detail;
+        if (holiday) {
+          path.push(currentLang() === "de" ? "Feiertag = ja" : "Holiday = yes");
+          label = t("leafDelayed");
+          detail = t("leafDetailHoliday");
+        } else if (temp < 18) {
+          path.push(currentLang() === "de" ? "Feiertag = nein" : "Holiday = no");
+          path.push((currentLang() === "de" ? "Temperatur < 18" : "Temperature < 18"));
+          label = t("leafOntime");
+          detail = t("leafDetailCold");
+        } else if (windy) {
+          path.push(currentLang() === "de" ? "Feiertag = nein" : "Holiday = no");
+          path.push((currentLang() === "de" ? "Temperatur ≥ 18" : "Temperature ≥ 18"));
+          path.push(currentLang() === "de" ? "Windig = ja" : "Windy = yes");
+          label = t("leafMedium");
+          detail = t("leafDetailWind");
+        } else {
+          path.push(currentLang() === "de" ? "Feiertag = nein" : "Holiday = no");
+          path.push((currentLang() === "de" ? "Temperatur ≥ 18" : "Temperature ≥ 18"));
+          path.push(currentLang() === "de" ? "Windig = nein" : "Windy = no");
+          label = t("leafOntime");
+          detail = t("leafDetailWarm");
+        }
+
+        document.getElementById("leaf-tree").innerHTML = '<div class="tree-row">' + path.map(function (item) {
+          return '<div class="tree-node active"><strong>' + item + '</strong></div>';
+        }).join("") + '</div><div class="tree-row"><div class="tree-node leaf active"><span class="leaf-pill">' + label + '</span></div></div>';
+        document.getElementById("leaf-result").textContent = t("leafPrediction")(label, detail);
+      }
+
+      function renderDepthDemo() {
+        var depth = Number(document.getElementById("depth-slider").value);
+        document.getElementById("depth-slider-value").textContent = String(depth);
+        var index = depth - 1;
+        var train = DEPTH_SERIES.train[index].toFixed(2);
+        var test = DEPTH_SERIES.test[index].toFixed(2);
+        var nodes = DEPTH_SERIES.nodes[index];
+        var message = depth <= 2 ? t("depthUnder") : depth <= 4 ? t("depthGood") : t("depthOver");
+        document.getElementById("depth-train").textContent = t("depthTrain")(train);
+        document.getElementById("depth-test").textContent = t("depthTest")(test);
+        document.getElementById("depth-nodes").textContent = t("depthNodes")(nodes);
+        document.getElementById("depth-recommendation").textContent = message;
+      }
+
+      function currentWorkflowMessage() {
+        if (state.workflowDone) {
+          return t("workflowDone");
+        }
+        if (state.workflowIndex > 0) {
+          return t("workflowNext")(state.workflowIndex, WORKFLOW_ORDER.length);
+        }
+        return t("workflowStart");
+      }
+
+      function renderWorkflow() {
+        var grid = document.getElementById("workflow-grid");
+        var choices = state.workflowChoices || ["plot", "score", "fit", "split", "predict"];
+        grid.innerHTML = "";
+        choices.forEach(function (key) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "workflow-choice";
+          button.textContent = WORKFLOW_LABELS[key][currentLang()];
+          if (state.workflowDoneSet && state.workflowDoneSet.indexOf(key) !== -1) {
+            button.classList.add("is-done");
+          }
+          button.addEventListener("click", function () {
+            handleWorkflowClick(key);
+          });
+          grid.appendChild(button);
+        });
+        updateWorkflowResult(currentWorkflowMessage());
+      }
+
+      function updateWorkflowResult(text) {
+        document.getElementById("workflow-result").textContent = text;
+      }
+
+      function handleWorkflowClick(key) {
+        state.workflowDoneSet = state.workflowDoneSet || [];
+        var expected = WORKFLOW_ORDER[state.workflowIndex || 0];
+        if (key === expected) {
+          if (state.workflowDoneSet.indexOf(key) === -1) {
+            state.workflowDoneSet.push(key);
+          }
+          state.workflowIndex = (state.workflowIndex || 0) + 1;
+          if (state.workflowIndex >= WORKFLOW_ORDER.length) {
+            state.workflowDone = true;
+            awardDemo("module-8");
+          } else {
+            awardDemo("module-8");
+          }
+        } else {
+          document.getElementById("workflow-result").textContent = t("workflowWrong");
+          return;
+        }
+        saveState();
+        renderWorkflow();
+      }
+
+      function syncGlossaryTerms() {
+        document.querySelectorAll(".glossary-term").forEach(function (term) {
+          var lang = currentLang();
+          var termKey = lang === "en" ? "termEn" : "termDe";
+          var defKey = lang === "en" ? "definitionEn" : "definitionDe";
+          if (term.dataset[termKey]) {
+            term.textContent = term.dataset[termKey];
+            term.setAttribute("data-term", term.dataset[termKey]);
+          }
+          if (term.dataset[defKey]) {
+            term.setAttribute("data-definition", term.dataset[defKey]);
+          }
+        });
+      }
+
+      function handleLanguageRefresh() {
+        renderQuizzes();
+        renderProgress();
+        renderDispatchTree();
+        renderBoundary();
+        renderSplitChoices();
+        renderGini();
+        renderRecursion();
+        renderLeafDemo();
+        renderDepthDemo();
+        renderWorkflow();
+        syncGlossaryTerms();
+      }
+
+      function handleScrollSpy() {
+        var currentId = "module-1";
+        MODULES.forEach(function (module) {
+          var section = document.getElementById(module.id);
+          if (section && section.getBoundingClientRect().top <= 140) {
+            currentId = module.id;
+          }
+        });
+        state.activeModule = currentId;
+        document.querySelectorAll("[data-module-link]").forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("data-module-link") === currentId);
+        });
+      }
+
+      function bindEvents() {
+        document.getElementById("run-dispatch").addEventListener("click", function () {
+          awardDemo("module-1");
+          renderDispatchTree();
+        });
+        ["dispatch-weekend", "dispatch-rain", "dispatch-load"].forEach(function (id) {
+          document.getElementById(id).addEventListener("change", renderDispatchTree);
+        });
+
+        document.getElementById("split-axis").addEventListener("change", function () {
+          awardDemo("module-2");
+          renderBoundary();
+        });
+        document.getElementById("split-threshold").addEventListener("input", function () {
+          awardDemo("module-2");
+          renderBoundary();
+        });
+
+        document.getElementById("gini-ratio").addEventListener("input", function () {
+          awardDemo("module-4");
+          renderGini();
+        });
+
+        document.getElementById("grow-tree-step").addEventListener("click", function () {
+          state.recursionStep = Math.min(3, (state.recursionStep || 0) + 1);
+          awardDemo("module-5");
+          saveState();
+          renderRecursion();
+        });
+        document.getElementById("grow-tree-reset").addEventListener("click", function () {
+          state.recursionStep = 0;
+          saveState();
+          renderRecursion();
+        });
+
+        document.getElementById("run-leaf-demo").addEventListener("click", function () {
+          awardDemo("module-6");
+          renderLeafDemo();
+        });
+        ["leaf-temp", "leaf-windy", "leaf-holiday"].forEach(function (id) {
+          document.getElementById(id).addEventListener(id === "leaf-temp" ? "input" : "change", renderLeafDemo);
+        });
+
+        document.getElementById("depth-slider").addEventListener("input", function () {
+          awardDemo("module-7");
+          renderDepthDemo();
+        });
+
+        document.getElementById("jump-next-open").addEventListener("click", function () {
+          var targetModule = MODULES.find(function (module) { return !state.completed[module.id]; }) || MODULES[MODULES.length - 1];
+          document.getElementById(targetModule.id).scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        document.getElementById("reset-tree-progress").addEventListener("click", function () {
+          try {
+            window.localStorage.removeItem(STORAGE_KEY);
+          } catch (error) {
+            return;
+          }
+          window.location.reload();
+        });
+
+        document.getElementById("sidebar-toggle").addEventListener("click", function () {
+          var collapsed = sidebar.getAttribute("data-collapsed") === "true";
+          sidebar.setAttribute("data-collapsed", collapsed ? "false" : "true");
+          this.setAttribute("aria-expanded", collapsed ? "true" : "false");
+        });
+
+        window.addEventListener("scroll", handleScrollSpy, { passive: true });
+        window.addEventListener("ds-language-change", handleLanguageRefresh);
+      }
+
+      function init() {
+        state.recursionStep = state.recursionStep || 0;
+        state.workflowChoices = state.workflowChoices || ["plot", "score", "fit", "split", "predict"];
+        renderQuizzes();
+        renderProgress();
+        renderDispatchTree();
+        renderBoundary();
+        state.selectedSplit = state.selectedSplit || "A";
+        renderSplitChoices();
+        renderGini();
+        renderRecursion();
+        renderLeafDemo();
+        renderDepthDemo();
+        renderWorkflow();
+        syncGlossaryTerms();
+        bindEvents();
+        handleScrollSpy();
+        window.setTimeout(handleLanguageRefresh, 120);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
