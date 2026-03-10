@@ -847,7 +847,7 @@
           <div class="story-grid">
             <div class="callout">
               <h3>Alltagsszene</h3>
-              <p>Stell dir vor, du arbeitest bei der Post in Köln. Vor dir landen Sendungen auf dem Tisch: Brief oder Paket? Du musst nicht den exakten Wert ausrechnen, sondern eine Kategorie vergeben. Genau so arbeitet ein Klassifikationsmodell.</p>
+              <p>Stell dir vor, du arbeitest bei der Post. Vor dir landen Sendungen auf dem Tisch: Brief oder Paket? Du musst nicht den exakten Wert ausrechnen, sondern eine Kategorie vergeben. Genau so arbeitet ein Klassifikationsmodell.</p>
             </div>
             <div class="callout">
               <h3>ML-Sprache</h3>
@@ -1003,7 +1003,7 @@ print(round(sigmoid(score), 3))</code></pre>
           <div class="story-grid">
             <div class="callout">
               <h3>Alltagsszene</h3>
-              <p>Stell dir einen Türsteher in Bamberg vor. Wenn sein Bauchgefühl mindestens 50 % sagt, darf jemand rein. Sonst nicht. Diese unsichtbare Linie zwischen „rein“ und „nicht rein“ ist die Entscheidungsgrenze.</p>
+              <p>Stell dir einen Türsteher vor. Wenn sein Bauchgefühl mindestens 50 % sagt, darf jemand rein. Sonst nicht. Diese unsichtbare Linie zwischen „rein“ und „nicht rein“ ist die Entscheidungsgrenze.</p>
             </div>
             <div class="callout">
               <h3>ML-Sprache</h3>
@@ -2155,7 +2155,7 @@ print(model.predict(X[:3]).tolist())</code></pre>
         setSelectorText("#sidebar-toggle", "☰ Module", "☰ Modules");
         setSelectorAttr("#sidebar-toggle", "aria-label", "Navigation ein- oder ausblenden", "Show or hide navigation");
 
-        setSelectorText("#module-1 .callout:nth-of-type(1) p", "Stell dir vor, du arbeitest bei der Post in Köln. Vor dir landen Sendungen auf dem Tisch: Brief oder Paket? Du musst nicht den exakten Wert ausrechnen, sondern eine Kategorie vergeben. Genau so arbeitet ein Klassifikationsmodell.", "Imagine you work at a post office in Cologne. Items land on your desk: letter or parcel? You do not need the exact value, you need to assign a category. That is exactly how a classification model works.");
+        setSelectorText("#module-1 .callout:nth-of-type(1) p", "Stell dir vor, du arbeitest bei der Post. Vor dir landen Sendungen auf dem Tisch: Brief oder Paket? Du musst nicht den exakten Wert ausrechnen, sondern eine Kategorie vergeben. Genau so arbeitet ein Klassifikationsmodell.", "Imagine you work at a post office. Items land on your desk: letter or parcel? You do not need the exact value, you need to assign a category. That is exactly how a classification model works.");
         setSelectorHtml("#module-1 .callout:nth-of-type(2) p", "Bei Regression ist die Zielvariable eine Zahl, etwa ein Hauspreis. Bei Klassifikation ist die Zielvariable eine Klasse, zum Beispiel <span class=\"glossary-term\">Spam</span> oder <span class=\"glossary-term\">kein Spam</span>. Für binäre Klassifikation gilt oft <code>y ∈ {0, 1}</code>.", "In regression, the target variable is a number, for example a house price. In classification, the target variable is a class, for example <span class=\"glossary-term\">spam</span> or <span class=\"glossary-term\">not spam</span>. For binary classification, <code>y ∈ {0, 1}</code> is common.");
         setSelectorText("#module-1 .formula-block p", "Die logistische Regression sagt nicht direkt „Ja“ oder „Nein“, sondern zuerst eine Wahrscheinlichkeit für Klasse 1. Erst danach wird diese Wahrscheinlichkeit über einen Schwellenwert in eine Entscheidung übersetzt.", "Logistic regression does not say “yes” or “no” directly. It first outputs a probability for class 1. Only afterwards is that probability turned into a decision via a threshold.");
         setSelectorText("#module-1 .code-explain", "Was passiert hier? Die erste Variable ist eine echte Zahl. Die zweite Variable steht für eine Klasse. Genau diese andere Zielstruktur macht einen anderen Modelltyp nötig.", "What happens here? The first variable is a real number. The second variable stands for a class. That different target structure is exactly why a different model type is needed.");
@@ -2172,7 +2172,7 @@ print(model.predict(X[:3]).tolist())</code></pre>
         setSelectorText("#module-2 .hint p", "In Python schreibst du die Formel mit exp(-t), also zum Beispiel 1 / (1 + exp(-t)).", "In Python, you write the formula with exp(-t), for example 1 / (1 + exp(-t)).");
         setSelectorHtml("#module-2 .solution .expected-output", "Erwartete Ausgabe: <code>0.731</code>", "Expected output: <code>0.731</code>");
 
-        setSelectorText("#module-3 .callout:nth-of-type(1) p", "Stell dir einen Türsteher in Bamberg vor. Wenn sein Bauchgefühl mindestens 50 % sagt, darf jemand rein. Sonst nicht. Diese unsichtbare Linie zwischen „rein“ und „nicht rein“ ist die Entscheidungsgrenze.", "Imagine a bouncer in Bamberg. If his gut feeling says at least 50%, someone gets in. Otherwise not. That invisible line between “inside” and “not inside” is the decision boundary.");
+        setSelectorText("#module-3 .callout:nth-of-type(1) p", "Stell dir einen Türsteher vor. Wenn sein Bauchgefühl mindestens 50 % sagt, darf jemand rein. Sonst nicht. Diese unsichtbare Linie zwischen „rein“ und „nicht rein“ ist die Entscheidungsgrenze.", "Imagine a bouncer. If his gut feeling says at least 50%, someone gets in. Otherwise not. That invisible line between “inside” and “not inside” is the decision boundary.");
         setGlossarySentence("#module-3 .callout:nth-of-type(2) p", "Mit zwei Merkmalen ist die ", "With two features, the ", "Decision Boundary", "Decision boundary", "Die Entscheidungsgrenze ist die Linie oder Fläche, auf der das Modell gerade zwischen zwei Klassen kippt. Auf der einen Seite sagt es Klasse 0, auf der anderen Klasse 1.", "The decision boundary is the line or surface where the model flips between two classes. On one side it predicts class 0, on the other side class 1.", " eine Gerade. Sie hängt nur von den Modellparametern ab, nicht von einer einzelnen Beobachtung.", " is a line. It depends only on the model parameters, not on one single observation.");
         setSelectorHtml("#module-3 .formula-block p:nth-of-type(2)", "Genau auf dieser Linie ist der Score null. Die Sigmoid-Funktion liefert dort 0,5. Damit liegt genau dort die Grenze zwischen beiden Klassen.", "Exactly on that line, the score is zero. The sigmoid function returns 0.5 there. That is why the boundary between both classes lies exactly there.");
         setSelectorHtml("#module-3 .code-explain", "Was passiert hier? <code>predict_proba</code> liefert die Wahrscheinlichkeit für Klasse 1. Erst der gewählte Threshold macht daraus eine 0 oder 1.", "What happens here? <code>predict_proba</code> returns the probability for class 1. Only the chosen threshold turns it into a 0 or a 1.");
