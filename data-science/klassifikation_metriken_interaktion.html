@@ -932,36 +932,32 @@ print(f"Accuracy: {accuracy_score(actual, predicted):.2f}")</code></pre>
             </article>
             <article class="card full">
               <div class="exercise-card" data-interpret-type="classification" data-positive-de="krank" data-positive-en="ill" data-negative-de="gesund" data-negative-en="healthy" data-fp-de="eine gesunde Person wird fälschlich positiv getestet" data-fp-en="a healthy person is incorrectly flagged as positive" data-fn-de="eine kranke Person wird übersehen" data-fn-en="an ill person is missed">
-                <h4>🏋️ Übung: Precision und Recall berechnen</h4>
-                <p class="exercise-instruction">Berechne für dieselben Vorhersagen sowohl `Precision` als auch `Recall`. Die erste Zeile ist schon da, die zweite ergänzt du selbst und vergleichst danach beide Werte.</p>
+                <h4>🏋️ Übung: Precision selbst berechnen</h4>
+                <p class="exercise-instruction">Berechne für dieselben Vorhersagen die `Precision`. Ergänze die fehlende Zeile und prüfe danach, wie verlässlich positive Testmeldungen in diesem kleinen Beispiel sind.</p>
                 <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
-                <pre class="language-python"><code class="language-python">from sklearn.metrics import precision_score, recall_score
+                <pre class="language-python"><code class="language-python">from sklearn.metrics import precision_score
 
 actual = [1, 1, 0, 1, 0, 0, 1, 0, 0, 0]
 predicted = [1, 0, 0, 1, 0, 0, 1, 1, 1, 0]
 
-precision = precision_score(actual, predicted)
-recall = # ??? DEINE LÖSUNG ???
+precision = # ??? DEINE LÖSUNG ???
 
-print(f"Precision: {precision:.2f}")
-print(f"Recall: {recall:.2f}")</code></pre>
+print(f"Precision: {precision:.2f}")</code></pre>
                 <details class="hint">
                   <summary>💡 Tipp anzeigen</summary>
-                  <p>Die Funktion für Recall hat denselben Aufbau wie `precision_score`: erst `actual`, dann `predicted`.</p>
+                  <p>Die Funktion heißt `precision_score`. Sie erwartet zuerst `actual` und danach `predicted`.</p>
                 </details>
                 <details class="solution">
                   <summary>✅ Lösung anzeigen</summary>
-                  <pre class="language-python"><code class="language-python">from sklearn.metrics import precision_score, recall_score
+                  <pre class="language-python"><code class="language-python">from sklearn.metrics import precision_score
 
 actual = [1, 1, 0, 1, 0, 0, 1, 0, 0, 0]
 predicted = [1, 0, 0, 1, 0, 0, 1, 1, 1, 0]
 
 precision = precision_score(actual, predicted)
-recall = recall_score(actual, predicted)
 
-print(f"Precision: {precision:.2f}")
-print(f"Recall: {recall:.2f}")</code></pre>
-                  <p class="expected-output">Erwartete Ausgabe: `Precision: 0.60` und `Recall: 0.75`</p>
+print(f"Precision: {precision:.2f}")</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `Precision: 0.60`</p>
                 </details>
               </div>
             </article>
@@ -1036,6 +1032,41 @@ print(f"Recall: {recall:.2f}")</code></pre>
                   <li>Würdest du den Threshold eher senken oder erhöhen, wenn möglichst wenig übersehen werden darf?</li>
                 </ol>
               </details>
+            </article>
+            <article class="card full">
+              <div class="exercise-card" data-interpret-type="classification" data-positive-de="gefährlicher Gegenstand" data-positive-en="dangerous item" data-negative-de="harmloser Passagier" data-negative-en="harmless passenger" data-fp-de="ein harmloser Passagier wird unnötig herausgezogen" data-fp-en="a harmless passenger is pulled aside unnecessarily" data-fn-de="ein gefährlicher Gegenstand wird übersehen" data-fn-en="a dangerous item is missed">
+                <h4>🏋️ Übung: Recall ergänzen und mit Precision vergleichen</h4>
+                <p class="exercise-instruction">Berechne für dieselben Vorhersagen jetzt zusätzlich den `Recall`. Die Precision-Zeile ist schon da. Du ergänzt den Recall und vergleichst danach beide Werte.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre class="language-python"><code class="language-python">from sklearn.metrics import precision_score, recall_score
+
+actual = [1, 1, 0, 1, 0, 0, 1, 0, 0, 0]
+predicted = [1, 0, 0, 1, 0, 0, 1, 1, 1, 0]
+
+precision = precision_score(actual, predicted)
+recall = # ??? DEINE LÖSUNG ???
+
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")</code></pre>
+                <details class="hint">
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Die Funktion für Recall hat denselben Aufbau wie `precision_score`: erst `actual`, dann `predicted`.</p>
+                </details>
+                <details class="solution">
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre class="language-python"><code class="language-python">from sklearn.metrics import precision_score, recall_score
+
+actual = [1, 1, 0, 1, 0, 0, 1, 0, 0, 0]
+predicted = [1, 0, 0, 1, 0, 0, 1, 1, 1, 0]
+
+precision = precision_score(actual, predicted)
+recall = recall_score(actual, predicted)
+
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: `Precision: 0.60` und `Recall: 0.75`</p>
+                </details>
+              </div>
             </article>
             <article class="card full">
               <div class="card-kicker">Quiz</div>
