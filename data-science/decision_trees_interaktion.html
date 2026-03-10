@@ -745,6 +745,30 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .boundary-compare-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .boundary-compare-cell {
+      display: grid;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .boundary-compare-label {
+      font-weight: 800;
+      color: var(--secondary);
+      font-size: 0.84rem;
+    }
+
+    .boundary-compare-note {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
     .workflow-choice.is-done {
       background: var(--success-soft);
       border-color: var(--success-line);
@@ -795,6 +819,7 @@
       .mini-grid,
       .workflow-grid,
       .gini-intuition-grid,
+      .boundary-compare-grid,
       .meta-grid,
       .chip-row {
         grid-template-columns: 1fr;
@@ -989,6 +1014,10 @@
               <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
               <p data-i18n-html-de="Die erste Frage sitzt an der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Wurzelknoten&quot; data-term-en=&quot;Root node&quot; data-definition-de=&quot;Der Wurzelknoten ist der Startpunkt des Baums. Hier wird die erste Frage gestellt, die die Daten in zwei Gruppen teilt.&quot; data-definition-en=&quot;The root node is the start of the tree. It asks the first question and splits the data into two groups.&quot;>Wurzel</button>. Jede Antwort führt über einen Ast zu einer neuen Frage. Am Ende landest du in einem <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Blatt&quot; data-term-en=&quot;Leaf&quot; data-definition-de=&quot;Ein Blatt ist ein Endpunkt des Baums. Dort steht die finale Vorhersage.&quot; data-definition-en=&quot;A leaf is an end point of the tree. That is where the final prediction lives.&quot;>Blatt</button>, also bei der Vorhersage." data-i18n-html-en="The first question sits at the <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Wurzelknoten&quot; data-term-en=&quot;Root node&quot; data-definition-de=&quot;Der Wurzelknoten ist der Startpunkt des Baums. Hier wird die erste Frage gestellt, die die Daten in zwei Gruppen teilt.&quot; data-definition-en=&quot;The root node is the start of the tree. It asks the first question and splits the data into two groups.&quot;>root</button>. Each answer follows a branch to a new question. In the end you land in a <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Blatt&quot; data-term-en=&quot;Leaf&quot; data-definition-de=&quot;Ein Blatt ist ein Endpunkt des Baums. Dort steht die finale Vorhersage.&quot; data-definition-en=&quot;A leaf is an end point of the tree. That is where the final prediction lives.&quot;>leaf</button>, meaning the prediction.">Die erste Frage sitzt an der <button class="glossary-term" type="button" data-term-de="Wurzelknoten" data-term-en="Root node" data-definition-de="Der Wurzelknoten ist der Startpunkt des Baums. Hier wird die erste Frage gestellt, die die Daten in zwei Gruppen teilt." data-definition-en="The root node is the start of the tree. It asks the first question and splits the data into two groups.">Wurzel</button>. Jede Antwort führt über einen Ast zu einer neuen Frage. Am Ende landest du in einem <button class="glossary-term" type="button" data-term-de="Blatt" data-term-en="Leaf" data-definition-de="Ein Blatt ist ein Endpunkt des Baums. Dort steht die finale Vorhersage." data-definition-en="A leaf is an end point of the tree. That is where the final prediction lives.">Blatt</button>, also bei der Vorhersage.</p>
             </div>
+            <div class="callout" style="border-left:4px solid var(--warning)">
+              <h3 data-i18n-de="Häufiger Stolperstein" data-i18n-en="Common pitfall">Häufiger Stolperstein</h3>
+              <p data-i18n-html-de="Verwechsle nicht <strong>Merkmale</strong> (Features) mit der <strong>Zielvariable</strong> (Target). Die Merkmale sind die Fragen, die der Baum stellt, zum Beispiel Wochenende, Regen oder Route ausgelastet. Das Target ist das, was wir vorhersagen wollen, also etwa <em>pünktlich</em> oder <em>verspätet</em>. Schau immer zuerst: <em>Was will ich vorhersagen?</em> Das ist dein Target. Alles andere sind Merkmale." data-i18n-html-en="Do not confuse <strong>features</strong> with the <strong>target variable</strong>. Features are the questions the tree asks, for example weekend, rain or route busy. The target is what we want to predict, such as <em>on time</em> or <em>delayed</em>. Always ask first: <em>What do I want to predict?</em> That is your target. Everything else is a feature.">Verwechsle nicht <strong>Merkmale</strong> (Features) mit der <strong>Zielvariable</strong> (Target). Die Merkmale sind die Fragen, die der Baum stellt, zum Beispiel Wochenende, Regen oder Route ausgelastet. Das Target ist das, was wir vorhersagen wollen, also etwa <em>pünktlich</em> oder <em>verspätet</em>. Schau immer zuerst: <em>Was will ich vorhersagen?</em> Das ist dein Target. Alles andere sind Merkmale.</p>
+            </div>
           </div>
 
           <div class="formula-block">
@@ -1059,6 +1088,12 @@
             <p data-i18n-de="Eine erste Trennung kann so aussehen: <code>wenn Temperatur &lt; 24, dann links, sonst rechts</code>. Danach darf jede Seite ihre eigene nächste Frage bekommen." data-i18n-en="A first split could look like this: <code>if temperature &lt; 24, go left, otherwise go right</code>. After that, each side may get its own next question.">Eine erste Trennung kann so aussehen: <code>wenn Temperatur &lt; 24, dann links, sonst rechts</code>. Danach darf jede Seite ihre eigene nächste Frage bekommen.</p>
           </div>
 
+          <div class="callout" style="border-left:4px solid var(--success)">
+            <h3 data-i18n-de="Gute Nachricht: Kein Scaling nötig!" data-i18n-en="Good news: no scaling needed!">Gute Nachricht: Kein Scaling nötig!</h3>
+            <p data-i18n-html-de="Anders als bei KNN oder Logistischer Regression braucht ein Decision Tree <strong>keine Skalierung</strong> der Daten. Warum? Der Baum vergleicht immer nur <em>einen</em> Wert mit <em>einem</em> Schwellenwert, zum Beispiel <code>Temperatur &lt; 24</code>. Er berechnet keine Abstände zwischen Punkten. Deshalb ist es egal, ob Temperatur in Celsius und Wind in km/h gemessen wird." data-i18n-html-en="Unlike KNN or logistic regression, a decision tree needs <strong>no scaling</strong> of the data. Why? The tree always compares just <em>one</em> value with <em>one</em> threshold, for example <code>temperature &lt; 24</code>. It does not calculate distances between points. That is why it does not matter whether temperature is measured in Celsius and wind in km/h.">Anders als bei KNN oder Logistischer Regression braucht ein Decision Tree <strong>keine Skalierung</strong> der Daten. Warum? Der Baum vergleicht immer nur <em>einen</em> Wert mit <em>einem</em> Schwellenwert, zum Beispiel <code>Temperatur &lt; 24</code>. Er berechnet keine Abstände zwischen Punkten. Deshalb ist es egal, ob Temperatur in Celsius und Wind in km/h gemessen wird.</p>
+            <p data-i18n-html-de="Auch <strong>Gradient Descent</strong> wird hier nicht benutzt. Der Baum sucht den besten Split durch Ausprobieren, nicht durch schrittweises Optimieren einer Verlustfunktion." data-i18n-html-en="<strong>Gradient descent</strong> is also not used here. The tree finds the best split by trying options, not by stepwise optimisation of a loss function.">Auch <strong>Gradient Descent</strong> wird hier nicht benutzt. Der Baum sucht den besten Split durch Ausprobieren, nicht durch schrittweises Optimieren einer Verlustfunktion.</p>
+          </div>
+
           <div class="demo-grid">
             <div class="plot-card">
               <h3 data-i18n-de="Interaktive Grenze" data-i18n-en="Interactive boundary">Interaktive Grenze</h3>
@@ -1081,6 +1116,34 @@
                 <svg id="boundary-svg" class="decision-svg" viewBox="0 0 340 250" role="img" aria-label="Punktwolke mit Entscheidungsgrenze"></svg>
               </div>
               <p class="plot-caption" data-i18n-de="Blau steht hier für Kaffee, Bordeaux für Eis. Die Linie zeigt nur den ersten Split." data-i18n-en="Blue stands for coffee, burgundy for ice cream. The line shows only the first split.">Blau steht hier für Kaffee, Bordeaux für Eis. Die Linie zeigt nur den ersten Split.</p>
+            </div>
+          </div>
+
+          <div class="plot-card" id="boundary-compare-card">
+            <h3 data-i18n-de="Vergleich: 3 Modelle, 3 Grenzen" data-i18n-en="Comparison: 3 models, 3 boundaries">Vergleich: 3 Modelle, 3 Grenzen</h3>
+            <p data-i18n-de="Dieselben Daten, drei verschiedene Modelle. Beobachte nur die Form der Entscheidungsgrenze." data-i18n-en="The same data, three different models. Focus only on the shape of the decision boundary.">Dieselben Daten, drei verschiedene Modelle. Beobachte nur die Form der Entscheidungsgrenze.</p>
+            <div class="boundary-compare-grid">
+              <div class="boundary-compare-cell">
+                <div class="plot-shell" style="text-align:center">
+                  <svg id="boundary-logreg" viewBox="0 0 200 200" role="img" aria-label="Vergleichsbild für logistische Regression" style="width:100%;max-width:200px;margin:0 auto"></svg>
+                </div>
+                <p class="boundary-compare-label" data-i18n-de="Logistische Regression" data-i18n-en="Logistic regression">Logistische Regression</p>
+                <p class="boundary-compare-note" data-i18n-de="Eine gerade Linie oder Fläche" data-i18n-en="One straight line or surface">Eine gerade Linie oder Fläche</p>
+              </div>
+              <div class="boundary-compare-cell">
+                <div class="plot-shell" style="text-align:center">
+                  <svg id="boundary-tree-compare" viewBox="0 0 200 200" role="img" aria-label="Vergleichsbild für Decision Tree" style="width:100%;max-width:200px;margin:0 auto"></svg>
+                </div>
+                <p class="boundary-compare-label" data-i18n-de="Decision Tree" data-i18n-en="Decision tree">Decision Tree</p>
+                <p class="boundary-compare-note" data-i18n-de="Achsenparallele Rechtecke" data-i18n-en="Axis-aligned rectangles">Achsenparallele Rechtecke</p>
+              </div>
+              <div class="boundary-compare-cell">
+                <div class="plot-shell" style="text-align:center">
+                  <svg id="boundary-knn" viewBox="0 0 200 200" role="img" aria-label="Vergleichsbild für KNN" style="width:100%;max-width:200px;margin:0 auto"></svg>
+                </div>
+                <p class="boundary-compare-label" data-i18n-de="KNN" data-i18n-en="KNN">KNN</p>
+                <p class="boundary-compare-note" data-i18n-de="Unregelmäßige Nachbarschaft" data-i18n-en="Irregular neighbourhood">Unregelmäßige Nachbarschaft</p>
+              </div>
             </div>
           </div>
 
@@ -1183,7 +1246,7 @@ print(tree.tree_.node_count)</code></pre>
             </div>
             <div class="callout">
               <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
-              <p data-i18n-html-de="Der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Aus Modul 2b nimmst du jetzt den Unterschied mit: Der Tree sucht nicht nach einer Linie und auch nicht nach Nachbarn, sondern nach der nächsten Frage, die seine Rechtecke sauberer macht. Wichtig: Der Baum sucht dabei nur den besten nächsten Schritt, nicht schon den perfekten Gesamtbaum auf einmal." data-i18n-html-en="The <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>best split</button> is the question and threshold that separate the groups most cleanly. From checkpoint 2b, keep this difference in mind: the tree is not searching for one line and not for neighbours, but for the next question that makes its rectangles cleaner. Important: the tree only looks for the best next step here, not the perfect final tree all at once.">Der <button class="glossary-term" type="button" data-term-de="Best Split" data-term-en="Best split" data-definition-de="Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt." data-definition-en="The best split is the question and threshold that separate the data most cleanly.">Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Aus Modul 2b nimmst du jetzt den Unterschied mit: Der Tree sucht nicht nach einer Linie und auch nicht nach Nachbarn, sondern nach der nächsten Frage, die seine Rechtecke sauberer macht. Wichtig: Der Baum sucht dabei nur den besten nächsten Schritt, nicht schon den perfekten Gesamtbaum auf einmal.</p>
+              <p data-i18n-html-de="Wie findet der Baum den <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>Best Split</button>? Er probiert systematisch alle Möglichkeiten aus: jedes Merkmal, zum Beispiel Temperatur, Wind oder Feiertag, und jeden möglichen Schwellenwert, etwa <code>Temperatur &lt; 18</code>, <code>&lt; 19</code>, <code>&lt; 20</code> und so weiter. Für jede Variante berechnet er, wie sauber die Gruppen werden. Die Variante mit der besten Trennung gewinnt. Das nennt man <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Greedy&quot; data-term-en=&quot;Greedy&quot; data-definition-de=&quot;Greedy bedeutet: Der Algorithmus optimiert jeden einzelnen Schritt lokal, ohne den Gesamtbaum vorauszuplanen.&quot; data-definition-en=&quot;Greedy means the algorithm optimises each step locally without planning the entire tree ahead.&quot;>Greedy</button>: Der Baum sucht in jedem Schritt nur den besten <em>nächsten</em> Split. Er plant nicht den ganzen Baum im Voraus. Deshalb ist das Ergebnis oft gut, aber nicht garantiert perfekt." data-i18n-html-en="How does the tree find the <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>best split</button>? It systematically tries all options: every feature, for example temperature, wind or holiday, and every possible threshold, such as <code>temperature &lt; 18</code>, <code>&lt; 19</code>, <code>&lt; 20</code> and so on. For each variant it calculates how clean the groups become. The variant with the best separation wins. This is called <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Greedy&quot; data-term-en=&quot;Greedy&quot; data-definition-de=&quot;Greedy bedeutet: Der Algorithmus optimiert jeden einzelnen Schritt lokal, ohne den Gesamtbaum vorauszuplanen.&quot; data-definition-en=&quot;Greedy means the algorithm optimises each step locally without planning the entire tree ahead.&quot;>greedy</button>: the tree only searches for the best <em>next</em> split at each step. It does not plan the whole tree in advance. That is why the result is often good, but not guaranteed to be perfect.">Wie findet der Baum den <button class="glossary-term" type="button" data-term-de="Best Split" data-term-en="Best split" data-definition-de="Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt." data-definition-en="The best split is the question and threshold that separate the data most cleanly.">Best Split</button>? Er probiert systematisch alle Möglichkeiten aus: jedes Merkmal, zum Beispiel Temperatur, Wind oder Feiertag, und jeden möglichen Schwellenwert, etwa <code>Temperatur &lt; 18</code>, <code>&lt; 19</code>, <code>&lt; 20</code> und so weiter. Für jede Variante berechnet er, wie sauber die Gruppen werden. Die Variante mit der besten Trennung gewinnt. Das nennt man <button class="glossary-term" type="button" data-term-de="Greedy" data-term-en="Greedy" data-definition-de="Greedy bedeutet: Der Algorithmus optimiert jeden einzelnen Schritt lokal, ohne den Gesamtbaum vorauszuplanen." data-definition-en="Greedy means the algorithm optimises each step locally without planning the entire tree ahead.">Greedy</button>: Der Baum sucht in jedem Schritt nur den besten <em>nächsten</em> Split. Er plant nicht den ganzen Baum im Voraus. Deshalb ist das Ergebnis oft gut, aber nicht garantiert perfekt.</p>
             </div>
           </div>
 
@@ -1236,6 +1299,14 @@ print(tree.tree_.node_count)</code></pre>
             <h3 data-i18n-de="Gini-Intuition auf einen Blick" data-i18n-en="Gini intuition at a glance">Gini-Intuition auf einen Blick</h3>
             <p data-i18n-de="Schau zuerst auf fünf feste Mischungen. So siehst du ohne Regler sofort: ganz rein ergibt 0, halb-halb ist am stärksten gemischt, und 3 zu 7 ist genauso unrein wie 7 zu 3." data-i18n-en="First look at five fixed mixes. This lets you see immediately without a slider: completely pure gives 0, fifty-fifty is the most mixed, and 3 to 7 is just as impure as 7 to 3.">Schau zuerst auf fünf feste Mischungen. So siehst du ohne Regler sofort: ganz rein ergibt 0, halb-halb ist am stärksten gemischt, und 3 zu 7 ist genauso unrein wie 7 zu 3.</p>
             <div id="gini-intuition-grid" class="gini-intuition-grid" aria-label="Fünf feste Beispiele zur Gini-Unreinheit"></div>
+            <div class="callout">
+              <h3 data-i18n-de="Splits vergleichen: Gewichteter Gini" data-i18n-en="Comparing splits: weighted Gini">Splits vergleichen: Gewichteter Gini</h3>
+              <p data-i18n-html-de="Ein Split erzeugt zwei Kinderknoten, links und rechts. Um zu entscheiden, welcher Split besser ist, berechnen wir den <strong>gewichteten Mittelwert</strong> der Gini-Werte beider Seiten. Die Gewichte sind die Anzahl der Fälle pro Seite." data-i18n-html-en="A split creates two child nodes, left and right. To decide which split is better, we calculate the <strong>weighted average</strong> of the Gini values of both sides. The weights are the number of cases on each side.">Ein Split erzeugt zwei Kinderknoten, links und rechts. Um zu entscheiden, welcher Split besser ist, berechnen wir den <strong>gewichteten Mittelwert</strong> der Gini-Werte beider Seiten. Die Gewichte sind die Anzahl der Fälle pro Seite.</p>
+              <div class="formula-block">
+                <code>Gini_gewichtet = (n_links / n_gesamt) × Gini_links + (n_rechts / n_gesamt) × Gini_rechts</code>
+              </div>
+              <p data-i18n-html-de="<strong>Beispiel:</strong> 145 Fälle gehen nach links (Gini 0,39), 105 nach rechts (Gini 0,10). Gewichteter Gini = (145/250) × 0,39 + (105/250) × 0,10 = 0,268. Der Split mit dem <em>niedrigsten</em> gewichteten Gini gewinnt." data-i18n-html-en="<strong>Example:</strong> 145 cases go left (Gini 0.39), 105 go right (Gini 0.10). Weighted Gini = (145/250) × 0.39 + (105/250) × 0.10 = 0.268. The split with the <em>lowest</em> weighted Gini wins."><strong>Beispiel:</strong> 145 Fälle gehen nach links (Gini 0,39), 105 nach rechts (Gini 0,10). Gewichteter Gini = (145/250) × 0,39 + (105/250) × 0,10 = 0,268. Der Split mit dem <em>niedrigsten</em> gewichteten Gini gewinnt.</p>
+            </div>
             <div class="result-box" id="gini-symmetry-note" data-i18n-de="Merksatz: Für Gini zählt die Mischung, nicht welche Farbe vorne liegt. Deshalb haben 3 zu 7 und 7 zu 3 denselben Wert." data-i18n-en="Rule of thumb: for Gini, the mix matters, not which color is ahead. That is why 3 to 7 and 7 to 3 have the same value.">Merksatz: Für Gini zählt die Mischung, nicht welche Farbe vorne liegt. Deshalb haben 3 zu 7 und 7 zu 3 denselben Wert.</div>
           </div>
 
@@ -1311,6 +1382,7 @@ print(tree.tree_.max_depth)</code></pre>
             <div class="callout">
               <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
               <p data-i18n-de="Nach jedem Split betrachtet der Baum die linke und rechte Teilmenge getrennt. Für beide Seiten sucht er wieder den besten Split, bis ein Stoppkriterium erreicht ist, zum Beispiel maximale Tiefe oder zu wenige Beobachtungen. Rekursion heißt hier also schlicht: dieselbe Regel erneut auf kleinere Teilmengen anwenden." data-i18n-en="After every split, the tree looks at the left and right subset separately. For both sides it searches again for the best split until a stopping criterion is reached, for example maximum depth or too few observations. Here recursion simply means applying the same rule again to smaller subsets.">Nach jedem Split betrachtet der Baum die linke und rechte Teilmenge getrennt. Für beide Seiten sucht er wieder den besten Split, bis ein Stoppkriterium erreicht ist, zum Beispiel maximale Tiefe oder zu wenige Beobachtungen. Rekursion heißt hier also schlicht: dieselbe Regel erneut auf kleinere Teilmengen anwenden.</p>
+              <p data-i18n-html-de="<strong>Tiefe zählen:</strong> Die Wurzel liegt auf Tiefe 0, wie das Erdgeschoss. Der erste Split erzeugt Tiefe 1, der nächste Tiefe 2 und so weiter. Wenn du <code>max_depth=3</code> setzt, darf der Baum höchstens 3 Ebenen unter der Wurzel haben." data-i18n-html-en="<strong>Counting depth:</strong> The root sits at depth 0, like the ground floor. The first split creates depth 1, the next depth 2 and so on. If you set <code>max_depth=3</code>, the tree may have at most 3 levels below the root."><strong>Tiefe zählen:</strong> Die Wurzel liegt auf Tiefe 0, wie das Erdgeschoss. Der erste Split erzeugt Tiefe 1, der nächste Tiefe 2 und so weiter. Wenn du <code>max_depth=3</code> setzt, darf der Baum höchstens 3 Ebenen unter der Wurzel haben.</p>
             </div>
           </div>
 
@@ -1351,6 +1423,15 @@ print(tree.tree_.max_depth)</code></pre>
             <div class="callout">
               <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
               <p data-i18n-de="Bei Klassifikation gibt das Blatt meist die Mehrheitsklasse zurück. Bei Regression gibt das Blatt den durchschnittlichen Zielwert der Trainingsfälle in diesem Blatt zurück. Das Blatt 'rechnet' also nicht mehr weiter, sondern liest nur noch die im Blatt gespeicherte Entscheidung ab." data-i18n-en="For classification, the leaf usually returns the majority class. For regression, the leaf returns the average target value of the training cases inside that leaf. So the leaf does not keep calculating; it simply reads out the decision stored in that leaf.">Bei Klassifikation gibt das Blatt meist die Mehrheitsklasse zurück. Bei Regression gibt das Blatt den durchschnittlichen Zielwert der Trainingsfälle in diesem Blatt zurück. Das Blatt 'rechnet' also nicht mehr weiter, sondern liest nur noch die im Blatt gespeicherte Entscheidung ab.</p>
+            </div>
+            <div class="callout">
+              <h3 data-i18n-de="Und bei Zahlen? Regression Trees" data-i18n-en="What about numbers? Regression trees">Und bei Zahlen? Regression Trees</h3>
+              <p data-i18n-html-de="Bisher haben wir Klassen vorhergesagt, zum Beispiel <em>pünktlich</em> oder <em>verspätet</em>. Decision Trees können aber auch <strong>Zahlenwerte</strong> vorhersagen, etwa den Preis einer Wohnung oder die verkauften Stückzahlen." data-i18n-html-en="So far we predicted classes, for example <em>on time</em> or <em>delayed</em>. But decision trees can also predict <strong>numeric values</strong>, such as an apartment price or the number of sold items.">Bisher haben wir Klassen vorhergesagt, zum Beispiel <em>pünktlich</em> oder <em>verspätet</em>. Decision Trees können aber auch <strong>Zahlenwerte</strong> vorhersagen, etwa den Preis einer Wohnung oder die verkauften Stückzahlen.</p>
+              <ul>
+                <li data-i18n-html-de="<strong>Klassifikation:</strong> Gini misst die Mischung. Das Blatt gibt die häufigste Klasse aus." data-i18n-html-en="<strong>Classification:</strong> Gini measures the mix. The leaf outputs the most frequent class."><strong>Klassifikation:</strong> Gini misst die Mischung. Das Blatt gibt die häufigste Klasse aus.</li>
+                <li data-i18n-html-de="<strong>Regression:</strong> MSE, also mittlerer quadratischer Fehler, misst die Streuung. Das Blatt gibt den <strong>Mittelwert</strong> der Fälle aus." data-i18n-html-en="<strong>Regression:</strong> MSE, the mean squared error, measures the spread. The leaf outputs the <strong>mean</strong> of the cases."><strong>Regression:</strong> MSE, also mittlerer quadratischer Fehler, misst die Streuung. Das Blatt gibt den <strong>Mittelwert</strong> der Fälle aus.</li>
+              </ul>
+              <p data-i18n-de="Der Aufbau bleibt gleich: Fragen, Splits, Blätter. Nur die Messung und die Vorhersage ändern sich." data-i18n-en="The structure stays the same: questions, splits, leaves. Only the measurement and the prediction change.">Der Aufbau bleibt gleich: Fragen, Splits, Blätter. Nur die Messung und die Vorhersage ändern sich.</p>
             </div>
           </div>
 
@@ -1443,6 +1524,47 @@ print(pred[0])</code></pre>
               <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
               <p data-i18n-html-de="Bäume neigen zu <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Overfitting&quot; data-term-en=&quot;Overfitting&quot; data-definition-de=&quot;Overfitting bedeutet: Das Modell lernt Trainingsdaten zu detailliert und generalisiert auf neue Daten schlechter.&quot; data-definition-en=&quot;Overfitting means the model learns the training data too specifically and generalises worse to new data.&quot;>Overfitting</button>. Gegenmittel sind zum Beispiel <code>max_depth</code>, <code>min_samples_leaf</code> oder <code>max_leaf_nodes</code>. Diese Regeln bremsen das Wachstum des Baums." data-i18n-html-en="Trees tend toward <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Overfitting&quot; data-term-en=&quot;Overfitting&quot; data-definition-de=&quot;Overfitting bedeutet: Das Modell lernt Trainingsdaten zu detailliert und generalisiert auf neue Daten schlechter.&quot; data-definition-en=&quot;Overfitting means the model learns the training data too specifically and generalises worse to new data.&quot;>overfitting</button>. Antidotes include <code>max_depth</code>, <code>min_samples_leaf</code> or <code>max_leaf_nodes</code>. These rules slow down the growth of the tree.">Bäume neigen zu <button class="glossary-term" type="button" data-term-de="Overfitting" data-term-en="Overfitting" data-definition-de="Overfitting bedeutet: Das Modell lernt Trainingsdaten zu detailliert und generalisiert auf neue Daten schlechter." data-definition-en="Overfitting means the model learns the training data too specifically and generalises worse to new data.">Overfitting</button>. Gegenmittel sind zum Beispiel <code>max_depth</code>, <code>min_samples_leaf</code> oder <code>max_leaf_nodes</code>. Diese Regeln bremsen das Wachstum des Baums.</p>
             </div>
+          </div>
+
+          <div class="callout">
+            <h3 data-i18n-de="Die 5 Stellschrauben" data-i18n-en="The 5 control knobs">Die 5 Stellschrauben</h3>
+            <table style="width:100%;font-size:0.88rem;border-collapse:collapse">
+              <thead>
+                <tr style="border-bottom:2px solid var(--line)">
+                  <th style="text-align:left;padding:8px" data-i18n-de="Parameter" data-i18n-en="Parameter">Parameter</th>
+                  <th style="text-align:left;padding:8px" data-i18n-de="Was er tut" data-i18n-en="What it does">Was er tut</th>
+                  <th style="text-align:left;padding:8px" data-i18n-de="Alltagsbild" data-i18n-en="Everyday image">Alltagsbild</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--line)">
+                  <td style="padding:8px"><code>max_depth</code></td>
+                  <td style="padding:8px" data-i18n-de="Maximale Tiefe des Baums" data-i18n-en="Maximum tree depth">Maximale Tiefe des Baums</td>
+                  <td style="padding:8px" data-i18n-de="Wie viele Stockwerke dein Haus haben darf" data-i18n-en="How many floors your house may have">Wie viele Stockwerke dein Haus haben darf</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line)">
+                  <td style="padding:8px"><code>min_samples_leaf</code></td>
+                  <td style="padding:8px" data-i18n-de="Mindestanzahl Fälle pro Blatt" data-i18n-en="Minimum cases per leaf">Mindestanzahl Fälle pro Blatt</td>
+                  <td style="padding:8px" data-i18n-de="Mindestens 10 Personen pro Tischgruppe" data-i18n-en="At least 10 people per table group">Mindestens 10 Personen pro Tischgruppe</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line)">
+                  <td style="padding:8px"><code>min_samples_split</code></td>
+                  <td style="padding:8px" data-i18n-de="Mindestanzahl Fälle, um überhaupt zu teilen" data-i18n-en="Minimum cases to split at all">Mindestanzahl Fälle, um überhaupt zu teilen</td>
+                  <td style="padding:8px" data-i18n-de="Erst ab 20 Personen lohnt sich eine zweite Schlange" data-i18n-en="Only from 20 people does a second queue make sense">Erst ab 20 Personen lohnt sich eine zweite Schlange</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line)">
+                  <td style="padding:8px"><code>max_leaf_nodes</code></td>
+                  <td style="padding:8px" data-i18n-de="Maximale Anzahl Blätter" data-i18n-en="Maximum number of leaves">Maximale Anzahl Blätter</td>
+                  <td style="padding:8px" data-i18n-de="Höchstens 8 Briefkästen im Sortierzentrum" data-i18n-en="At most 8 mailboxes in the sorting centre">Höchstens 8 Briefkästen im Sortierzentrum</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px"><code>max_features</code></td>
+                  <td style="padding:8px" data-i18n-de="Wie viele Merkmale pro Split geprüft werden" data-i18n-en="How many features are checked per split">Wie viele Merkmale pro Split geprüft werden</td>
+                  <td style="padding:8px" data-i18n-de="Der Baum darf nur 3 von 10 Fragen auf dem Zettel lesen" data-i18n-en="The tree may only read 3 of 10 questions on the sheet">Der Baum darf nur 3 von 10 Fragen auf dem Zettel lesen</td>
+                </tr>
+              </tbody>
+            </table>
+            <p data-i18n-html-de="Tipp: Nutze Hyperparameter-Suche, zum Beispiel <code>GridSearchCV</code>, um die besten Werte zu finden. Probiere das nicht nur von Hand." data-i18n-html-en="Tip: use hyperparameter search, for example <code>GridSearchCV</code>, to find the best values. Do not rely on trying this only by hand.">Tipp: Nutze Hyperparameter-Suche, zum Beispiel <code>GridSearchCV</code>, um die besten Werte zu finden. Probiere das nicht nur von Hand.</p>
           </div>
 
           <div class="plot-card">
@@ -1792,6 +1914,23 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
               de: "50 zu 50 ist die größte Mischung und daher die höchste Unreinheit.",
               en: "50 to 50 is the strongest mix and therefore the highest impurity."
             }
+          },
+          {
+            id: "q3",
+            question: {
+              de: "Warum gewichten wir die Gini-Werte der Kinderknoten?",
+              en: "Why do we weight the Gini values of the child nodes?"
+            },
+            options: [
+              { value: "a", de: "Weil größere Gruppen mehr Einfluss auf die Gesamtqualität haben", en: "Because larger groups have more influence on overall quality" },
+              { value: "b", de: "Weil kleinere Gruppen immer besser sind", en: "Because smaller groups are always better" },
+              { value: "c", de: "Weil der Computer das so braucht", en: "Because the computer needs it that way" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Eine Seite mit 145 Fällen beeinflusst die Gesamtqualität stärker als eine mit nur 5 Fällen.",
+              en: "A side with 145 cases influences overall quality more than one with only 5 cases."
+            }
           }
         ],
         "module-5": [
@@ -2001,6 +2140,9 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           depthGood: "Guter Bereich: genug flexibel, aber noch nicht nervös.",
           depthUnder: "Noch zu grob: Bias ist hier höher als nötig.",
           depthOver: "Achtung Overfitting: der Baum merkt sich zu viele Details.",
+          compareSvgLogregTitle: "Dieselben Punkte mit einer linearen Grenze der logistischen Regression",
+          compareSvgTreeTitle: "Dieselben Punkte mit achsenparallelen Grenzen eines Decision Trees",
+          compareSvgKnnTitle: "Dieselben Punkte mit unregelmäßiger KNN-Nachbarschaftsgrenze",
           modelPickerPrompt: "Wähle unten eine Denkweise aus. Danach siehst du sofort, wofür Tree, LogReg oder KNN in diesem Bild stehen.",
           modelPickerTree: "<strong>Tree:</strong> Du willst Regeln erklären können. Ein Tree liefert dir einen Pfad aus Fragen bis zum Blatt. Gut, wenn du später sagen musst: Warum kam genau dieses Ergebnis? In unserem Bild entstehen Rechtecke.",
           modelPickerLogreg: "<strong>LogReg:</strong> Du willst Wahrscheinlichkeiten und einen Threshold-Regler. Das passt, wenn du Treffer gegen Fehlalarme bewusst gegeneinander abwägst. In unserem Bild wäre das eher eine Linie oder Fläche als Rechtecke.",
@@ -2073,6 +2215,9 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           depthGood: "Good zone: flexible enough, but not nervous yet.",
           depthUnder: "Still too coarse: bias is higher than necessary here.",
           depthOver: "Watch out for overfitting: the tree memorises too many details.",
+          compareSvgLogregTitle: "The same points with a linear logistic-regression boundary",
+          compareSvgTreeTitle: "The same points with axis-aligned decision-tree boundaries",
+          compareSvgKnnTitle: "The same points with an irregular KNN neighbourhood boundary",
           modelPickerPrompt: "Choose one way of thinking below. Then you will immediately see what tree, logreg or KNN stand for in this picture.",
           modelPickerTree: "<strong>Tree:</strong> You want explainable rules. A tree gives you a path of questions down to a leaf. Good when you later need to say why this exact result happened. In our picture this creates rectangles.",
           modelPickerLogreg: "<strong>LogReg:</strong> You want probabilities and a threshold dial. This fits when you need to balance hits against false alarms on purpose. In our picture that looks more like a line or surface than rectangles.",
@@ -2093,6 +2238,8 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         { x: 27, y: 12, label: 1 }, { x: 29, y: 10, label: 1 }, { x: 31, y: 11, label: 1 },
         { x: 33, y: 8, label: 1 }
       ];
+
+      var MODEL_COMPARE_POINTS = createModelComparePoints();
 
       var SPLIT_CHOICES = {
         A: { score: 9, explain: "splitAExplain" },
@@ -2125,6 +2272,42 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
       function t(key) {
         var lang = currentLang();
         return UI[lang][key];
+      }
+
+      function seededRandom(seed) {
+        var value = seed >>> 0;
+        return function () {
+          value = (value * 1664525 + 1013904223) >>> 0;
+          return value / 4294967296;
+        };
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function createModelComparePoints() {
+        var rand = seededRandom(20260310);
+        var points = [];
+        var i;
+
+        for (i = 0; i < 15; i += 1) {
+          points.push({
+            x: clamp(26 + rand() * 62 + (rand() - 0.5) * 18, 18, 182),
+            y: clamp(96 + rand() * 70 + (rand() - 0.5) * 20, 18, 182),
+            label: 0
+          });
+        }
+
+        for (i = 0; i < 15; i += 1) {
+          points.push({
+            x: clamp(92 + rand() * 72 + (rand() - 0.5) * 20, 18, 182),
+            y: clamp(24 + rand() * 78 + (rand() - 0.5) * 18, 18, 182),
+            label: 1
+          });
+        }
+
+        return points;
       }
 
       function loadState() {
@@ -2451,6 +2634,115 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         document.getElementById("boundary-stats").textContent = t("firstSplitStats")(leftMajority, rightMajority, score);
       }
 
+      function renderComparePoints() {
+        return MODEL_COMPARE_POINTS.map(function (point) {
+          return '<circle cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="5.5" fill="' + (point.label ? "#631832" : "#173262") + '" stroke="#ffffff" stroke-width="1.6"></circle>';
+        }).join("");
+      }
+
+      function knnCompareLabel(x, y, k) {
+        var ranked = MODEL_COMPARE_POINTS.map(function (point) {
+          var dx = point.x - x;
+          var dy = point.y - y;
+          return { label: point.label, distance: dx * dx + dy * dy };
+        }).sort(function (a, b) {
+          return a.distance - b.distance;
+        });
+        var score = 0;
+        var index;
+        for (index = 0; index < k; index += 1) {
+          score += ranked[index].label ? 1 : -1;
+        }
+        return score > 0 ? 1 : 0;
+      }
+
+      function compareSvgShell(title, regions, overlays) {
+        return ''
+          + '<title>' + title + '</title>'
+          + '<rect x="10" y="10" width="180" height="180" rx="18" fill="#ffffff" stroke="#ddd1d8"></rect>'
+          + regions
+          + overlays
+          + renderComparePoints();
+      }
+
+      function renderBoundaryComparison() {
+        var logreg = document.getElementById("boundary-logreg");
+        var tree = document.getElementById("boundary-tree-compare");
+        var knn = document.getElementById("boundary-knn");
+        var gridSize = 18;
+        var step = 180 / gridSize;
+        var x;
+        var y;
+        var knnRegions = "";
+
+        if (!logreg || !tree || !knn) {
+          return;
+        }
+
+        logreg.setAttribute("aria-label", t("compareSvgLogregTitle"));
+        tree.setAttribute("aria-label", t("compareSvgTreeTitle"));
+        knn.setAttribute("aria-label", t("compareSvgKnnTitle"));
+
+        logreg.innerHTML = compareSvgShell(
+          t("compareSvgLogregTitle"),
+          ''
+            + '<polygon points="10,10 10,190 190,10" fill="rgba(23, 50, 98, 0.10)"></polygon>'
+            + '<polygon points="10,190 190,10 190,190" fill="rgba(99, 24, 50, 0.10)"></polygon>',
+          '<line x1="24" y1="176" x2="176" y2="24" stroke="#9a6b4a" stroke-width="4"></line>'
+        );
+
+        tree.innerHTML = compareSvgShell(
+          t("compareSvgTreeTitle"),
+          ''
+            + '<rect x="10" y="10" width="86" height="180" fill="rgba(23, 50, 98, 0.10)"></rect>'
+            + '<rect x="96" y="10" width="94" height="84" fill="rgba(99, 24, 50, 0.10)"></rect>'
+            + '<rect x="96" y="94" width="94" height="96" fill="rgba(99, 24, 50, 0.05)"></rect>'
+            + '<rect x="10" y="136" width="86" height="54" fill="rgba(23, 50, 98, 0.06)"></rect>',
+          ''
+            + '<line x1="96" y1="10" x2="96" y2="190" stroke="#9a6b4a" stroke-width="4"></line>'
+            + '<line x1="96" y1="94" x2="190" y2="94" stroke="#9a6b4a" stroke-width="4"></line>'
+            + '<line x1="10" y1="136" x2="96" y2="136" stroke="#9a6b4a" stroke-width="4"></line>'
+        );
+
+        for (y = 0; y < gridSize; y += 1) {
+          for (x = 0; x < gridSize; x += 1) {
+            var cellX = 10 + x * step;
+            var cellY = 10 + y * step;
+            var label = knnCompareLabel(cellX + step / 2, cellY + step / 2, 3);
+            knnRegions += '<rect x="' + cellX.toFixed(2) + '" y="' + cellY.toFixed(2) + '" width="' + (step + 0.35).toFixed(2) + '" height="' + (step + 0.35).toFixed(2) + '" fill="' + (label ? "rgba(99, 24, 50, 0.10)" : "rgba(23, 50, 98, 0.10)") + '"></rect>';
+          }
+        }
+
+        knn.innerHTML = compareSvgShell(
+          t("compareSvgKnnTitle"),
+          knnRegions,
+          ""
+        );
+      }
+
+      function setupBoundaryCompareReward() {
+        var card = document.getElementById("boundary-compare-card");
+        if (!card) {
+          return;
+        }
+
+        card.addEventListener("click", function () {
+          awardDemo("module-2");
+        });
+
+        if ("IntersectionObserver" in window) {
+          var observer = new window.IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                awardDemo("module-2");
+                observer.disconnect();
+              }
+            });
+          }, { threshold: 0.35 });
+          observer.observe(card);
+        }
+      }
+
       function renderSplitChoices() {
         var row = document.getElementById("split-choice-row");
         row.innerHTML = "";
@@ -2712,6 +3004,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         renderProgress();
         renderDispatchTree();
         renderBoundary();
+        renderBoundaryComparison();
         renderModelPicker();
         renderSplitChoices();
         renderGini();
@@ -2753,6 +3046,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           awardDemo("module-2");
           renderBoundary();
         });
+        setupBoundaryCompareReward();
 
         document.querySelectorAll("#model-picker [data-pick]").forEach(function (button) {
           button.addEventListener("click", function () {
@@ -2825,6 +3119,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         renderProgress();
         renderDispatchTree();
         renderBoundary();
+        renderBoundaryComparison();
         renderModelPicker();
         state.selectedSplit = state.selectedSplit || "A";
         renderSplitChoices();
