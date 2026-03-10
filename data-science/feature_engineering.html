@@ -199,6 +199,41 @@
       background: #f3fbf4;
       color: var(--ok);
     }
+    .interpret-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 247, 234, 0.9);
+      box-shadow: var(--shadow-soft);
+    }
+    .interpret-card h4 {
+      margin: 0;
+      color: var(--accent);
+    }
+    .interpret-card p {
+      margin: 6px 0;
+      color: var(--ink);
+    }
+    details.microcheck {
+      margin-top: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    details.microcheck summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--brand);
+    }
+    details.microcheck ol {
+      margin: 8px 0 0 18px;
+      padding: 0;
+      color: var(--ink);
+    }
+    details.microcheck li {
+      margin: 6px 0;
+    }
 
     .chip-row,
     .meta-grid,
@@ -1472,6 +1507,20 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=42, shuffle=True
 )</code></pre>
         </div>
+        <div class="interpret-card">
+          <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+          <p><strong>Was ist gemessen?</strong> In unserem Fall noch kein Modell-Erfolg, sondern ob Daten, Ziel und ehrliche Prüfung sauber getrennt wurden.</p>
+          <p><strong>So liest man den Wert:</strong> Ein späterer Test-Score bedeutet nur dann etwas, wenn dieser Split vorher sauber passiert ist.</p>
+          <p><strong>Was ist hier der schlimmste Fehler?</strong> Data Leakage: Das Modell sieht beim Vorbereiten schon etwas aus dem späteren Test.</p>
+          <details class="microcheck">
+            <summary>✅ Mini-Check (30 Sekunden)</summary>
+            <ol>
+              <li>Welche Spalten sind in unserem Fall Features und welche ist das Ziel?</li>
+              <li>Was wäre ein fairer Testsatz als ganzer Satz?</li>
+              <li>Welche Stellschraube würdest du zuerst prüfen, wenn ein Test-Score verdächtig gut aussieht?</li>
+            </ol>
+          </details>
+        </div>
 
         <div class="quiz-card" data-quiz="module-0">
           <h3>Quiz: Was passiert mit rohen Daten im Modell?</h3>
@@ -1583,6 +1632,20 @@ X_train, X_test, y_train, y_test = train_test_split(
             </table>
           </div>
           <div class="demo-note" id="imputation-note">Noch nichts angewendet.</div>
+        </div>
+        <div class="interpret-card">
+          <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+          <p><strong>Was ist gemessen?</strong> In unserem Fall, welcher Ersatzwert fuer fehlende Flossenlaengen gelernt und eingesetzt wird.</p>
+          <p><strong>So liest man den Wert:</strong> Wenn hier zum Beispiel 182 steht, heisst das: Genau dieser gelernte Wert fuellt die Luecke in unserem Trainingsausschnitt.</p>
+          <p><strong>Was ist hier der schlimmste Fehler?</strong> Den Ersatzwert aus Train und Test zusammen zu lernen. Dann wirkt die spaetere Pruefung kuenstlich besser.</p>
+          <details class="microcheck">
+            <summary>✅ Mini-Check (30 Sekunden)</summary>
+            <ol>
+              <li>Ist der Ersatzwert in unserem Fall ein echter Messwert oder eine gelernte Regel?</li>
+              <li>Wie wuerdest du den imputierten Wert als ganzen Satz erklaeren?</li>
+              <li>Welche Stellschraube wuerdest du aendern, wenn Ausreisser den Durchschnitt zu stark verziehen?</li>
+            </ol>
+          </details>
         </div>
 
         <div class="exercise-card">
@@ -1705,6 +1768,20 @@ X_train[["flipper_length_mm", "bill_depth_mm"]] = num_imputer.transform(
             </div>
             <div class="demo-note" id="encoding-note">Mit <code>drop='first'</code> erkennt man Adelie daran, dass beide neuen Spalten 0 sind. Die Referenzkategorie ist also nicht leer, sondern der Fall ohne aktiven Dummy.</div>
           </div>
+        </div>
+        <div class="interpret-card">
+          <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+          <p><strong>Was ist gemessen?</strong> In unserem Fall, wie eine Textkategorie in mehrere Ja/Nein-Spalten uebersetzt wird.</p>
+          <p><strong>So liest man den Wert:</strong> Eine 1 heisst hier: „Diese Kategorie trifft zu.“ Zwei Nullen koennen trotzdem eine echte Kategorie bedeuten, naemlich die Referenz.</p>
+          <p><strong>Was ist hier der schlimmste Fehler?</strong> Einer Kategorie eine kuenstliche Reihenfolge zu geben, obwohl sie inhaltlich keine hat.</p>
+          <details class="microcheck">
+            <summary>✅ Mini-Check (30 Sekunden)</summary>
+            <ol>
+              <li>Was bedeutet die Referenzkategorie in unserem Fall als ganzer Satz?</li>
+              <li>Warum ist eine 0 in einer Dummy-Spalte nicht automatisch „fehlend“?</li>
+              <li>Welche Stellschraube wuerdest du aendern, wenn eine Kategorie wirklich eine natuerliche Reihenfolge hat?</li>
+            </ol>
+          </details>
         </div>
 
         <div class="exercise-card">
@@ -1863,6 +1940,20 @@ edu_encoder = OrdinalEncoder(
           </div>
           <div class="demo-note" id="scaler-note">RobustScaler ist bei Ausreissern oft die sicherste Standardwahl.</div>
         </div>
+        <div class="interpret-card">
+          <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+          <p><strong>Was ist gemessen?</strong> In unserem Fall, wie stark rohe Zahlen zusammengedrueckt, zentriert oder robuster vergleichbar gemacht werden.</p>
+          <p><strong>So liest man den Wert:</strong> Ein skalierter Wert wie 0.5 heisst nicht „halb so wichtig“, sondern nur: Diese Beobachtung liegt auf der neuen Skala ungefaehr in der Mitte.</p>
+          <p><strong>Was ist hier der schlimmste Fehler?</strong> Grosse Zahlen dominieren die Rechnung nur wegen ihrer Einheit, nicht wegen ihrer fachlichen Bedeutung.</p>
+          <details class="microcheck">
+            <summary>✅ Mini-Check (30 Sekunden)</summary>
+            <ol>
+              <li>Was wurde in unserem Fall veraendert: die Bedeutung des Merkmals oder nur seine Zahlenskala?</li>
+              <li>Wie wuerdest du einen Wert von 0.5 nach dem MinMaxScaler als Satz erklaeren?</li>
+              <li>Welche Stellschraube wuerdest du aendern, wenn ein Ausreisser die Skala zu stark mitzieht?</li>
+            </ol>
+          </details>
+        </div>
 
         <div class="exercise-card">
           <h4>🏋️ Übung: Einen Zahlenwert auf 0 bis 1 skalieren</h4>
@@ -1996,6 +2087,20 @@ robust.fit(X_train[["bill_length_mm"]])</code></pre>
           </div>
           <div class="demo-note" id="expansion-note">Noch keine Expansion sichtbar.</div>
         </div>
+        <div class="interpret-card">
+          <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+          <p><strong>Was ist gemessen?</strong> In unserem Fall, in welche Gruppe ein Zahlenwert faellt und welche neuen Kombinationsmerkmale zusaetzlich entstehen.</p>
+          <p><strong>So liest man den Wert:</strong> Ein Bin ist keine neue Messung, sondern eine Sammelschublade. Ein Interaktionsterm heisst: Zwei Merkmale wirken gemeinsam.</p>
+          <p><strong>Was ist hier der schlimmste Fehler?</strong> Zu grobe Gruppen oder explodierende Zusatzmerkmale, die mehr Verwirrung als Nutzen bringen.</p>
+          <details class="microcheck">
+            <summary>✅ Mini-Check (30 Sekunden)</summary>
+            <ol>
+              <li>Was bedeutet ein Bin in unserem Fall als ganzer Satz?</li>
+              <li>Was sagt dir ein Interaktionsterm wie A*B in Alltagssprache?</li>
+              <li>Welche Stellschraube wuerdest du zuerst aendern: Zahl der Bins oder Grad der Expansion?</li>
+            </ol>
+          </details>
+        </div>
 
         <div class="formula-card">
           <h3>Code-Beispiele</h3>
@@ -2081,6 +2186,20 @@ poly = PolynomialFeatures(
             <h3>Gesamt-Pipeline</h3>
             <p>Ein einziges Objekt verwaltet Vorverarbeitung und Modell gemeinsam. Dadurch bleibt der Ablauf reproduzierbar: <code>.fit(X_train, y_train)</code> lernt alles auf den Trainingsdaten, <code>.predict(X_test)</code> transformiert nur und sagt dann vorher.</p>
           </div>
+        </div>
+        <div class="interpret-card">
+          <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+          <p><strong>Was ist gemessen?</strong> In unserem Fall die Reihenfolge, in der Daten vorbereitet und erst danach ans Modell uebergeben werden.</p>
+          <p><strong>So liest man den Wert:</strong> Eine Pipeline-Ausgabe wie <code>['preprocessing', 'regression']</code> heisst: Erst sauber vorbereiten, dann vorhersagen.</p>
+          <p><strong>Was ist hier der schlimmste Fehler?</strong> Schritte zu vertauschen oder auf Testdaten erneut zu fitten. Dann ist der ganze Ablauf nicht mehr ehrlich reproduzierbar.</p>
+          <details class="microcheck">
+            <summary>✅ Mini-Check (30 Sekunden)</summary>
+            <ol>
+              <li>Was macht in unserem Fall der Vorverarbeiter vor dem Modell?</li>
+              <li>Wie wuerdest du die Pipeline als Satz einem Kollegen erklaeren?</li>
+              <li>Welche Stellschraube wuerdest du zuerst pruefen, wenn Training und Test unterschiedlich vorbereitet werden?</li>
+            </ol>
+          </details>
         </div>
 
         <div class="module-grid">

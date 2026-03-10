@@ -188,6 +188,40 @@
       color: var(--secondary);
       margin-bottom: 4px;
     }
+    .interpret-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,247,234,0.9);
+    }
+    .interpret-card h4 {
+      margin: 0;
+      color: var(--secondary);
+    }
+    .interpret-card p {
+      margin: 6px 0;
+      color: var(--text);
+    }
+    details.microcheck {
+      margin-top: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    details.microcheck summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    details.microcheck ol {
+      margin: 8px 0 0 18px;
+      padding: 0;
+      color: var(--text);
+    }
+    details.microcheck li {
+      margin: 6px 0;
+    }
 
     .chip {
       text-align: center;
@@ -844,6 +878,20 @@ print("Klassifikation:", will_rain)</code></pre>
             </div>
             <div id="sorter-feedback" class="quiz-feedback" aria-live="polite"></div>
           </div>
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze den Output in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall keine freie Zahl, sondern eine Klassenentscheidung: etwa „Brief oder Paket“ beziehungsweise 0 oder 1.</p>
+            <p><strong>So liest man den Wert:</strong> Eine 1 heißt in unserem Fall nicht „mehr“, sondern einfach: Das Modell ordnet den Fall der Zielklasse zu.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Den Fall in die falsche Schublade zu legen, obwohl die eigentliche Aufgabe nur eine klare Kategorie war.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist „positiv“ (=1) in deinem aktuellen Beispiel?</li>
+                <li>Was wäre ein True Positive hier als ganzer Satz?</li>
+                <li>Ab welcher Wahrscheinlichkeit würdest du aus einem Bauchgefühl eine harte Ja/Nein-Entscheidung machen?</li>
+              </ol>
+            </details>
+          </div>
           <div id="quiz-1" class="quiz-shell"></div>
           <p class="reflection">Was nimmst du mit? Wenn du nur zwischen Klassen unterscheiden willst, ist eine saubere Wahrscheinlichkeit oft hilfreicher als eine freie Zahl.</p>
         </section>
@@ -898,7 +946,21 @@ print(round(probability, 3))     # 0.231</code></pre>
               <canvas id="sigmoid-chart" height="240" aria-label="Sigmoid-Kurve" role="img"></canvas>
             </div>
           </div>
-          <div class="exercise-card">
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze die Zahl in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall die Wahrscheinlichkeit für Klasse 1, also für „Ja“ oder „rein“.</p>
+            <p><strong>So liest man den Wert:</strong> Wenn hier zum Beispiel 0.731 steht, heißt das: In unserem Fall sieht das Modell etwa 73 % Wahrscheinlichkeit für Klasse 1.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Eine mittlere Wahrscheinlichkeit wie eine sichere Wahrheit zu behandeln, obwohl das Modell noch deutlich unsicher ist.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist „positiv“ (=1) in unserem Türsteher-Beispiel?</li>
+                <li>Was bedeutet ein True Positive hier als ganzer Satz?</li>
+                <li>Würdest du bei 0.52 schon „Ja“ sagen oder lieber einen strengeren Threshold setzen?</li>
+              </ol>
+            </details>
+          </div>
+          <div class="exercise-card" data-positive-de="Person darf rein" data-positive-en="the person may enter" data-negative-de="Person bleibt draußen" data-negative-en="the person stays outside" data-interpret-q2-de="Ab welcher Schwelle würdest du diese Wahrscheinlichkeit in unserem Fall wirklich als 'rein' zählen - und warum?" data-interpret-q2-en="At which threshold would you count this probability as 'enter' in our case - and why?">
             <h4>🏋️ Übung: Sigmoid-Werte prüfen</h4>
             <p class="exercise-instruction">Übertrage die Sigmoid-Idee in ein minimales Python-Beispiel. Ergänze genau die eine Zeile, die den Score in eine Wahrscheinlichkeit umwandelt.</p>
             <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -994,7 +1056,21 @@ print(y_pred[:3])</code></pre>
               </div>
             </div>
           </div>
-          <div class="exercise-card">
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze Grenze und Klassen in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall, auf welcher Seite der Entscheidungsgrenze ein Punkt landet und damit, ob er Klasse 0 oder 1 bekommt.</p>
+            <p><strong>So liest man den Wert:</strong> Alles auf der „Ja“-Seite der Grenze wird in unserem Fall zu Klasse 1. Alles auf der anderen Seite bleibt Klasse 0.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Eine Person auf die falsche Seite zu schieben, etwa jemanden hereinzulassen, der in unserem Fall nicht hereinsollte.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist „positiv“ (=1) in diesem Grenz-Beispiel?</li>
+                <li>Was wäre ein True Positive hier als ganzer Satz?</li>
+                <li>Würdest du den Threshold strenger machen, wenn dir falsches Hereinlassen wichtiger erscheint als falsches Abweisen?</li>
+              </ol>
+            </details>
+          </div>
+          <div class="exercise-card" data-interpret-type="classification" data-positive-de="Person darf rein" data-positive-en="the person may enter" data-negative-de="Person bleibt draußen" data-negative-en="the person stays outside" data-fp-de="eine unpassende Person wird hereingelassen" data-fp-en="an unsuitable person is let in" data-fn-de="eine passende Person wird abgewiesen" data-fn-en="a suitable person is turned away">
             <h4>🏋️ Übung: Threshold anwenden</h4>
             <p class="exercise-instruction">Im Notebook taucht <code>predict_proba</code> auf. Ergänze die Zeile, die aus Wahrscheinlichkeiten mit einem Threshold von 0,5 harte Klassen macht.</p>
             <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -1083,6 +1159,20 @@ print(round(log_loss, 3))</code></pre>
               </div>
             </div>
           </div>
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze die Zahl in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall, wie teuer eine Wahrscheinlichkeitsaussage war, nachdem man sie mit der echten Klasse vergleicht.</p>
+            <p><strong>So liest man den Wert:</strong> Ein kleiner Log-Loss heißt: Das Modell lag passend und nicht peinlich selbstsicher daneben. Ein großer Log-Loss heißt: sicher falsch war hier besonders schlimm.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Mit fast voller Sicherheit die falsche Klasse vorherzusagen.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist „positiv“ (=1) in deinem aktuellen Beispiel?</li>
+                <li>Was wäre ein True Positive hier als ganzer Satz?</li>
+                <li>Würdest du bei sehr unsicherem p lieber einen vorsichtigeren Threshold wählen als bei p nahe 0.99?</li>
+              </ol>
+            </details>
+          </div>
           <div id="quiz-4" class="quiz-shell"></div>
           <p class="reflection">Was nimmst du mit? Nicht jeder Fehler ist gleich schlimm. Log-Loss gewichtet vor allem die gefährliche Mischung aus „sicher“ und „falsch“.</p>
         </section>
@@ -1141,6 +1231,20 @@ b1 = b1 - alpha * gradient_b1</code></pre>
                 <canvas id="training-loss-chart" height="260" aria-label="Log-Loss-Verlauf beim Training" role="img"></canvas>
               </div>
             </div>
+          </div>
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze den Verlauf in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall, wie sich der Log-Loss über viele kleine Trainingsschritte verändert.</p>
+            <p><strong>So liest man den Wert:</strong> Wenn der Log-Loss sinkt, lernt das Modell gerade so, dass seine Wahrscheinlichkeiten besser zu den echten Klassen passen.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Nicht nur ein einzelner Fehlgriff, sondern ein Training, das gar nicht besser wird oder wegen zu großer Schritte hin und her springt.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist hier überhaupt „besser“: ein höherer oder ein niedrigerer Loss?</li>
+                <li>Was wäre ein praktischer Satz für einen True Positive im Trainingsdatensatz?</li>
+                <li>Würdest du zuerst die Lernrate oder den Threshold anfassen, wenn der Loss kaum sinkt?</li>
+              </ol>
+            </details>
           </div>
           <div id="quiz-5" class="quiz-shell"></div>
           <p class="reflection">Was nimmst du mit? Das Modell wird nicht magisch „klug“, sondern tastet sich in kleinen Updates zu besseren Gewichten vor.</p>
@@ -1224,7 +1328,21 @@ print(confusion_matrix(y_test, y_pred))</code></pre>
               </div>
             </div>
           </div>
-          <div class="exercise-card">
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze die Matrix in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall, wie oft Bewerbungen korrekt zugelassen oder abgelehnt wurden und welche Fehlerarten dabei entstehen.</p>
+            <p><strong>So liest man den Wert:</strong> Die Konfusionsmatrix zeigt in unserem Fall, wie viele echte Zulassungen das Modell gefunden hat und wo es zu streng oder zu locker war.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Das hängt am Fall. Für die Hochschule kann ein fälschlich abgelehnter guter Bewerber genauso kritisch sein wie eine unpassende Zulassung.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist „positiv“ (=1) in unserem Zulassungs-Beispiel?</li>
+                <li>Was bedeutet ein True Positive hier als ganzer Satz?</li>
+                <li>Würdest du den Threshold eher senken oder erhöhen, wenn du lieber mehr passende Kandidaten zulassen möchtest?</li>
+              </ol>
+            </details>
+          </div>
+          <div class="exercise-card" data-interpret-type="classification" data-positive-de="Bewerbung wird zugelassen" data-positive-en="the application is admitted" data-negative-de="Bewerbung wird abgelehnt" data-negative-en="the application is rejected" data-fp-de="eine unpassende Bewerbung wird zugelassen" data-fp-en="an unsuitable application is admitted" data-fn-de="eine passende Bewerbung wird abgelehnt" data-fn-en="a suitable application is rejected">
             <h4>🏋️ Übung: Kompletter Workflow</h4>
             <p class="exercise-instruction">Hier ist der sklearn-Ablauf aus dem Notebook stark vereinfacht. Ergänze die Modellzeile so, dass Training und Vorhersage möglich werden.</p>
             <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -1347,7 +1465,21 @@ print(confusion_matrix(y_test, y_pred))</code></pre>
               </div>
             </div>
           </div>
-          <div class="exercise-card">
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze die Kennzahlen in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall, wie sich Precision, Recall, F1 und Accuracy verändern, wenn du den Alarm-Regler verschiebst.</p>
+            <p><strong>So liest man den Wert:</strong> Precision heißt: „Wenn das Modell 1 sagt, stimmt das in X % der Fälle.“ Recall heißt: „Von allen echten 1-Fällen findet das Modell X %.“</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> In unserem Rauchmelder-Beispiel ein echter Brand, der nicht gemeldet wird. Das ist ein False Negative.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist „positiv“ (=1) in unserem Fall?</li>
+                <li>Was wäre ein True Positive hier als ganzer Satz?</li>
+                <li>Würdest du den Threshold senken oder erhöhen, wenn du lieber einen Fehlalarm mehr akzeptierst als einen Brand zu übersehen?</li>
+              </ol>
+            </details>
+          </div>
+          <div class="exercise-card" data-interpret-type="classification" data-positive-de="Brandalarm wird ausgelöst" data-positive-en="a fire alarm is triggered" data-negative-de="kein Alarm" data-negative-en="no alarm" data-fp-de="ein Fehlalarm wird ausgelöst" data-fp-en="a false alarm is triggered" data-fn-de="ein echter Brand wird nicht gemeldet" data-fn-en="a real fire is not reported">
             <h4>🏋️ Übung: Threshold ändern</h4>
             <p class="exercise-instruction">Erzeuge harte Vorhersagen mit einem niedrigeren Threshold. So siehst du direkt, wie mehr Fälle positiv werden.</p>
             <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -1446,7 +1578,21 @@ print(classification_report(y_test, y_pred))</code></pre>
               <canvas id="multiclass-canvas" width="760" height="420" aria-label="Mehrklassen-Streudiagramm mit Entscheidungsregionen" role="img"></canvas>
             </div>
           </div>
-          <div class="exercise-card">
+          <div class="interpret-card">
+            <h4>🗣️ Übersetze die Scores in Alltagssprache</h4>
+            <p><strong>Was ist gemessen?</strong> In unserem Fall drei konkurrierende Klassen-Scores, aus denen am Ende genau eine Klasse gewinnt.</p>
+            <p><strong>So liest man den Wert:</strong> Der höchste Score gewinnt. In unserem Fall heißt das: Die Blume wird der Klasse mit dem stärksten Ja-Signal zugeordnet.</p>
+            <p><strong>Was ist hier der schlimmste Fehler?</strong> Nicht nur „falsch“, sondern falsch mit scheinbar großem Abstand, obwohl die falsche Klasse in Wahrheit nur knapp vorne lag.</p>
+            <details class="microcheck">
+              <summary>✅ Mini-Check (30 Sekunden)</summary>
+              <ol>
+                <li>Was ist hier „positiv“ nicht mehr nur als 0 oder 1, sondern als Gewinnerklasse?</li>
+                <li>Was wäre ein richtiger Treffer hier als ganzer Satz?</li>
+                <li>Welche Klasse würdest du wählen, wenn zwei Scores fast gleichauf liegen und warum?</li>
+              </ol>
+            </details>
+          </div>
+          <div class="exercise-card" data-interpret-type="multiclass" data-interpret-q1-de="Was bedeutet die Gewinnerklasse in diesem Iris-Beispiel als ganzer Satz?" data-interpret-q1-en="What does the winning class mean in this iris example as a full sentence?">
             <h4>🏋️ Übung: Iris klassifizieren</h4>
             <p class="exercise-instruction">Hier übernimmst du den Kern aus dem Multiclass-Notebook. Ergänze die Datenlade-Zeile und trainiere anschließend das Modell.</p>
             <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>

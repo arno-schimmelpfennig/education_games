@@ -9,6 +9,7 @@
   var CELEBRATION_LAYER_ID = "ds-confetti-layer";
   var GLOSSARY_STYLE_ID = "ds-glossary-style";
   var GLOSSARY_TOOLTIP_ID = "ds-glossary-tooltip";
+  var EXERCISE_STYLE_ID = "ds-exercise-style";
   var LANG_STORAGE_KEY = "asdm-ds-language";
   var LANG_SWITCHER_ID = "ds-language-switcher";
   var LANG_STYLE_ID = "ds-language-style";
@@ -119,6 +120,131 @@
       + "#" + GLOSSARY_TOOLTIP_ID + "[hidden]{display:none}"
       + "#" + GLOSSARY_TOOLTIP_ID + " strong{display:block;margin-bottom:4px;color:#631832}";
     document.head.appendChild(style);
+  }
+
+  function ensureExerciseStyles() {
+    if (document.getElementById(EXERCISE_STYLE_ID)) {
+      return;
+    }
+    var style = document.createElement("style");
+    style.id = EXERCISE_STYLE_ID;
+    style.textContent = ""
+      + ".exercise-provenance{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;padding:6px 10px;border-radius:999px;background:rgba(23,50,98,.08);color:#173262;font:800 12px/1.2 \"Avenir Next\",\"Segoe UI\",Arial,sans-serif;letter-spacing:.01em}"
+      + ".exercise-definition{margin:8px 0 0;color:#5f5560;font:600 14px/1.5 \"Avenir Next\",\"Segoe UI\",Arial,sans-serif}"
+      + ".interpret-questions{margin-top:10px;padding:12px 14px;border:1px solid rgba(99,24,50,.12);border-radius:14px;background:rgba(248,250,252,.92)}"
+      + ".interpret-questions p{margin:6px 0;color:#231A24}"
+      + ".interpret-questions strong{color:#631832}";
+    document.head.appendChild(style);
+  }
+
+  function exerciseText(card, name, fallbackDe, fallbackEn) {
+    var de = card.getAttribute("data-" + name + "-de");
+    var en = card.getAttribute("data-" + name + "-en");
+    if (ACTIVE_LANG === "en") {
+      return en || de || fallbackEn || fallbackDe || "";
+    }
+    return de || en || fallbackDe || fallbackEn || "";
+  }
+
+  function ensureExerciseProvenance(card) {
+    var instruction = card.querySelector(".exercise-instruction");
+    if (!instruction) {
+      return;
+    }
+    var tag = card.querySelector(".exercise-provenance");
+    if (!tag) {
+      tag = document.createElement("div");
+      tag.className = "exercise-provenance";
+      instruction.parentNode.insertBefore(tag, instruction);
+    }
+    tag.textContent = ACTIVE_LANG === "en" ? "Simplified from the notebook." : "Aus dem Notebook vereinfacht.";
+  }
+
+  function ensureExerciseDefinition(card) {
+    var positiveDe = card.getAttribute("data-positive-de");
+    var positiveEn = card.getAttribute("data-positive-en");
+    var negativeDe = card.getAttribute("data-negative-de");
+    var negativeEn = card.getAttribute("data-negative-en");
+    if (!positiveDe && !positiveEn && !negativeDe && !negativeEn) {
+      return;
+    }
+
+    var context = card.querySelector(".exercise-context");
+    if (!context) {
+      return;
+    }
+    var note = card.querySelector(".exercise-definition");
+    if (!note) {
+      note = document.createElement("p");
+      note.className = "exercise-definition";
+      context.insertAdjacentElement("afterend", note);
+    }
+    var positive = ACTIVE_LANG === "en" ? (positiveEn || positiveDe || "class 1") : (positiveDe || positiveEn || "Klasse 1");
+    var negative = ACTIVE_LANG === "en" ? (negativeEn || negativeDe || "class 0") : (negativeDe || negativeEn || "Klasse 0");
+    note.textContent = ACTIVE_LANG === "en"
+      ? "In this exercise, class 1 means: " + positive + ". Class 0 means: " + negative + "."
+      : "In diesem Übungsblock bedeutet Klasse 1: " + positive + ". Klasse 0 bedeutet: " + negative + ".";
+  }
+
+  function buildInterpretationQuestions(card) {
+    var type = card.getAttribute("data-interpret-type") || "generic";
+    var q1 = exerciseText(
+      card,
+      "interpret-q1",
+      "Was heißt dieses Ergebnis in unserem Beispiel als ganzer Satz?",
+      "What does this result mean in our example as a full sentence?"
+    );
+    var q2;
+
+    if (card.hasAttribute("data-interpret-q2-de") || card.hasAttribute("data-interpret-q2-en")) {
+      q2 = exerciseText(card, "interpret-q2", "", "");
+    } else if (type === "classification") {
+      var fp = ACTIVE_LANG === "en"
+        ? (card.getAttribute("data-fp-en") || card.getAttribute("data-fp-de") || "a false positive")
+        : (card.getAttribute("data-fp-de") || card.getAttribute("data-fp-en") || "ein False Positive");
+      var fn = ACTIVE_LANG === "en"
+        ? (card.getAttribute("data-fn-en") || card.getAttribute("data-fn-de") || "a false negative")
+        : (card.getAttribute("data-fn-de") || card.getAttribute("data-fn-en") || "ein False Negative");
+      q2 = ACTIVE_LANG === "en"
+        ? "What would be worse here: " + fp + " or " + fn + " - and why?"
+        : "Was wäre hier schlimmer: " + fp + " oder " + fn + " - und warum?";
+    } else if (type === "multiclass") {
+      q2 = ACTIVE_LANG === "en"
+        ? "Which class would probably come second here, and what would that say about the certainty of the decision?"
+        : "Welche Klasse läge hier vermutlich auf Platz zwei, und was sagt das über die Sicherheit der Entscheidung?";
+    } else {
+      q2 = ACTIVE_LANG === "en"
+        ? "Which setting, threshold or next check would you try next if this result was not good enough yet?"
+        : "Welche Stellschraube, welcher Threshold oder welcher nächste Prüfschritt wäre naheliegend, wenn das Ergebnis noch nicht gut genug ist?";
+    }
+
+    return { q1: q1, q2: q2 };
+  }
+
+  function ensureExerciseInterpretation(card) {
+    var solution = card.querySelector(".solution");
+    if (!solution) {
+      return;
+    }
+    var questions = buildInterpretationQuestions(card);
+    var block = solution.querySelector(".interpret-questions");
+    if (!block) {
+      block = document.createElement("div");
+      block.className = "interpret-questions";
+      solution.appendChild(block);
+    }
+    block.innerHTML = ""
+      + "<p><strong>" + (ACTIVE_LANG === "en" ? "Interpretation 1:" : "Deutung 1:") + "</strong> " + questions.q1 + "</p>"
+      + "<p><strong>" + (ACTIVE_LANG === "en" ? "Interpretation 2:" : "Deutung 2:") + "</strong> " + questions.q2 + "</p>";
+  }
+
+  function enhanceExerciseCards() {
+    ensureExerciseStyles();
+    document.querySelectorAll(".exercise-card").forEach(function (card) {
+      ensureExerciseProvenance(card);
+      ensureExerciseDefinition(card);
+      ensureExerciseInterpretation(card);
+    });
   }
 
   function getStoredLanguage() {
@@ -288,6 +414,10 @@
       || element.isContentEditable;
   }
 
+  function containsInlineMarkup(value) {
+    return /<\/?[a-z][\w:-]*(\s[^>]*)?>/i.test(String(value || ""));
+  }
+
   function applyExplicitTranslation(element, lang) {
     var htmlKey = lang === "en" ? "i18nHtmlEn" : "i18nHtmlDe";
     var textKey = lang === "en" ? "i18nEn" : "i18nDe";
@@ -301,7 +431,11 @@
       return true;
     }
     if (element.dataset[textKey]) {
-      element.textContent = element.dataset[textKey];
+      if (containsInlineMarkup(element.dataset[textKey])) {
+        element.innerHTML = element.dataset[textKey];
+      } else {
+        element.textContent = element.dataset[textKey];
+      }
       return true;
     }
     if (element.dataset[ariaKey]) {
@@ -396,6 +530,7 @@
         applyGenericTranslation(element, ACTIVE_LANG);
       });
       applyTextNodeTranslations(ACTIVE_LANG);
+      enhanceExerciseCards();
 
       var switcher = document.getElementById(LANG_SWITCHER_ID);
       if (switcher) {
@@ -1343,6 +1478,7 @@
     setupGlossaryTooltips();
     setupPerfectQuizObserver(getPageId());
     syncHeaderUtilities();
+    enhanceExerciseCards();
 
     if (!HAS_STORAGE) {
       return;

@@ -411,6 +411,84 @@
       display: block;
     }
 
+    .gini-intuition-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .gini-intuition-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .gini-intuition-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      min-height: 220px;
+    }
+
+    .gini-bowl {
+      position: relative;
+      width: 118px;
+      height: 118px;
+      margin: 0 auto;
+      border-radius: 999px;
+      border: 6px solid #de5a47;
+      background: radial-gradient(circle at center, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .gini-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 2px 6px rgba(35, 26, 36, 0.14);
+    }
+
+    .gini-dot.green { background: #4f7a6a; }
+    .gini-dot.blue { background: #173262; }
+
+    .gini-case-title,
+    .gini-case-note,
+    .gini-case-formula {
+      text-align: center;
+    }
+
+    .gini-case-title {
+      font-weight: 800;
+      color: var(--secondary);
+      font-size: 0.92rem;
+    }
+
+    .gini-case-note {
+      color: var(--text-light);
+      font-size: 0.84rem;
+    }
+
+    .gini-case-formula {
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .gini-case-formula .green {
+      color: #4f7a6a;
+      font-weight: 800;
+    }
+
+    .gini-case-formula .blue {
+      color: #173262;
+      font-weight: 800;
+    }
+
     .control {
       display: grid;
       gap: 6px;
@@ -716,6 +794,7 @@
       .demo-grid,
       .mini-grid,
       .workflow-grid,
+      .gini-intuition-grid,
       .meta-grid,
       .chip-row {
         grid-template-columns: 1fr;
@@ -738,7 +817,7 @@
             <div class="progress-fill" id="overall-progress"></div>
           </div>
           <div class="progress-label">
-            <span id="progress-steps" data-i18n-de="0 von 8 Modulen sicher" data-i18n-en="0 of 8 modules secure">0 von 8 Modulen sicher</span>
+            <span id="progress-steps" data-i18n-de="0 von 9 Modulen sicher" data-i18n-en="0 of 9 modules secure">0 von 9 Modulen sicher</span>
             <span id="progress-points">0 Punkte</span>
           </div>
           <p class="lead" style="margin-top:10px;" data-i18n-de="Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten kannst du direkt korrigieren." data-i18n-en="A module only counts as secure once all quiz questions have been answered correctly at least once. You can correct wrong answers immediately.">Ein Modul gilt erst dann als sicher, wenn alle Quizfragen einmal richtig beantwortet wurden. Falsche Antworten kannst du direkt korrigieren.</p>
@@ -765,6 +844,13 @@
               <span class="nav-copy">
                 <strong data-i18n-de="Grenzen im Raum" data-i18n-en="Boundaries in space">Grenzen im Raum</strong>
                 <span class="nav-meta" data-module-status="module-2" data-i18n-de="offen" data-i18n-en="open">offen</span>
+              </span>
+            </a>
+            <a class="nav-link" href="#module-2b" data-module-link="module-2b">
+              <span class="nav-index">2b</span>
+              <span class="nav-copy">
+                <strong data-i18n-de="Abgrenzung zu KNN und LogReg" data-i18n-en="Different from KNN and LogReg">Abgrenzung zu KNN und LogReg</strong>
+                <span class="nav-meta" data-module-status="module-2b" data-i18n-de="offen" data-i18n-en="open">offen</span>
               </span>
             </a>
             <a class="nav-link" href="#module-3" data-module-link="module-3">
@@ -819,7 +905,7 @@
               <div class="badge-icon" aria-hidden="true">🌱</div>
               <div>
                 <strong data-i18n-de="Wurzel-Leser" data-i18n-en="Root reader">Wurzel-Leser</strong>
-                <span data-i18n-de="Module 1 und 2 sicher gelöst" data-i18n-en="Modules 1 and 2 solved securely">Module 1 und 2 sicher gelöst</span>
+                <span data-i18n-de="Module 1, 2 und Zwischenschritt sicher gelöst" data-i18n-en="Modules 1, 2 and the checkpoint solved securely">Module 1, 2 und Zwischenschritt sicher gelöst</span>
               </div>
             </div>
             <div class="badge-item" id="badge-purity">
@@ -852,7 +938,7 @@
       <div class="sticky-shell hero">
         <div class="hero-grid">
           <div>
-            <div class="hero-banner" data-i18n-de="8 Module · Notebook-Übungen · lokaler Lernstand" data-i18n-en="8 modules · notebook exercises · local progress saving">8 Module · Notebook-Übungen · lokaler Lernstand</div>
+            <div class="hero-banner" data-i18n-de="9 Module · Notebook-Übungen · lokaler Lernstand" data-i18n-en="9 modules · notebook exercises · local progress saving">9 Module · Notebook-Übungen · lokaler Lernstand</div>
             <h2 style="margin-top:10px;" data-i18n-de="Was lernst du in 10 Minuten pro Abschnitt?" data-i18n-en="What will you learn in 10 minutes per section?">Was lernst du in 10 Minuten pro Abschnitt?</h2>
             <p class="lead" data-i18n-de="Du verstehst, wie Decision Trees Fragen auswählen, Gruppen möglichst sauber trennen, mit Gini messen und mit Pruning vor Überanpassung geschützt werden." data-i18n-en="You will understand how decision trees choose questions, separate groups as cleanly as possible, measure this with Gini, and are protected from overfitting through pruning.">Du verstehst, wie Decision Trees Fragen auswählen, Gruppen möglichst sauber trennen, mit Gini messen und mit Pruning vor Überanpassung geschützt werden.</p>
             <div class="chip-row">
@@ -1031,7 +1117,53 @@ print(tree.tree_.node_count)</code></pre>
           </div>
 
           <div id="quiz-2" class="quiz-shell"></div>
-          <p class="reflection" data-i18n-de="Was nimmst du mit? Ein Baum zieht erst einfache Zäune. Viele kleine Rechtecke entstehen nur, wenn der Baum weiterwachsen darf." data-i18n-en="What do you take away? A tree first draws simple fences. Many small rectangles only appear when the tree is allowed to grow further.">Was nimmst du mit? Ein Baum zieht erst einfache Zäune. Viele kleine Rechtecke entstehen nur, wenn der Baum weiterwachsen darf.</p>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Ein Baum zieht erst einfache Zäune. Im nächsten Zwischenschritt klärst du, warum diese Rechtecke etwas anderes sind als eine Linie bei LogReg oder Nachbarn bei KNN." data-i18n-en="What do you take away? A tree first draws simple fences. In the next checkpoint you clarify why these rectangles are something different from a line in logistic regression or neighbours in KNN.">Was nimmst du mit? Ein Baum zieht erst einfache Zäune. Im nächsten Zwischenschritt klärst du, warum diese Rechtecke etwas anderes sind als eine Linie bei LogReg oder Nachbarn bei KNN.</p>
+        </section>
+
+        <section class="module lesson-step" id="module-2b">
+          <div class="module-head">
+            <div>
+              <div class="module-index" data-i18n-de="Zwischenschritt" data-i18n-en="Checkpoint">Zwischenschritt</div>
+              <h2 data-i18n-de="Abgrenzung: Vollständiger Baum ≠ KNN ≠ Logistische Regression" data-i18n-en="Checkpoint: a full tree is not KNN and not logistic regression">Abgrenzung: Vollständiger Baum ≠ KNN ≠ Logistische Regression</h2>
+              <p class="module-summary" data-i18n-de="Du kannst nach diesem Schritt in zwei Sätzen erklären, warum ein Tree hier anders ist als KNN oder LogReg." data-i18n-en="After this step, you can explain in two sentences why a tree works differently here than KNN or logistic regression.">Du kannst nach diesem Schritt in zwei Sätzen erklären, warum ein Tree hier anders ist als KNN oder LogReg.</p>
+            </div>
+            <div class="module-status" data-module-pill="module-2b" data-i18n-de="Offen" data-i18n-en="Open">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <div class="callout">
+              <h3 data-i18n-de="Kurzer Begriff: vollständiger Baum" data-i18n-en="Short term: full tree">Kurzer Begriff: vollständiger Baum</h3>
+              <p data-i18n-html-de="<strong>Stumpf</strong> = 1 Frage, 2 Blätter. <strong>Vollständiger Baum</strong> = mehrere Fragen hintereinander über mehrere Ebenen. Ein Fall läuft als <em>Pfad</em> von der Wurzel bis zum Blatt." data-i18n-html-en="<strong>Stump</strong> = 1 question, 2 leaves. A <strong>full tree</strong> means several questions in sequence across multiple levels. A case follows a <em>path</em> from the root to the leaf."><strong>Stumpf</strong> = 1 Frage, 2 Blätter. <strong>Vollständiger Baum</strong> = mehrere Fragen hintereinander über mehrere Ebenen. Ein Fall läuft als <em>Pfad</em> von der Wurzel bis zum Blatt.</p>
+              <p data-i18n-html-de="<strong>Merksatz:</strong> Baum = ein Fragebogen, den du Schritt für Schritt ablaufen kannst." data-i18n-html-en="<strong>Rule of thumb:</strong> A tree is a questionnaire you can walk through step by step."><strong>Merksatz:</strong> Baum = ein Fragebogen, den du Schritt für Schritt ablaufen kannst.</p>
+            </div>
+
+            <div class="callout">
+              <h3 data-i18n-de="3 Modelle, 3 Denkweisen" data-i18n-en="3 models, 3 ways of thinking">3 Modelle, 3 Denkweisen</h3>
+              <ul>
+                <li data-i18n-html-de="<strong>Decision Tree:</strong> baut Regeln wie <code>wenn Temperatur &lt; 24</code>. Im Bild entstehen <em>Rechtecke</em>, und der Pfad ist erklärbar." data-i18n-html-en="<strong>Decision tree:</strong> builds rules such as <code>if temperature &lt; 24</code>. In the picture you get <em>rectangles</em>, and the path is explainable."><strong>Decision Tree:</strong> baut Regeln wie <code>wenn Temperatur &lt; 24</code>. Im Bild entstehen <em>Rechtecke</em>, und der Pfad ist erklärbar.</li>
+                <li data-i18n-html-de="<strong>Logistische Regression:</strong> baut meist eine <em>Linie oder Fläche</em> als Grenze und gibt <em>Wahrscheinlichkeiten</em> aus. Erst der Threshold kippt zu 0 oder 1." data-i18n-html-en="<strong>Logistic regression:</strong> usually builds a <em>line or surface</em> as a boundary and returns <em>probabilities</em>. Only the threshold turns that into 0 or 1."><strong>Logistische Regression:</strong> baut meist eine <em>Linie oder Fläche</em> als Grenze und gibt <em>Wahrscheinlichkeiten</em> aus. Erst der Threshold kippt zu 0 oder 1.</li>
+                <li data-i18n-html-de="<strong>KNN:</strong> fragt <em>Wer sind die nächsten Nachbarn?</em> Die Entscheidung kommt aus <em>Distanz und Mehrheit</em>, nicht aus festen Regeln." data-i18n-html-en="<strong>KNN:</strong> asks <em>who are the nearest neighbours?</em> The decision comes from <em>distance and majority</em>, not from fixed rules."><strong>KNN:</strong> fragt <em>Wer sind die nächsten Nachbarn?</em> Die Entscheidung kommt aus <em>Distanz und Mehrheit</em>, nicht aus festen Regeln.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="plot-card">
+            <h3 data-i18n-de="Mini-Check: Welches Modell passt und warum?" data-i18n-en="Mini-check: which model fits and why?">Mini-Check: Welches Modell passt und warum?</h3>
+            <p class="plot-caption" data-i18n-de="Wähle die passendste Denkweise. Frage dich dabei immer: Brauche ich Rechtecke und einen erklärbaren Pfad, eher eine Linie mit Wahrscheinlichkeiten oder nur Nachbarn aus der Umgebung?" data-i18n-en="Choose the most fitting way of thinking. Always ask yourself: do I need rectangles and an explainable path, rather a line with probabilities, or only neighbours from the surrounding data?">Wähle die passendste Denkweise. Frage dich dabei immer: Brauche ich Rechtecke und einen erklärbaren Pfad, eher eine Linie mit Wahrscheinlichkeiten oder nur Nachbarn aus der Umgebung?</p>
+            <div class="workflow-grid" id="model-picker">
+              <button class="workflow-choice" data-pick="tree" type="button" data-i18n-de="Ich brauche erklärbare Regeln: wenn ... dann ..." data-i18n-en="I need explainable rules: if ... then ...">Ich brauche erklärbare Regeln: wenn ... dann ...</button>
+              <button class="workflow-choice" data-pick="logreg" type="button" data-i18n-de="Ich brauche Wahrscheinlichkeiten plus Threshold-Regler." data-i18n-en="I need probabilities plus a threshold control.">Ich brauche Wahrscheinlichkeiten plus Threshold-Regler.</button>
+              <button class="workflow-choice" data-pick="knn" type="button" data-i18n-de="Ich vertraue auf Ähnlichkeit und Nachbarschaft in den Daten." data-i18n-en="I trust similarity and neighbourhood in the data.">Ich vertraue auf Ähnlichkeit und Nachbarschaft in den Daten.</button>
+            </div>
+            <div class="result-box" id="model-picker-result"></div>
+          </div>
+
+          <div class="formula-block">
+            <p data-i18n-html-de="Wenn du LogReg oder KNN auffrischen willst: siehe <a href='logistic_regression.html'>logistic_regression.html</a> bzw. <a href='distanzmetriken_und_scaling_interaktion.html'>distanzmetriken_und_scaling_interaktion.html</a>." data-i18n-html-en="If you want to refresh logistic regression or KNN: see <a href='logistic_regression.html'>logistic_regression.html</a> and <a href='distanzmetriken_und_scaling_interaktion.html'>distanzmetriken_und_scaling_interaktion.html</a>.">Wenn du LogReg oder KNN auffrischen willst: siehe <a href='logistic_regression.html'>logistic_regression.html</a> bzw. <a href='distanzmetriken_und_scaling_interaktion.html'>distanzmetriken_und_scaling_interaktion.html</a>.</p>
+          </div>
+
+          <div id="quiz-2b" class="quiz-shell"></div>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Drei Modelle können dasselbe Problem lösen, aber sie erklären es völlig verschieden: Tree = Rechtecke und Pfad, LogReg = Linie plus Threshold, KNN = Nachbarn plus Distanz. Genau mit diesem Blick gehst du jetzt in den Best Split." data-i18n-en="What do you take away? Three models can solve the same problem, but they explain it very differently: tree = rectangles and path, logreg = line plus threshold, KNN = neighbours plus distance. That is exactly the lens you now carry into the best split step.">Was nimmst du mit? Drei Modelle können dasselbe Problem lösen, aber sie erklären es völlig verschieden: Tree = Rechtecke und Pfad, LogReg = Linie plus Threshold, KNN = Nachbarn plus Distanz. Genau mit diesem Blick gehst du jetzt in den Best Split.</p>
         </section>
 
         <section class="module lesson-step" id="module-3">
@@ -1051,13 +1183,13 @@ print(tree.tree_.node_count)</code></pre>
             </div>
             <div class="callout">
               <h3 data-i18n-de="ML-Sprache" data-i18n-en="ML language">ML-Sprache</h3>
-              <p data-i18n-html-de="Der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Vor Gini kannst du dir merken: Je eindeutiger links und rechts werden, desto besser. Wichtig: Der Baum sucht dabei nur den besten naechsten Schritt, nicht schon den perfekten Gesamtbaum auf einmal." data-i18n-html-en="The <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>best split</button> is the question and threshold that separate the groups most cleanly. Before Gini, remember this: the more clearly left and right separate, the better. Important: the tree only looks for the best next step here, not the perfect final tree all at once.">Der <button class="glossary-term" type="button" data-term-de="Best Split" data-term-en="Best split" data-definition-de="Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt." data-definition-en="The best split is the question and threshold that separate the data most cleanly.">Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Vor Gini kannst du dir merken: Je eindeutiger links und rechts werden, desto besser. Wichtig: Der Baum sucht dabei nur den besten naechsten Schritt, nicht schon den perfekten Gesamtbaum auf einmal.</p>
+              <p data-i18n-html-de="Der <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Aus Modul 2b nimmst du jetzt den Unterschied mit: Der Tree sucht nicht nach einer Linie und auch nicht nach Nachbarn, sondern nach der nächsten Frage, die seine Rechtecke sauberer macht. Wichtig: Der Baum sucht dabei nur den besten nächsten Schritt, nicht schon den perfekten Gesamtbaum auf einmal." data-i18n-html-en="The <button class=&quot;glossary-term&quot; type=&quot;button&quot; data-term-de=&quot;Best Split&quot; data-term-en=&quot;Best split&quot; data-definition-de=&quot;Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt.&quot; data-definition-en=&quot;The best split is the question and threshold that separate the data most cleanly.&quot;>best split</button> is the question and threshold that separate the groups most cleanly. From checkpoint 2b, keep this difference in mind: the tree is not searching for one line and not for neighbours, but for the next question that makes its rectangles cleaner. Important: the tree only looks for the best next step here, not the perfect final tree all at once.">Der <button class="glossary-term" type="button" data-term-de="Best Split" data-term-en="Best split" data-definition-de="Der Best Split ist die Frage mit der Schwelle, die die Daten am saubersten trennt." data-definition-en="The best split is the question and threshold that separate the data most cleanly.">Best Split</button> ist die Frage plus Schwelle, die die Gruppen am saubersten trennt. Aus Modul 2b nimmst du jetzt den Unterschied mit: Der Tree sucht nicht nach einer Linie und auch nicht nach Nachbarn, sondern nach der nächsten Frage, die seine Rechtecke sauberer macht. Wichtig: Der Baum sucht dabei nur den besten nächsten Schritt, nicht schon den perfekten Gesamtbaum auf einmal.</p>
             </div>
           </div>
 
           <div class="formula-block">
             <h3 data-i18n-de="Purity in einem Satz" data-i18n-en="Purity in one sentence">Purity in einem Satz</h3>
-            <p data-i18n-de="Wenn links fast nur Klasse A und rechts fast nur Klasse B liegt, ist der Split gut. Wenn beide Seiten bunt gemischt bleiben, bringt die Frage wenig." data-i18n-en="If the left side contains almost only class A and the right side almost only class B, the split is good. If both sides remain mixed, the question is not very useful.">Wenn links fast nur Klasse A und rechts fast nur Klasse B liegt, ist der Split gut. Wenn beide Seiten bunt gemischt bleiben, bringt die Frage wenig.</p>
+            <p data-i18n-de="Wenn links fast nur Klasse A und rechts fast nur Klasse B liegt, ist der Split gut. Anders gesagt: Ein guter Split macht aus groben Rechtecken Schritt für Schritt sauberere Rechtecke. Wenn beide Seiten bunt gemischt bleiben, bringt die Frage wenig." data-i18n-en="If the left side contains almost only class A and the right side almost only class B, the split is good. Put differently: a good split turns rough rectangles into cleaner rectangles step by step. If both sides remain mixed, the question is not very useful.">Wenn links fast nur Klasse A und rechts fast nur Klasse B liegt, ist der Split gut. Anders gesagt: Ein guter Split macht aus groben Rechtecken Schritt für Schritt sauberere Rechtecke. Wenn beide Seiten bunt gemischt bleiben, bringt die Frage wenig.</p>
           </div>
 
           <div class="plot-card">
@@ -1070,7 +1202,7 @@ print(tree.tree_.node_count)</code></pre>
           </div>
 
           <div id="quiz-3" class="quiz-shell"></div>
-          <p class="reflection" data-i18n-de="Was nimmst du mit? Der Baum sucht keine schöne Theorie, sondern die Frage, die Ordnung in die Daten bringt." data-i18n-en="What do you take away? The tree is not looking for a pretty theory, but for the question that brings order into the data.">Was nimmst du mit? Der Baum sucht keine schöne Theorie, sondern die Frage, die Ordnung in die Daten bringt.</p>
+          <p class="reflection" data-i18n-de="Was nimmst du mit? Der Baum sucht keine schöne Theorie, sondern die nächste Frage, die mehr Ordnung schafft. Im nächsten Modul gibst du dieser Ordnung mit Gini eine Zahl." data-i18n-en="What do you take away? The tree is not looking for a pretty theory, but for the next question that creates more order. In the next module you will give that order a number with Gini.">Was nimmst du mit? Der Baum sucht keine schöne Theorie, sondern die nächste Frage, die mehr Ordnung schafft. Im nächsten Modul gibst du dieser Ordnung mit Gini eine Zahl.</p>
         </section>
 
         <section class="module lesson-step" id="module-4">
@@ -1100,9 +1232,17 @@ print(tree.tree_.node_count)</code></pre>
             <p data-i18n-de="Wenn eine Klasse fast alles ausmacht, wird die Summe der Quadrate groß und Gini klein. Wenn beide Klassen gleich stark sind, bleibt Gini hoch." data-i18n-en="If one class dominates, the sum of squares becomes large and Gini becomes small. If both classes are equally strong, Gini stays high.">Wenn eine Klasse fast alles ausmacht, wird die Summe der Quadrate groß und Gini klein. Wenn beide Klassen gleich stark sind, bleibt Gini hoch.</p>
           </div>
 
+          <div class="plot-card gini-intuition-card">
+            <h3 data-i18n-de="Gini-Intuition auf einen Blick" data-i18n-en="Gini intuition at a glance">Gini-Intuition auf einen Blick</h3>
+            <p data-i18n-de="Schau zuerst auf fünf feste Mischungen. So siehst du ohne Regler sofort: ganz rein ergibt 0, halb-halb ist am stärksten gemischt, und 3 zu 7 ist genauso unrein wie 7 zu 3." data-i18n-en="First look at five fixed mixes. This lets you see immediately without a slider: completely pure gives 0, fifty-fifty is the most mixed, and 3 to 7 is just as impure as 7 to 3.">Schau zuerst auf fünf feste Mischungen. So siehst du ohne Regler sofort: ganz rein ergibt 0, halb-halb ist am stärksten gemischt, und 3 zu 7 ist genauso unrein wie 7 zu 3.</p>
+            <div id="gini-intuition-grid" class="gini-intuition-grid" aria-label="Fünf feste Beispiele zur Gini-Unreinheit"></div>
+            <div class="result-box" id="gini-symmetry-note" data-i18n-de="Merksatz: Für Gini zählt die Mischung, nicht welche Farbe vorne liegt. Deshalb haben 3 zu 7 und 7 zu 3 denselben Wert." data-i18n-en="Rule of thumb: for Gini, the mix matters, not which color is ahead. That is why 3 to 7 and 7 to 3 have the same value.">Merksatz: Für Gini zählt die Mischung, nicht welche Farbe vorne liegt. Deshalb haben 3 zu 7 und 7 zu 3 denselben Wert.</div>
+          </div>
+
           <div class="demo-grid">
             <div class="plot-card">
-              <h3 data-i18n-de="Gini-Regler" data-i18n-en="Gini slider">Gini-Regler</h3>
+              <h3 data-i18n-de="Interaktiver Gini-Regler" data-i18n-en="Interactive Gini slider">Interaktiver Gini-Regler</h3>
+              <p data-i18n-de="Ziehe danach am Regler und beobachte, wie sich dieselbe Idee zwischen rein und gemischt fließend verändert." data-i18n-en="Then move the slider and watch how the same idea changes smoothly between pure and mixed.">Ziehe danach am Regler und beobachte, wie sich dieselbe Idee zwischen rein und gemischt fließend verändert.</p>
               <div class="control">
                 <label for="gini-ratio"><span data-i18n-de="Anteil Klasse Bordeaux" data-i18n-en="Share of burgundy class">Anteil Klasse Bordeaux</span><span id="gini-ratio-value">50 %</span></label>
                 <input id="gini-ratio" type="range" min="0" max="100" value="50" step="1" aria-label="Anteil der Klasse Bordeaux">
@@ -1434,7 +1574,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         "Weiter zu Ensemble Methods": "Continue to ensemble methods",
         "Optional: Feature Engineering": "Optional: feature engineering",
         "0 Punkte": "0 points",
-        "0 von 8 Modulen sicher": "0 of 8 modules secure"
+        "0 von 9 Modulen sicher": "0 of 9 modules secure"
       }
     };
   </script>
@@ -1447,6 +1587,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
       var MODULES = [
         { id: "module-1", badge: "badge-basics" },
         { id: "module-2", badge: "badge-basics" },
+        { id: "module-2b", badge: "badge-basics" },
         { id: "module-3", badge: "badge-purity" },
         { id: "module-4", badge: "badge-purity" },
         { id: "module-5", badge: "badge-path" },
@@ -1525,6 +1666,59 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
             explanation: {
               de: "Ein Baum darf beide Teilmengen getrennt weiter aufteilen.",
               en: "A tree may continue splitting both subsets separately."
+            }
+          }
+        ],
+        "module-2b": [
+          {
+            id: "q1",
+            question: {
+              de: "Woran erkennst du einen vollständigen Baum?",
+              en: "How do you recognise a full tree?"
+            },
+            options: [
+              { value: "a", de: "An mehreren Splits und einem Pfad bis zum Blatt", en: "By several splits and a path to a leaf" },
+              { value: "b", de: "Daran, dass er nur eine einzige Frage stellt", en: "By asking only one single question" },
+              { value: "c", de: "Daran, dass er immer Wahrscheinlichkeiten ausgibt", en: "By always outputting probabilities" }
+            ],
+            correct: "a",
+            explanation: {
+              de: "Ein vollständiger Baum hat Tiefe: Du läufst mehrere Fragen nacheinander ab. In unserem Bild siehst du Rechtecke statt einer Linie oder bloßer Nachbarn.",
+              en: "A full tree has depth: you move through several questions in sequence. In our picture you see rectangles instead of a line or just neighbours."
+            }
+          },
+          {
+            id: "q2",
+            question: {
+              de: "Welche Grenze zeichnet ein klassischer Tree im 2D-Raum typischerweise?",
+              en: "Which boundary does a classical tree typically draw in 2D space?"
+            },
+            options: [
+              { value: "a", de: "Eine weiche Kurve", en: "A soft curve" },
+              { value: "b", de: "Achsenparallele Grenzen und damit Rechtecke", en: "Axis-aligned boundaries and therefore rectangles" },
+              { value: "c", de: "Nur Abstände zu Nachbarn", en: "Only distances to neighbours" }
+            ],
+            correct: "b",
+            explanation: {
+              de: "Jede Frage trennt entlang einer Achse. In unserem Bild entstehen dadurch Rechtecke, nicht eine Linie und auch keine reine Nachbarschaftsentscheidung.",
+              en: "Each question splits along one axis. In our picture this creates rectangles, not a line and not a pure neighbour decision."
+            }
+          },
+          {
+            id: "q3",
+            question: {
+              de: "Welches Modell gibt typischerweise Wahrscheinlichkeiten aus?",
+              en: "Which model typically outputs probabilities?"
+            },
+            options: [
+              { value: "a", de: "KNN", en: "KNN" },
+              { value: "b", de: "Decision Tree", en: "Decision tree" },
+              { value: "c", de: "Logistische Regression", en: "Logistic regression" }
+            ],
+            correct: "c",
+            explanation: {
+              de: "Die logistische Regression liefert Wahrscheinlichkeiten, und der Threshold macht daraus 0 oder 1. In unserem Bild wäre das eher eine Linie als Rechtecke oder Nachbarn.",
+              en: "Logistic regression outputs probabilities, and the threshold turns them into 0 or 1. In our picture that looks more like a line than rectangles or neighbours."
             }
           }
         ],
@@ -1785,6 +1979,10 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           giniPure: "Fast reine Gruppe: sichere Vorhersage.",
           giniMixed: "Stark gemischt: hohe Unsicherheit.",
           giniMiddle: "Schon brauchbar, aber noch nicht ganz sauber.",
+          giniCasePure: "rein",
+          giniCaseMixed: "gemischt",
+          giniCaseMax: "maximal gemischt",
+          giniCaseOf: function (left, right) { return left + " zu " + right; },
           recursion0: "Noch kein Split. Alle Fälle liegen gemeinsam im Wurzelknoten.",
           recursion1: "Erster Split: Temperatur < 18 trennt kalte von warmen Tagen.",
           recursion2: "Zweiter Split rechts: Wind trennt ruhige von stürmischen warmen Tagen.",
@@ -1803,6 +2001,10 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           depthGood: "Guter Bereich: genug flexibel, aber noch nicht nervös.",
           depthUnder: "Noch zu grob: Bias ist hier höher als nötig.",
           depthOver: "Achtung Overfitting: der Baum merkt sich zu viele Details.",
+          modelPickerPrompt: "Wähle unten eine Denkweise aus. Danach siehst du sofort, wofür Tree, LogReg oder KNN in diesem Bild stehen.",
+          modelPickerTree: "<strong>Tree:</strong> Du willst Regeln erklären können. Ein Tree liefert dir einen Pfad aus Fragen bis zum Blatt. Gut, wenn du später sagen musst: Warum kam genau dieses Ergebnis? In unserem Bild entstehen Rechtecke.",
+          modelPickerLogreg: "<strong>LogReg:</strong> Du willst Wahrscheinlichkeiten und einen Threshold-Regler. Das passt, wenn du Treffer gegen Fehlalarme bewusst gegeneinander abwägst. In unserem Bild wäre das eher eine Linie oder Fläche als Rechtecke.",
+          modelPickerKnn: "<strong>KNN:</strong> Du willst Ähnlichkeit nutzen. Das passt, wenn ähnliche Fälle ähnliche Labels haben und du keine feste Regelstruktur brauchst. In unserem Bild entscheiden Nachbarn statt eines Pfads oder einer Linie.",
           workflowStart: "Starte mit dem ersten sinnvollen Schritt.",
           workflowNext: function (count, total) { return "Gut. " + count + " von " + total + " Schritten sitzen."; },
           workflowDone: "Workflow komplett. So sieht ein sauberer Notebook-Ablauf aus.",
@@ -1849,6 +2051,10 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           giniPure: "Almost pure group: confident prediction.",
           giniMixed: "Strongly mixed: high uncertainty.",
           giniMiddle: "Already useful, but not fully clean yet.",
+          giniCasePure: "pure",
+          giniCaseMixed: "mixed",
+          giniCaseMax: "maximally mixed",
+          giniCaseOf: function (left, right) { return left + " to " + right; },
           recursion0: "No split yet. All cases sit together in the root node.",
           recursion1: "First split: temperature < 18 separates cold from warm days.",
           recursion2: "Second split on the right: wind separates calm from stormy warm days.",
@@ -1867,6 +2073,10 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           depthGood: "Good zone: flexible enough, but not nervous yet.",
           depthUnder: "Still too coarse: bias is higher than necessary here.",
           depthOver: "Watch out for overfitting: the tree memorises too many details.",
+          modelPickerPrompt: "Choose one way of thinking below. Then you will immediately see what tree, logreg or KNN stand for in this picture.",
+          modelPickerTree: "<strong>Tree:</strong> You want explainable rules. A tree gives you a path of questions down to a leaf. Good when you later need to say why this exact result happened. In our picture this creates rectangles.",
+          modelPickerLogreg: "<strong>LogReg:</strong> You want probabilities and a threshold dial. This fits when you need to balance hits against false alarms on purpose. In our picture that looks more like a line or surface than rectangles.",
+          modelPickerKnn: "<strong>KNN:</strong> You want to use similarity. This fits when similar cases should get similar labels and you do not need a fixed rule structure. In our picture neighbours decide instead of a path or a line.",
           workflowStart: "Start with the first sensible step.",
           workflowNext: function (count, total) { return "Good. " + count + " of " + total + " steps are in place."; },
           workflowDone: "Workflow complete. This is what a clean notebook process looks like.",
@@ -1926,7 +2136,8 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           celebrated: {},
           activeModule: "module-1",
           workflowDone: false,
-          workflowIndex: 0
+          workflowIndex: 0,
+          modelPick: ""
         };
         try {
           var raw = window.localStorage.getItem(STORAGE_KEY);
@@ -2031,7 +2242,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           }
         });
 
-        document.getElementById("badge-basics").classList.toggle("is-earned", state.completed["module-1"] && state.completed["module-2"]);
+        document.getElementById("badge-basics").classList.toggle("is-earned", state.completed["module-1"] && state.completed["module-2"] && state.completed["module-2b"]);
         document.getElementById("badge-purity").classList.toggle("is-earned", state.completed["module-3"] && state.completed["module-4"]);
         document.getElementById("badge-path").classList.toggle("is-earned", state.completed["module-5"] && state.completed["module-6"]);
         document.getElementById("badge-pruning").classList.toggle("is-earned", state.completed["module-7"] && state.completed["module-8"]);
@@ -2265,7 +2476,31 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         document.getElementById("split-choice-score").textContent = t("splitScore")(chosen.score);
       }
 
+      function renderModelPicker() {
+        var result = document.getElementById("model-picker-result");
+        var selected = state.modelPick || "";
+        document.querySelectorAll("#model-picker .workflow-choice").forEach(function (button) {
+          button.classList.toggle("is-selected", button.getAttribute("data-pick") === selected);
+        });
+
+        if (!result) {
+          return;
+        }
+
+        if (!selected) {
+          result.textContent = t("modelPickerPrompt");
+          return;
+        }
+
+        result.innerHTML = selected === "tree"
+          ? t("modelPickerTree")
+          : selected === "logreg"
+            ? t("modelPickerLogreg")
+            : t("modelPickerKnn");
+      }
+
       function renderGini() {
+        renderGiniIntuition();
         var ratio = Number(document.getElementById("gini-ratio").value);
         document.getElementById("gini-ratio-value").textContent = ratio + " %";
         var p = ratio / 100;
@@ -2282,6 +2517,47 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
           + '<text x="170" y="48" text-anchor="middle" font-size="14" fill="#231a24">Gini ' + gini + '</text>'
           + '<text x="92" y="106" text-anchor="middle" font-size="13" fill="#ffffff">' + ratio + '%</text>'
           + '<text x="250" y="106" text-anchor="middle" font-size="13" fill="#ffffff">' + (100 - ratio) + '%</text>';
+      }
+
+      function renderGiniIntuition() {
+        var container = document.getElementById("gini-intuition-grid");
+        if (!container) {
+          return;
+        }
+
+        var cases = [
+          { green: 0, blue: 10 },
+          { green: 3, blue: 7 },
+          { green: 5, blue: 5 },
+          { green: 7, blue: 3 },
+          { green: 10, blue: 0 }
+        ];
+        var positions = [
+          { x: 26, y: 32 }, { x: 50, y: 18 }, { x: 74, y: 34 }, { x: 38, y: 56 }, { x: 62, y: 52 },
+          { x: 18, y: 64 }, { x: 78, y: 66 }, { x: 32, y: 82 }, { x: 56, y: 78 }, { x: 48, y: 38 }
+        ];
+
+        container.innerHTML = cases.map(function (item) {
+          var total = item.green + item.blue;
+          var pGreen = item.green / total;
+          var gini = (1 - (pGreen * pGreen + (1 - pGreen) * (1 - pGreen))).toFixed(2);
+          var note = item.green === 0 || item.blue === 0
+            ? t("giniCasePure")
+            : item.green === item.blue
+              ? t("giniCaseMax")
+              : t("giniCaseMixed");
+          var dots = positions.map(function (pos, index) {
+            var klass = index < item.green ? "green" : "blue";
+            return '<span class="gini-dot ' + klass + '" style="left:' + pos.x + '%;top:' + pos.y + '%;"></span>';
+          }).join("");
+          return ''
+            + '<div class="gini-intuition-item">'
+            + '<div class="gini-bowl" aria-hidden="true">' + dots + '</div>'
+            + '<div class="gini-case-title">' + t("giniCaseOf")(item.green, item.blue) + '</div>'
+            + '<div class="gini-case-formula">Gini = 1 - <span class="green">(' + item.green + '/' + total + ')</span><sup>2</sup> - <span class="blue">(' + item.blue + '/' + total + ')</span><sup>2</sup> = <strong>' + gini + '</strong></div>'
+            + '<div class="gini-case-note">' + note + '</div>'
+            + '</div>';
+        }).join("");
       }
 
       function renderRecursion() {
@@ -2436,6 +2712,7 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         renderProgress();
         renderDispatchTree();
         renderBoundary();
+        renderModelPicker();
         renderSplitChoices();
         renderGini();
         renderRecursion();
@@ -2475,6 +2752,15 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
         document.getElementById("split-threshold").addEventListener("input", function () {
           awardDemo("module-2");
           renderBoundary();
+        });
+
+        document.querySelectorAll("#model-picker [data-pick]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            state.modelPick = this.getAttribute("data-pick");
+            awardDemo("module-2b");
+            saveState();
+            renderModelPicker();
+          });
         });
 
         document.getElementById("gini-ratio").addEventListener("input", function () {
@@ -2534,10 +2820,12 @@ print(round(deep_tree.score(X_test, y_test), 2), round(shallow_tree.score(X_test
       function init() {
         state.recursionStep = state.recursionStep || 0;
         state.workflowChoices = state.workflowChoices || ["plot", "score", "fit", "split", "predict"];
+        state.modelPick = state.modelPick || "";
         renderQuizzes();
         renderProgress();
         renderDispatchTree();
         renderBoundary();
+        renderModelPicker();
         state.selectedSplit = state.selectedSplit || "A";
         renderSplitChoices();
         renderGini();

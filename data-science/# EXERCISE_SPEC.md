@@ -1,5 +1,7 @@
 # EXERCISE_SPEC.md – Übungs-Bauanleitung für Codex
 
+> Kanonische Quelle ab jetzt: [../EXERCISE_SPEC.md](../EXERCISE_SPEC.md). Diese Datei bleibt nur als Data-Science-nahe Arbeitskopie bestehen.
+
 ## Globale Regeln
 
 1. Für jedes Modul, das in der Tabelle unten eine Notebook-Referenz hat:

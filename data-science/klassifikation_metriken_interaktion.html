@@ -158,6 +158,40 @@
       color: var(--secondary);
       margin-bottom: 4px;
     }
+    .interpret-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,247,234,0.9);
+    }
+    .interpret-card h4 {
+      margin: 0;
+      color: var(--secondary);
+    }
+    .interpret-card p {
+      margin: 6px 0;
+      color: var(--text);
+    }
+    details.microcheck {
+      margin-top: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    details.microcheck summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    details.microcheck ol {
+      margin: 8px 0 0 18px;
+      padding: 0;
+      color: var(--text);
+    }
+    details.microcheck li {
+      margin: 6px 0;
+    }
     .chip { text-align: center; font-size: 0.84rem; }
     .btn, .sidebar-toggle, .quiz-option, .mode-btn, .toggle-btn, .mail-btn, .advisor-btn {
       border: 0;
@@ -679,6 +713,20 @@
                 </div>
               </div>
             </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Zahl in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall der Anteil aller richtig geprüften Schokoladentafeln, egal ob sie okay oder defekt sind.</p>
+              <p><strong>So liest man den Wert:</strong> In unserem Fall heißt Accuracy: „In X % der Fälle liegt das Modell richtig, egal ob 0 oder 1.“</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Eine defekte Tafel zu übersehen. Das ist ein False Negative, obwohl die Gesamtzahl noch gut aussehen kann.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist „positiv“ (=1) in unserem Fall? Eine defekte Tafel oder eine intakte?</li>
+                  <li>Was wäre ein True Positive hier als ganzer Satz?</li>
+                  <li>Würdest du den Prüf-Threshold eher senken oder erhöhen, wenn keine defekte Tafel durchrutschen soll?</li>
+                </ol>
+              </details>
+            </article>
             <article class="card full">
               <div class="card-kicker">Code-Beispiel</div>
               <div class="code-shell">
@@ -746,8 +794,22 @@ print(accuracy_score(actual, predicted))</code></pre>
                 </div>
               </div>
             </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Matrix in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall vier Sortierfehler und Treffer eines Spam-Filters: richtige Spam-Treffer, falscher Alarm, richtige normale Mails und übersehener Spam.</p>
+              <p><strong>So liest man den Wert:</strong> Die Matrix sagt nicht nur „wie oft richtig“, sondern „welche Art von falsch“ passiert ist.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> In unserem Fall eine wichtige Mail fälschlich als Spam wegzusortieren. Das ist ein False Positive, wenn „positiv“ = Spam ist.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist „positiv“ (=1) in unserem Fall: Spam oder kein Spam?</li>
+                  <li>Was bedeutet „true positive“ hier als ganzer Satz?</li>
+                  <li>Würdest du den Threshold strenger machen, wenn dir wichtige Mails im Spam-Ordner besonders weh tun?</li>
+                </ol>
+              </details>
+            </article>
             <article class="card full">
-              <div class="exercise-card">
+              <div class="exercise-card" data-interpret-type="classification" data-positive-de="Spam" data-positive-en="spam" data-negative-de="normale Mail" data-negative-en="a normal email" data-fp-de="eine wichtige Mail landet im Spam-Ordner" data-fp-en="an important email ends up in the spam folder" data-fn-de="Spam wird übersehen" data-fn-en="spam is missed">
                 <h4>🏋️ Übung: Confusion Matrix selbst erzeugen</h4>
                 <p class="exercise-instruction">Nutze dieselben echten und vorhergesagten Labels wie im Notebook und baue die Confusion Matrix selbst mit `sklearn.metrics` auf. Ergänze die fehlende Zeile und prüfe danach, ob die vier Felder in der richtigen Reihenfolge erscheinen.</p>
                 <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -854,8 +916,22 @@ print(f"Accuracy: {accuracy_score(actual, predicted):.2f}")</code></pre>
                 </div>
               </div>
             </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Zahl in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall, wie verlässlich ein positives Schnelltest-Ergebnis ist.</p>
+              <p><strong>So liest man den Wert:</strong> Wenn das Modell in unserem Fall „1 = krank“ sagt, stimmt das in X % der Fälle.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Falscher Alarm. Genau deshalb schauen wir hier auf False Positives und damit auf Precision.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist „positiv“ (=1) in unserem Fall?</li>
+                  <li>Was wäre ein True Positive hier als ganzer Satz?</li>
+                  <li>Würdest du den Threshold eher erhöhen oder senken, wenn unnötige Alarme vermieden werden sollen?</li>
+                </ol>
+              </details>
+            </article>
             <article class="card full">
-              <div class="exercise-card">
+              <div class="exercise-card" data-interpret-type="classification" data-positive-de="krank" data-positive-en="ill" data-negative-de="gesund" data-negative-en="healthy" data-fp-de="eine gesunde Person wird fälschlich positiv getestet" data-fp-en="a healthy person is incorrectly flagged as positive" data-fn-de="eine kranke Person wird übersehen" data-fn-en="an ill person is missed">
                 <h4>🏋️ Übung: Precision und Recall berechnen</h4>
                 <p class="exercise-instruction">Berechne für dieselben Vorhersagen sowohl `Precision` als auch `Recall`. Die erste Zeile ist schon da, die zweite ergänzt du selbst und vergleichst danach beide Werte.</p>
                 <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -947,6 +1023,20 @@ print(f"Recall: {recall:.2f}")</code></pre>
                 </div>
               </div>
             </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Zahl in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall, wie viele echte problematische Fälle die Sicherheitskontrolle tatsächlich findet.</p>
+              <p><strong>So liest man den Wert:</strong> Von allen echten 1-Fällen findet das Modell X %.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Ein False Negative, also ein gefährlicher Gegenstand, der unentdeckt bleibt.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist „positiv“ (=1) in unserem Fall?</li>
+                  <li>Was bedeutet „true positive“ hier als ganzer Satz?</li>
+                  <li>Würdest du den Threshold eher senken oder erhöhen, wenn möglichst wenig übersehen werden darf?</li>
+                </ol>
+              </details>
+            </article>
             <article class="card full">
               <div class="card-kicker">Quiz</div>
               <div id="quiz-step-4"></div>
@@ -1006,6 +1096,20 @@ print(f"Recall: {recall:.2f}")</code></pre>
                   </div>
                 </div>
               </div>
+            </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Zahl in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall ein gemeinsamer Balance-Wert aus Precision und Recall.</p>
+              <p><strong>So liest man den Wert:</strong> F1 ist ein Mittelwert, der nur hoch ist, wenn Precision und Recall beide ordentlich sind.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Kein einzelner Fehler allein, sondern eine Schieflage: Ein Wert sieht gut aus, der andere bricht ein.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist „positiv“ (=1) in deinem aktuellen Beispiel?</li>
+                  <li>Warum kann ein hoher Precision-Wert allein den F1-Score noch nicht retten?</li>
+                  <li>Würdest du den Threshold ändern, wenn du nicht nur eine Seite, sondern die Balance verbessern willst?</li>
+                </ol>
+              </details>
             </article>
             <article class="card full">
               <div class="card-kicker">Code-Beispiel</div>
@@ -1088,8 +1192,22 @@ print(f"F1-Score: {f1:.3f}")</code></pre>
                 </div>
               </div>
             </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze Kurve und AUC in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall das Trennverhalten des Modells über viele Thresholds hinweg, nicht nur an einem einzelnen Punkt.</p>
+              <p><strong>So liest man den Wert:</strong> Wenn ich den Threshold ändere, bewege ich mich entlang der Kurve: mehr Treffer gegen mehr Fehlalarme. Die AUC fasst dieses Gesamtbild in einer Zahl zusammen.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Kein einzelner Zellenfehler, sondern ein Modell, das über viele Einstellungen kaum besser trennt als Zufall.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist „positiv“ (=1) in deinem aktuellen Szenario?</li>
+                  <li>Was bedeutet ein Punkt weit oben links auf der ROC-Kurve als Satz?</li>
+                  <li>Welche Threshold-Richtung würdest du wählen, wenn du mehr Treffer auch auf Kosten zusätzlicher Fehlalarme brauchst?</li>
+                </ol>
+              </details>
+            </article>
             <article class="card full">
-              <div class="exercise-card">
+              <div class="exercise-card" data-interpret-type="classification" data-positive-de="ein echter Problemfall" data-positive-en="a real problem case" data-negative-de="ein unkritischer Fall" data-negative-en="an uncritical case" data-fp-de="ein unkritischer Fall wird unnötig als Problem gemeldet" data-fp-en="an uncritical case is unnecessarily flagged as a problem" data-fn-de="ein echter Problemfall bleibt unentdeckt" data-fn-en="a real problem case remains undetected">
                 <h4>🏋️ Übung: ROC-Kurve und AUC erzeugen</h4>
                 <p class="exercise-instruction">Nimm ein kleines Wahrscheinlichkeits-Beispiel und lasse dir daraus die ROC-Kurve und die AUC berechnen. Ergänze beide fehlenden Zeilen und prüfe, ob die AUC zum Trennverhalten passt.</p>
                 <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
@@ -1198,6 +1316,20 @@ auc = roc_auc_score(y_actual, y_probabilities)</code></pre>
                 </div>
               </div>
             </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Fehlerzahlen in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> In unserem Fall Abstände zwischen vorhergesagter und echter Temperatur.</p>
+              <p><strong>So liest man den Wert:</strong> MAE sagt, wie weit du im Mittel danebenliegst. RMSE klingt ähnlich, bestraft große Ausrutscher aber stärker. R² fragt, wie viel Struktur dein Modell überhaupt erklärt.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Ein großer Ausreißer. Genau den nimmt MSE und damit auch RMSE besonders hart auseinander.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Welche Kennzahl würdest du einer Fachperson zuerst in Grad Celsius übersetzen?</li>
+                  <li>Was bedeutet ein einzelner großer Fehler für MSE und RMSE?</li>
+                  <li>Welche Stellschraube würdest du prüfen, wenn dein Modell nur wegen weniger Ausreißer schlecht wirkt?</li>
+                </ol>
+              </details>
+            </article>
             <article class="card full">
               <div class="exercise-card">
                 <h4>🏋️ Übung: MSE und RMSE sauber auseinanderhalten</h4>
@@ -1305,6 +1437,20 @@ print(f"RMSE: {rmse:.3f}")</code></pre>
                 </div>
                 <div id="advisor-result" class="quiz-feedback">Wähle oben deinen Kontext. Danach bekommst du eine didaktische Empfehlung mit Begründung.</div>
               </div>
+            </article>
+            <article class="card full interpret-card">
+              <h4>🗣️ Übersetze die Empfehlung in Alltagssprache</h4>
+              <p><strong>Was ist gemessen?</strong> Hier wird nicht einfach eine hübsche Zahl gesucht, sondern die Metrik ausgewählt, die zum echten Risiko des Falls passt.</p>
+              <p><strong>So liest man den Wert:</strong> Die „beste“ Metrik heißt in unserem Fall: die Kennzahl, die den wichtigsten Fehler sichtbar macht.</p>
+              <p><strong>Was ist hier der schlimmste Fehler?</strong> Nicht der rechnerische Fehler allein, sondern die falsche Priorität. Eine schöne Zahl hilft nicht, wenn sie am eigentlichen Risiko vorbeigeht.</p>
+              <details class="microcheck">
+                <summary>✅ Mini-Check (30 Sekunden)</summary>
+                <ol>
+                  <li>Was ist in deinem Fall überhaupt „positiv“?</li>
+                  <li>Welcher Fehler tut fachlich mehr weh: Fehlalarm oder übersehener Fall?</li>
+                  <li>Würdest du dafür eher den Threshold anpassen oder gleich eine andere Metrik priorisieren?</li>
+                </ol>
+              </details>
             </article>
             <article class="card full">
               <div class="card-kicker">Abschluss-Quiz</div>
