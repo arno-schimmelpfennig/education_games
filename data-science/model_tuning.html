@@ -1,0 +1,2429 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Tuning | Data Science</title>
+  <meta name="description" content="Interaktives Kapitel zu Model Tuning mit Scaling, Cross Validation, Grid Search, Pipelines und Decision Boundaries.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --success: #4f7a6a;
+      --danger: #8c3a4a;
+      --warning: #9a6b4a;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #231a24;
+      --text-light: #6d616b;
+      --line: #ddd1d8;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 320px;
+      --content-max: 980px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.09), transparent 34%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 44%, #f1f4f7 100%);
+    }
+
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    details summary:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.28);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 20;
+    }
+
+    #stage {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card,
+    .plot-card,
+    .card-shell {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card { padding: 14px; margin-top: 14px; }
+    .sidebar-card p,
+    .module p,
+    .module li,
+    .footer-card p { line-height: 1.65; }
+
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.02em; }
+    h1 { margin-top: 8px; font-size: 1.9rem; line-height: 1.08; color: var(--primary); }
+    h2 { font-size: 1.35rem; color: var(--primary); }
+    h3 { font-size: 1rem; color: var(--primary); }
+    h4 { font-size: 0.96rem; color: var(--text); }
+
+    .lead {
+      margin-top: 10px;
+      font-size: 0.96rem;
+      color: var(--text-light);
+    }
+
+    .card-kicker,
+    .module-index {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .button-row,
+    .footer-links,
+    .chip-row,
+    .module-grid,
+    .meta-grid,
+    .badge-grid,
+    .quiz-options,
+    .demo-grid,
+    .fold-strip,
+    .stage-row,
+    .workflow-grid,
+    .legend-row {
+      display: grid;
+      gap: 12px;
+    }
+
+    .button-row,
+    .footer-links,
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
+    .chip-row { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 12px; }
+    .badge-grid { margin-top: 10px; grid-template-columns: 1fr; }
+
+    .meta-card,
+    .chip,
+    .status-note,
+    .helper-note,
+    .callout,
+    .formula-block,
+    .exercise-card,
+    .quiz-feedback,
+    .result-box,
+    .code-note {
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .meta-card strong,
+    .chip strong,
+    .badge-item strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .chip {
+      text-align: center;
+      font-size: 0.84rem;
+    }
+
+    .btn,
+    .sidebar-toggle,
+    .quiz-option,
+    .search-btn,
+    .workflow-choice,
+    .mode-btn {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .btn.ghost,
+    .quiz-option,
+    .search-btn,
+    .workflow-choice,
+    .mode-btn {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--primary);
+    }
+
+    .btn:hover,
+    .sidebar-toggle:hover,
+    .quiz-option:hover,
+    .search-btn:hover,
+    .workflow-choice:hover,
+    .mode-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #ede4e9;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.25s ease;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+      margin-top: 8px;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      border-color: rgba(23, 50, 98, 0.16);
+      background: var(--secondary-light);
+    }
+
+    .nav-dot {
+      flex: 0 0 26px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 0.76rem;
+      font-weight: 800;
+      background: #efe7ec;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    .nav-link.is-done .nav-dot {
+      background: rgba(79, 122, 106, 0.12);
+      color: var(--success);
+    }
+
+    .nav-title { font-weight: 700; color: var(--secondary); }
+    .nav-sub { font-size: 0.82rem; color: var(--text-light); margin-top: 2px; }
+
+    .badge-item {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px dashed var(--line);
+      background: #fff;
+    }
+
+    .badge-item svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    .badge-item.is-unlocked {
+      border-style: solid;
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.06), rgba(23, 50, 98, 0.08));
+    }
+
+    .badge-state { font-size: 0.8rem; color: var(--text-light); }
+
+    .sticky-shell {
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+      padding: 14px 16px;
+    }
+
+    .sticky-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sticky-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: var(--secondary);
+    }
+
+    .hero,
+    .module,
+    .footer-card {
+      margin-top: 16px;
+      padding: 18px;
+    }
+
+    .hero-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: var(--secondary-light);
+      color: var(--secondary);
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.95fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 12px;
+    }
+
+    .module-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .module-summary {
+      margin-top: 6px;
+      color: var(--text-light);
+      max-width: 60ch;
+    }
+
+    .module-pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      background: #f1e8ed;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .module-pill.is-partial {
+      background: var(--secondary-light);
+      color: var(--secondary);
+    }
+
+    .module-pill.is-done {
+      background: rgba(79, 122, 106, 0.14);
+      color: var(--success);
+    }
+
+    .module-grid {
+      margin-top: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .plot-card,
+    .card-shell {
+      padding: 16px;
+    }
+
+    .callout h3,
+    .exercise-card h4,
+    .plot-card h3 { margin-bottom: 8px; }
+
+    .formula-block {
+      background: linear-gradient(180deg, #fff, rgba(23, 50, 98, 0.04));
+    }
+
+    .math-formula {
+      color: var(--secondary);
+      font-weight: 700;
+      margin-bottom: 8px;
+      min-height: 30px;
+    }
+
+    .glossary-term {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--secondary);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .glossary-pop {
+      position: fixed;
+      max-width: 280px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      z-index: 50;
+      display: none;
+    }
+
+    .glossary-pop strong {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .control-grid,
+    .metric-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .metric-card {
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .metric-card strong {
+      display: block;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] { width: 100%; }
+
+    .chart-shell,
+    .canvas-shell {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, #f8fbfe 100%);
+      padding: 12px;
+      min-height: 320px;
+    }
+
+    .chart-caption {
+      margin-top: 10px;
+      font-size: 0.84rem;
+      color: var(--text-light);
+    }
+
+    canvas { width: 100%; }
+
+    .fold-strip {
+      grid-template-columns: repeat(20, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .fold-cell {
+      height: 18px;
+      border-radius: 6px;
+      background: #e8edf5;
+      border: 1px solid rgba(23, 50, 98, 0.08);
+    }
+
+    .fold-cell.is-train { background: rgba(99, 24, 50, 0.1); }
+    .fold-cell.is-test { background: rgba(23, 50, 98, 0.82); }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .search-cell {
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      background: #f6f4f6;
+      color: var(--text-light);
+    }
+
+    .search-cell.is-hidden { color: transparent; }
+    .search-cell.is-best {
+      box-shadow: inset 0 0 0 3px rgba(79, 122, 106, 0.55);
+    }
+
+    .stage-row {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .stage-card {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 12px;
+      min-height: 130px;
+      position: relative;
+    }
+
+    .stage-card.is-active {
+      border-color: rgba(23, 50, 98, 0.4);
+      background: var(--secondary-light);
+    }
+
+    .stage-card.is-done {
+      border-color: rgba(79, 122, 106, 0.42);
+      background: rgba(79, 122, 106, 0.08);
+    }
+
+    .stage-card::after {
+      content: "→";
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .stage-card:last-child::after { display: none; }
+
+    .canvas-shell canvas {
+      width: 100%;
+      height: 340px;
+      display: block;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      background: linear-gradient(180deg, rgba(23, 50, 98, 0.04), rgba(99, 24, 50, 0.03));
+    }
+
+    .exercise-context,
+    .exercise-instruction,
+    .expected-output {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--text-light);
+    }
+
+    details {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--secondary);
+    }
+
+    .quiz-shell {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .quiz-card {
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 14px;
+    }
+
+    .quiz-question {
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .quiz-options {
+      margin-top: 12px;
+    }
+
+    .quiz-option {
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    .quiz-option.is-correct {
+      background: rgba(79, 122, 106, 0.12);
+      color: var(--success);
+      border-color: rgba(79, 122, 106, 0.36);
+    }
+
+    .quiz-option.is-wrong {
+      background: rgba(140, 58, 74, 0.1);
+      color: var(--danger);
+      border-color: rgba(140, 58, 74, 0.32);
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      background: #fff;
+    }
+
+    .quiz-feedback.is-correct {
+      border-color: rgba(79, 122, 106, 0.36);
+      color: var(--success);
+      background: rgba(79, 122, 106, 0.07);
+    }
+
+    .quiz-feedback.is-wrong {
+      border-color: rgba(140, 58, 74, 0.3);
+      color: var(--danger);
+      background: rgba(140, 58, 74, 0.07);
+    }
+
+    .reflection {
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    pre[class*="language-"] {
+      border-radius: 14px;
+      margin: 0;
+      border: 1px solid rgba(23, 50, 98, 0.12);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 1080px) {
+      #app { grid-template-columns: 1fr; }
+      #sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .sidebar-toggle { display: inline-flex; }
+      #sidebar[data-collapsed="true"] .sidebar-inner { display: none; }
+      .hero-grid,
+      .module-head,
+      .sticky-top,
+      .stage-row {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+      .module-grid,
+      .meta-grid,
+      .chip-row,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+      .search-grid {
+        grid-template-columns: repeat(5, minmax(40px, 1fr));
+      }
+      .demo-grid.two-col {
+        grid-template-columns: 1fr;
+      }
+      .stage-card::after { display: none; }
+    }
+
+    @media (max-width: 720px) {
+      #stage { padding: 12px; }
+      .hero,
+      .sticky-shell,
+      .module,
+      .footer-card,
+      .plot-card,
+      .card-shell { padding: 14px; }
+      .fold-strip { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+      .search-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .canvas-shell canvas { height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelnavigation">
+      <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="sidebar-inner">Kapitelübersicht ein-/ausklappen</button>
+      <div class="sidebar-inner" id="sidebar-inner">
+        <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
+        <h1>Model Tuning</h1>
+        <p class="lead">In der Modell-Werkstatt lernst du, wie du das Fließband sauber einstellst: Daten vorbereiten, Modelle fair testen und die richtigen Regler drehen.</p>
+
+        <div class="sidebar-card">
+          <div class="card-kicker">Fortschritt</div>
+          <div class="progress-label">
+            <span id="sidebar-progress-label">0 von 6 Modulen sicher</span>
+            <span id="sidebar-points-label">0 Punkte</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="overall-progress"></div>
+          </div>
+          <p class="lead" style="margin-bottom:0;">Ein Modul gilt erst als sicher, wenn alle Quizfragen darin einmal korrekt sitzen.</p>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker">Werkstatt-Rang</div>
+          <div id="sidebar-rank">Rang: Werkbank-Neuling</div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker">Module 1 bis 6</div>
+          <nav id="step-nav" class="nav-list" aria-label="Module im Model-Tuning-Kapitel"></nav>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="card-kicker">Badges</div>
+          <div id="badge-grid" class="badge-grid"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <header class="sticky-shell">
+        <div class="sticky-top">
+          <div>
+            <div class="card-kicker">Breadcrumb</div>
+            <div class="sticky-title"><a href="../index.html" style="text-decoration:none;">Startseite</a> &gt; <a href="../index.html" style="text-decoration:none;">Data Science</a> &gt; Model Tuning</div>
+          </div>
+          <div class="button-row">
+            <a class="btn ghost" href="../index.html">Zurück zur Übersicht</a>
+          </div>
+        </div>
+        <div class="progress-label">
+          <span id="stage-progress-label">0 Prozent sicher</span>
+          <span id="stage-rank-label">Rang: Werkbank-Neuling</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="stage-progress-fill"></div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-banner">6 Module · Werkstatt-Metapher · lokale Fortschrittsspeicherung</div>
+            <h2 style="margin-top:10px;">Worum geht es hier?</h2>
+            <p class="lead">In der Modell-Werkstatt reicht es nicht, einfach nur eine Maschine anzuschalten. Du musst erst die Eingangsteile angleichen, dann das Fließband sauber aufbauen, mehrere Probeläufe machen und am Ende prüfen, welche Einstellung unter echten Bedingungen stabil läuft.</p>
+            <div class="chip-row">
+              <div class="chip"><strong>Scaling</strong>Gleiche Maßeinheiten auf dem Fließband, damit große Zahlen kleine nicht überrollen.</div>
+              <div class="chip"><strong>Cross Validation</strong>Mehrere Probeessen statt nur einer Kostprobe.</div>
+              <div class="chip"><strong>Tuning</strong>Die Regler so einstellen, dass das Modell nicht nur im Labor, sondern auch draußen gut läuft.</div>
+            </div>
+          </div>
+          <div class="hero-side">
+            <div class="status-note">Jede erstmals richtig gelöste Quizfrage bringt <strong>10 Punkte</strong>. Jede ausprobierte Demo bringt <strong>5 Punkte</strong>.</div>
+            <div class="status-note">Die Leitmetapher bleibt durchgehend gleich: Werkbank, Fließband und Qualitätskontrolle.</div>
+            <div class="status-note">Dein Stand bleibt lokal auf diesem Gerät gespeichert, auch nach einem Browser-Neustart.</div>
+            <div class="button-row">
+              <button id="jump-next-open" class="btn" type="button">Zum nächsten offenen Modul</button>
+              <button id="reset-progress" class="btn ghost" type="button">Fortschritt zurücksetzen</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="content">
+        <section class="module lesson-step" id="module-1" data-module="1">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 1</div>
+              <h2>Skalierung – Gleiche Maße auf der Werkbank</h2>
+              <p class="module-summary">Du verstehst, warum große Zahlen kleine Merkmale überrollen können und wie MinMaxScaler und StandardScaler das Fließband fair machen.</p>
+            </div>
+            <div class="module-pill" data-module-pill="1">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <article class="callout">
+              <h3>Alltagsszene</h3>
+              <p>In der Werkstatt willst du Äpfel und Birnen vergleichen. Wenn du Wohnfläche in Quadratmetern neben Zimmeranzahl legst, schreit die größere Zahl sofort lauter. Für viele Modelle fühlt sich das an, als würde ein riesiges Bauteil das halbe Fließband blockieren.</p>
+              <p>Vor allem Nachbarschaftsmodelle wie KNN reagieren darauf empfindlich, weil sie Abstände messen. Wenn eine Achse viel größere Werte hat als die andere, zieht sie jede Entscheidung an sich.</p>
+            </article>
+
+            <article class="callout">
+              <h3>ML-Sprache</h3>
+              <p><button type="button" class="glossary-term" data-term="Scaling" data-definition="Scaling bringt Merkmale auf eine vergleichbare Skala, damit keine Zahl allein wegen ihrer Größe dominiert.">Scaling</button> bringt Eingaben auf ein ähnliches Maß. Der <button type="button" class="glossary-term" data-term="MinMaxScaler" data-definition="Der MinMaxScaler schiebt Werte in den Bereich von 0 bis 1.">MinMaxScaler</button> legt alles zwischen 0 und 1. Der <button type="button" class="glossary-term" data-term="StandardScaler" data-definition="Der StandardScaler verschiebt Werte auf Mittelwert 0 und Standardabweichung 1.">StandardScaler</button> zentriert um 0 und macht die typische Streuung zu 1.</p>
+              <p>Im Bild vom Fließband heißt das: Jedes Teil bekommt erst einen passenden Standardbehälter, bevor die Maschine misst.</p>
+            </article>
+
+            <article class="formula-block">
+              <div class="math-formula" data-latex="x' = \\frac{x - x_{min}}{x_{max} - x_{min}}"></div>
+              <div class="math-formula" data-latex="z = \\frac{x - \\mu}{\\sigma}"></div>
+              <p>MinMax presst alles in einen festen Korridor. StandardScaler schaut stattdessen: Wie weit liegt ein Wert vom Durchschnitt entfernt?</p>
+            </article>
+
+            <article class="plot-card full">
+              <h3>Interaktive Demo: Rohdaten gegen skaliertes Fließband</h3>
+              <div class="demo-grid two-col" style="grid-template-columns:minmax(260px,0.9fr) minmax(0,1.1fr);">
+                <div class="control-grid">
+                  <div class="control">
+                    <label for="stretch-slider"><span>Werkstatt-Regler: Flächenwerte strecken</span><span id="stretch-value">2.0x</span></label>
+                    <input id="stretch-slider" type="range" min="1" max="4" step="0.1" value="2" aria-label="Flächenwerte strecken">
+                  </div>
+                  <div class="control">
+                    <label for="scaler-select"><span>Skalierer wählen</span><span id="scaler-note-label">StandardScaler</span></label>
+                    <select id="scaler-select" aria-label="Skalierer auswählen">
+                      <option value="standard">StandardScaler</option>
+                      <option value="minmax">MinMaxScaler</option>
+                    </select>
+                  </div>
+                  <div class="button-row">
+                    <button id="show-raw" class="btn secondary" type="button">Rohdaten zeigen</button>
+                    <button id="apply-scaling" class="btn" type="button">Skalieren</button>
+                  </div>
+                  <div class="metric-grid">
+                    <div class="metric-card">
+                      <strong>Modus</strong>
+                      <div class="metric-value" id="scaling-mode-readout">Roh</div>
+                    </div>
+                    <div class="metric-card">
+                      <strong>X-Achse</strong>
+                      <div class="metric-value" id="x-range-readout">110-310</div>
+                    </div>
+                    <div class="metric-card">
+                      <strong>Y-Achse</strong>
+                      <div class="metric-value" id="y-range-readout">1-5</div>
+                    </div>
+                  </div>
+                  <div class="helper-note" id="scaling-helper">Noch schreit die Wohnfläche deutlich lauter als die Zimmerzahl. Klick auf „Skalieren“, damit beide Merkmale fair auf demselben Fließband laufen.</div>
+                </div>
+                <div class="chart-shell">
+                  <canvas id="scaling-chart" aria-label="Streudiagramm für Rohdaten und skalierten Daten"></canvas>
+                  <div class="chart-caption">Die Punkte sind dieselben Wohnungen. Nur die Messlatte ändert sich. Genau das ist der Sinn von Scaling.</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card-shell full">
+              <div class="card-kicker">Python Code</div>
+              <pre class="language-python"><code class="language-python">from sklearn.preprocessing import StandardScaler
+import pandas as pd
+
+X = pd.DataFrame({
+    "wohnflaeche": [55, 70, 88, 105, 130, 155],
+    "zimmer": [1, 2, 2, 3, 4, 5]
+})
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+print(X_scaled.round(2))</code></pre>
+              <div class="code-note"><strong>Was passiert hier?</strong> Das Fließband lernt zuerst aus den Trainingswerten Mittelwert und Streuung. Danach werden beide Merkmale in dieselbe Messwelt übersetzt.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div id="quiz-1" class="quiz-shell"></div>
+            </article>
+
+            <article class="full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Bevor das Modell misst, muss die Werkstatt entscheiden, auf welcher Skala gemessen wird. Sonst dominiert die lauteste Zahl statt des wichtigsten Merkmals.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="module lesson-step" id="module-2" data-module="2">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 2</div>
+              <h2>Cross Validation – Fünf Probeessen statt einer Meinung</h2>
+              <p class="module-summary">Du verstehst, warum mehrere Testläufe stabiler sind als nur ein einziger Split, und du siehst K-Fold Cross Validation direkt am Fließband.</p>
+            </div>
+            <div class="module-pill" data-module-pill="2">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <article class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Ein Koch fragt nicht nur eine Person, ob das Probeessen schmeckt, wenn daraus später das Standardrezept für die ganze Kantine werden soll. Er lässt mehrere Gruppen probieren.</p>
+              <p>Genau so arbeitet <button type="button" class="glossary-term" data-term="Cross Validation" data-definition="Cross Validation testet ein Modell mehrfach auf verschiedenen Teilmengen der Daten, um Stabilität zu prüfen.">Cross Validation</button>: Das Modell fährt mehrmals durchs Fließband, und jedes Mal liegt ein anderer Teil der Daten auf dem Prüfstand.</p>
+            </article>
+
+            <article class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Bei <button type="button" class="glossary-term" data-term="K-Fold" data-definition="Der Datensatz wird in k Teile aufgeteilt. Jeder Teil ist einmal Testmenge, die übrigen Teile trainieren das Modell.">K-Fold</button> zerlegst du den Datensatz in k Folds. Ein Fold ist Test, die übrigen sind Training. Danach wandert der Testblock weiter, bis jeder Teil einmal dran war.</p>
+              <p>Das Fließband bekommt also nicht nur einen Probebetrieb, sondern mehrere. So siehst du besser, ob die Maschine stabil läuft oder nur auf einer glücklichen Teilmenge gut aussieht.</p>
+            </article>
+
+            <article class="formula-block">
+              <div class="math-formula" data-latex="\\text{CV-Score} = \\frac{1}{k} \\sum_{i=1}^{k} \\text{Score}_i"></div>
+              <p>Du mittelt die Ergebnisse aus mehreren Probeläufen. Ein einzelner Ausreißer darf so nicht die ganze Werkstatt täuschen.</p>
+            </article>
+
+            <article class="plot-card full">
+              <h3>Interaktive Demo: Der K-Fold-Simulator</h3>
+              <div class="control-grid">
+                <div class="button-row">
+                  <label for="k-select" style="font-weight:700;color:var(--secondary);align-self:center;">k wählen:</label>
+                  <select id="k-select" aria-label="K für Cross Validation auswählen">
+                    <option value="3">3 Folds</option>
+                    <option value="5" selected>5 Folds</option>
+                    <option value="10">10 Folds</option>
+                  </select>
+                  <button id="next-fold" class="btn" type="button">Nächster Fold</button>
+                  <button id="reset-folds" class="btn secondary" type="button">Zurücksetzen</button>
+                </div>
+                <div class="metric-grid">
+                  <div class="metric-card">
+                    <strong>Aktueller Fold</strong>
+                    <div class="metric-value" id="fold-index-readout">1 / 5</div>
+                  </div>
+                  <div class="metric-card">
+                    <strong>Trainingsdaten</strong>
+                    <div class="metric-value" id="train-count-readout">80</div>
+                  </div>
+                  <div class="metric-card">
+                    <strong>Testdaten</strong>
+                    <div class="metric-value" id="test-count-readout">20</div>
+                  </div>
+                </div>
+                <div class="helper-note" id="fold-helper">Der blaue Block ist gerade die Testgruppe. Nach jedem Klick wandert er weiter, damit jede Gruppe einmal probieren darf.</div>
+                <div id="fold-strip" class="fold-strip" aria-label="Visualisierung der Folds"></div>
+              </div>
+            </article>
+
+            <article class="card-shell full">
+              <div class="card-kicker">Python Code</div>
+              <pre class="language-python"><code class="language-python">from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(random_state=42)
+scores = cross_val_score(model, X, y, cv=5, scoring="roc_auc")
+
+print(scores.round(3))
+print(scores.mean().round(3))</code></pre>
+              <div class="code-note"><strong>Was passiert hier?</strong> Das Modell läuft fünfmal durchs Fließband. Jeder Lauf testet auf einem anderen Teil der Daten.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div id="quiz-2" class="quiz-shell"></div>
+            </article>
+
+            <article class="full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Ein einzelnes Testurteil ist wie eine einzige Kostprobe. Cross Validation verteilt die Qualitätskontrolle auf mehrere Gruppen und macht das Gesamtbild robuster.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="module lesson-step" id="module-3" data-module="3">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 3</div>
+              <h2>Grid Search &amp; Random Search – Die Regler in der Werkstatt</h2>
+              <p class="module-summary">Du verstehst, wie Hyperparameter-Suche funktioniert und warum Zufall bei vielen Reglern oft überraschend effizient ist.</p>
+            </div>
+            <div class="module-pill" data-module-pill="3">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <article class="callout">
+              <h3>Alltagsszene</h3>
+              <p>Du suchst das perfekte Backrezept. Grid Search probiert streng jedes Rezept aus deiner Liste: 180, 200, 220 Grad kombiniert mit 10, 15, 20 Minuten. Random Search greift stattdessen ein paar Mischungen heraus und schaut, ob darunter schon sehr gute Treffer sind.</p>
+              <p>Je mehr Regler deine Werkstatt hat, desto länger dauert der komplette Zettelkasten. Dann kann Zufall erstaunlich schlau sein.</p>
+            </article>
+
+            <article class="callout">
+              <h3>ML-Sprache</h3>
+              <p><button type="button" class="glossary-term" data-term="Hyperparameter" data-definition="Hyperparameter sind Einstellregler des Modells, zum Beispiel Baumtiefe oder Anzahl der Bäume.">Hyperparameter</button> sind Regler, die du vor dem Training festlegst. <button type="button" class="glossary-term" data-term="Grid Search" data-definition="Grid Search prüft jede vorgegebene Kombination von Hyperparametern.">Grid Search</button> testet jede vorgegebene Kombination. <button type="button" class="glossary-term" data-term="Random Search" data-definition="Random Search testet nur zufällige Kombinationen. Bei vielen Parametern reicht das oft schon für gute Ergebnisse.">Random Search</button> probiert nur einige zufällige Kombinationen.</p>
+              <p>Die Werkstatt-Frage lautet also: Willst du jeden Regler konsequent abklappern oder schnell gute Ecken im Einstellraum finden?</p>
+            </article>
+
+            <article class="formula-block">
+              <div class="math-formula" data-latex="3\\ \\text{Temperaturen} \\times 3\\ \\text{Zeiten} = 9\\ \\text{Rezepte}"></div>
+              <p>Je mehr Regler du kombinierst, desto schneller explodiert die Zahl der Versuche. Das ist der Kern des Tuning-Problems.</p>
+            </article>
+
+            <article class="plot-card full">
+              <h3>Interaktive Demo: Das 5x5-Rezept-Raster</h3>
+              <p>Die dunkelgrünste Kachel ist das beste Modell. Grid Search deckt systematisch auf, Random Search greift fünf zufällige Kacheln.</p>
+              <div class="button-row">
+                <button id="grid-step" class="btn" type="button">Grid Search Schritt</button>
+                <button id="random-step" class="btn secondary" type="button">Random Search Schritt</button>
+                <button id="search-reset" class="btn ghost" type="button">Raster zurücksetzen</button>
+              </div>
+              <div class="metric-grid" style="margin-top:12px;">
+                <div class="metric-card">
+                  <strong>Aufgedeckt</strong>
+                  <div class="metric-value" id="search-revealed-count">0</div>
+                </div>
+                <div class="metric-card">
+                  <strong>Bester Fund</strong>
+                  <div class="metric-value" id="search-best-score">-</div>
+                </div>
+                <div class="metric-card">
+                  <strong>Suchmodus</strong>
+                  <div class="metric-value" id="search-mode-label">Noch keiner</div>
+                </div>
+              </div>
+              <div id="search-grid" class="search-grid" aria-label="Raster für Grid Search und Random Search"></div>
+              <div class="helper-note" id="search-helper">Grid Search läuft Zeile für Zeile. Random Search kann mit viel Glück schon früh in einer guten Zone landen.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div class="card-kicker">Python Code</div>
+              <pre class="language-python"><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+
+param_grid = {
+    "n_estimators": [100, 200, 300],
+    "max_depth": [4, 8, None]
+}
+
+grid = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, cv=5)
+random = RandomizedSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_distributions=param_grid,
+    n_iter=5,
+    cv=5,
+    random_state=42
+)</code></pre>
+              <div class="code-note"><strong>Was passiert hier?</strong> Beide Werkzeuge suchen gute Reglereinstellungen. Grid Search ist gründlicher, Random Search oft schneller bei vielen Reglern.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div id="quiz-3" class="quiz-shell"></div>
+            </article>
+
+            <article class="full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Tuning ist keine Magie, sondern eine organisierte Suche auf der Werkbank. Entscheidend ist, wie groß dein Reglerraum ist und wie viel Zeit du investieren willst.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="module lesson-step" id="module-4" data-module="4">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 4</div>
+              <h2>Pipelines – Das feste Fließband gegen Data Leakage</h2>
+              <p class="module-summary">Du verstehst, warum Datenvorbereitung und Modell in dieselbe Produktionsstraße gehören und warum Testdaten nur durchlaufen, aber nicht mitlernen dürfen.</p>
+            </div>
+            <div class="module-pill" data-module-pill="4">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <article class="callout">
+              <h3>Alltagsszene</h3>
+              <p>In einer Fabrik werden die Rohteile zuerst gewaschen, dann zugeschnitten und erst danach verarbeitet. Niemand würde mitten im Probebetrieb plötzlich die Messer neu an den Testteilen kalibrieren.</p>
+              <p>Genau das verhindert eine <button type="button" class="glossary-term" data-term="Pipeline" data-definition="Eine Pipeline ist eine feste Reihenfolge aus Vorverarbeitung und Modell, die gemeinsam trainiert und später identisch wiederverwendet wird.">Pipeline</button>: Das Fließband läuft immer in derselben Reihenfolge ab.</p>
+            </article>
+
+            <article class="callout">
+              <h3>ML-Sprache</h3>
+              <p><button type="button" class="glossary-term" data-term="Data Leakage" data-definition="Data Leakage bedeutet, dass Informationen aus Testdaten ungewollt ins Training geraten. Dadurch wirkt das Modell besser, als es wirklich ist.">Data Leakage</button> entsteht, wenn du beim Vorverarbeiten versehentlich schon auf Testdaten schaust. Deshalb heißt die sichere Regel: Auf dem Training <code>.fit()</code>, auf neuen Daten nur <code>.transform()</code> oder <code>.predict()</code>.</p>
+              <p>Im Fließband-Bild heißt das: Die Maschine wird an Trainingsmaterial eingestellt. Neue Testteile fahren nur durch, sie geben der Maschine aber keine neuen Einstellwerte.</p>
+            </article>
+
+            <article class="formula-block">
+              <div class="math-formula" data-latex="\\text{Training: } fit \\rightarrow transform \\rightarrow fit"></div>
+              <div class="math-formula" data-latex="\\text{Test: } transform \\rightarrow predict"></div>
+              <p>Trainingsdaten justieren das Fließband. Testdaten nutzen das bereits eingestellte Fließband nur noch.</p>
+            </article>
+
+            <article class="plot-card full">
+              <h3>Interaktive Demo: Das Fließband läuft los</h3>
+              <div class="stage-row" id="pipeline-stages">
+                <div class="stage-card" data-stage="0">
+                  <div class="card-kicker">Station 1</div>
+                  <h4>Daten waschen</h4>
+                  <p>Fehlende Werte ersetzen, damit keine Lücken in der Werkstatt entstehen.</p>
+                </div>
+                <div class="stage-card" data-stage="1">
+                  <div class="card-kicker">Station 2</div>
+                  <h4>Daten angleichen</h4>
+                  <p>Skalieren, damit alle Teile auf dasselbe Messband passen.</p>
+                </div>
+                <div class="stage-card" data-stage="2">
+                  <div class="card-kicker">Station 3</div>
+                  <h4>Modell trainieren</h4>
+                  <p>Jetzt erst lernt die Maschine, wie sie unterscheiden soll.</p>
+                </div>
+                <div class="stage-card" data-stage="3">
+                  <div class="card-kicker">Station 4</div>
+                  <h4>Neue Fälle prüfen</h4>
+                  <p>Testdaten fahren nur noch durch und erhalten eine Vorhersage.</p>
+                </div>
+              </div>
+              <div class="button-row" style="margin-top:12px;">
+                <button id="pipeline-next" class="btn" type="button">Nächster Werkstattschritt</button>
+                <button id="pipeline-reset" class="btn secondary" type="button">Fließband zurücksetzen</button>
+              </div>
+              <div class="helper-note" id="pipeline-helper">Starte den Durchlauf. Die aktive Station zeigt dir, an welcher Stelle des Fließbands du gerade bist.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div class="card-kicker">Python Code</div>
+              <pre class="language-python"><code class="language-python">from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+pipe = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+    ("model", LogisticRegression(max_iter=1000))
+])</code></pre>
+              <div class="code-note"><strong>Was passiert hier?</strong> Die drei Werkstatt-Schritte werden zu einer festen Produktionsstraße. Genau das schützt dich vor Reihenfolgefehlern und Leakage.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div id="quiz-4" class="quiz-shell"></div>
+            </article>
+
+            <article class="full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Eine Pipeline ist kein Luxus, sondern die saubere Werkstattordnung. Sie sorgt dafür, dass Training und Test nicht heimlich ineinanderlaufen.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="module lesson-step" id="module-5" data-module="5">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 5</div>
+              <h2>Decision Boundaries – Die Grenzpatrouille</h2>
+              <p class="module-summary">Du siehst, wie verschiedene Modelle dieselben roten und blauen Punkte mit völlig unterschiedlichen Grenzlinien trennen.</p>
+            </div>
+            <div class="module-pill" data-module-pill="5">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <article class="callout">
+              <h3>Alltagsszene</h3>
+              <p>In der Werkstatt kommt eine Grenzpatrouille zum Einsatz: Welche Teile landen auf dem roten Förderband, welche auf dem blauen? Die Punkte sind gleich, aber die Art der Grenzziehung hängt von der Maschine ab.</p>
+              <p>Eine <button type="button" class="glossary-term" data-term="Decision Boundary" data-definition="Die Decision Boundary ist die Linie oder Fläche, an der ein Modell von einer Klasse in die andere kippt.">Decision Boundary</button> ist also die Trennlinie im Raum. Manche Maschinen ziehen gerade Linien, andere bauen Treppen, wieder andere schmiegen sich sehr eng an die Punkte an.</p>
+            </article>
+
+            <article class="callout">
+              <h3>ML-Sprache</h3>
+              <p><button type="button" class="glossary-term" data-term="Logistische Regression" data-definition="Ein lineares Klassifikationsmodell, das meistens eine gerade Trennlinie oder Ebene erzeugt.">Logistische Regression</button> zeichnet oft eine gerade Grenze. Ein <button type="button" class="glossary-term" data-term="Decision Tree" data-definition="Ein Entscheidungsbaum baut Regeln mit achsenparallelen Schwellenwerten. Dadurch entstehen blockige Grenzen.">Decision Tree</button> trennt blockig. Ein <button type="button" class="glossary-term" data-term="Random Forest" data-definition="Ein Random Forest mittelt viele Bäume und glättet dadurch manche harte Kanten.">Random Forest</button> wirkt etwas weicher. <button type="button" class="glossary-term" data-term="Gradient Boosting" data-definition="Gradient Boosting baut nacheinander viele kleine Korrekturen auf und kann sehr passgenaue Grenzen erzeugen.">Gradient Boosting</button> kann die Punkte sehr eng umschließen.</p>
+              <p>Im Bild vom Fließband heißt das: Alle Maschinen sortieren dieselben Teile, aber jede zieht den Grenzzaun anders.</p>
+            </article>
+
+            <article class="plot-card full">
+              <h3>Interaktive Demo: Dieselben Punkte, vier Grenzstile</h3>
+              <div class="button-row">
+                <label for="boundary-model" style="font-weight:700;color:var(--secondary);align-self:center;">Modell wählen:</label>
+                <select id="boundary-model" aria-label="Modell für die Entscheidungsgrenze auswählen">
+                  <option value="logreg">Logistic Regression</option>
+                  <option value="tree">Decision Tree</option>
+                  <option value="forest">Random Forest</option>
+                  <option value="boost">Gradient Boosting / XGBoost</option>
+                </select>
+              </div>
+              <div class="canvas-shell" style="margin-top:12px;">
+                <canvas id="boundary-canvas" width="640" height="420" aria-label="Visualisierung der Entscheidungsgrenzen verschiedener Modelle"></canvas>
+              </div>
+              <div class="legend-row" aria-hidden="true">
+                <span><span class="legend-dot" style="background:#631832;"></span>Klasse Rot</span>
+                <span><span class="legend-dot" style="background:#173262;"></span>Klasse Blau</span>
+              </div>
+              <div class="helper-note" id="boundary-helper">Logistische Regression zieht hier eine gerade Linie. Wechsel das Modell und beobachte, wie die Grenzpatrouille anders arbeitet.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div id="quiz-5" class="quiz-shell"></div>
+            </article>
+
+            <article class="full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Die Punkte bleiben gleich. Nur die Maschine entscheidet, ob die Grenze gerade, treppenförmig oder sehr passgenau wird.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="module lesson-step" id="module-6" data-module="6">
+          <div class="module-head">
+            <div>
+              <div class="module-index">Modul 6</div>
+              <h2>Praxis-Projekt: Die Diabetes Challenge</h2>
+              <p class="module-summary">Du setzt das ganze Werkstattdenken zu einem Workflow zusammen: Split, Pipeline, Cross Validation, Grid Search und Auswertung.</p>
+            </div>
+            <div class="module-pill" data-module-pill="6">Offen</div>
+          </div>
+
+          <div class="module-grid">
+            <article class="callout">
+              <h3>Alltagsszene</h3>
+              <p>In der Modell-Werkstatt landet jetzt ein kompletter Auftrag auf dem Band: Ein Datensatz mit Gesundheitswerten soll genutzt werden, um Hinweise auf Diabetes zu erkennen. Nicht mit Bauchgefühl, sondern mit sauberem Werkstattprozess.</p>
+              <p>Die Reihenfolge ist hier alles: Erst Überblick über die Daten, dann Split, dann das Fließband mit Imputer und Scaler, dann Cross Validation und Tuning, erst danach die Auswertung.</p>
+            </article>
+
+            <article class="callout">
+              <h3>ML-Sprache</h3>
+              <p>Das hier ist der komplette Werkstatt-Workflow in kompakt: <button type="button" class="glossary-term" data-term="Imputer" data-definition="Ein Imputer ersetzt fehlende Werte mit einer festen Strategie, zum Beispiel dem Median.">Imputer</button> füllt Lücken, <button type="button" class="glossary-term" data-term="StandardScaler" data-definition="Der StandardScaler zentriert Merkmale um 0 und normiert die typische Streuung auf 1.">Scaler</button> gleicht die Maße an, das Modell lernt, und <button type="button" class="glossary-term" data-term="GridSearchCV" data-definition="GridSearchCV kombiniert Hyperparameter-Suche mit Cross Validation.">GridSearchCV</button> testet mehrere Reglerkombinationen mit mehreren Folds.</p>
+              <p>Im Bild vom Fließband heißt das: Du baust einmal die ganze Linie sauber auf und prüfst dann, welche Einstellung im Mehrfachtest die stabilste Qualität liefert.</p>
+            </article>
+
+            <article class="plot-card full">
+              <h3>Mini-Demo: Der Werkstatt-Workflow in vier Takten</h3>
+              <div class="workflow-grid" id="challenge-workflow" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+                <div class="workflow-choice" data-workflow-step="0">1. EDA<br><small>Daten verstehen</small></div>
+                <div class="workflow-choice" data-workflow-step="1">2. Split<br><small>Train/Test trennen</small></div>
+                <div class="workflow-choice" data-workflow-step="2">3. Pipeline + CV<br><small>sauber trainieren</small></div>
+                <div class="workflow-choice" data-workflow-step="3">4. Evaluate<br><small>fair prüfen</small></div>
+              </div>
+              <div class="button-row" style="margin-top:12px;">
+                <button id="workflow-next" class="btn" type="button">Nächsten Takt zeigen</button>
+                <button id="workflow-reset" class="btn secondary" type="button">Workflow zurücksetzen</button>
+              </div>
+              <div class="helper-note" id="workflow-helper">Starte die vier Takte. Die Werkstatt-Reihenfolge ist hier wichtiger als jeder einzelne Regler.</div>
+            </article>
+
+            <article class="card-shell full">
+              <div class="exercise-card">
+                <h4>🏋️ Übung: Die Werkstatt-Pipeline zu Ende bauen</h4>
+                <p class="exercise-instruction">Fülle die drei Lücken, damit das Fließband komplett ist: Scaler, Modell und Anzahl der Folds. Das Beispiel ist klein gehalten, damit du den Ablauf klar siehst.</p>
+                <p class="exercise-context">📓 Öffne dein Jupyter Notebook oder Google Colab und probiere es selbst aus.</p>
+                <pre class="language-python"><code class="language-python">import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+df = pd.DataFrame({
+    "glucose": [85, 89, 90, 110, 120, 130, 145, 160, 170, 95],
+    "bmi": [23.1, 27.4, 31.0, 29.9, 34.2, 36.1, 32.8, 38.4, 35.7, 24.8],
+    "age": [21, 29, 33, 37, 40, 45, 50, 54, 60, 26],
+    "outcome": [0, 0, 0, 0, 1, 1, 1, 1, 1, 0]
+})
+
+X = df[["glucose", "bmi", "age"]]
+y = df["outcome"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+pipe = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", ???),
+    ("model", ???)
+])
+
+param_grid = {
+    "model__n_estimators": [100, 200],
+    "model__max_depth": [4, 8]
+}
+
+search = GridSearchCV(pipe, param_grid=param_grid, cv=???, scoring="roc_auc")
+search.fit(X_train, y_train)
+
+print(search.best_params_)</code></pre>
+                <details>
+                  <summary>💡 Tipp anzeigen</summary>
+                  <p>Das Fließband soll hier aus Imputer, StandardScaler und RandomForest bestehen. Für die Werkstatt-Prüfung wollen wir fünf Probeessen.</p>
+                </details>
+                <details>
+                  <summary>✅ Lösung anzeigen</summary>
+                  <pre class="language-python"><code class="language-python">import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+df = pd.DataFrame({
+    "glucose": [85, 89, 90, 110, 120, 130, 145, 160, 170, 95],
+    "bmi": [23.1, 27.4, 31.0, 29.9, 34.2, 36.1, 32.8, 38.4, 35.7, 24.8],
+    "age": [21, 29, 33, 37, 40, 45, 50, 54, 60, 26],
+    "outcome": [0, 0, 0, 0, 1, 1, 1, 1, 1, 0]
+})
+
+X = df[["glucose", "bmi", "age"]]
+y = df["outcome"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+pipe = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+    ("model", RandomForestClassifier(random_state=42))
+])
+
+param_grid = {
+    "model__n_estimators": [100, 200],
+    "model__max_depth": [4, 8]
+}
+
+search = GridSearchCV(pipe, param_grid=param_grid, cv=5, scoring="roc_auc")
+search.fit(X_train, y_train)
+
+print(search.best_params_)</code></pre>
+                  <p class="expected-output">Erwartete Ausgabe: ein Dictionary mit der besten Reglerkombination, zum Beispiel <code>{"model__max_depth": 4, "model__n_estimators": 100}</code>.</p>
+                </details>
+              </div>
+            </article>
+
+            <article class="card-shell full">
+              <div id="quiz-6" class="quiz-shell"></div>
+            </article>
+
+            <article class="full">
+              <p class="reflection">Was nimmst du mit?</p>
+              <p>Model Tuning ist kein einzelner Trick. Es ist eine saubere Werkstattfolge: verstehen, trennen, Fließband bauen, mehrfach testen und erst dann urteilen.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="footer-card">
+          <div class="card-kicker">Teil des Data-Science-Lehrpfads</div>
+          <h2>Werkstatt-Fazit</h2>
+          <p>Wenn die Modell-Werkstatt sauber gebaut ist, werden Entscheidungen stabiler. Scaling macht das Maß fair, Cross Validation macht die Prüfung fair, und Pipelines halten das Fließband diszipliniert.</p>
+          <div class="footer-links">
+            <a class="btn ghost" href="../index.html">Zurück zur Data-Science-Übersicht</a>
+            <a class="btn secondary" href="feature_engineering.html">Feature Engineering auffrischen</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="glossary-pop" class="glossary-pop" role="dialog" aria-live="polite" aria-hidden="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    (function () {
+      var STORAGE_KEY = "modelTuningProgress";
+      var MODULES = [
+        { id: 1, title: "Skalierung", summary: "Gleiche Maße für faire Abstände" },
+        { id: 2, title: "Cross Validation", summary: "Mehrere Probeessen statt einer Meinung" },
+        { id: 3, title: "Grid & Random Search", summary: "Regler systematisch oder zufällig finden" },
+        { id: 4, title: "Pipelines", summary: "Das feste Fließband gegen Leakage" },
+        { id: 5, title: "Decision Boundaries", summary: "Wie Modelle Grenzen ziehen" },
+        { id: 6, title: "Diabetes Challenge", summary: "Der komplette Werkstatt-Workflow" }
+      ];
+
+      var BADGES = [
+        { id: "azubi", title: "Werkstatt-Azubi", description: "Modul 1 und 2 sicher", modules: [1, 2], icon: "wrench" },
+        { id: "architect", title: "Pipeline-Architekt", description: "Modul 3 und 4 sicher", modules: [3, 4], icon: "pipeline" },
+        { id: "master", title: "Diabetes-Meister", description: "Alle Module sicher", modules: [1, 2, 3, 4, 5, 6], icon: "medal" }
+      ];
+
+      var QUIZZES = {
+        1: [
+          {
+            id: "q1",
+            question: "Warum brauchen Modelle wie KNN oft Scaling?",
+            options: [
+              "Damit große Zahlen kleinere Merkmale nicht allein dominieren",
+              "Damit die Zielvariable automatisch besser wird",
+              "Damit Cross Validation schneller läuft"
+            ],
+            correct: 0,
+            explanation: "Wenn Wohnfläche in großen Zahlen vorliegt und Zimmeranzahl klein bleibt, kippt die Distanzmessung schnell zur lauteren Achse."
+          },
+          {
+            id: "q2",
+            question: "Was macht der MinMaxScaler?",
+            options: [
+              "Er macht aus allen Werten ganze Zahlen",
+              "Er legt Werte typischerweise zwischen 0 und 1",
+              "Er ersetzt fehlende Werte mit dem Mittelwert"
+            ],
+            correct: 1,
+            explanation: "MinMaxScaler schiebt jeden Wert in einen festen Korridor von 0 bis 1."
+          }
+        ],
+        2: [
+          {
+            id: "q1",
+            question: "Warum ist Cross Validation oft besser als nur ein 80/20-Split?",
+            options: [
+              "Weil das Modell dann gar keinen Test mehr braucht",
+              "Weil du siehst, ob das Modell auf verschiedenen Teilmengen stabil bleibt",
+              "Weil dadurch automatisch alle Hyperparameter optimal werden"
+            ],
+            correct: 1,
+            explanation: "Mehrere Folds zeigen dir, ob das Fließband nur auf einer günstigen Teilmenge gut läuft oder auch auf anderen."
+          },
+          {
+            id: "q2",
+            question: "Was ist ein Fold?",
+            options: [
+              "Ein einzelner Hyperparameter",
+              "Ein Teilstück des Datensatzes in der Cross Validation",
+              "Ein Skalierungsschritt in der Pipeline"
+            ],
+            correct: 1,
+            explanation: "Der Datensatz wird in mehrere Teile geschnitten. Jeder Teil ist einmal Testbereich."
+          }
+        ],
+        3: [
+          {
+            id: "q1",
+            question: "Was macht Grid Search?",
+            options: [
+              "Sie prüft jede vorgegebene Kombination von Hyperparametern",
+              "Sie wählt immer nur die schnellste Kombination",
+              "Sie trainiert ohne Testdaten"
+            ],
+            correct: 0,
+            explanation: "Grid Search ist gründlich: Sie läuft durch den ganzen Regler-Zettelkasten."
+          },
+          {
+            id: "q2",
+            question: "Warum ist Random Search bei vielen Reglern oft praktisch?",
+            options: [
+              "Weil zufällige Versuche oft schon gute Regionen treffen, ohne alles zu testen",
+              "Weil sie immer das globale Optimum garantiert",
+              "Weil sie keine Cross Validation braucht"
+            ],
+            correct: 0,
+            explanation: "Bei vielen Parametern wird der komplette Raster schnell riesig. Wenige zufällige Versuche können dann sehr effizient sein."
+          }
+        ],
+        4: [
+          {
+            id: "q1",
+            question: "Warum darfst du Testdaten nicht mit fit_transform skalieren?",
+            options: [
+              "Weil sonst Informationen aus den Testdaten in die Einstellung der Werkstatt rutschen",
+              "Weil StandardScaler nur mit Trainingsdaten existiert",
+              "Weil transform mathematisch besser klingt"
+            ],
+            correct: 0,
+            explanation: "Wenn du auf Testdaten fit machst, lernt die Vorverarbeitung schon aus dem Prüfmaterial. Genau das ist Leakage."
+          },
+          {
+            id: "q2",
+            question: "Wofür ist eine Pipeline praktisch?",
+            options: [
+              "Sie hält Vorverarbeitung und Modell in einer festen Reihenfolge zusammen",
+              "Sie ersetzt alle Hyperparameter automatisch",
+              "Sie macht Cross Validation überflüssig"
+            ],
+            correct: 0,
+            explanation: "Eine Pipeline ist die Produktionsstraße: dieselben Schritte, dieselbe Reihenfolge, sauber wiederholbar."
+          }
+        ],
+        5: [
+          {
+            id: "q1",
+            question: "Welches Modell zieht typischerweise die geradeste Grenze?",
+            options: [
+              "Logistische Regression",
+              "Decision Tree",
+              "Gradient Boosting"
+            ],
+            correct: 0,
+            explanation: "Logistische Regression arbeitet linear. Deshalb ist die Grenze hier meist eine Gerade."
+          },
+          {
+            id: "q2",
+            question: "Welches Modell erzeugt die blockigsten, treppenartigen Grenzen?",
+            options: [
+              "Random Forest",
+              "Decision Tree",
+              "Logistische Regression"
+            ],
+            correct: 1,
+            explanation: "Ein einzelner Baum trennt mit achsenparallelen Schwellen. Dadurch entstehen Rechtecke und Treppen."
+          }
+        ],
+        6: [
+          {
+            id: "q1",
+            question: "Welche Reihenfolge passt zum sauberen Werkstatt-Workflow?",
+            options: [
+              "EDA → Split → Pipeline/CV → Evaluate",
+              "Split → Evaluate → EDA → Grid Search",
+              "Pipeline → EDA → Testdaten fitten → Evaluate"
+            ],
+            correct: 0,
+            explanation: "Erst verstehen, dann sauber trennen, dann die Werkstatt aufbauen und mehrfach testen, erst am Ende urteilen."
+          },
+          {
+            id: "q2",
+            question: "Warum steckt das Modell zusammen mit Imputer und Scaler in derselben Pipeline?",
+            options: [
+              "Damit jede Cross-Validation-Runde die Vorverarbeitung nur auf ihren Trainingsdaten lernt",
+              "Damit man sich den Train/Test-Split sparen kann",
+              "Damit best_params_ automatisch die Zielvariable ersetzt"
+            ],
+            correct: 0,
+            explanation: "So bleibt jede Runde fair. Die Vorverarbeitung lernt nur auf dem Trainingsanteil des jeweiligen Folds."
+          },
+          {
+            id: "q3",
+            question: "Was liefert best_params_ in der Grid Search?",
+            options: [
+              "Die besten gefundenen Hyperparameter",
+              "Die Testdaten im Rohformat",
+              "Die komplette Confusion Matrix"
+            ],
+            correct: 0,
+            explanation: "best_params_ ist der Werkstattzettel mit den besten Reglereinstellungen."
+          }
+        ]
+      };
+
+      var boundaryPoints = [
+        { x: 0.20, y: 0.76, cls: 0 }, { x: 0.26, y: 0.63, cls: 0 }, { x: 0.31, y: 0.55, cls: 0 },
+        { x: 0.18, y: 0.48, cls: 0 }, { x: 0.34, y: 0.72, cls: 0 }, { x: 0.40, y: 0.50, cls: 0 },
+        { x: 0.55, y: 0.72, cls: 1 }, { x: 0.68, y: 0.66, cls: 1 }, { x: 0.79, y: 0.56, cls: 1 },
+        { x: 0.62, y: 0.42, cls: 1 }, { x: 0.74, y: 0.34, cls: 1 }, { x: 0.86, y: 0.46, cls: 1 },
+        { x: 0.48, y: 0.40, cls: 0 }, { x: 0.57, y: 0.55, cls: 1 }
+      ];
+
+      var rawHousing = [
+        { area: 55, rooms: 1.0 },
+        { area: 70, rooms: 2.0 },
+        { area: 88, rooms: 2.0 },
+        { area: 105, rooms: 3.0 },
+        { area: 130, rooms: 4.0 },
+        { area: 155, rooms: 5.0 }
+      ];
+
+      var searchScores = [
+        [0.58, 0.61, 0.66, 0.63, 0.57],
+        [0.62, 0.69, 0.73, 0.71, 0.64],
+        [0.65, 0.76, 0.84, 0.79, 0.68],
+        [0.60, 0.72, 0.97, 0.81, 0.66],
+        [0.55, 0.63, 0.74, 0.70, 0.59]
+      ];
+
+      var memoryFeedback = {};
+      var scalingChart = null;
+      var scalingApplied = false;
+      var currentFoldIndex = 0;
+      var pipelineStep = -1;
+      var workflowStep = -1;
+      var searchState = { revealed: {}, nextGridIndex: 0 };
+
+      function defaultState() {
+        return {
+          points: 0,
+          correct: {},
+          completed: {},
+          demos: {}
+        };
+      }
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) { return defaultState(); }
+          var parsed = JSON.parse(raw);
+          return Object.assign(defaultState(), parsed);
+        } catch (error) {
+          return defaultState();
+        }
+      }
+
+      var state = loadState();
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+          return;
+        }
+      }
+
+      function addPoints(amount) {
+        state.points += amount;
+        saveState();
+      }
+
+      function awardDemo(demoId) {
+        if (state.demos[demoId]) { return; }
+        state.demos[demoId] = true;
+        addPoints(5);
+        updateProgressUI();
+      }
+
+      function getRank() {
+        if (state.points >= 110) { return "Werkstatt-Meister"; }
+        if (state.points >= 60) { return "Fließband-Profi"; }
+        return "Werkbank-Neuling";
+      }
+
+      function isModuleComplete(moduleId) {
+        return !!state.completed[String(moduleId)];
+      }
+
+      function isBadgeUnlocked(badge) {
+        return badge.modules.every(function (moduleId) {
+          return isModuleComplete(moduleId);
+        });
+      }
+
+      function moduleProgressCount() {
+        return MODULES.filter(function (module) {
+          return isModuleComplete(module.id);
+        }).length;
+      }
+
+      function updateProgressUI() {
+        var done = moduleProgressCount();
+        var percent = Math.round((done / MODULES.length) * 100);
+        document.getElementById("sidebar-progress-label").textContent = done + " von 6 Modulen sicher";
+        document.getElementById("sidebar-points-label").textContent = state.points + " Punkte";
+        document.getElementById("stage-progress-label").textContent = percent + " Prozent sicher";
+        document.getElementById("stage-rank-label").textContent = "Rang: " + getRank();
+        document.getElementById("sidebar-rank").textContent = "Rang: " + getRank();
+        document.getElementById("overall-progress").style.width = percent + "%";
+        document.getElementById("stage-progress-fill").style.width = percent + "%";
+
+        MODULES.forEach(function (module) {
+          var pill = document.querySelector('[data-module-pill="' + module.id + '"]');
+          if (!pill) { return; }
+          var correctMap = state.correct[String(module.id)] || {};
+          var total = QUIZZES[module.id].length;
+          var solved = Object.keys(correctMap).length;
+          pill.classList.remove("is-partial", "is-done");
+          if (solved === total && total > 0) {
+            pill.textContent = "Sicher";
+            pill.classList.add("is-done");
+          } else if (solved > 0 || state.demos["module-" + module.id]) {
+            pill.textContent = "In Arbeit";
+            pill.classList.add("is-partial");
+          } else {
+            pill.textContent = "Offen";
+          }
+        });
+
+        renderStepNav();
+        renderBadges();
+      }
+
+      function renderStepNav() {
+        var nav = document.getElementById("step-nav");
+        nav.innerHTML = "";
+        MODULES.forEach(function (module) {
+          var link = document.createElement("a");
+          link.className = "nav-link";
+          if (isModuleComplete(module.id)) {
+            link.classList.add("is-done");
+          }
+          link.href = "#module-" + module.id;
+          link.innerHTML =
+            '<span class="nav-dot">' + (isModuleComplete(module.id) ? "✓" : module.id) + '</span>' +
+            '<span><span class="nav-title">Modul ' + module.id + ": " + module.title + '</span><span class="nav-sub">' + module.summary + '</span></span>';
+          nav.appendChild(link);
+        });
+      }
+
+      function badgeSvg(icon) {
+        if (icon === "wrench") {
+          return '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(99,24,50,0.12)"></circle><path d="M38 14c-1 4 0 8 3 11l-8 8-5-5-8 8 8 8 8-8-5-5 8-8c3 3 7 4 11 3 1-5 0-10-4-14-4-4-9-5-14-4z" fill="#631832"></path></svg>';
+        }
+        if (icon === "pipeline") {
+          return '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="18" width="14" height="28" rx="6" fill="#631832"></rect><rect x="25" y="12" width="14" height="40" rx="6" fill="#173262"></rect><rect x="44" y="24" width="14" height="16" rx="6" fill="#4f7a6a"></rect><path d="M20 32h5M39 32h5" stroke="#9a6b4a" stroke-width="4" stroke-linecap="round"></path></svg>';
+        }
+        return '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="24" r="12" fill="#173262"></circle><path d="M22 36h20l-3 20-7-4-7 4z" fill="#631832"></path><circle cx="32" cy="24" r="5" fill="#f8fafc"></circle></svg>';
+      }
+
+      function renderBadges() {
+        var grid = document.getElementById("badge-grid");
+        grid.innerHTML = "";
+        BADGES.forEach(function (badge) {
+          var unlocked = isBadgeUnlocked(badge);
+          var item = document.createElement("div");
+          item.className = "badge-item" + (unlocked ? " is-unlocked" : "");
+          item.innerHTML =
+            badgeSvg(badge.icon) +
+            '<div><strong>' + badge.title + '</strong><div class="badge-state">' + badge.description + "</div><div class=\"badge-state\">" + (unlocked ? "Freigeschaltet" : "Noch gesperrt") + "</div></div>";
+          grid.appendChild(item);
+        });
+      }
+
+      function renderQuiz(moduleId) {
+        var shell = document.getElementById("quiz-" + moduleId);
+        if (!shell) { return; }
+        shell.innerHTML = "";
+        var correctMap = state.correct[String(moduleId)] || {};
+
+        QUIZZES[moduleId].forEach(function (question) {
+          var key = moduleId + ":" + question.id;
+          var solved = !!correctMap[question.id];
+          var card = document.createElement("div");
+          card.className = "quiz-card";
+
+          var title = document.createElement("div");
+          title.className = "quiz-question";
+          title.textContent = question.question;
+          card.appendChild(title);
+
+          var options = document.createElement("div");
+          options.className = "quiz-options";
+
+          question.options.forEach(function (option, index) {
+            var button = document.createElement("button");
+            button.type = "button";
+            button.className = "quiz-option";
+            button.textContent = option;
+            button.setAttribute("aria-label", "Antwortoption " + (index + 1));
+
+            var wasClickedWrong = memoryFeedback[key] && memoryFeedback[key].selected === index && memoryFeedback[key].type === "wrong";
+            if (solved && index === question.correct) {
+              button.classList.add("is-correct");
+              button.disabled = true;
+            } else if (solved) {
+              button.disabled = true;
+            } else if (wasClickedWrong) {
+              button.classList.add("is-wrong");
+            }
+
+            button.addEventListener("click", function () {
+              handleAnswer(moduleId, question.id, index);
+            });
+            options.appendChild(button);
+          });
+
+          card.appendChild(options);
+
+          if (memoryFeedback[key]) {
+            var feedback = document.createElement("div");
+            feedback.className = "quiz-feedback " + (memoryFeedback[key].type === "correct" ? "is-correct" : "is-wrong");
+            feedback.textContent = memoryFeedback[key].text;
+            card.appendChild(feedback);
+          }
+
+          shell.appendChild(card);
+        });
+      }
+
+      function handleAnswer(moduleId, questionId, selectedIndex) {
+        var questions = QUIZZES[moduleId];
+        var question = questions.find(function (item) { return item.id === questionId; });
+        if (!question) { return; }
+        var key = moduleId + ":" + questionId;
+        if (!state.correct[String(moduleId)]) {
+          state.correct[String(moduleId)] = {};
+        }
+        if (selectedIndex === question.correct) {
+          if (!state.correct[String(moduleId)][questionId]) {
+            state.correct[String(moduleId)][questionId] = true;
+            addPoints(10);
+          }
+          memoryFeedback[key] = {
+            type: "correct",
+            text: "Richtig. " + question.explanation
+          };
+          var solvedCount = Object.keys(state.correct[String(moduleId)]).length;
+          if (solvedCount === QUIZZES[moduleId].length) {
+            state.completed[String(moduleId)] = true;
+          }
+          saveState();
+          updateProgressUI();
+        } else {
+          memoryFeedback[key] = {
+            type: "wrong",
+            selected: selectedIndex,
+            text: "Noch nicht. " + question.explanation
+          };
+        }
+        renderQuiz(moduleId);
+      }
+
+      function getScaledDataset(mode, factor) {
+        var data = rawHousing.map(function (item) {
+          return {
+            x: item.area * factor,
+            y: item.rooms
+          };
+        });
+        if (mode === "raw") {
+          return data;
+        }
+
+        function min(values) { return Math.min.apply(null, values); }
+        function max(values) { return Math.max.apply(null, values); }
+        function mean(values) {
+          return values.reduce(function (sum, value) { return sum + value; }, 0) / values.length;
+        }
+        function std(values) {
+          var m = mean(values);
+          var variance = values.reduce(function (sum, value) {
+            var diff = value - m;
+            return sum + diff * diff;
+          }, 0) / values.length;
+          return Math.sqrt(variance) || 1;
+        }
+
+        var xs = data.map(function (item) { return item.x; });
+        var ys = data.map(function (item) { return item.y; });
+
+        if (mode === "minmax") {
+          var minX = min(xs);
+          var maxX = max(xs);
+          var minY = min(ys);
+          var maxY = max(ys);
+          return data.map(function (item) {
+            return {
+              x: (item.x - minX) / ((maxX - minX) || 1),
+              y: (item.y - minY) / ((maxY - minY) || 1)
+            };
+          });
+        }
+
+        var meanX = mean(xs);
+        var meanY = mean(ys);
+        var stdX = std(xs);
+        var stdY = std(ys);
+        return data.map(function (item) {
+          return {
+            x: (item.x - meanX) / stdX,
+            y: (item.y - meanY) / stdY
+          };
+        });
+      }
+
+      function renderScalingChart() {
+        var factor = parseFloat(document.getElementById("stretch-slider").value);
+        var mode = scalingApplied ? document.getElementById("scaler-select").value : "raw";
+        var dataset = getScaledDataset(mode, factor);
+        var xValues = dataset.map(function (item) { return item.x; });
+        var yValues = dataset.map(function (item) { return item.y; });
+        var xMin = Math.min.apply(null, xValues);
+        var xMax = Math.max.apply(null, xValues);
+        var yMin = Math.min.apply(null, yValues);
+        var yMax = Math.max.apply(null, yValues);
+
+        document.getElementById("stretch-value").textContent = factor.toFixed(1) + "x";
+        document.getElementById("scaler-note-label").textContent = document.getElementById("scaler-select").value === "minmax" ? "MinMaxScaler" : "StandardScaler";
+        document.getElementById("scaling-mode-readout").textContent = mode === "raw" ? "Roh" : (mode === "minmax" ? "MinMax" : "Standard");
+        document.getElementById("x-range-readout").textContent = mode === "raw" ? Math.round(xMin) + "-" + Math.round(xMax) : xMin.toFixed(1) + " bis " + xMax.toFixed(1);
+        document.getElementById("y-range-readout").textContent = mode === "raw" ? yMin.toFixed(0) + "-" + yMax.toFixed(0) : yMin.toFixed(1) + " bis " + yMax.toFixed(1);
+        document.getElementById("scaling-helper").textContent =
+          mode === "raw"
+            ? "Noch schreit die Wohnfläche deutlich lauter als die Zimmerzahl. Klick auf „Skalieren“, damit beide Merkmale fair auf demselben Fließband laufen."
+            : (mode === "minmax"
+              ? "MinMax presst beide Achsen in denselben 0-bis-1-Korridor. Jetzt sprechen beide Werkstattmaße gleich laut."
+              : "StandardScaler verschiebt beide Achsen in eine gemeinsame Z-Welt. Jetzt zählt nicht mehr die Einheit, sondern die relative Abweichung.");
+
+        var chartData = {
+          datasets: [{
+            label: "Wohnungen auf dem Fließband",
+            data: dataset,
+            pointRadius: 6,
+            pointHoverRadius: 7,
+            borderColor: "#173262",
+            backgroundColor: "rgba(23, 50, 98, 0.75)"
+          }]
+        };
+
+        var options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 450 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return "x=" + context.raw.x.toFixed(2) + ", y=" + context.raw.y.toFixed(2);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: mode === "raw" ? "Wohnfläche" : "Wohnfläche skaliert" },
+              grid: { color: "rgba(23, 50, 98, 0.08)" }
+            },
+            y: {
+              title: { display: true, text: mode === "raw" ? "Zimmer" : "Zimmer skaliert" },
+              grid: { color: "rgba(23, 50, 98, 0.08)" }
+            }
+          }
+        };
+
+        if (!scalingChart) {
+          var ctx = document.getElementById("scaling-chart");
+          scalingChart = new Chart(ctx, { type: "scatter", data: chartData, options: options });
+        } else {
+          scalingChart.data = chartData;
+          scalingChart.options = options;
+          scalingChart.update();
+        }
+      }
+
+      function setupScalingDemo() {
+        document.getElementById("stretch-slider").addEventListener("input", function () {
+          awardDemo("module-1");
+          renderScalingChart();
+        });
+        document.getElementById("scaler-select").addEventListener("change", function () {
+          if (!scalingApplied) { return; }
+          awardDemo("module-1");
+          renderScalingChart();
+        });
+        document.getElementById("apply-scaling").addEventListener("click", function () {
+          scalingApplied = true;
+          awardDemo("module-1");
+          renderScalingChart();
+        });
+        document.getElementById("show-raw").addEventListener("click", function () {
+          scalingApplied = false;
+          awardDemo("module-1");
+          renderScalingChart();
+        });
+        renderScalingChart();
+      }
+
+      function renderFoldStrip() {
+        var k = parseInt(document.getElementById("k-select").value, 10);
+        var strip = document.getElementById("fold-strip");
+        strip.innerHTML = "";
+
+        var baseSize = Math.floor(100 / k);
+        var remainder = 100 % k;
+        var sizes = [];
+        for (var i = 0; i < k; i += 1) {
+          sizes.push(baseSize + (i < remainder ? 1 : 0));
+        }
+        if (currentFoldIndex >= k) { currentFoldIndex = 0; }
+        var start = 0;
+        var testStart = 0;
+        var testEnd = 0;
+        sizes.forEach(function (size, index) {
+          if (index === currentFoldIndex) {
+            testStart = start;
+            testEnd = start + size;
+          }
+          start += size;
+        });
+
+        for (var cellIndex = 0; cellIndex < 100; cellIndex += 1) {
+          var cell = document.createElement("div");
+          cell.className = "fold-cell " + (cellIndex >= testStart && cellIndex < testEnd ? "is-test" : "is-train");
+          strip.appendChild(cell);
+        }
+
+        document.getElementById("fold-index-readout").textContent = (currentFoldIndex + 1) + " / " + k;
+        document.getElementById("train-count-readout").textContent = (100 - (testEnd - testStart)).toString();
+        document.getElementById("test-count-readout").textContent = (testEnd - testStart).toString();
+        document.getElementById("fold-helper").textContent = "Fold " + (currentFoldIndex + 1) + " ist gerade Test. Danach wandert der blaue Block weiter, bis jede Teilgruppe einmal geprüft wurde.";
+      }
+
+      function setupFoldDemo() {
+        document.getElementById("k-select").addEventListener("change", function () {
+          currentFoldIndex = 0;
+          awardDemo("module-2");
+          renderFoldStrip();
+        });
+        document.getElementById("next-fold").addEventListener("click", function () {
+          var k = parseInt(document.getElementById("k-select").value, 10);
+          currentFoldIndex = (currentFoldIndex + 1) % k;
+          awardDemo("module-2");
+          renderFoldStrip();
+        });
+        document.getElementById("reset-folds").addEventListener("click", function () {
+          currentFoldIndex = 0;
+          renderFoldStrip();
+        });
+        renderFoldStrip();
+      }
+
+      function cellColor(score) {
+        var green = Math.round(208 - (score - 0.55) * 320);
+        var channel = Math.max(76, Math.min(196, green));
+        return "rgb(" + channel + "," + Math.max(110, Math.min(170, channel + 20)) + "," + channel + ")";
+      }
+
+      function renderSearchGrid() {
+        var grid = document.getElementById("search-grid");
+        grid.innerHTML = "";
+        var best = null;
+        var revealedCount = Object.keys(searchState.revealed).length;
+
+        searchScores.forEach(function (row, rowIndex) {
+          row.forEach(function (score, colIndex) {
+            var key = rowIndex + "-" + colIndex;
+            var cell = document.createElement("div");
+            cell.className = "search-cell";
+            if (!searchState.revealed[key]) {
+              cell.classList.add("is-hidden");
+              cell.textContent = "?";
+            } else {
+              cell.textContent = score.toFixed(2);
+              cell.style.background = cellColor(score);
+              cell.style.color = "#fff";
+              if (!best || score > best) { best = score; }
+            }
+            if (score === 0.97) {
+              cell.classList.add("is-best");
+            }
+            grid.appendChild(cell);
+          });
+        });
+
+        document.getElementById("search-revealed-count").textContent = String(revealedCount);
+        document.getElementById("search-best-score").textContent = best ? best.toFixed(2) : "-";
+      }
+
+      function revealGridStep() {
+        var total = 25;
+        var start = searchState.nextGridIndex;
+        var end = Math.min(start + 5, total);
+        for (var index = start; index < end; index += 1) {
+          var row = Math.floor(index / 5);
+          var col = index % 5;
+          searchState.revealed[row + "-" + col] = true;
+        }
+        searchState.nextGridIndex = end >= total ? total : end;
+        document.getElementById("search-mode-label").textContent = "Grid Search";
+        document.getElementById("search-helper").textContent = end >= total
+          ? "Grid Search hat jetzt das ganze Raster abgearbeitet. Gründlich, aber nicht gerade billig."
+          : "Grid Search deckt gerade die nächste Rezept-Zeile auf. Sehr ordentlich, aber Schritt für Schritt.";
+        renderSearchGrid();
+      }
+
+      function revealRandomStep() {
+        var hidden = [];
+        searchScores.forEach(function (row, rowIndex) {
+          row.forEach(function (_, colIndex) {
+            var key = rowIndex + "-" + colIndex;
+            if (!searchState.revealed[key]) {
+              hidden.push(key);
+            }
+          });
+        });
+        for (var i = 0; i < 5 && hidden.length > 0; i += 1) {
+          var pickIndex = Math.floor(Math.random() * hidden.length);
+          var key = hidden.splice(pickIndex, 1)[0];
+          searchState.revealed[key] = true;
+        }
+        document.getElementById("search-mode-label").textContent = "Random Search";
+        document.getElementById("search-helper").textContent = "Random Search greift in verschiedene Ecken des Rasters. Bei vielen Reglern reicht oft schon ein guter Treffer statt voller Vollständigkeit.";
+        renderSearchGrid();
+      }
+
+      function setupSearchDemo() {
+        document.getElementById("grid-step").addEventListener("click", function () {
+          awardDemo("module-3");
+          revealGridStep();
+        });
+        document.getElementById("random-step").addEventListener("click", function () {
+          awardDemo("module-3");
+          revealRandomStep();
+        });
+        document.getElementById("search-reset").addEventListener("click", function () {
+          searchState = { revealed: {}, nextGridIndex: 0 };
+          document.getElementById("search-mode-label").textContent = "Noch keiner";
+          document.getElementById("search-helper").textContent = "Grid Search läuft Zeile für Zeile. Random Search kann mit viel Glück schon früh in einer guten Zone landen.";
+          renderSearchGrid();
+        });
+        renderSearchGrid();
+      }
+
+      function renderPipelineStages() {
+        var stages = document.querySelectorAll("#pipeline-stages .stage-card");
+        stages.forEach(function (stage, index) {
+          stage.classList.remove("is-active", "is-done");
+          if (index < pipelineStep) {
+            stage.classList.add("is-done");
+          } else if (index === pipelineStep) {
+            stage.classList.add("is-active");
+          }
+        });
+
+        var notes = [
+          "Noch steht das Fließband still. Starte den ersten Werkstattschritt.",
+          "Station 1 ist aktiv: Fehlende Werte werden gefüllt. Erst jetzt ist das Rohmaterial sauber genug.",
+          "Station 2 ist aktiv: Alle Maße werden angeglichen. Die Werkstatt möchte faire Einheiten.",
+          "Station 3 ist aktiv: Jetzt lernt das Modell. Vorher wäre jede Lernregel auf schiefem Material gebaut.",
+          "Station 4 ist aktiv: Neue Testdaten fahren nur noch durch. Genau hier willst du keine neuen Einstellungen mehr lernen."
+        ];
+        document.getElementById("pipeline-helper").textContent = notes[pipelineStep + 1];
+      }
+
+      function setupPipelineDemo() {
+        document.getElementById("pipeline-next").addEventListener("click", function () {
+          pipelineStep = Math.min(3, pipelineStep + 1);
+          awardDemo("module-4");
+          renderPipelineStages();
+        });
+        document.getElementById("pipeline-reset").addEventListener("click", function () {
+          pipelineStep = -1;
+          renderPipelineStages();
+        });
+        renderPipelineStages();
+      }
+
+      function classifyPoint(model, x, y) {
+        function vote(predicates) {
+          var total = 0;
+          predicates.forEach(function (fn) {
+            total += fn(x, y) ? 1 : -1;
+          });
+          return total >= 0 ? 1 : 0;
+        }
+
+        if (model === "logreg") {
+          return y > (0.88 * x + 0.04) ? 0 : 1;
+        }
+
+        if (model === "tree") {
+          if (x < 0.32) { return 0; }
+          if (x < 0.52) { return y > 0.46 ? 0 : 1; }
+          if (x < 0.72) { return y > 0.62 ? 1 : (y > 0.30 ? 1 : 0); }
+          return y > 0.25 ? 1 : 0;
+        }
+
+        if (model === "forest") {
+          return vote([
+            function (px, py) { return py > (0.92 * px + 0.02); },
+            function (px, py) { return px > 0.56 && py < 0.34; },
+            function (px, py) { return px > 0.48 && py < 0.62; },
+            function (px, py) { return px > 0.70 || py < 0.32; },
+            function (px, py) { return px > 0.58 && py < 0.72; }
+          ]);
+        }
+
+        var redCenters = [{ x: 0.24, y: 0.64 }, { x: 0.34, y: 0.55 }, { x: 0.44, y: 0.44 }];
+        var blueCenters = [{ x: 0.66, y: 0.62 }, { x: 0.76, y: 0.46 }, { x: 0.64, y: 0.30 }];
+        function score(centers) {
+          return centers.reduce(function (sum, center) {
+            var dx = x - center.x;
+            var dy = y - center.y;
+            return sum + Math.exp(-(dx * dx + dy * dy) / 0.018);
+          }, 0);
+        }
+        return score(blueCenters) > score(redCenters) ? 1 : 0;
+      }
+
+      function drawBoundaryCanvas() {
+        var canvas = document.getElementById("boundary-canvas");
+        var ctx = canvas.getContext("2d");
+        var model = document.getElementById("boundary-model").value;
+        var width = canvas.width;
+        var height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+
+        var cellSize = 8;
+        for (var x = 0; x < width; x += cellSize) {
+          for (var y = 0; y < height; y += cellSize) {
+            var nx = x / width;
+            var ny = 1 - (y / height);
+            var cls = classifyPoint(model, nx, ny);
+            ctx.fillStyle = cls === 0 ? "rgba(99, 24, 50, 0.12)" : "rgba(23, 50, 98, 0.12)";
+            ctx.fillRect(x, y, cellSize, cellSize);
+          }
+        }
+
+        ctx.strokeStyle = "rgba(23, 50, 98, 0.18)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(40, 10);
+        ctx.lineTo(40, height - 30);
+        ctx.lineTo(width - 10, height - 30);
+        ctx.stroke();
+
+        boundaryPoints.forEach(function (point) {
+          var px = 40 + point.x * (width - 70);
+          var py = 20 + (1 - point.y) * (height - 60);
+          ctx.beginPath();
+          ctx.fillStyle = point.cls === 0 ? "#631832" : "#173262";
+          ctx.arc(px, py, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+        });
+
+        var helperText = {
+          logreg: "Logistische Regression zieht hier eine klare, gerade Grenze. Das wirkt ruhig, aber manchmal auch etwas grob.",
+          tree: "Der einzelne Baum baut eine blockige Treppe. Das passt zum Regel-Charakter eines Decision Trees.",
+          forest: "Der Random Forest mittelt viele Bäume. Dadurch bleibt die Grenze stufig, wirkt aber weniger hart.",
+          boost: "Gradient Boosting schmiegt sich enger an die Punkte an. Das kann stark sein, braucht aber Kontrolle gegen Overfitting."
+        };
+        document.getElementById("boundary-helper").textContent = helperText[model];
+      }
+
+      function setupBoundaryDemo() {
+        document.getElementById("boundary-model").addEventListener("change", function () {
+          awardDemo("module-5");
+          drawBoundaryCanvas();
+        });
+        document.getElementById("boundary-canvas").addEventListener("click", function () {
+          awardDemo("module-5");
+        });
+        drawBoundaryCanvas();
+      }
+
+      function renderWorkflowDemo() {
+        var choices = document.querySelectorAll("[data-workflow-step]");
+        choices.forEach(function (choice, index) {
+          choice.classList.remove("is-selected", "is-correct");
+          if (index < workflowStep) {
+            choice.classList.add("is-correct");
+          } else if (index === workflowStep) {
+            choice.classList.add("is-selected");
+          }
+        });
+
+        var notes = [
+          "Noch steht der Ablauf still. Starte den ersten Takt und gehe den Werkstattweg einmal bewusst durch.",
+          "1. EDA: Du schaust erst auf Material, Verteilungen und Lücken. Ohne diesen Blick justierst du blind.",
+          "2. Split: Jetzt trennst du Training und Test, damit die spätere Qualitätskontrolle fair bleibt.",
+          "3. Pipeline + CV: Jetzt baut die Werkstatt das Fließband und testet es mehrfach auf verschiedenen Teilmengen.",
+          "4. Evaluate: Erst ganz am Ende urteilst du mit den gewählten Metriken über die Qualität."
+        ];
+        document.getElementById("workflow-helper").textContent = notes[workflowStep + 1];
+      }
+
+      function setupWorkflowDemo() {
+        document.getElementById("workflow-next").addEventListener("click", function () {
+          workflowStep = Math.min(3, workflowStep + 1);
+          awardDemo("module-6");
+          renderWorkflowDemo();
+        });
+        document.getElementById("workflow-reset").addEventListener("click", function () {
+          workflowStep = -1;
+          renderWorkflowDemo();
+        });
+        renderWorkflowDemo();
+      }
+
+      function setupGlossary() {
+        var pop = document.getElementById("glossary-pop");
+
+        document.addEventListener("click", function (event) {
+          var button = event.target.closest(".glossary-term");
+          if (button) {
+            event.preventDefault();
+            var rect = button.getBoundingClientRect();
+            pop.innerHTML = "<strong>" + button.dataset.term + "</strong><div>" + button.dataset.definition + "</div>";
+            pop.style.display = "block";
+            pop.style.left = Math.min(window.innerWidth - 300, rect.left + window.scrollX) + "px";
+            pop.style.top = (rect.bottom + window.scrollY + 10) + "px";
+            pop.setAttribute("aria-hidden", "false");
+            return;
+          }
+          if (!event.target.closest("#glossary-pop")) {
+            pop.style.display = "none";
+            pop.setAttribute("aria-hidden", "true");
+          }
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") {
+            pop.style.display = "none";
+            pop.setAttribute("aria-hidden", "true");
+          }
+        });
+      }
+
+      function renderMath() {
+        if (!window.katex) { return; }
+        document.querySelectorAll(".math-formula").forEach(function (node) {
+          try {
+            katex.render(node.dataset.latex, node, { displayMode: true, throwOnError: false });
+          } catch (error) {
+            node.textContent = node.dataset.latex;
+          }
+        });
+      }
+
+      function jumpToNextOpen() {
+        var next = MODULES.find(function (module) {
+          return !isModuleComplete(module.id);
+        });
+        var target = document.getElementById("module-" + (next ? next.id : MODULES[0].id));
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+      function setupReset() {
+        document.getElementById("reset-progress").addEventListener("click", function () {
+          if (!window.confirm("Möchtest du Punkte, Quizstände und Badges für dieses Kapitel wirklich zurücksetzen?")) {
+            return;
+          }
+          state = defaultState();
+          memoryFeedback = {};
+          saveState();
+          MODULES.forEach(function (module) { renderQuiz(module.id); });
+          updateProgressUI();
+        });
+      }
+
+      function setupSidebarToggle() {
+        var sidebar = document.getElementById("sidebar");
+        var toggle = document.getElementById("sidebar-toggle");
+        toggle.addEventListener("click", function () {
+          var collapsed = sidebar.getAttribute("data-collapsed") === "true";
+          sidebar.setAttribute("data-collapsed", collapsed ? "false" : "true");
+          toggle.setAttribute("aria-expanded", collapsed ? "true" : "false");
+        });
+      }
+
+      function setupSectionObserver() {
+        var links = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) { return; }
+            links.forEach(function (link) {
+              link.classList.toggle("is-active", link.getAttribute("href") === "#" + entry.target.id);
+            });
+          });
+        }, { rootMargin: "-35% 0px -50% 0px", threshold: 0.05 });
+
+        MODULES.forEach(function (module) {
+          var section = document.getElementById("module-" + module.id);
+          if (section) { observer.observe(section); }
+        });
+      }
+
+      function init() {
+        renderMath();
+        renderStepNav();
+        renderBadges();
+        MODULES.forEach(function (module) { renderQuiz(module.id); });
+        updateProgressUI();
+        setupScalingDemo();
+        setupFoldDemo();
+        setupSearchDemo();
+        setupPipelineDemo();
+        setupBoundaryDemo();
+        setupWorkflowDemo();
+        setupGlossary();
+        setupReset();
+        setupSidebarToggle();
+        setupSectionObserver();
+
+        document.getElementById("jump-next-open").addEventListener("click", jumpToNextOpen);
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    }());
+  </script>
+</body>
+</html>

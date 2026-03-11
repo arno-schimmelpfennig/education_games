@@ -33,14 +33,15 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 5. `gradient_descent_interaktion.html`
 6. `klassifikation_metriken_interaktion.html` (Evaluation Metrics: Konfusionsmatrix, Precision/Recall, Threshold, ROC/AUC, Regressionsmetriken)
 7. `logistic_regression.html` (neu: Sigmoid, Entscheidungsgrenze, Log-Loss, Threshold, Multiclass)
-8. `feature_engineering.html` (neu: Imputation, Encoding, Scaling, Binning, Feature Expansion, Pipeline als Browser-Kapitel; direkte Bruecke von Logistischer Regression zu KNN)
-9. `knn_grundlagen_interaktion.html` (neu: KNN-Idee, Klassifikation/Regression, Mehrheitsentscheid)
-10. `knn_hyperparameter_tuning_interaktion.html` (neu: Wahl von `k`, Overfit/Underfit, Validierungslogik, Gewichtung)
-11. `distanzmetriken_und_scaling_interaktion.html` (neu: Euklidisch, Manhattan, Minkowski, Cosinus, Skalierung)
-11a. `decision_trees_interaktion.html` (neu: Ja/Nein-Fragen, Purity, Gini, Rekursion, Pruning)
-11b. `ensemble_methods_interaktion.html` (neu: Voting, Bagging, Random Forest, Boosting, Stacking, Feature Importance)
-12. `matrix_interaktion.html`
-13. `matrizenmultiplikation_interaktion.html`
+8. `feature_engineering.html` (neu: Imputation, Encoding, Scaling, Binning, Feature Expansion, Pipeline als Browser-Kapitel)
+9. `model_tuning.html` (neu: Scaling, Cross Validation, Grid Search, Random Search, Pipelines, Decision Boundaries und Diabetes-Challenge als Werkstatt-Kapitel)
+10. `knn_grundlagen_interaktion.html` (neu: KNN-Idee, Klassifikation/Regression, Mehrheitsentscheid)
+11. `knn_hyperparameter_tuning_interaktion.html` (neu: Wahl von `k`, Overfit/Underfit, Validierungslogik, Gewichtung)
+12. `distanzmetriken_und_scaling_interaktion.html` (neu: Euklidisch, Manhattan, Minkowski, Cosinus, Skalierung)
+12a. `decision_trees_interaktion.html` (neu: Ja/Nein-Fragen, Purity, Gini, Rekursion, Pruning)
+12b. `ensemble_methods_interaktion.html` (neu: Voting, Bagging, Random Forest, Boosting, Stacking, Feature Importance)
+13. `matrix_interaktion.html`
+14. `matrizenmultiplikation_interaktion.html`
 
 ### Archivierte Altseiten
 - Ersetzte Legacy-Seiten liegen unter `archive/legacy_lernpfad/`.
@@ -48,7 +49,7 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 - Der aktive neue Lernpfad verlinkt nicht mehr auf diese Dateien.
 
 Hinweis: Die neuen Schritte 0a, 5, 6 und 7 wurden aus dem Transkript 03-04 abgeleitet und sind fachlich verpflichtend fuer den roten Faden.
-Hinweis zur Reihenfolge: Im aktiven Kernpfad fuehrt `Evaluation Metrics` zu `logistic_regression.html`, dann zu `feature_engineering.html` und erst danach zu `knn_grundlagen_interaktion.html`. `unit_testing_interaktion.html` ist ein optionaler Querschnittsbaustein und kein Standard-Nachfolger von KNN.
+Hinweis zur Reihenfolge: Im aktiven Kernpfad fuehrt `Evaluation Metrics` zu `logistic_regression.html`, dann zu `feature_engineering.html`, danach zu `model_tuning.html` und erst dann zu `knn_grundlagen_interaktion.html`. `unit_testing_interaktion.html` ist ein optionaler Querschnittsbaustein und kein Standard-Nachfolger von KNN.
 
 ## Roter Faden (Pfadlogik mit Storytelling)
 Story-Figur fuer den Einstieg: **Mira (34), lebt in Koeln, pendelt, kauft ein, plant ihr Monatsbudget und will Daten "alltagstauglich" verstehen.**
@@ -73,17 +74,19 @@ Mira lernt, warum Accuracy allein oft taeuscht, wie Konfusionsmatrix, Precision,
 Mira sieht, wie aus einem Score ueber die Sigmoid-Funktion eine Wahrscheinlichkeit wird, wie Thresholds Entscheidungen verschieben und warum Log-Loss falsche Sicherheit hart bestraft.
 8. Feature Engineering:
 Mira merkt, dass Rohdaten noch keine verdaulichen Modell-Zutaten sind: fehlende Werte, Textspalten, Skalen und Pipelines muessen sauber vorbereitet werden.
-9. KNN-Grundlagen:
+9. Model Tuning:
+Mira richtet die Modell-Werkstatt ein: gleiche Skalen, mehrere Probeessen, systematische Reglersuche und saubere Fließbaender gegen Leakage.
+10. KNN-Grundlagen:
 Mira sortiert ein neues Produkt in die "aehnlichsten" Produktgruppen ein: Aehnlichkeit statt fester Formel.
-10. KNN-Hyperparameter:
+11. KNN-Hyperparameter:
 Mira sieht, wie `k=1` zu nervoes reagiert, `k=100` zu grob wird und ein mittleres `k` oft robuster ist.
-11. Distanzmetriken + Skalierung:
+12. Distanzmetriken + Skalierung:
 Berlin->Nuernberg als Luftlinie (euklidisch) vs. Strassennetz (manhattan) plus Skalierung, damit keine Achse unfair dominiert.
-12. Matrix:
+13. Matrix:
 Mehrere Einflussfaktoren werden als Eingabestruktur fuer Modelle organisiert.
-13. Matrizenmultiplikation:
+14. Matrizenmultiplikation:
 Die gleiche Logik wird als skalierbare Rechenform `X*w+b` gebuendelt.
-13. Praxis-Transfer:
+15. Praxis-Transfer:
 Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residuen, Outlier) und direkt in die Kapiteluebungen integriert.
 
 ## Neue Schritte aus dem Transkript 03-04 (didaktisch aufbereitet)
@@ -205,6 +208,7 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
   - `knn_grundlagen_interaktion.html`
   - `knn_hyperparameter_tuning_interaktion.html`
   - `distanzmetriken_und_scaling_interaktion.html`
+  - `model_tuning.html`
   - `decision_trees_interaktion.html`
   - `ensemble_methods_interaktion.html`
   - `unit_testing_interaktion.html`
