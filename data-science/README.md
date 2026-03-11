@@ -40,6 +40,7 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 12. `distanzmetriken_und_scaling_interaktion.html` (neu: Euklidisch, Manhattan, Minkowski, Cosinus, Skalierung)
 12a. `decision_trees_interaktion.html` (neu: Ja/Nein-Fragen, Purity, Gini, Rekursion, Pruning)
 12b. `ensemble_methods_interaktion.html` (neu: Voting, Bagging, Random Forest, Boosting, Stacking, Feature Importance)
+12c. `ml_finale_xgboost.html` (neu: Boosting-Mechanik, XGBoost, Overfitting, Stakeholder-Dilemma, Decision Boundaries, Bias-Varianz-Matrix)
 13. `matrix_interaktion.html`
 14. `matrizenmultiplikation_interaktion.html`
 
@@ -50,6 +51,7 @@ Dieses Dokument fixiert die Ausrichtung des gesamten Data-Science-Pfads, damit n
 
 Hinweis: Die neuen Schritte 0a, 5, 6 und 7 wurden aus dem Transkript 03-04 abgeleitet und sind fachlich verpflichtend fuer den roten Faden.
 Hinweis zur Reihenfolge: Im aktiven Kernpfad fuehrt `Evaluation Metrics` zu `logistic_regression.html`, dann zu `feature_engineering.html`, danach zu `model_tuning.html` und erst dann zu `knn_grundlagen_interaktion.html`. `unit_testing_interaktion.html` ist ein optionaler Querschnittsbaustein und kein Standard-Nachfolger von KNN.
+Hinweis zum Abschluss des klassischen ML-Blocks: Nach `ensemble_methods_interaktion.html` folgt jetzt `ml_finale_xgboost.html` als zusammenfassendes Finale, bevor der Pfad in `matrix_interaktion.html` weitergeht.
 
 ## Roter Faden (Pfadlogik mit Storytelling)
 Story-Figur fuer den Einstieg: **Mira (34), lebt in Koeln, pendelt, kauft ein, plant ihr Monatsbudget und will Daten "alltagstauglich" verstehen.**
@@ -211,4 +213,5 @@ Alles wird in einen reproduzierbaren Workflow ueberfuehrt (Split, Tuning, Residu
   - `model_tuning.html`
   - `decision_trees_interaktion.html`
   - `ensemble_methods_interaktion.html`
+  - `ml_finale_xgboost.html`
   - `unit_testing_interaktion.html`

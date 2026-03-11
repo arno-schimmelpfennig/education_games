@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ML-Finale: XGBoost | Data Science</title>
+  <meta name="description" content="Interaktives Abschlusskapitel zu Boosting, XGBoost, Overfitting und Entscheidungsgrenzen im klassischen Machine Learning.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <style>
+    :root {
+      --primary: #631832;
+      --primary-light: #efe6eb;
+      --secondary: #173262;
+      --secondary-light: #e8eef8;
+      --success: #4f7a6a;
+      --danger: #8c3a4a;
+      --warning: #9a6b4a;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #231a24;
+      --text-light: #6d616b;
+      --line: #ddd1d8;
+      --shadow: 0 18px 36px rgba(99, 24, 50, 0.12);
+      --radius: 18px;
+      --sidebar-width: 318px;
+      --content-max: 1040px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 24, 50, 0.09), transparent 34%),
+        linear-gradient(180deg, #faf7f9 0%, var(--bg) 44%, #f1f4f7 100%);
+    }
+    a { color: inherit; }
+    button, select, input { font: inherit; }
+    button:focus-visible,
+    a:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(23, 50, 98, 0.25);
+      outline-offset: 2px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f4f6 100%);
+      border-right: 1px solid var(--line);
+      z-index: 20;
+    }
+
+    #stage {
+      min-width: 0;
+      padding: 16px;
+    }
+
+    .brandline {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-card,
+    .hero,
+    .sticky-shell,
+    .module,
+    .footer-card,
+    .plot-card,
+    .card-shell {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-card { padding: 14px; margin-top: 14px; }
+    .sidebar-card p,
+    .module p,
+    .module li,
+    .footer-card p { line-height: 1.65; }
+
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.02em; }
+    h1 { margin-top: 8px; font-size: 1.95rem; line-height: 1.06; color: var(--primary); }
+    h2 { font-size: 1.35rem; color: var(--primary); }
+    h3 { font-size: 1rem; color: var(--primary); }
+    h4 { font-size: 0.96rem; color: var(--text); }
+
+    .lead {
+      margin-top: 10px;
+      font-size: 0.96rem;
+      color: var(--text-light);
+    }
+
+    .card-kicker,
+    .module-index {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .hero {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -80px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(23, 50, 98, 0.15), transparent 68%);
+    }
+
+    .meta-grid,
+    .badge-grid,
+    .module-grid,
+    .demo-grid,
+    .workflow-grid,
+    .legend-row,
+    .quiz-options,
+    .matrix-grid,
+    .boundary-controls,
+    .cta-row {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
+    .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .demo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .workflow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .badge-grid { margin-top: 10px; }
+    .legend-row,
+    .cta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .meta-card,
+    .callout,
+    .formula-block,
+    .exercise-card,
+    .quiz-feedback,
+    .result-box,
+    .helper-note,
+    .code-note,
+    .reflection,
+    .stakeholder-card,
+    .boundary-shell,
+    .weight-card,
+    .matrix-card {
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      color: var(--text-light);
+    }
+
+    .callout {
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.06), rgba(23, 50, 98, 0.04));
+      color: var(--text);
+    }
+
+    .meta-card strong,
+    .badge-item strong { display: block; color: var(--secondary); margin-bottom: 4px; }
+
+    .btn,
+    .nav-link,
+    .quiz-option,
+    .choice-btn,
+    .boundary-btn,
+    .check-btn {
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn,
+    .check-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 14px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 12px 24px rgba(99, 24, 50, 0.18);
+    }
+
+    .btn.secondary,
+    .quiz-option,
+    .choice-btn,
+    .boundary-btn,
+    .nav-link {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid #d5c7cf;
+      box-shadow: none;
+    }
+
+    .btn:hover,
+    .check-btn:hover,
+    .quiz-option:hover,
+    .choice-btn:hover,
+    .boundary-btn:hover,
+    .nav-link:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .btn.secondary:hover,
+    .quiz-option:hover,
+    .choice-btn:hover,
+    .boundary-btn:hover,
+    .nav-link:hover {
+      background: #f8f6f8;
+    }
+
+    .glossary-term {
+      border: 1px solid rgba(23, 50, 98, 0.18);
+      background: rgba(23, 50, 98, 0.08);
+      color: var(--secondary);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0 2px;
+    }
+
+    .glossary-panel {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(23, 50, 98, 0.08);
+      border: 1px solid rgba(23, 50, 98, 0.16);
+      color: var(--secondary);
+    }
+
+    .sticky-shell {
+      position: sticky;
+      top: 16px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      z-index: 10;
+    }
+
+    .sticky-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #ebe4e8;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.25s ease;
+    }
+
+    .sidebar-nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .nav-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 12px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .nav-link.is-active {
+      border-color: rgba(99, 24, 50, 0.3);
+      background: rgba(99, 24, 50, 0.08);
+      color: var(--primary);
+    }
+
+    .nav-link.is-safe {
+      border-color: rgba(79, 122, 106, 0.35);
+      background: rgba(79, 122, 106, 0.1);
+      color: var(--success);
+    }
+
+    .badge-item {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      opacity: 0.55;
+    }
+
+    .badge-item svg {
+      width: 36px;
+      height: 36px;
+      display: block;
+    }
+
+    .badge-item.earned {
+      opacity: 1;
+      border-color: rgba(79, 122, 106, 0.45);
+      background: linear-gradient(135deg, rgba(79, 122, 106, 0.14), rgba(23, 50, 98, 0.05));
+    }
+
+    .module {
+      margin-top: 18px;
+      padding: 18px;
+      scroll-margin-top: 110px;
+    }
+
+    .module-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .module-summary {
+      margin-top: 6px;
+      color: var(--text-light);
+    }
+
+    .module-status {
+      min-width: 120px;
+      text-align: center;
+      font-weight: 800;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(99, 24, 50, 0.16);
+    }
+
+    .module-status.is-safe {
+      background: rgba(79, 122, 106, 0.12);
+      color: var(--success);
+      border-color: rgba(79, 122, 106, 0.25);
+    }
+
+    .plot-card,
+    .card-shell { padding: 14px; }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+    }
+
+    .weight-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .weight-table th,
+    .weight-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #ece3e7;
+      text-align: left;
+    }
+
+    .weight-table tr.focus-row {
+      background: rgba(140, 58, 74, 0.08);
+    }
+
+    .weight-bar-shell {
+      height: 10px;
+      border-radius: 999px;
+      background: #ebe4e8;
+      overflow: hidden;
+    }
+
+    .weight-bar {
+      height: 100%;
+      width: 20%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      transition: width 0.5s ease;
+    }
+
+    .quiz-shell {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #fcfbfc;
+      border: 1px solid var(--line);
+    }
+
+    .quiz-options { margin-top: 12px; }
+
+    .quiz-option {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      font-weight: 600;
+    }
+
+    .quiz-feedback {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .quiz-feedback.is-visible { display: block; }
+    .quiz-feedback.is-correct {
+      background: rgba(79, 122, 106, 0.12);
+      border-color: rgba(79, 122, 106, 0.26);
+      color: var(--success);
+    }
+    .quiz-feedback.is-wrong {
+      background: rgba(140, 58, 74, 0.08);
+      border-color: rgba(140, 58, 74, 0.22);
+      color: var(--danger);
+    }
+
+    .scenario-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .choice-btn,
+    .boundary-btn {
+      padding: 10px 12px;
+      font-weight: 700;
+      width: auto;
+    }
+
+    .choice-btn.is-selected,
+    .boundary-btn.is-selected {
+      background: rgba(23, 50, 98, 0.12);
+      border-color: rgba(23, 50, 98, 0.28);
+      color: var(--secondary);
+    }
+
+    .choice-btn.is-right {
+      background: rgba(79, 122, 106, 0.14);
+      border-color: rgba(79, 122, 106, 0.28);
+      color: var(--success);
+    }
+
+    .choice-btn.is-wrong {
+      background: rgba(140, 58, 74, 0.08);
+      border-color: rgba(140, 58, 74, 0.22);
+      color: var(--danger);
+    }
+
+    .boundary-board {
+      position: relative;
+      width: min(100%, 460px);
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+      margin: 0 auto;
+    }
+
+    #boundary-bg,
+    #boundary-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .matrix-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .matrix-card select {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .helper-note {
+      background: rgba(154, 107, 74, 0.08);
+      border-color: rgba(154, 107, 74, 0.18);
+      color: var(--warning);
+    }
+
+    .reflection {
+      background: rgba(23, 50, 98, 0.06);
+      color: var(--secondary);
+      margin-top: 16px;
+    }
+
+    pre[class*="language-"] {
+      margin: 0;
+      border-radius: 14px;
+      max-height: 360px;
+    }
+
+    .footer-card {
+      margin: 18px 0 36px;
+      padding: 18px;
+    }
+
+    @media (max-width: 1080px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sticky-shell { position: static; }
+    }
+
+    @media (max-width: 820px) {
+      .meta-grid,
+      .module-grid,
+      .demo-grid,
+      .workflow-grid,
+      .matrix-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .module-head,
+      .sticky-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .module-status { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" aria-label="Kapitelübersicht">
+      <div class="brandline">AS Digital Marketing | Data Science Lab</div>
+      <div class="sidebar-card">
+        <div class="card-kicker">ML-Finale</div>
+        <h1>XGBoost & Modell-Gefühl</h1>
+        <p class="lead">Die letzte Runde im klassischen Machine Learning: Fehler gezielt reparieren, Overfitting stoppen und das richtige Modell für den richtigen Gesprächspartner wählen.</p>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Fortschritt</div>
+        <div id="progress-copy"><strong>0 von 5 Modulen sicher</strong></div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>Punkte</strong>
+            <span id="points-copy">0</span>
+          </div>
+          <div class="meta-card">
+            <strong>Level</strong>
+            <span id="rank-copy">Startklar</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Navigation</div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="#module-1" data-nav-link="module-1"><span>1. Boosting & Herr Huber</span><span>○</span></a>
+          <a class="nav-link" href="#module-2" data-nav-link="module-2"><span>2. XGBoost & Overfitting</span><span>○</span></a>
+          <a class="nav-link" href="#module-3" data-nav-link="module-3"><span>3. Stakeholder-Dilemma</span><span>○</span></a>
+          <a class="nav-link" href="#module-4" data-nav-link="module-4"><span>4. Decision Boundaries</span><span>○</span></a>
+          <a class="nav-link" href="#module-5" data-nav-link="module-5"><span>5. Bias-Varianz-Matrix</span><span>○</span></a>
+        </nav>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="card-kicker">Badges</div>
+        <div class="badge-grid">
+          <div class="badge-item" id="badge-fehler-fahnder">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="26" cy="26" r="16" fill="#173262" opacity=".15"></circle>
+              <circle cx="26" cy="26" r="12" fill="#173262"></circle>
+              <rect x="36" y="36" width="18" height="6" rx="3" transform="rotate(45 36 36)" fill="#631832"></rect>
+            </svg>
+            <div>
+              <strong>Fehler-Fahnder</strong>
+              Modul 1 sicher
+            </div>
+          </div>
+          <div class="badge-item" id="badge-xgboost-champion">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M12 18h40l-8 12 8 12H12l8-12z" fill="#631832" opacity=".18"></path>
+              <path d="M19 20h10l7 10-7 10H19l7-10z" fill="#631832"></path>
+              <path d="M35 20h10l7 10-7 10H35l7-10z" fill="#173262"></path>
+            </svg>
+            <div>
+              <strong>XGBoost-Champion</strong>
+              Modul 2 und 3 sicher
+            </div>
+          </div>
+          <div class="badge-item" id="badge-modell-fluesterer">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M32 8l7.4 15 16.6 2.4-12 11.7 2.8 16.5L32 46 17.2 53.6 20 37.1 8 25.4 24.6 23z" fill="#4f7a6a"></path>
+            </svg>
+            <div>
+              <strong>Modell-Flüsterer</strong>
+              Alle fünf Module sicher
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main id="stage">
+      <div class="sticky-shell">
+        <div class="sticky-top">
+          <div>
+            <div class="card-kicker">Abschluss des klassischen ML-Blocks</div>
+            <h2>Von einzelnen Bäumen zum Ensemble-Gefühl</h2>
+          </div>
+          <div class="helper-note">Merksatz: Gute Modelle sind nicht automatisch gute Erklärer. Gute Erklärer sind nicht automatisch die stärksten Modelle.</div>
+        </div>
+      </div>
+
+      <section class="hero">
+        <div class="card-kicker">Die Werkstatt-Metapher</div>
+        <h2>Mehrere Mechaniker, ein Ziel</h2>
+        <p class="lead">Ein einzelnes Modell ist wie ein Mechaniker mit einer Spezialzange. Ein Ensemble ist eine ganze Werkstatt: Einer sucht Fehler, der nächste bessert nach, ein dritter macht die Feinarbeit. Genau das macht XGBoost so stark.</p>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>Was du hier lernst</strong>
+            Wie Boosting Fehler nacheinander repariert, warum XGBoost trotzdem übertreiben kann und wann ein einfacheres Modell die bessere Wahl ist.
+          </div>
+          <div class="meta-card">
+            <strong>Wichtig für die Praxis</strong>
+            Im echten Projekt geht es selten nur um Genauigkeit. Oft zählen Nachvollziehbarkeit, Stabilität und die Frage, wem du das Ergebnis erklären musst.
+          </div>
+        </div>
+      </section>
+
+      <section class="module" id="module-1">
+        <div class="module-head">
+          <div>
+            <div class="module-index">Modul 1</div>
+            <h2>Boosting & Herr Huber</h2>
+            <p class="module-summary">Ein Modell macht einen Fehler. Das nächste Modell schaut genau dorthin. So arbeitet Boosting Schritt für Schritt.</p>
+          </div>
+          <div class="module-status" data-module-pill="module-1">Offen</div>
+        </div>
+
+        <div class="callout">
+          <h3>Alltagsbild: Der Nachhilfelehrer mit der roten Akte</h3>
+          <p>Stell dir vor, fünf Kunden schreiben dieselbe Kreditprüfung. Beim ersten Durchgang rutschen vier sauber durch. Nur Herr Huber fällt auf: hohes Einkommen, aber auch sehr hohe Schulden. Der Nachhilfelehrer legt seine Akte rot auf den Tisch. Ab jetzt schaut der zweite Durchgang genau dort hin.</p>
+        </div>
+
+        <div class="module-grid">
+          <div class="card-shell">
+            <h3>Die Idee in ML-Sprache</h3>
+            <p>Boosting baut Modelle <strong>nacheinander</strong>. Nach jedem Durchgang werden Fehler wichtiger gewichtet. Vereinfacht gilt:</p>
+            <div class="formula-block">
+              <div id="boost-formula"></div>
+            </div>
+            <p>Hier steht \(w_i\) für die Aufmerksamkeit auf Fall \(i\). Wurde der Fall falsch getroffen, steigt sein Gewicht.</p>
+          </div>
+          <div class="card-shell">
+            <h3>Begriffe zum Anklicken</h3>
+            <p>
+              <button class="glossary-term" data-term="boosting">Boosting</button>
+              <button class="glossary-term" data-term="gewicht">Gewicht</button>
+              <button class="glossary-term" data-term="sequenziell">sequenziell</button>
+            </p>
+            <div class="glossary-panel" id="glossary-panel"></div>
+          </div>
+        </div>
+
+        <div class="plot-card">
+          <h3>Die rote Akte</h3>
+          <p>Alle fünf Kunden starten mit demselben Gewicht 0.20. Dann trainierst du Modell 1 und Modell 2.</p>
+          <table class="weight-table" aria-label="Tabelle der Kunden und Gewichte">
+            <thead>
+              <tr>
+                <th>Kunde</th>
+                <th>Profil</th>
+                <th>Gewicht</th>
+                <th>Aufmerksamkeit</th>
+              </tr>
+            </thead>
+            <tbody id="weight-table-body"></tbody>
+          </table>
+          <div class="cta-row" style="margin-top:14px">
+            <button class="btn secondary" id="train-model-1">Modell 1 trainieren</button>
+            <button class="btn secondary" id="train-model-2" disabled>Modell 2 trainieren</button>
+          </div>
+          <div class="result-box" id="boosting-result">Noch ist alles gleich gewichtet. Starte mit Modell 1.</div>
+        </div>
+
+        <div class="reflection">Was nimmst du mit? Boosting baut keine „Superformel auf einmal“, sondern repariert Fehler Runde für Runde.</div>
+      </section>
+
+      <section class="module" id="module-2">
+        <div class="module-head">
+          <div>
+            <div class="module-index">Modul 2</div>
+            <h2>XGBoost & Overfitting</h2>
+            <p class="module-summary">Sehr stark heißt nicht grenzenlos gut. Wer zu lange nachlernt, kann die Übungsaufgaben auswendig lernen und auf neuen Daten schlechter werden.</p>
+          </div>
+          <div class="module-status" data-module-pill="module-2">Offen</div>
+        </div>
+
+        <div class="callout">
+          <h3>Alltagsbild: Der Streber-Effekt</h3>
+          <p>Ein Schüler macht erst große Fortschritte. Dann lernt er nur noch die alten Übungsblätter auswendig. In der Prüfung erkennt er das Muster nicht mehr. Genau so entsteht Overfitting.</p>
+        </div>
+
+        <div class="module-grid">
+          <div class="plot-card">
+            <h3>Der Overfitting-Slider</h3>
+            <p>Zieh die Anzahl der Boosting-Runden hoch. Die blaue Trainingskurve sinkt fast immer. Die rote Testkurve wird ab einem Punkt wieder schlechter.</p>
+            <label for="boost-rounds"><strong>Anzahl Boosting-Runden:</strong> <span id="round-label">50</span></label>
+            <input id="boost-rounds" type="range" min="1" max="500" value="50" step="1" style="width:100%; margin:12px 0;">
+            <div class="chart-wrap"><canvas id="boost-chart" aria-label="Diagramm für Trainings- und Testfehler"></canvas></div>
+            <div class="helper-note" id="overfit-note">Im Moment sinken Trainings- und Testfehler gemeinsam. Das Modell lernt noch nützlich.</div>
+          </div>
+          <div class="quiz-shell">
+            <h3>Mini-Quiz</h3>
+            <p>Wann solltest du das Boosting-Training stoppen?</p>
+            <div class="quiz-options">
+              <button class="quiz-option" data-quiz="module-2" data-answer="a">Erst wenn der Trainingsfehler exakt 0 ist</button>
+              <button class="quiz-option" data-quiz="module-2" data-answer="b">Bevor der Testfehler wieder ansteigt – das ist Early Stopping</button>
+              <button class="quiz-option" data-quiz="module-2" data-answer="c">Immer nach genau 500 Runden</button>
+            </div>
+            <div class="quiz-feedback" id="quiz-feedback-module-2"></div>
+          </div>
+        </div>
+
+        <div class="exercise-card">
+          <h3>Code-Idee aus der Praxis</h3>
+          <pre class="language-python"><code class="language-python">from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+
+X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = XGBClassifier(
+    n_estimators=500,
+    learning_rate=0.05,
+    max_depth=4,
+    random_state=42
+)
+
+model.fit(
+    X_train,
+    y_train,
+    eval_set=[(X_valid, y_valid)],
+    verbose=False
+)</code></pre>
+          <div class="code-note">Die Idee: Viele Bäume vorbereiten, aber auf einem Prüf-Set beobachten, wann der Nutzen aufhört.</div>
+        </div>
+
+        <div class="reflection">Was nimmst du mit? Ein sehr starkes Modell braucht eine Bremse. Sonst wird aus Lernen schnell Auswendiglernen.</div>
+      </section>
+
+      <section class="module" id="module-3">
+        <div class="module-head">
+          <div>
+            <div class="module-index">Modul 3</div>
+            <h2>Das Stakeholder-Dilemma</h2>
+            <p class="module-summary">Mehr Leistung oder mehr Erklärung? Genau diese Frage entscheidet oft darüber, welches Modell du wirklich einsetzen darfst.</p>
+          </div>
+          <div class="module-status" data-module-pill="module-3">Offen</div>
+        </div>
+
+        <div class="callout">
+          <h3>White Box vs. Black Box</h3>
+          <p>Ein einfacher Baum oder eine lineare Regression sind wie ein gläserner Werkzeugkoffer. Du siehst hinein. XGBoost ist eher eine Profi-Werkstatt mit vielen kleinen Zahnrädern. Sehr stark, aber der genaue Weg ist schwerer zu erzählen.</p>
+          <p>
+            <button class="glossary-term" data-term="white-box">White Box</button>
+            <button class="glossary-term" data-term="black-box">Black Box</button>
+          </p>
+        </div>
+
+        <div class="workflow-grid">
+          <div class="stakeholder-card" data-scenario="a">
+            <h3>Szenario A</h3>
+            <p>Die Chefärztin will genau wissen, <strong>warum</strong> das Modell Krebs diagnostiziert hat. Sie braucht eine Erklärung für die Ethik-Kommission.</p>
+            <div class="scenario-actions">
+              <button class="choice-btn" data-scenario="a" data-choice="tree">Entscheidungsbaum (White Box)</button>
+              <button class="choice-btn" data-scenario="a" data-choice="xgb">XGBoost (Black Box)</button>
+            </div>
+            <div class="quiz-feedback" id="scenario-feedback-a"></div>
+          </div>
+          <div class="stakeholder-card" data-scenario="b">
+            <h3>Szenario B</h3>
+            <p>Ein Online-Shop will einfach nur 5 % mehr Umsatz durch bessere Produktempfehlungen. Keinen interessiert das Warum, nur die Trefferquote.</p>
+            <div class="scenario-actions">
+              <button class="choice-btn" data-scenario="b" data-choice="tree">Entscheidungsbaum (White Box)</button>
+              <button class="choice-btn" data-scenario="b" data-choice="xgb">XGBoost (Black Box)</button>
+            </div>
+            <div class="quiz-feedback" id="scenario-feedback-b"></div>
+          </div>
+        </div>
+
+        <div class="result-box" id="stakeholder-summary">Du brauchst beide Antworten richtig, um das Dilemma sauber zu lösen.</div>
+        <div class="reflection">Was nimmst du mit? Das „beste“ Modell hängt nicht nur an der Genauigkeit, sondern auch daran, wem du das Ergebnis erklären musst.</div>
+      </section>
+
+      <section class="module" id="module-4">
+        <div class="module-head">
+          <div>
+            <div class="module-index">Modul 4</div>
+            <h2>Die große Landkarte</h2>
+            <p class="module-summary">Vier Modelle, dieselben Punkte, vier ganz verschiedene Grenzzäune. So fühlt man Model-Komplexität visuell.</p>
+          </div>
+          <div class="module-status" data-module-pill="module-4">Offen</div>
+        </div>
+
+        <div class="callout">
+          <h3>Grenzpatrouille im Datenraum</h3>
+          <p>Alle Modelle sollen rote und blaue Punkte trennen. Aber jedes tut das anders: mal stur mit einer geraden Linie, mal blockig, mal fast wie eine maßgeschneiderte Kontur.</p>
+        </div>
+
+        <div class="demo-grid">
+          <div class="boundary-shell">
+            <h3>Algorithmus wählen</h3>
+            <div class="boundary-controls">
+              <button class="boundary-btn is-selected" data-boundary="logreg">Logistische Regression</button>
+              <button class="boundary-btn" data-boundary="tree">Entscheidungsbaum</button>
+              <button class="boundary-btn" data-boundary="forest">Random Forest</button>
+              <button class="boundary-btn" data-boundary="xgboost">XGBoost</button>
+            </div>
+            <p id="boundary-caption">Hier zieht das Modell eine einzige gerade Linie quer durch das Feld. Das ist einfach, aber nicht sehr biegsam.</p>
+          </div>
+          <div class="boundary-shell">
+            <div class="boundary-board">
+              <canvas id="boundary-bg" width="460" height="460"></canvas>
+              <canvas id="boundary-overlay" width="460" height="460"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-shell">
+          <h3>Kurzer Check</h3>
+          <p>Welches Modell zeigt hier die glatteste und präziseste Grenze?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-quiz="module-4" data-answer="a">Der einzelne Entscheidungsbaum</button>
+            <button class="quiz-option" data-quiz="module-4" data-answer="b">XGBoost</button>
+            <button class="quiz-option" data-quiz="module-4" data-answer="c">Logistische Regression</button>
+          </div>
+          <div class="quiz-feedback" id="quiz-feedback-module-4"></div>
+        </div>
+
+        <div class="reflection">Was nimmst du mit? Je komplexer das Modell, desto flexibler wird die Grenze. Das hilft oft, kann aber auch ins Overfitting kippen.</div>
+      </section>
+
+      <section class="module" id="module-5">
+        <div class="module-head">
+          <div>
+            <div class="module-index">Modul 5</div>
+            <h2>Fazit & Bias-Varianz-Matrix</h2>
+            <p class="module-summary">Jetzt ordnest du die bekannten Modelle ein: Wer ist zu stur, wer zu nervös, und wer findet die Balance?</p>
+          </div>
+          <div class="module-status" data-module-pill="module-5">Offen</div>
+        </div>
+
+        <div class="callout">
+          <h3>Die letzte Sortieraufgabe</h3>
+          <p>Bias heißt: zu simpel. Varianz heißt: zu nervös. Ensembles versuchen, aus beiden Welten das Beste mitzunehmen.</p>
+        </div>
+
+        <div class="matrix-grid">
+          <div class="matrix-card">
+            <h3>Lineare Regression</h3>
+            <p>Wie ordnest du sie ein?</p>
+            <select data-matrix="linear">
+              <option value="">Bitte wählen</option>
+              <option value="high-bias">Hoher Bias, niedrige Varianz</option>
+              <option value="high-variance">Niedriger Bias, hohe Varianz</option>
+              <option value="balance">Sucht die Balance</option>
+            </select>
+          </div>
+          <div class="matrix-card">
+            <h3>Einzelner Baum</h3>
+            <p>Wie ordnest du ihn ein?</p>
+            <select data-matrix="tree">
+              <option value="">Bitte wählen</option>
+              <option value="high-bias">Hoher Bias, niedrige Varianz</option>
+              <option value="high-variance">Niedriger Bias, hohe Varianz</option>
+              <option value="balance">Sucht die Balance</option>
+            </select>
+          </div>
+          <div class="matrix-card">
+            <h3>Ensembles</h3>
+            <p>Wie ordnest du Forest und Boosting ein?</p>
+            <select data-matrix="ensemble">
+              <option value="">Bitte wählen</option>
+              <option value="high-bias">Hoher Bias, niedrige Varianz</option>
+              <option value="high-variance">Niedriger Bias, hohe Varianz</option>
+              <option value="balance">Sucht die Balance</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cta-row" style="margin-top:14px">
+          <button class="check-btn" id="check-matrix">Zuordnung prüfen</button>
+          <button class="btn secondary" id="diabetes-cta">Du bist bereit für die Diabetes Challenge!</button>
+        </div>
+        <div class="result-box" id="matrix-result">Ordne die drei Modelle zuerst ein. Danach bekommst du direkt Rückmeldung.</div>
+
+        <div class="reflection">Was nimmst du mit? Lineare Modelle sind oft zu schlicht, einzelne Bäume oft zu nervös. Ensembles holen viele Schwächen in die Mitte zurück.</div>
+      </section>
+
+      <div class="footer-card">
+        <div class="card-kicker">Nächster Schritt</div>
+        <h2>Du hast den klassischen ML-Block abgeschlossen.</h2>
+        <p>Wenn du dieses Kapitel sauber verstanden hast, kannst du jetzt in eine anspruchsvollere Praxisaufgabe gehen: Daten vorbereiten, Modell wählen, sauber validieren und das Ergebnis auch noch gut erklären.</p>
+        <div class="cta-row">
+          <a class="btn secondary" href="ensemble_methods_interaktion.html">Zurück zu Ensemble Methods</a>
+          <a class="btn" href="matrix_interaktion.html">Weiter zu Matrix verstehen</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    (() => {
+      const STORAGE_KEY = "mlFinaleProgress";
+      const moduleIds = ["module-1", "module-2", "module-3", "module-4", "module-5"];
+      const glossary = {
+        boosting: "Boosting baut Modelle nacheinander. Jedes neue Modell schaut besonders auf die Fehler des vorherigen.",
+        gewicht: "Das Gewicht sagt, wie viel Aufmerksamkeit ein bestimmter Fall im nächsten Durchgang bekommt.",
+        sequenziell: "Sequenziell heißt: nicht alles gleichzeitig, sondern Schritt für Schritt hintereinander.",
+        "white-box": "White Box bedeutet: Du kannst den Entscheidungsweg noch gut erklären, zum Beispiel bei einem kleinen Baum.",
+        "black-box": "Black Box bedeutet: Das Modell ist stark, aber sein genauer Denkweg ist schwer nachvollziehbar."
+      };
+
+      const progress = loadProgress();
+      const navLinks = [...document.querySelectorAll("[data-nav-link]")];
+      const modulePills = [...document.querySelectorAll("[data-module-pill]")];
+      const glossaryPanel = document.getElementById("glossary-panel");
+      const weightBody = document.getElementById("weight-table-body");
+      const boostingResult = document.getElementById("boosting-result");
+      const roundsSlider = document.getElementById("boost-rounds");
+      const roundLabel = document.getElementById("round-label");
+      const overfitNote = document.getElementById("overfit-note");
+      const boundaryButtons = [...document.querySelectorAll("[data-boundary]")];
+      const boundaryCaption = document.getElementById("boundary-caption");
+      const boundaryBg = document.getElementById("boundary-bg");
+      const boundaryOverlay = document.getElementById("boundary-overlay");
+      const matrixResult = document.getElementById("matrix-result");
+
+      const bankCustomers = [
+        { id: "Kunde 1", profile: "stabiles Einkommen, geringe Schulden", weight: 0.20 },
+        { id: "Kunde 2", profile: "mittleres Einkommen, kleine Schulden", weight: 0.20 },
+        { id: "Kunde 3", profile: "Herr Huber: hohes Einkommen, hohe Schulden", weight: 0.20, focus: true },
+        { id: "Kunde 4", profile: "kleines Einkommen, keine Schulden", weight: 0.20 },
+        { id: "Kunde 5", profile: "stabiles Einkommen, mittlere Schulden", weight: 0.20 }
+      ];
+
+      const boundaryPoints = [
+        { x: 110, y: 130, cls: "red" }, { x: 140, y: 180, cls: "red" }, { x: 165, y: 210, cls: "red" },
+        { x: 190, y: 155, cls: "red" }, { x: 215, y: 195, cls: "red" }, { x: 135, y: 240, cls: "red" },
+        { x: 265, y: 120, cls: "blue" }, { x: 300, y: 160, cls: "blue" }, { x: 330, y: 195, cls: "blue" },
+        { x: 285, y: 245, cls: "blue" }, { x: 360, y: 170, cls: "blue" }, { x: 315, y: 270, cls: "blue" }
+      ];
+
+      let model1Ran = Boolean(progress.moduleData.module1 && progress.moduleData.module1.stage >= 1);
+      let model2Ran = Boolean(progress.moduleData.module1 && progress.moduleData.module1.stage >= 2);
+      let seenBoundaries = new Set(progress.moduleData.module4?.seen || ["logreg"]);
+
+      document.querySelectorAll(".glossary-term").forEach((button) => {
+        button.addEventListener("click", () => {
+          const term = button.dataset.term;
+          glossaryPanel.style.display = "block";
+          glossaryPanel.textContent = glossary[term] || "Keine Erklärung hinterlegt.";
+        });
+      });
+
+      function loadProgress() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          return {
+            completed: parsed.completed || {},
+            badges: parsed.badges || {},
+            points: parsed.points || 0,
+            moduleData: parsed.moduleData || {}
+          };
+        } catch (error) {
+          return { completed: {}, badges: {}, points: 0, moduleData: {} };
+        }
+      }
+
+      function saveProgress() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      }
+
+      function getRank(points) {
+        if (points >= 90) return "Werkstatt-Profi";
+        if (points >= 50) return "Treffsicher";
+        return "Startklar";
+      }
+
+      function addPoints(points) {
+        progress.points += points;
+        saveProgress();
+        renderProgress();
+      }
+
+      function markModuleSafe(moduleId) {
+        if (progress.completed[moduleId]) return;
+        progress.completed[moduleId] = true;
+        addPoints(20);
+        saveProgress();
+        renderProgress();
+      }
+
+      function updateBadges() {
+        progress.badges["fehler-fahnder"] = Boolean(progress.completed["module-1"]);
+        progress.badges["xgboost-champion"] = Boolean(progress.completed["module-2"] && progress.completed["module-3"]);
+        progress.badges["modell-fluesterer"] = moduleIds.every((id) => progress.completed[id]);
+      }
+
+      function renderProgress() {
+        updateBadges();
+        const safeCount = moduleIds.filter((id) => progress.completed[id]).length;
+        document.getElementById("progress-copy").innerHTML = `<strong>${safeCount} von ${moduleIds.length} Modulen sicher</strong>`;
+        document.getElementById("progress-bar").style.width = `${(safeCount / moduleIds.length) * 100}%`;
+        document.getElementById("points-copy").textContent = progress.points;
+        document.getElementById("rank-copy").textContent = getRank(progress.points);
+
+        navLinks.forEach((link) => {
+          const id = link.dataset.navLink;
+          link.classList.toggle("is-safe", Boolean(progress.completed[id]));
+          link.lastElementChild.textContent = progress.completed[id] ? "✓" : "○";
+        });
+
+        modulePills.forEach((pill) => {
+          const id = pill.dataset.modulePill;
+          const safe = Boolean(progress.completed[id]);
+          pill.textContent = safe ? "Sicher" : "Offen";
+          pill.classList.toggle("is-safe", safe);
+        });
+
+        document.getElementById("badge-fehler-fahnder").classList.toggle("earned", Boolean(progress.badges["fehler-fahnder"]));
+        document.getElementById("badge-xgboost-champion").classList.toggle("earned", Boolean(progress.badges["xgboost-champion"]));
+        document.getElementById("badge-modell-fluesterer").classList.toggle("earned", Boolean(progress.badges["modell-fluesterer"]));
+        saveProgress();
+      }
+
+      function renderWeights() {
+        const customers = model2Ran
+          ? [
+              { ...bankCustomers[0], weight: 0.125 },
+              { ...bankCustomers[1], weight: 0.125 },
+              { ...bankCustomers[2], weight: 0.50, focus: true },
+              { ...bankCustomers[3], weight: 0.125 },
+              { ...bankCustomers[4], weight: 0.125 }
+            ]
+          : bankCustomers;
+
+        weightBody.innerHTML = customers.map((customer) => `
+          <tr class="${customer.focus && model1Ran ? "focus-row" : ""}">
+            <td>${customer.id}</td>
+            <td>${customer.profile}</td>
+            <td>${customer.weight.toFixed(3)}</td>
+            <td>
+              <div class="weight-bar-shell">
+                <div class="weight-bar" style="width:${customer.weight * 100}%"></div>
+              </div>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      document.getElementById("train-model-1").addEventListener("click", () => {
+        model1Ran = true;
+        progress.moduleData.module1 = { ...(progress.moduleData.module1 || {}), stage: 1 };
+        document.getElementById("train-model-2").disabled = false;
+        boostingResult.innerHTML = "<strong>Modell 1:</strong> Vier Kunden wurden gut getroffen. Herr Huber wurde falsch eingeschätzt. Seine Akte liegt jetzt rot oben, weil das nächste Modell genau hier genauer hinschauen muss.";
+        renderWeights();
+        saveProgress();
+      });
+
+      document.getElementById("train-model-2").addEventListener("click", () => {
+        model2Ran = true;
+        progress.moduleData.module1 = { ...(progress.moduleData.module1 || {}), stage: 2 };
+        boostingResult.innerHTML = "<strong>Modell 2:</strong> Jetzt konzentriert sich das Modell primär auf die Regel für Herrn Huber: <em>Schulden &gt; 50k</em>. Genau das ist der Boosting-Effekt: Fehler des Vorgängers werden zur Hauptsache.";
+        renderWeights();
+        saveProgress();
+        markModuleSafe("module-1");
+      });
+
+      const lineCtx = document.getElementById("boost-chart");
+      const boostChart = new Chart(lineCtx, {
+        type: "line",
+        data: {
+          labels: Array.from({ length: 500 }, (_, index) => index + 1),
+          datasets: [
+            {
+              label: "Trainings-Fehler",
+              borderColor: "#173262",
+              backgroundColor: "rgba(23, 50, 98, 0.1)",
+              data: [],
+              tension: 0.22,
+              pointRadius: 0,
+              borderWidth: 3
+            },
+            {
+              label: "Test-Fehler",
+              borderColor: "#8c3a4a",
+              backgroundColor: "rgba(140, 58, 74, 0.1)",
+              data: [],
+              tension: 0.22,
+              pointRadius: 0,
+              borderWidth: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: "index" },
+          scales: {
+            x: { title: { display: true, text: "Boosting-Runden" } },
+            y: { title: { display: true, text: "Fehler" }, min: 0, max: 0.7 }
+          },
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  return `${context.dataset.label}: ${context.parsed.y.toFixed(3)}`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      function trainingError(round) {
+        return Math.max(0.02, 0.58 * Math.exp(-round / 95) + 0.02);
+      }
+
+      function testError(round) {
+        const base = 0.48 * Math.exp(-round / 110) + 0.07;
+        const penalty = round > 100 ? Math.pow((round - 100) / 400, 1.6) * 0.35 : 0;
+        return Math.min(0.68, base + penalty);
+      }
+
+      function updateBoostChart(round) {
+        const labels = Array.from({ length: round }, (_, index) => index + 1);
+        boostChart.data.labels = labels;
+        boostChart.data.datasets[0].data = labels.map((value) => trainingError(value));
+        boostChart.data.datasets[1].data = labels.map((value) => testError(value));
+        boostChart.update();
+        roundLabel.textContent = round;
+
+        if (round < 60) {
+          overfitNote.textContent = "Im Moment sinken Trainings- und Testfehler gemeinsam. Das Modell lernt noch nützlich.";
+        } else if (round < 120) {
+          overfitNote.textContent = "Hier kommt der Sweet Spot: Das Modell ist stark, aber noch nicht zu verliebt in die Trainingsdaten.";
+        } else {
+          overfitNote.textContent = "Jetzt wird es heikel: Der Trainingsfehler sinkt weiter, aber der Testfehler steigt. Das ist Overfitting.";
+        }
+      }
+
+      roundsSlider.addEventListener("input", (event) => {
+        updateBoostChart(Number(event.target.value));
+      });
+
+      document.querySelectorAll('[data-quiz="module-2"]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const feedback = document.getElementById("quiz-feedback-module-2");
+          const correct = button.dataset.answer === "b";
+          feedback.className = `quiz-feedback is-visible ${correct ? "is-correct" : "is-wrong"}`;
+          feedback.textContent = correct
+            ? "Genau. Du stoppst, bevor der Testfehler wieder ansteigt. So verhinderst du den Streber-Effekt."
+            : "Noch nicht. Nicht der Trainingsfehler allein entscheidet, sondern das Verhalten auf neuen Daten.";
+          if (correct) markModuleSafe("module-2");
+        });
+      });
+
+      const stakeholderAnswers = progress.moduleData.module3?.answers || {};
+
+      document.querySelectorAll(".choice-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const scenario = button.dataset.scenario;
+          const choice = button.dataset.choice;
+          const correctChoice = scenario === "a" ? "tree" : "xgb";
+          stakeholderAnswers[scenario] = choice;
+          progress.moduleData.module3 = { answers: stakeholderAnswers };
+          saveProgress();
+
+          document.querySelectorAll(`.choice-btn[data-scenario="${scenario}"]`).forEach((candidate) => {
+            candidate.classList.remove("is-selected", "is-right", "is-wrong");
+            if (candidate.dataset.choice === choice) {
+              candidate.classList.add("is-selected");
+              candidate.classList.add(choice === correctChoice ? "is-right" : "is-wrong");
+            }
+          });
+
+          const feedback = document.getElementById(`scenario-feedback-${scenario}`);
+          feedback.className = `quiz-feedback is-visible ${choice === correctChoice ? "is-correct" : "is-wrong"}`;
+          feedback.textContent = scenario === "a"
+            ? (choice === "tree"
+                ? "Richtig. In der Medizin braucht die Chefärztin eine gut erklärbare White Box."
+                : "Hier wäre XGBoost zu schwer zu begründen. Die Ärztin braucht nachvollziehbare Regeln.")
+            : (choice === "xgb"
+                ? "Richtig. Wenn nur die Trefferquote zählt, ist eine starke Black Box oft passend."
+                : "Ein Baum wäre verständlicher, aber hier ist Leistung wichtiger als eine schöne Geschichte.");
+
+          const bothCorrect = stakeholderAnswers.a === "tree" && stakeholderAnswers.b === "xgb";
+          document.getElementById("stakeholder-summary").textContent = bothCorrect
+            ? "Beide Fälle passen. Jetzt ist klar: White Box bei Erklärungspflicht, Black Box bei reiner Leistung."
+            : "Ein Fall ist noch offen. Erst beide richtigen Entscheidungen zeigen das Dilemma wirklich.";
+
+          if (bothCorrect) markModuleSafe("module-3");
+        });
+      });
+
+      const boundaryPatterns = {
+        logreg(ctx, width, height) {
+          for (let y = 0; y < height; y += 8) {
+            for (let x = 0; x < width; x += 8) {
+              const val = x - (width * 0.52) + (y - height * 0.55) * 0.55;
+              ctx.fillStyle = val < 0 ? "rgba(140, 58, 74, 0.12)" : "rgba(23, 50, 98, 0.12)";
+              ctx.fillRect(x, y, 8, 8);
+            }
+          }
+        },
+        tree(ctx, width, height) {
+          for (let y = 0; y < height; y += 8) {
+            for (let x = 0; x < width; x += 8) {
+              let color = "rgba(23, 50, 98, 0.12)";
+              if (x < 240 && y > 70 && y < 320) color = "rgba(140, 58, 74, 0.12)";
+              if (x < 180 && y > 230) color = "rgba(23, 50, 98, 0.12)";
+              if (x > 250 && y < 300) color = "rgba(23, 50, 98, 0.12)";
+              ctx.fillStyle = color;
+              ctx.fillRect(x, y, 8, 8);
+            }
+          }
+        },
+        forest(ctx, width, height) {
+          for (let y = 0; y < height; y += 6) {
+            for (let x = 0; x < width; x += 6) {
+              const noise = Math.sin(x / 18) + Math.cos(y / 22);
+              const stepShape = x < 230 + noise * 10 && y > 65 && y < 350 ? -1 : 1;
+              const extra = x < 175 && y > 240 ? 1 : 0;
+              ctx.fillStyle = stepShape + extra < 0 ? "rgba(140, 58, 74, 0.12)" : "rgba(23, 50, 98, 0.12)";
+              ctx.fillRect(x, y, 6, 6);
+            }
+          }
+        },
+        xgboost(ctx, width, height) {
+          for (let y = 0; y < height; y += 5) {
+            for (let x = 0; x < width; x += 5) {
+              const distRed = Math.hypot(x - 165, y - 185);
+              const distBlue = Math.hypot(x - 305, y - 195);
+              const score = distRed - distBlue + Math.sin(y / 38) * 12;
+              ctx.fillStyle = score < 0 ? "rgba(140, 58, 74, 0.12)" : "rgba(23, 50, 98, 0.12)";
+              ctx.fillRect(x, y, 5, 5);
+            }
+          }
+        }
+      };
+
+      const boundaryCaptions = {
+        logreg: "Hier zieht das Modell eine einzige gerade Linie quer durch das Feld. Das ist einfach, aber nicht sehr biegsam.",
+        tree: "Der Entscheidungsbaum schneidet blockig: erst hier, dann dort. Dadurch entstehen grobe Kästchen und Treppenstufen.",
+        forest: "Der Random Forest mittelt viele blockige Bäume. Die Grenze bleibt stufig, wirkt aber feiner und stabiler.",
+        xgboost: "XGBoost passt die Grenze sehr präzise an. Sie wirkt deutlich glatter und folgt den Wolken enger."
+      };
+
+      function drawBoundary(type) {
+        const bgCtx = boundaryBg.getContext("2d");
+        const overlayCtx = boundaryOverlay.getContext("2d");
+        const width = boundaryBg.width;
+        const height = boundaryBg.height;
+        bgCtx.clearRect(0, 0, width, height);
+        overlayCtx.clearRect(0, 0, width, height);
+        boundaryPatterns[type](bgCtx, width, height);
+
+        overlayCtx.lineWidth = 2;
+        overlayCtx.strokeStyle = "rgba(35, 26, 36, 0.14)";
+        for (let i = 0; i <= 10; i++) {
+          const pos = (width / 10) * i;
+          overlayCtx.beginPath();
+          overlayCtx.moveTo(pos, 0);
+          overlayCtx.lineTo(pos, height);
+          overlayCtx.stroke();
+          overlayCtx.beginPath();
+          overlayCtx.moveTo(0, pos);
+          overlayCtx.lineTo(width, pos);
+          overlayCtx.stroke();
+        }
+
+        boundaryPoints.forEach((point) => {
+          overlayCtx.beginPath();
+          overlayCtx.fillStyle = point.cls === "red" ? "#631832" : "#173262";
+          overlayCtx.strokeStyle = "#ffffff";
+          overlayCtx.lineWidth = 2.5;
+          overlayCtx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+          overlayCtx.fill();
+          overlayCtx.stroke();
+        });
+      }
+
+      function updateBoundary(type) {
+        boundaryButtons.forEach((button) => button.classList.toggle("is-selected", button.dataset.boundary === type));
+        boundaryCaption.textContent = boundaryCaptions[type];
+        drawBoundary(type);
+        seenBoundaries.add(type);
+        progress.moduleData.module4 = { seen: [...seenBoundaries] };
+        saveProgress();
+        if (progress.moduleData.module4?.quizCorrect && seenBoundaries.size >= 4) {
+          markModuleSafe("module-4");
+        }
+      }
+
+      boundaryButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          updateBoundary(button.dataset.boundary);
+        });
+      });
+
+      document.querySelectorAll('[data-quiz="module-4"]').forEach((button) => {
+        button.addEventListener("click", () => {
+          const feedback = document.getElementById("quiz-feedback-module-4");
+          const correct = button.dataset.answer === "b";
+          const exploredEnough = seenBoundaries.size >= 4;
+          progress.moduleData.module4 = { ...(progress.moduleData.module4 || {}), seen: [...seenBoundaries], quizCorrect: correct };
+          saveProgress();
+          feedback.className = `quiz-feedback is-visible ${correct ? "is-correct" : "is-wrong"}`;
+          feedback.textContent = correct
+            ? (exploredEnough
+                ? "Richtig. XGBoost formt hier die glatteste und präziseste Grenze. Du hast außerdem alle vier Modelle angeschaut."
+                : "Richtig. XGBoost formt hier die glatteste Grenze. Schau dir noch alle vier Modelle an, dann wird das Modul sicher.")
+            : "Noch nicht. Die sturste Linie gehört nicht zum flexibelsten Modell.";
+          if (correct && exploredEnough) markModuleSafe("module-4");
+        });
+      });
+
+      document.getElementById("check-matrix").addEventListener("click", () => {
+        const values = {
+          linear: document.querySelector('[data-matrix="linear"]').value,
+          tree: document.querySelector('[data-matrix="tree"]').value,
+          ensemble: document.querySelector('[data-matrix="ensemble"]').value
+        };
+
+        const allFilled = Object.values(values).every(Boolean);
+        if (!allFilled) {
+          matrixResult.textContent = "Bitte ordne zuerst alle drei Modelle ein.";
+          return;
+        }
+
+        const correct = values.linear === "high-bias" && values.tree === "high-variance" && values.ensemble === "balance";
+        matrixResult.textContent = correct
+          ? "Genau. Lineare Modelle sind oft zu schlicht, einzelne Bäume oft zu nervös. Ensembles holen viele Schwächen Richtung Balance."
+          : "Fast. Prüfe noch einmal: Wer ist zu simpel, wer zu nervös, und wer gleicht Schwächen aus?";
+
+        matrixResult.style.borderColor = correct ? "rgba(79, 122, 106, 0.26)" : "rgba(140, 58, 74, 0.22)";
+        matrixResult.style.background = correct ? "rgba(79, 122, 106, 0.12)" : "rgba(140, 58, 74, 0.08)";
+        matrixResult.style.color = correct ? "var(--success)" : "var(--danger)";
+
+        if (correct) markModuleSafe("module-5");
+      });
+
+      document.getElementById("diabetes-cta").addEventListener("click", () => {
+        matrixResult.textContent = "Nächster sinnvoller Schritt: ein Praxis-Notebook oder eine Challenge, in der du Daten vorbereitest, validierst und das Modell sauber vergleichst.";
+        matrixResult.style.borderColor = "rgba(23, 50, 98, 0.18)";
+        matrixResult.style.background = "rgba(23, 50, 98, 0.08)";
+        matrixResult.style.color = "var(--secondary)";
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const link = document.querySelector(`[data-nav-link="${entry.target.id}"]`);
+          if (link) link.classList.toggle("is-active", entry.isIntersecting && entry.intersectionRatio > 0.35);
+        });
+      }, { threshold: [0.35, 0.6] });
+
+      document.querySelectorAll(".module").forEach((section) => observer.observe(section));
+
+      renderWeights();
+      updateBoostChart(Number(roundsSlider.value));
+      updateBoundary(progress.moduleData.module4?.seen?.slice(-1)[0] || "logreg");
+      if (progress.moduleData.module4?.quizCorrect && seenBoundaries.size >= 4) {
+        markModuleSafe("module-4");
+      }
+      renderProgress();
+
+      window.addEventListener("load", () => {
+        if (window.renderMathInElement && window.katex) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: "\\(", right: "\\)", display: false },
+              { left: "\\[", right: "\\]", display: true }
+            ]
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
