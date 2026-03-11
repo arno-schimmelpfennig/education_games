@@ -92,8 +92,115 @@
             padding: 10px; margin-bottom: 8px; font-size: 0.9rem; border-radius: 0 4px 4px 0;
         }
 
+        .viz-hidden { opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
+        .viz-revealed { opacity: 1; pointer-events: auto; }
+
         .step-content { display: none; animation: fadeIn 0.4s ease-out; }
         .step-content.active { display: block; }
+
+        .step-note { font-size: 0.85rem; color: var(--text-light); margin-top: 12px; }
+
+        #prediction-bet,
+        #quiz-container,
+        #bell-curve-callout {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border: 1px solid #dde3ec;
+        }
+
+        #bet-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .bet-pill {
+            width: auto;
+            margin-bottom: 0;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: white;
+            color: var(--brand-accent);
+            border: 1px solid #ccd4e0;
+            box-shadow: none;
+            font-size: 0.9rem;
+        }
+
+        .bet-pill:hover { background: var(--brand-accent); color: white; }
+        .bet-pill.selected { background: var(--brand-accent); color: white; border-color: var(--brand-accent); }
+
+        #bet-feedback {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        #bet-feedback.is-correct {
+            display: block;
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--success-green);
+            color: var(--success-green);
+        }
+
+        #bet-feedback.is-waiting {
+            display: block;
+            background: rgba(241, 196, 15, 0.12);
+            border: 1px solid #c59d15;
+            color: #7b5d00;
+        }
+
+        .quiz-question {
+            padding: 14px;
+            border-radius: 10px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .quiz-question.is-correct {
+            border-color: var(--success-green);
+            background: rgba(39, 174, 96, 0.08);
+        }
+
+        .quiz-question.is-wrong {
+            border-color: var(--brand-main);
+            background: rgba(99, 24, 50, 0.08);
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .quiz-option {
+            text-align: left;
+            background: white;
+            color: var(--text-main);
+            border: 1px solid #d5dce6;
+            box-shadow: none;
+            padding: 10px 12px;
+            margin-bottom: 0;
+        }
+
+        .quiz-option:hover { background: #f5f7fb; color: var(--brand-accent); }
+
+        .quiz-feedback {
+            display: none;
+            margin-top: 10px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .quiz-feedback.visible { display: block; }
+        .quiz-score { margin-top: 12px; font-weight: 700; color: var(--brand-accent); }
 
         .controls-wrapper { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; position: relative; }
 
@@ -174,22 +281,6 @@
         }
         #info-overlay.show { display: block; opacity: 1; transform: translateY(0); }
         
-        /* Final Modal Overlay */
-        #final-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 100;
-            display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: white; padding: 40px; border-radius: 12px; max-width: 500px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-        .modal-icon { font-size: 3rem; margin-bottom: 20px; }
-        .example-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .ex-item { background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #555; }
-        .close-modal { background: #ddd; color: #333; margin-top: 20px; }
-
         .viz-group { text-align: center; }
         .viz-head { font-size: 0.75rem; font-weight: 700; color: var(--brand-accent); text-transform: uppercase; margin-bottom: 10px; }
 
@@ -264,80 +355,105 @@
             <div id="content-area">
                 <!-- STEP 0 -->
                 <div id="step-0" class="step-content active">
-                    <h2>1. Der Mythos KI</h2>
-                    <p>Viele denken, eine KI "versteht" uns wie ein Mensch. Das ist falsch.</p>
-                    <p>Im Kern ist KI <strong>Mathematik und Statistik</strong>. In diesem Spiel nutzen wir Würfel als Metapher für Wahrscheinlichkeiten.</p>
+                    <h2>1. KI denkt nicht – sie zählt Muster</h2>
+                    <p>Kennst du das? Du fragst ChatGPT etwas Einfaches und bekommst eine Antwort, die klingt wie aus dem Lehrbuch – aber irgendwie <strong>seelenlos</strong>.</p>
+                    <p>Oder schlimmer: Die KI erfindet plötzlich Fakten, die es gar nicht gibt.</p>
+                    <p>Warum? Weil KI <strong>nicht denkt wie ein Mensch</strong>. Sie berechnet, welches Wort als Nächstes am wahrscheinlichsten passt. Genau wie ein Würfelwurf.</p>
                     <div class="highlight-box">
-                        <strong>Dein Ziel:</strong> Wir bauen den ML-Ablauf nach: Daten sammeln, Muster lernen, neue Fälle vorhersagen.
+                        <strong>Dein Ziel:</strong> In 5 Minuten verstehst du, warum KI manchmal brillant ist und manchmal Unsinn erzählt – und was du dagegen tun kannst.
                     </div>
-                    <p style="font-size:0.9rem; color:#666;">Klicke auf "Würfeln", um den ersten Datensatz zu erzeugen.</p>
+                    <p class="step-note">Klicke auf „Würfeln“, um den ersten Einzelfall zu erzeugen.</p>
                 </div>
 
                 <!-- STEP 1 -->
                 <div id="step-1" class="step-content">
-                    <h2>2. Vom Chaos zur Struktur</h2>
-                    <p>Ein einzelnes Paar, z.B. (3,4), ist für eine KI nur Daten-Lärm. Um etwas zu lernen, muss sie das Wesentliche erkennen.</p>
-                    <p>Wir machen das, indem wir die <strong>Summe</strong> bilden (3+4=7). Das ist unser "Feature".</p>
+                    <h2>2. Vom Einzelfall zum Merkmal</h2>
+                    <p>Ein einzelnes Paar, zum Beispiel (3,4), ist für eine KI erst einmal nur eine Beobachtung.</p>
+                    <p>Erst wenn wir daraus etwas Nützliches ableiten, entsteht <strong>das Merkmal – Fachleute sagen „Feature“ dazu</strong>. Hier ist das Merkmal die Summe: 3 + 4 = 7.</p>
                     <div class="highlight-box">
-                        Schau ins Gitter: Wir verwandeln zwei zufällige Zahlen in EINE nützliche Information (die Summe).
+                        Aus zwei Rohwerten wird eine einzige, besser nutzbare Information.
                     </div>
                 </div>
 
                 <!-- STEP 2 -->
                 <div id="step-2" class="step-content">
-                    <h2>3. Der Aha-Moment (Training)</h2>
-                    <p>Jetzt beginnt das eigentliche <strong>Lernen</strong>. Eine KI wird erst schlau, wenn sie Tausende von Datenpunkten sieht.</p>
-                    <p>Beobachte genau, was passiert, wenn wir die Datenmenge drastisch erhöhen.</p>
-                    
+                    <h2>3. Zwei Würfel, 36 Möglichkeiten</h2>
+                    <p>Zwei faire Würfel ergeben nicht „irgendetwas“, sondern genau <strong>36 Möglichkeiten</strong>.</p>
+                    <p>Hier siehst du, wie aus vielen Beobachtungen ein Musterraum wird. Das ist die Grundlage für Muster erkennen.</p>
                     <div class="highlight-box">
-                        <strong>Wichtig:</strong> Klicke jetzt auf <strong>"Auto-Modus"</strong>! Das entspricht Training mit vielen Beispielen.
-                    </div>
-
-                    <!-- KI Brücke -->
-                    <div class="ai-context-box">
-                        <div style="font-weight:700; margin-bottom:5px;">💡 Das ist datenbasiertes Lernen</div>
-                        Wir zeigen viele Beispiele. Das Modell lernt: Manche Muster sind häufig, andere selten.
-                        <div class="tooltip-trigger" onclick="document.getElementById('ai-tooltip').style.display = 'block';">Mehr erfahren ▾</div>
-                        <div id="ai-tooltip" class="tooltip-content">
-                            Genauso lernt ein Spam-Filter: Häufige Wortmuster führen zu höheren Spam-Wahrscheinlichkeiten.
-                        </div>
+                        Jede Zelle zeigt eine mögliche Beobachtung. Im Inhalt steckt schon das Merkmal: die Summe.
                     </div>
                 </div>
 
-                <!-- STEP 3 (AI Analogy) -->
+                <!-- STEP 3 -->
                 <div id="step-3" class="step-content">
-                    <h2>4. Die Anwendung (Inference)</h2>
-                    <p>Training abgeschlossen! Unsere Mini-KI weiß jetzt, was wahrscheinlich ist. Wir geben ihr eine Aufgabe:</p>
-                    
+                    <h2>4. Was glaubst DU?</h2>
+                    <p>Bevor wir das große Muster sichtbar machen: Welche Würfelsumme tippst du als häufigste?</p>
+                    <p>Dein Tipp ist schon eine kleine Form von Vorhersagen. Erst danach schauen wir, was die Beobachtungen wirklich zeigen.</p>
+                    <div class="highlight-box">
+                        Gib zuerst deine Wette ab. Danach darfst du weiter.
+                    </div>
+                    <div id="prediction-bet" style="display:none">
+                        <p><strong>Bevor wir die KI trainieren:</strong> Was glaubst DU? Welche Würfelsumme kommt am häufigsten vor?</p>
+                        <div id="bet-buttons"></div>
+                        <div id="bet-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div id="step-4" class="step-content">
+                    <h2>5. Training: Muster werden sichtbar</h2>
+                    <p>Jetzt beginnt das eigentliche Training. Viele einzelne Beobachtungen ergeben zusammen ein stabiles Muster.</p>
+                    <p>Beobachte gleich im Balkendiagramm, wie sich aus Zufall eine typische Form herausschält.</p>
+                    <div class="highlight-box">
+                        <strong>Wichtig:</strong> Klicke jetzt auf <strong>„Auto-Modus“</strong>. Das entspricht Training mit vielen Beispielen.
+                    </div>
+                    <div id="bell-curve-callout"></div>
+                </div>
+
+                <!-- STEP 5 -->
+                <div id="step-5" class="step-content">
+                    <h2>6. Das nächste Wort vorhersagen</h2>
+                    <p>Jetzt übertragen wir das Muster auf Sprache. Die KI nutzt das Gelernte, um das nächste Wort vorzuschlagen.</p>
                     <div class="ai-sentence">
                         "Das Wetter ist <span class="missing-word">_______</span>"
                     </div>
-
-                    <p>Statt einer Zahl gibt die KI jetzt eine Klasse aus (ähnlich Klassifikation):</p>
+                    <p>Statt einer Zahl gibt die KI jetzt eine Einordnung aus:</p>
                     <ul style="font-size:0.9rem; margin-bottom:15px; color:#555;">
                         <li><strong>"schön":</strong> häufige Summen (6, 7, 8)</li>
                         <li><strong>"wechselhaft":</strong> mittlere Summen (4, 5, 9, 10)</li>
                         <li><strong>"lila":</strong> seltene Summen (2, 3, 11, 12)</li>
                     </ul>
-
                     <div class="highlight-box">
-                        Siehst du unten bei den Wörtern? Das Modell wählt die Klasse mit der höchsten gelernten Wahrscheinlichkeit.
+                        Das ist keine sichere Wahrheit, sondern eine gewichtete Vermutung.
                     </div>
-
-                    <p style="font-size:0.85rem; color:#888;">Seltene Muster können trotzdem auftreten. Das zeigt: Vorhersage ist Wahrscheinlichkeit, keine absolute Sicherheit.</p>
+                    <div class="ai-context-box">
+                        <div style="font-weight:700;margin-bottom:5px">⚠️ Was passiert, wenn eine „2" fällt?</div>
+                        Dann sagt die KI: „Das Wetter ist <strong>lila</strong>." Das macht keinen Sinn – aber es hatte eine winzige Restwahrscheinlichkeit. In der KI-Welt nennt man das eine <strong>Halluzination</strong>. Die KI lügt nicht absichtlich. Sie hat einfach einen statistischen Ausreißer erwischt.
+                    </div>
                 </div>
 
-                <!-- STEP 4 (Conclusion) -->
-                <div id="step-4" class="step-content">
-                    <h2>5. Fazit & Neustart</h2>
-                    <p>Du hast das Prinzip verstanden: KI ist kein Zauberwerk, sondern <strong>würfeln mit gezinkten Würfeln</strong> (basierend auf Trainingsdaten).</p>
-                    
-                    <ul class="conclusion-list">
-                        <li><strong>Training:</strong> Daten sammeln, um Muster zu finden.</li>
-                        <li><strong>Anwendung:</strong> Das Muster nutzen, um das nächste Wort vorherzusagen.</li>
-                    </ul>
+                <!-- STEP 6 -->
+                <div id="step-6" class="step-content">
+                    <h2>7. Selbsttest</h2>
+                    <p>Jetzt prüfst du, ob du das Muster verstanden hast: Warum 7 so stark ist, was Halluzinationen sind und wie gutes Prompting hilft.</p>
+                    <div class="highlight-box">
+                        Du bekommst sofort grüne oder rote Rückmeldung.
+                    </div>
+                    <div id="quiz-container"></div>
+                </div>
 
-                    <p>Um eine echte KI zu bauen, bräuchten wir statt 2 Würfeln Milliarden von Parametern. Das Prinzip bleibt gleich.</p>
+                <!-- STEP 7 -->
+                <div id="step-7" class="step-content">
+                    <h2>8. Dein Werkzeug: Die Würfel zinken</h2>
+                    <p>Du hast gesehen: Aus fairem Zufall entstehen Muster. Eine KI nutzt diese Muster, um das nächste Wort zu „würfeln".</p>
+                    <p><strong>Dein Hebel als Nutzer:</strong> Durch deinen Prompt bestimmst du, welche Würfel die KI benutzt.</p>
+                    <ul class="conclusion-list">
+                        <li><strong>Standard-Prompt</strong> = faire Würfel → langweiliger Durchschnittstext</li>
+                        <li><strong>Präziser Prompt</strong> (Rolle + Kontext + Ziel) = gezinkte Würfel → genau die Antwort, die du brauchst</li>
+                        <li><strong>Noch präziser</strong> (+ Formatvorgabe + Gegencheck) = Halluzinationen werden seltener, weil du den Spielraum für Ausreißer verkleinerst</li>
+                    </ul>
+                    <p>Gutes Prompting heißt also: Du verschiebst die Wahrscheinlichkeiten zu deinen Gunsten.</p>
                 </div>
             </div>
 
@@ -393,32 +509,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- FINAL OVERLAY -->
-        <div id="final-modal">
-            <div class="modal-content">
-                <div class="modal-icon">🚀</div>
-                <h2 style="color:#231A24; font-size:1.5rem;">Praxis-Beispiele</h2>
-                <p>KI funktioniert überall nach diesem Würfel-Prinzip:</p>
-                
-                <div class="example-grid">
-                    <div class="ex-item">
-                        <strong>📧 Spam-Filter</strong><br>
-                        Wort-Kombinationen werden gewichtet (Summen).
-                    </div>
-                    <div class="ex-item">
-                        <strong>🚗 Autonomes Fahren</strong><br>
-                        Sensordaten werden als "Hindernis" oder "Straße" klassifiziert.
-                    </div>
-                    <div class="ex-item">
-                        <strong>🏭 Produktion</strong><br>
-                        Abweichungen (Summe 2) werden als Fehler erkannt.
-                    </div>
-                </div>
-
-                <button class="cta-btn close-modal" onclick="document.getElementById('final-modal').style.display='none'">Zurück zum Spiel</button>
             </div>
         </div>
 
@@ -540,6 +630,13 @@
         let totalRolls = 0;
         let autoIntervalId = null;
         let rollAnimIntervalId = null;
+        const totalSteps = 8;
+        const state = {
+            prediction: null,
+            quizAnswers: {},
+            quizCorrect: 0,
+            exampleClicks: 0
+        };
 
         // Info Button Logic
         const infoBtn = document.getElementById('info-btn');
@@ -547,6 +644,59 @@
         const infoText = document.getElementById('info-text');
         const autoBtn = document.getElementById('auto-btn');
         const autoHint = document.getElementById('auto-hint');
+        const topDisplay = document.getElementById('top-display');
+        const gridWrapper = document.getElementById('grid-wrapper');
+        const barsWrapper = document.getElementById('bars');
+        const wordViz = document.getElementById('word-viz');
+        const predictionBet = document.getElementById('prediction-bet');
+        const betButtons = document.getElementById('bet-buttons');
+        const betFeedback = document.getElementById('bet-feedback');
+        const bellCurveCallout = document.getElementById('bell-curve-callout');
+        const quizContainer = document.getElementById('quiz-container');
+        const nextBtn = document.getElementById('next-btn');
+        const rollBtn = document.getElementById('roll-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        const quizQuestions = [
+            {
+                id: 'q1',
+                question: 'Warum kommt die Summe 7 häufiger als die Summe 2?',
+                options: [
+                    'Die 7 ist eine Glückszahl',
+                    'Es gibt mehr Kombinationen, die 7 ergeben (1+6, 2+5, 3+4…)',
+                    'Die Würfel sind manipuliert'
+                ],
+                correct: 1,
+                explanation: 'Die 7 kann auf mehr Arten entstehen als die 2. Mehr Kombinationen bedeuten: höhere Wahrscheinlichkeit.'
+            },
+            {
+                id: 'q2',
+                question: 'ChatGPT schreibt: „Napoleon gewann die Schlacht von Waterloo." Was ist passiert?',
+                options: [
+                    'Die KI hat gelogen',
+                    'Die KI hatte einen statistischen Ausreißer – eine Halluzination',
+                    'Das Internet hat falsche Daten'
+                ],
+                correct: 1,
+                explanation: 'Hier hat die KI ein falsches, aber statistisch mitgerutschtes Muster erwischt. Das nennen wir Halluzination.'
+            },
+            {
+                id: 'q3',
+                question: 'Was kannst du tun, damit ChatGPT bessere Antworten gibt?',
+                options: [
+                    'Höflicher fragen',
+                    'Rolle, Kontext und Ziel im Prompt vorgeben – die Würfel zinken',
+                    'Nichts, die KI entscheidet selbst'
+                ],
+                correct: 1,
+                explanation: 'Ein präziser Prompt lenkt die Wahrscheinlichkeiten. So bekommt die KI weniger Spielraum für Unsinn.'
+            }
+        ];
+
+        topDisplay.classList.add('viz-hidden');
+        gridWrapper.classList.add('viz-hidden');
+        barsWrapper.classList.add('viz-hidden');
+        wordViz.style.display = 'none';
 
         infoBtn.onclick = () => {
             infoOverlay.classList.toggle('show');
@@ -558,12 +708,172 @@
         });
 
         function updateInfoText() {
-            if(step === 0) infoText.innerText = "Setup: Wir bauen einen Datensatz auf. Jeder Wurf ist ein neuer Datenpunkt.";
-            else if(step === 1) infoText.innerText = "Feature Engineering: Wir rechnen 'Weiß + Rot', um die Summe als Merkmal zu erhalten.";
-            else if(step === 2) infoText.innerText = "Training: Viele Würfe ergeben eine stabile Häufigkeitsverteilung.";
-            else infoText.innerText = "Inference: Ein neuer Testfall wird anhand gelernter Wahrscheinlichkeiten einer Klasse zugeordnet.";
-            
+            if(step === 0) infoText.innerText = "Noch sehen wir nur einen einzelnen Würfelwurf. KI startet genauso: mit einzelnen Beobachtungen.";
+            else if(step === 1) infoText.innerText = "Aus zwei Zahlen wird ein Merkmal: die Summe. So erkennt die KI aus Rohdaten etwas Nützliches.";
+            else if(step === 2) infoText.innerText = "Hier liegen alle 36 Möglichkeiten offen. Jetzt wird aus Einzelfällen ein sichtbarer Musterraum.";
+            else if(step === 3) infoText.innerText = "Vorhersagen beginnt oft mit einem Tipp. Gleich prüfst du, ob dein Bauchgefühl stimmt.";
+            else if(step === 4) infoText.innerText = "Training heißt: viele Beobachtungen sammeln, bis ein stabiles Muster entsteht.";
+            else if(step === 5) infoText.innerText = "Jetzt nutzt die KI das Gelernte, um das nächste Wort vorzuschlagen.";
+            else if(step === 6) infoText.innerText = "Im Selbsttest überprüfst du, ob du Muster, Halluzinationen und gutes Prompting unterscheiden kannst.";
+            else infoText.innerText = "Gute Prompts zinken die Würfel: Rolle, Kontext und Ziel verschieben die Wahrscheinlichkeiten.";
+
             if(step > 2) infoOverlay.classList.remove('show');
+        }
+
+        function setVizVisibility(element, visible) {
+            element.classList.toggle('viz-hidden', !visible);
+            element.classList.toggle('viz-revealed', visible);
+        }
+
+        function updateBellCurveCallout() {
+            if (step === 4 && totalRolls > 0) {
+                bellCurveCallout.style.display = 'block';
+                bellCurveCallout.innerHTML = '🔔 Siehst du die Form? Das ist die berühmte GLOCKENKURVE. Die Mitte (7) kommt am häufigsten, die Ränder (2 und 12) am seltensten. Fast alles in der Natur folgt diesem Muster.' + (state.prediction === 7 ? ' <strong>Deine Wette war richtig!</strong>' : '');
+            } else {
+                bellCurveCallout.style.display = 'none';
+                bellCurveCallout.innerHTML = '';
+            }
+        }
+
+        function flashBellBars() {
+            [6, 7, 8].forEach((sum) => {
+                const bar = document.getElementById(`b-${sum}`);
+                if (bar) {
+                    bar.classList.add('active-flash');
+                    setTimeout(() => bar.classList.remove('active-flash'), 1000);
+                }
+            });
+        }
+
+        function renderBetButtons() {
+            betButtons.innerHTML = '';
+            for (let sum = 2; sum <= 12; sum++) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'bet-pill';
+                button.textContent = String(sum);
+                if (state.prediction === sum) button.classList.add('selected');
+                button.onclick = () => {
+                    state.prediction = sum;
+                    renderBetButtons();
+                    betFeedback.className = sum === 7 ? 'is-correct' : 'is-waiting';
+                    betFeedback.textContent = sum === 7
+                        ? '✅ Richtig! Die 7 hat 6 von 36 Kombinationen – mehr als jede andere Summe.'
+                        : '🤔 Spannend! Lass uns nachschauen – gleich kommt das Training.';
+                    nextBtn.disabled = false;
+                    nextBtn.style.opacity = '1';
+                    nextBtn.style.cursor = 'pointer';
+                };
+                betButtons.appendChild(button);
+            }
+        }
+
+        function renderQuiz() {
+            state.quizCorrect = Object.values(state.quizAnswers).filter((answer) => answer.correct).length;
+            quizContainer.innerHTML = quizQuestions.map((question, index) => {
+                const answerState = state.quizAnswers[question.id];
+                const questionClass = !answerState ? 'quiz-question' : `quiz-question ${answerState.correct ? 'is-correct' : 'is-wrong'}`;
+                const feedbackClass = answerState ? 'quiz-feedback visible' : 'quiz-feedback';
+                const feedbackText = answerState ? `${answerState.correct ? '✅' : '❌'} ${question.explanation}` : '';
+                return `
+                    <div class="${questionClass}">
+                        <div><strong>Frage ${index + 1}:</strong> ${question.question}</div>
+                        <div class="quiz-options">
+                            ${question.options.map((option, optionIndex) => `
+                                <button type="button" class="quiz-option" data-question="${question.id}" data-option="${optionIndex}">
+                                    ${String.fromCharCode(65 + optionIndex)}) ${option}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div class="${feedbackClass}">${feedbackText}</div>
+                    </div>
+                `;
+            }).join('') + `<div class="quiz-score">Richtig beantwortet: ${state.quizCorrect} von ${quizQuestions.length}</div>`;
+
+            quizContainer.querySelectorAll('.quiz-option').forEach((button) => {
+                button.onclick = () => {
+                    const question = quizQuestions.find((entry) => entry.id === button.dataset.question);
+                    const selected = Number(button.dataset.option);
+                    const correct = selected === question.correct;
+                    state.quizAnswers[question.id] = { selected, correct };
+                    renderQuiz();
+                    syncStepUI();
+                };
+            });
+        }
+
+        function syncStepUI() {
+            rollBtn.textContent = step === 2 ? '🎲 Neue Beispiele' : '🎲 Einmal Würfeln';
+            autoBtn.textContent = autoIntervalId ? '⏹ Auto-Modus stoppen' : '⚡ Auto-Modus (Schnell)';
+
+            setVizVisibility(topDisplay, step >= 1);
+            setVizVisibility(gridWrapper, step >= 2);
+            setVizVisibility(barsWrapper, step >= 4);
+
+            if (step >= 5) {
+                wordViz.style.display = 'flex';
+                wordViz.classList.remove('viz-hidden');
+                wordViz.classList.add('viz-revealed');
+            } else {
+                wordViz.style.display = 'none';
+                wordViz.classList.add('viz-hidden');
+                wordViz.classList.remove('viz-revealed');
+            }
+
+            predictionBet.style.display = step === 3 ? 'block' : 'none';
+            quizContainer.style.display = step === 6 ? 'block' : 'none';
+            updateBellCurveCallout();
+
+            if (step <= 2) {
+                rollBtn.style.display = 'block';
+                autoBtn.style.display = 'none';
+                restartBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+            } else if (step === 3) {
+                rollBtn.style.display = 'none';
+                autoBtn.style.display = 'none';
+                restartBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+            } else if (step === 4) {
+                rollBtn.style.display = 'block';
+                autoBtn.style.display = 'block';
+                restartBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                autoHint.style.display = 'block';
+            } else if (step === 5) {
+                rollBtn.style.display = 'block';
+                autoBtn.style.display = 'none';
+                restartBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                autoHint.style.display = 'none';
+            } else if (step === 6) {
+                rollBtn.style.display = 'none';
+                autoBtn.style.display = 'none';
+                restartBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                autoHint.style.display = 'none';
+            } else {
+                rollBtn.style.display = 'none';
+                autoBtn.style.display = 'none';
+                restartBtn.style.display = 'block';
+                nextBtn.style.display = 'none';
+                autoHint.style.display = 'none';
+            }
+
+            if (step === 3) {
+                nextBtn.disabled = state.prediction === null;
+                nextBtn.style.opacity = nextBtn.disabled ? '0.55' : '1';
+                nextBtn.style.cursor = nextBtn.disabled ? 'not-allowed' : 'pointer';
+            } else if (step === 6) {
+                const allAnswered = Object.keys(state.quizAnswers).length === quizQuestions.length;
+                nextBtn.disabled = !allAnswered;
+                nextBtn.style.opacity = nextBtn.disabled ? '0.55' : '1';
+                nextBtn.style.cursor = nextBtn.disabled ? 'not-allowed' : 'pointer';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
+            }
         }
 
         function updateUI(w, r) {
@@ -638,12 +948,17 @@
         }
 
         function stopAutoMode() {
+            const hadAutoMode = Boolean(autoIntervalId);
             if (autoIntervalId) {
                 clearInterval(autoIntervalId);
                 autoIntervalId = null;
             }
             autoBtn.innerText = "⚡ Auto-Modus (Schnell)";
             autoBtn.classList.remove('cta-btn');
+            if (step === 4 && hadAutoMode) {
+                updateBellCurveCallout();
+                flashBellBars();
+            }
         }
 
         // Restart Function
@@ -654,6 +969,10 @@
             totalRolls = 0;
             step = 0;
             isRolling = false;
+            state.prediction = null;
+            state.quizAnswers = {};
+            state.quizCorrect = 0;
+            state.exampleClicks = 0;
             stopAutoMode();
             autoHint.style.display = 'none';
             if (rollAnimIntervalId) {
@@ -674,63 +993,42 @@
             document.getElementById('step-0').classList.add('active');
 
             // Reset Buttons
-            document.getElementById('roll-btn').style.display = 'block';
-            document.getElementById('auto-btn').style.display = 'block';
-            document.getElementById('restart-btn').style.display = 'none';
-            
-            const nextBtn = document.getElementById('next-btn');
-            nextBtn.innerText = "Weiter zur Erklärung →";
-            nextBtn.classList.remove('cta-btn');
-            nextBtn.onclick = handleNextStep; // Restore original handler
+            rollBtn.style.display = 'block';
+            autoBtn.style.display = 'none';
+            restartBtn.style.display = 'none';
+            nextBtn.style.display = 'block';
 
+            renderBetButtons();
+            betFeedback.style.display = 'none';
+            betFeedback.className = '';
+            betFeedback.textContent = '';
+            bellCurveCallout.style.display = 'none';
+            bellCurveCallout.innerHTML = '';
+            renderQuiz();
             updateInfoText();
+            syncStepUI();
         };
 
         // Extracted Next Step Logic
         const handleNextStep = () => {
+            if (step === 3 && state.prediction === null) return;
             document.getElementById(`step-${step}`).classList.remove('active');
-            step = (step+1)%5; 
+            step = Math.min(step + 1, totalSteps - 1);
             document.getElementById(`step-${step}`).classList.add('active');
-            
+
             updateInfoText();
-            const btn = document.getElementById('next-btn');
-            const rollBtn = document.getElementById('roll-btn');
-            const hint = document.getElementById('auto-hint');
-            const restartBtn = document.getElementById('restart-btn');
-
-            // Hint Logic Step 2
-            if(step === 2) hint.style.display = 'block';
-            else hint.style.display = 'none';
-            
-            // Viz Logic Step 3
-            if(step === 3) {
-                document.getElementById('word-viz').style.display = 'flex';
-                updateWordViz();
-            } else {
-                document.getElementById('word-viz').style.display = 'none';
-            }
-
-            // End Step 4
-            if(step === 4) {
-                stopAutoMode();
-                btn.innerText = "Beispiele aus der Praxis anzeigen";
-                btn.classList.add('cta-btn');
-                btn.onclick = () => document.getElementById('final-modal').style.display = 'flex';
-                
-                rollBtn.style.display = 'none'; 
-                autoBtn.style.display = 'none';
-                restartBtn.style.display = 'block'; // Show Restart
-            } else {
-                btn.innerText = "Weiter zur Erklärung →";
-                btn.classList.remove('cta-btn');
-                rollBtn.style.display = 'block'; 
-                autoBtn.style.display = 'block';
-                restartBtn.style.display = 'none';
-            }
+            if (step !== 4) stopAutoMode();
+            syncStepUI();
         };
 
         document.getElementById('roll-btn').onclick = () => {
             stopAutoMode();
+            if (step === 2) {
+                state.exampleClicks += 1;
+                const burstSize = state.exampleClicks === 1 ? 1 : (state.exampleClicks === 2 ? 5 : 30);
+                for (let i = 0; i < burstSize; i++) roll(true);
+                return;
+            }
             roll();
         };
         document.getElementById('auto-btn').onclick = () => {
@@ -748,7 +1046,7 @@
                     roll(true);
                     c++;
                 }
-                if (c >= 30) {
+                if (c >= 100) {
                     stopAutoMode();
                 }
             }, 50);
@@ -756,7 +1054,10 @@
         document.getElementById('next-btn').onclick = handleNextStep;
 
         // Init
+        renderBetButtons();
+        renderQuiz();
         updateInfoText();
+        syncStepUI();
 
         function animate() { requestAnimationFrame(animate); renderer.render(scene, camera); }
         animate();
