@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bias und Varianz einfach erklärt | Einsteiger-Spiel</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bias und Varianz für ChatGPT | Einsteiger-Spiel</title>
   <style>
     :root {
       --brand-main: #631832;
@@ -15,6 +15,9 @@
       --good: #1f8b4c;
       --warn: #d17b1f;
       --bad: #be3b33;
+      --text: #1f2940;
+      --shadow: 0 12px 28px rgba(17, 37, 72, 0.08);
+      --radius: 16px;
     }
 
     * { box-sizing: border-box; }
@@ -23,24 +26,26 @@
       margin: 0;
       font-family: "Inter", "Segoe UI", Arial, sans-serif;
       background: linear-gradient(160deg, #f5f8fd 0%, #ecf1f8 55%, #e8edf5 100%);
-      color: #1f2940;
+      color: var(--text);
       min-height: 100vh;
     }
 
+    .hidden { display: none !important; }
+    .revealed { display: block; }
+
     #app {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 350px 1fr;
       min-height: 100vh;
     }
 
     #sidebar {
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.97);
       border-right: 1px solid var(--soft-border);
       padding: 20px;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto auto 1fr auto;
       gap: 16px;
-      overflow-y: auto;
     }
 
     .brandline {
@@ -48,89 +53,131 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--muted);
-      font-weight: 700;
+      font-weight: 800;
     }
 
     #sidebar h1 {
-      margin: 6px 0 0;
-      font-size: 1.26rem;
-      line-height: 1.25;
+      margin: 8px 0 0;
+      font-size: 1.32rem;
+      line-height: 1.2;
       color: var(--brand-main);
     }
 
-    .step-box {
+    .step-box,
+    .dict-box,
+    .mini-card,
+    .task-box,
+    .scenario-card,
+    .header-card,
+    .stage-card,
+    .control-card,
+    .chat-card,
+    .quiz-card,
+    .result-box {
+      background: var(--panel);
       border: 1px solid var(--soft-border);
-      border-radius: 12px;
-      background: #fff;
-      padding: 14px;
-      display: grid;
-      gap: 10px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    .step-kicker {
+    .step-box,
+    .dict-box,
+    .mini-card {
+      padding: 14px;
+    }
+
+    .step-kicker,
+    .section-kicker {
       font-size: 0.74rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--brand-accent);
       font-weight: 800;
     }
 
     #step-title {
-      margin: 0;
-      font-size: 1rem;
-      color: #1f2f4b;
+      margin: 6px 0 0;
+      font-size: 1.02rem;
+      color: #213554;
     }
 
-    #step-text {
+    #step-text,
+    #step-task {
       margin: 0;
-      line-height: 1.45;
       font-size: 0.92rem;
-      color: #334563;
+      line-height: 1.55;
+      color: #344765;
     }
 
     .task-box {
-      border: 1px dashed #c8d4e6;
-      border-radius: 10px;
+      padding: 12px;
+      border-style: dashed;
       background: #f8fbff;
-      padding: 10px;
-      font-size: 0.86rem;
-      color: #415775;
-      line-height: 1.4;
     }
 
     #step-points {
       margin: 0;
       padding-left: 16px;
       display: grid;
-      gap: 5px;
+      gap: 6px;
       font-size: 0.85rem;
-      color: #3e4f67;
-      line-height: 1.35;
+      color: #415775;
+      line-height: 1.42;
     }
 
-    .dict-box {
-      border: 1px solid var(--soft-border);
-      border-radius: 12px;
-      background: #fff;
-      padding: 12px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .dict-box h3 {
-      margin: 0;
-      font-size: 0.9rem;
+    .dict-box h3,
+    .mini-card h3 {
+      margin: 0 0 6px;
+      font-size: 0.94rem;
       color: var(--brand-accent);
     }
 
     .dict-item {
-      font-size: 0.82rem;
-      line-height: 1.35;
-      color: #3f5068;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: #415775;
     }
 
-    .dict-item strong {
-      color: #7a2f4c;
+    .dict-item + .dict-item { margin-top: 6px; }
+
+    .step-nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid #dbe4f1;
+      background: #fff;
+      font-size: 0.84rem;
+      color: #39506f;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+    }
+
+    .step-pill.is-active {
+      border-color: rgba(23, 50, 98, 0.2);
+      background: rgba(23, 50, 98, 0.06);
+      color: var(--brand-accent);
+      font-weight: 700;
+    }
+
+    .step-pill .dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(99, 24, 50, 0.08);
+      color: var(--brand-main);
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex: 0 0 auto;
     }
 
     .controls {
@@ -139,19 +186,16 @@
     }
 
     button {
-      width: 100%;
       border: none;
-      border-radius: 9px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
+      border-radius: 10px;
+      padding: 11px 13px;
+      font-size: 0.92rem;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-    }
+    button:hover { transform: translateY(-1px); }
 
     .btn-primary {
       background: var(--brand-accent);
@@ -165,6 +209,12 @@
       border: 1px solid #cad5e6;
     }
 
+    .btn-nextrow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
     #stage {
       padding: 20px;
       display: grid;
@@ -173,27 +223,18 @@
       min-width: 0;
     }
 
-    .header-card,
-    .viz-card,
-    .control-card {
-      border: 1px solid var(--soft-border);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 8px 20px rgba(17, 37, 72, 0.08);
-    }
-
     .header-card {
-      padding: 12px 14px;
+      padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .header-title {
       margin: 0;
-      font-size: 0.96rem;
+      font-size: 0.98rem;
       color: #253a5d;
     }
 
@@ -218,37 +259,66 @@
       white-space: nowrap;
     }
 
-    .chip strong {
-      color: #173262;
-    }
+    .chip strong { color: var(--brand-accent); }
 
-    .viz-card {
-      padding: 14px;
+    .workspace {
       display: grid;
-      grid-template-columns: minmax(280px, 1fr) minmax(250px, 340px);
+      grid-template-columns: minmax(320px, 1.1fr) minmax(280px, 0.9fr);
       gap: 14px;
-      min-height: 0;
-    }
-
-    .board-wrap {
-      display: grid;
-      gap: 10px;
-      align-content: start;
+      align-items: start;
       min-width: 0;
     }
 
-    .board-title {
-      font-size: 0.86rem;
+    .stage-card,
+    .control-card {
+      padding: 16px;
+    }
+
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
       color: #425670;
+      line-height: 1.45;
+    }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .scenario-card {
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .scenario-card h3 {
       margin: 0;
-      line-height: 1.35;
+      font-size: 0.98rem;
+    }
+
+    .scenario-card.bias h3 { color: var(--brand-main); }
+    .scenario-card.variance h3 { color: var(--brand-accent); }
+
+    .scenario-card p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #405575;
+    }
+
+    #target-panel {
+      display: grid;
+      gap: 10px;
     }
 
     #target-board {
       width: min(520px, 100%);
       aspect-ratio: 1 / 1;
-      border-radius: 50%;
       margin: 0 auto;
+      border-radius: 50%;
       border: 2px solid #d7dfeb;
       background:
         radial-gradient(circle at center, rgba(31, 139, 76, 0.11) 0 16%, transparent 16% 28%, rgba(23, 50, 98, 0.07) 28% 41%, transparent 41% 58%, rgba(99, 24, 50, 0.06) 58% 74%, transparent 74% 100%),
@@ -259,261 +329,309 @@
 
     .board-center {
       position: absolute;
-      left: 50%;
-      top: 50%;
+      inset: 50% auto auto 50%;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #122548;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.82);
+      z-index: 2;
+    }
+
+    .shot {
+      position: absolute;
       width: 14px;
       height: 14px;
       border-radius: 50%;
       transform: translate(-50%, -50%);
-      background: #0f8a43;
-      box-shadow: 0 0 0 5px rgba(15, 138, 67, 0.2);
-      z-index: 4;
+      border: 2px solid rgba(255,255,255,0.85);
+      box-shadow: 0 4px 8px rgba(20, 35, 63, 0.14);
+      opacity: 0;
+      animation: pop-in 0.28s ease forwards;
     }
 
-    .board-cross-h,
-    .board-cross-v {
-      position: absolute;
-      background: rgba(58, 74, 99, 0.18);
-      z-index: 2;
+    .shot:nth-child(odd) { background: var(--brand-main); }
+    .shot:nth-child(even) { background: var(--brand-accent); }
+
+    @keyframes pop-in {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     }
 
-    .board-cross-h {
-      left: 5%;
-      right: 5%;
-      top: 50%;
-      height: 1px;
-      transform: translateY(-50%);
+    .explain-note {
+      border-radius: 12px;
+      background: #f7fbff;
+      border: 1px solid #d8e1ef;
+      padding: 11px 12px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: #415775;
     }
 
-    .board-cross-v {
-      top: 5%;
-      bottom: 5%;
-      left: 50%;
-      width: 1px;
-      transform: translateX(-50%);
+    .mode-buttons {
+      display: grid;
+      gap: 8px;
     }
 
-    #points-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
+    .mode-btn {
+      text-align: left;
+      background: #fff;
+      color: #35506f;
+      border: 1px solid #d2dced;
     }
 
-    .point {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+    .mode-btn.active {
+      border-color: rgba(23, 50, 98, 0.3);
+      background: rgba(23, 50, 98, 0.06);
+      color: var(--brand-accent);
     }
 
-    #mean-marker {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #111;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      left: 50%;
-      top: 50%;
-      z-index: 5;
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .legend {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      font-size: 0.79rem;
-      color: #445a74;
-    }
-
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .metrics {
+    .metric-box {
       display: grid;
       gap: 10px;
-      align-content: start;
-      min-width: 0;
     }
 
-    .metrics h3 {
-      margin: 0;
-      color: var(--brand-accent);
-      font-size: 0.95rem;
-    }
-
-    .metric {
-      border: 1px solid #d4deee;
-      border-radius: 10px;
-      background: #fff;
-      padding: 8px 9px;
+    .metric-row {
       display: grid;
-      gap: 5px;
-      font-size: 0.81rem;
-      color: #3f5068;
+      gap: 6px;
     }
 
-    .metric-head {
+    .metric-label {
       display: flex;
       justify-content: space-between;
-      gap: 6px;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: #35506f;
       font-weight: 700;
     }
 
     .bar-track {
-      height: 8px;
+      height: 10px;
       border-radius: 999px;
-      background: #eaf0f8;
+      background: #e3eaf4;
       overflow: hidden;
     }
 
     .bar-fill {
       height: 100%;
-      width: 0;
       border-radius: inherit;
-      transition: width 0.22s ease;
+      background: linear-gradient(90deg, var(--brand-main), var(--brand-accent));
+      width: 0;
+      transition: width 0.35s ease;
     }
 
-    .bar-bias { background: #be3b33; }
-    .bar-var { background: #d17b1f; }
-    .bar-hit { background: #1f8b4c; }
-
-    #status-box {
-      border: 1px solid #d2dced;
-      border-radius: 10px;
-      background: #f8fbff;
-      padding: 10px;
-      font-size: 0.83rem;
-      color: #3d4f68;
-      line-height: 1.4;
+    #chat-panel,
+    #quiz-panel,
+    #formula-panel {
+      display: grid;
+      gap: 12px;
     }
 
-    #status-box strong {
-      display: block;
-      margin-bottom: 4px;
+    .chat-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
     }
 
-    .control-card {
-      padding: 12px 14px;
+    .chat-box {
       display: grid;
       gap: 10px;
     }
 
-    .control-title {
-      font-size: 0.86rem;
-      color: #3f5575;
-      margin: 0;
+    .chat-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+      gap: 12px;
+      align-items: start;
     }
 
-    .mode-row {
+    .doc-brief {
+      border-radius: 14px;
+      border: 1px solid #d8e1ef;
+      background: #f8fbff;
+      padding: 12px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
 
-    .mode-btn {
-      background: #fff;
-      border: 1px solid #cfd8e8;
-      color: #334665;
-      font-size: 0.79rem;
-      padding: 9px 8px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
+    .doc-brief h4 {
+      margin: 0;
+      color: var(--brand-accent);
+      font-size: 0.9rem;
     }
 
-    .mode-btn.active {
-      border-color: #335b8f;
-      box-shadow: inset 0 0 0 1px rgba(23, 50, 98, 0.13);
-      background: #edf4ff;
-      color: #173262;
+    .doc-brief p,
+    .doc-brief li {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: #405575;
     }
 
-    .sliders {
+    .doc-brief ul {
+      margin: 0;
+      padding-left: 18px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .chat-bubble {
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 92%;
+    }
+
+    .chat-bubble.user {
+      background: rgba(23, 50, 98, 0.08);
+      color: #24425f;
+      justify-self: end;
+    }
+
+    .chat-bubble.bot {
+      background: rgba(99, 24, 50, 0.08);
+      color: #51364f;
+      justify-self: start;
+    }
+
+    .choice-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .choice-btn {
+      background: #fff;
+      color: #36506d;
+      border: 1px solid #d1dced;
+      text-align: left;
+    }
+
+    .choice-btn.correct {
+      background: rgba(31, 139, 76, 0.1);
+      border-color: rgba(31, 139, 76, 0.35);
+      color: var(--good);
+    }
+
+    .choice-btn.wrong {
+      background: rgba(190, 59, 51, 0.08);
+      border-color: rgba(190, 59, 51, 0.25);
+      color: var(--bad);
+    }
+
+    .feedback {
+      padding: 11px 12px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      border: 1px solid #dbe3ef;
+      background: #fff;
+      color: #415775;
+    }
+
+    .feedback.good {
+      border-color: rgba(31, 139, 76, 0.3);
+      background: rgba(31, 139, 76, 0.08);
+      color: var(--good);
+    }
+
+    .feedback.bad {
+      border-color: rgba(190, 59, 51, 0.28);
+      background: rgba(190, 59, 51, 0.07);
+      color: var(--bad);
+    }
+
+    .quiz-grid {
+      display: grid;
       gap: 12px;
     }
 
-    .slider-box {
+    .quiz-card {
+      padding: 14px;
       display: grid;
-      gap: 4px;
-      font-size: 0.78rem;
-      color: #445a74;
+      gap: 10px;
     }
 
-    .slider-head {
-      display: flex;
-      justify-content: space-between;
+    .quiz-question {
+      font-weight: 700;
+      color: #223858;
+      line-height: 1.45;
+    }
+
+    .quiz-options {
+      display: grid;
       gap: 8px;
     }
 
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--brand-accent);
-      cursor: pointer;
+    .quiz-option {
+      background: #fff;
+      color: #36506d;
+      border: 1px solid #d1dced;
+      text-align: left;
     }
 
-    .btn-row {
+    .quiz-option.correct {
+      background: rgba(31, 139, 76, 0.08);
+      color: var(--good);
+      border-color: rgba(31, 139, 76, 0.3);
+    }
+
+    .quiz-option.wrong {
+      background: rgba(190, 59, 51, 0.07);
+      color: var(--bad);
+      border-color: rgba(190, 59, 51, 0.25);
+    }
+
+    .formula-card {
+      padding: 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(99, 24, 50, 0.08), rgba(23, 50, 98, 0.08));
+      border: 1px solid #d4dced;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 12px;
     }
 
-    .mini-note {
-      font-size: 0.79rem;
-      color: #546a85;
-      background: #f8fbff;
-      border: 1px dashed #cad7e8;
-      border-radius: 8px;
-      padding: 8px;
-      line-height: 1.35;
+    .formula-card h3 {
+      margin: 0;
+      color: var(--brand-main);
+      font-size: 1.04rem;
     }
 
-    @media (max-width: 1050px) {
-      #app {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-      }
-
-      #sidebar {
-        border-right: none;
-        border-bottom: 1px solid var(--soft-border);
-        max-height: 52vh;
-      }
-
-      .viz-card {
-        grid-template-columns: 1fr;
-      }
+    .formula-line {
+      border-radius: 14px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(255,255,255,0.85);
+      padding: 14px;
+      font-size: 0.96rem;
+      line-height: 1.6;
+      color: #233a59;
+      font-weight: 700;
     }
 
-    @media (max-width: 680px) {
-      #stage {
-        padding: 12px;
-      }
+    .footer-note {
+      padding: 0 4px;
+      font-size: 0.84rem;
+      color: #5f728d;
+      line-height: 1.45;
+    }
 
-      .mode-row,
-      .sliders,
-      .btn-row {
+    @media (max-width: 1040px) {
+      #app { grid-template-columns: 1fr; }
+      #sidebar { border-right: none; border-bottom: 1px solid var(--soft-border); }
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      #sidebar, #stage { padding: 14px; }
+      .scenario-grid,
+      .btn-nextrow,
+      .chat-layout {
         grid-template-columns: 1fr;
       }
-
-      .header-card {
-        align-items: flex-start;
+      .chips {
+        display: grid;
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -522,461 +640,721 @@
   <div id="app">
     <aside id="sidebar">
       <div>
-        <div class="brandline">AS Digital Marketing | Einsteiger-Lab</div>
-        <h1>Bias und Varianz<br>ohne Mathe erklären</h1>
+        <div class="brandline">AS Digital Marketing</div>
+        <h1>Bias &amp; Varianz für ChatGPT-Einsteiger</h1>
       </div>
 
-      <div class="step-box">
-        <div class="step-kicker">Lernschritt</div>
-        <h2 id="step-title"></h2>
+      <section class="step-box">
+        <div class="step-kicker" id="step-phase">SALA · Start</div>
+        <h2 id="step-title">Der sture und der chaotische Koch</h2>
         <p id="step-text"></p>
-        <div class="task-box"><strong>Deine Aufgabe jetzt:</strong> <span id="step-task"></span></div>
+        <div class="task-box">
+          <strong>Deine Aufgabe</strong>
+          <p id="step-task"></p>
+        </div>
         <ul id="step-points"></ul>
-      </div>
+      </section>
 
-      <div class="dict-box">
+      <section class="dict-box">
         <h3>Mini-Wörterbuch</h3>
-        <div class="dict-item"><strong>Bias:</strong> Das Modell liegt systematisch in eine Richtung daneben.</div>
-        <div class="dict-item"><strong>Varianz:</strong> Das Modell springt stark von Fall zu Fall.</div>
-        <div class="dict-item"><strong>Guter Bereich:</strong> Kleine Abweichung und stabile Vorhersagen.</div>
-        <div class="dict-item"><strong>ML in einem Satz:</strong> Aus Beispielen Muster lernen und für neue Fälle nutzen.</div>
-      </div>
+        <div class="dict-item"><strong>Schieflage (Bias)</strong> = ChatGPT kippt immer in dieselbe Richtung, auch wenn dein Wunsch anders war.</div>
+        <div class="dict-item"><strong>Streuung (Varianz)</strong> = ChatGPT springt, erfindet oder antwortet jedes Mal anders.</div>
+        <div class="dict-item"><strong>Störfaktoren in der Eingabe</strong> = unklare, knappe oder widersprüchliche Prompts.</div>
+      </section>
+
+      <section class="mini-card">
+        <h3>Dein 7-Schritte-Weg</h3>
+        <div id="step-nav" class="step-nav"></div>
+      </section>
 
       <div class="controls">
-        <button id="next-step" class="btn-primary">Nächster Schritt</button>
-        <button id="reset-session" class="btn-secondary">Neu starten</button>
+        <div class="btn-nextrow">
+          <button id="prev-btn" class="btn-secondary" type="button">Zurück</button>
+          <button id="next-btn" class="btn-primary" type="button">Weiter</button>
+        </div>
+        <button id="restart-btn" class="btn-secondary hidden" type="button">Neu starten</button>
       </div>
     </aside>
 
     <main id="stage">
       <section class="header-card">
         <div>
-          <p class="header-title"><strong>Alltagsfall:</strong> Wir prüfen KI-Antworten auf Schieflage und Streuung.</p>
-          <div class="header-sub">Grüner Mittelpunkt = gute Antwortqualität. Punkte = einzelne KI-Antworten.</div>
+          <p class="header-title">Vom Maschinenbau zur ChatGPT-Praxis</p>
+          <div class="header-sub">Hier trainierst du kein Modell. Du trainierst deinen Blick dafür, warum ChatGPT mal stur und mal chaotisch wirkt.</div>
         </div>
         <div class="chips">
-          <div class="chip"><strong>Aktuelles Modell:</strong> <span id="chip-mode">-</span></div>
-          <div class="chip"><strong>Beispiele:</strong> <span id="chip-count">0</span></div>
-          <div class="chip"><strong>Schritt:</strong> <span id="chip-step">1/5</span></div>
+          <div class="chip"><strong>Methode:</strong> SALA</div>
+          <div class="chip"><strong>Leitbild:</strong> Die zwei Köche</div>
+          <div class="chip"><strong>Ziel:</strong> besser prompten statt rätseln</div>
         </div>
       </section>
 
-      <section class="viz-card">
-        <div class="board-wrap">
-          <p class="board-title">Je näher die Punkte am grünen Zentrum und je dichter sie zusammenliegen, desto besser ist das Modell.</p>
-          <div id="target-board" aria-label="Zielscheibe mit Modellvorhersagen" role="img">
-            <div class="board-cross-h"></div>
-            <div class="board-cross-v"></div>
-            <div class="board-center" title="Realität"></div>
-            <div id="points-layer"></div>
-            <div id="mean-marker" title="Durchschnitt der Vorhersagen"></div>
+      <section class="workspace">
+        <div class="stage-card">
+          <div id="scenario-panel">
+            <p class="panel-title">Zuerst fühlst du das Problem im Alltag, bevor wir irgendetwas messen.</p>
+            <div class="scenario-grid">
+              <article class="scenario-card bias">
+                <div class="section-kicker">Koch 1</div>
+                <h3>Die sture Kantinen-Köchin (Bias)</h3>
+                <p>Du bestellst etwas Leichtes, aber sie kippt wieder dieselbe schwere Soße darüber. Immer gleich. Immer Standard. Immer „wird schon passen“.</p>
+                <p>So fühlt sich ChatGPT an, wenn es dir trotz genauer Alltagsfrage ständig denselben amerikanisierten Standardbrei serviert.</p>
+              </article>
+              <article class="scenario-card variance">
+                <div class="section-kicker">Koch 2</div>
+                <h3>Der chaotische Sterne-Koch (Varianz)</h3>
+                <p>Du bestellst dreimal dasselbe Gericht. Einmal genial, einmal seltsam, einmal völlig daneben. Der Koch kocht nach Stimmung.</p>
+                <p>So fühlt sich ChatGPT an, wenn es springt, halluziniert oder plötzlich den roten Faden verliert.</p>
+              </article>
+            </div>
           </div>
-          <div class="legend">
-            <span><i class="dot" style="background:#1f8b4c"></i> Realität</span>
-            <span><i class="dot" style="background:#6b1e3a"></i> Vorhersage</span>
-            <span><i class="dot" style="border:2px solid #111;background:#fff"></i> Mittelwert</span>
+
+          <div id="target-panel" class="hidden">
+            <p class="panel-title" id="board-caption">Die Mitte ist die perfekte Antwort. Jeder Punkt ist ein Versuch von ChatGPT.</p>
+            <div id="target-board" aria-label="Zielscheibe für ChatGPT-Versuche">
+              <div class="board-center"></div>
+            </div>
+            <div class="explain-note" id="board-note">Noch siehst du nur die Zielscheibe. Gleich zeigen wir erst einen, dann mehrere ChatGPT-Versuche.</div>
+          </div>
+
+          <div id="chat-panel" class="hidden">
+            <div class="chat-card">
+              <div class="section-kicker" id="chat-kicker">Prompt-Reparatur</div>
+              <h3 id="chat-title" style="margin:0;color:#223858;">Die sture Köchin bändigen</h3>
+              <div class="chat-layout">
+                <div class="chat-box">
+                  <div class="chat-bubble user" id="chat-user">Schreibe mir einen Text für den Sportverein.</div>
+                  <div class="chat-bubble bot" id="chat-bot">Welcome to our amazing sports club! We empower your athletic journey with passion, excellence and community spirit. Join us for exciting events and become part of our mission.</div>
+                </div>
+                <aside id="doc-brief" class="doc-brief hidden" aria-live="polite">
+                  <h4 id="doc-brief-title">Worum geht es im Dokument?</h4>
+                  <p id="doc-brief-text">Hier erscheint gleich die Kurzfassung des eigentlichen Dokuments.</p>
+                  <ul id="doc-brief-list"></ul>
+                </aside>
+              </div>
+              <div class="choice-grid" id="chat-choices"></div>
+              <div id="chat-feedback" class="feedback hidden"></div>
+            </div>
+          </div>
+
+          <div id="quiz-panel" class="hidden">
+            <p class="panel-title">Jetzt prüfst du, ob du die beiden Koch-Typen schon im Alltag erkennst.</p>
+            <div class="quiz-grid" id="quiz-grid"></div>
+          </div>
+
+          <div id="formula-panel" class="hidden">
+            <div class="formula-card">
+              <div class="section-kicker">Zum Mitnehmen</div>
+              <h3>Deine Anti-Chaos-Formel</h3>
+              <div class="formula-line">Du bist <strong>[Rolle]</strong>. Ich brauche <strong>[Ziel]</strong> für <strong>[Kontext]</strong>. Nenne auch <strong>Gegenargumente</strong>. Antworte exakt im Format <strong>[Format]</strong>.</div>
+              <div class="feedback good">Wenn du Rolle, Ziel, Kontext und Format klar machst, bändigst du sowohl die sture Köchin als auch den chaotischen Koch.</div>
+            </div>
           </div>
         </div>
 
-        <div class="metrics">
-          <h3>Was zeigt das Modell?</h3>
-
-          <div class="metric">
-            <div class="metric-head"><span>Bias-Index</span><span id="bias-value">0</span></div>
-            <div class="bar-track"><div class="bar-fill bar-bias" id="bias-bar"></div></div>
+        <aside class="control-card">
+          <div id="example-controls" class="hidden">
+            <div class="section-kicker">Schritt-Werkzeug</div>
+            <h3 style="margin:6px 0 10px;color:#223858;">Neue Beispiele auf die Zielscheibe</h3>
+            <button id="example-btn" class="btn-primary" type="button">Neue Beispiele</button>
+            <div class="explain-note" id="example-note">Beim ersten Klick siehst du nur einen Versuch. Danach werden es mehr.</div>
           </div>
 
-          <div class="metric">
-            <div class="metric-head"><span>Varianz-Index</span><span id="var-value">0</span></div>
-            <div class="bar-track"><div class="bar-fill bar-var" id="var-bar"></div></div>
+          <div id="mode-controls" class="hidden" style="display:grid;gap:12px;">
+            <div class="section-kicker">Werkbank-Regler</div>
+            <h3 style="margin:0;color:#223858;">Schieflage &amp; Streuung erleben</h3>
+            <div class="mode-buttons">
+              <button class="mode-btn" data-mode="bias" type="button">Sture Köchin</button>
+              <button class="mode-btn" data-mode="variance" type="button">Chaotischer Koch</button>
+              <button class="mode-btn" data-mode="balanced" type="button">Ausgewogen</button>
+            </div>
+            <div class="metric-box">
+              <div class="metric-row">
+                <div class="metric-label"><span>Schieflage (Bias)</span><span id="bias-label">0</span></div>
+                <div class="bar-track"><div id="bias-bar" class="bar-fill"></div></div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-label"><span>Streuung (Varianz)</span><span id="variance-label">0</span></div>
+                <div class="bar-track"><div id="variance-bar" class="bar-fill"></div></div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-label"><span>Störfaktoren in der Eingabe</span><span id="noise-label">0</span></div>
+                <div class="bar-track"><div id="noise-bar" class="bar-fill"></div></div>
+              </div>
+            </div>
+            <div class="result-box" id="mode-feedback">Klick auf einen Modus. Dann siehst du sofort, wie die Versuche auf der Zielscheibe kippen oder zerstreuen.</div>
           </div>
 
-          <div class="metric">
-            <div class="metric-head"><span>Treffer im grünen Bereich</span><span id="hit-value">0%</span></div>
-            <div class="bar-track"><div class="bar-fill bar-hit" id="hit-bar"></div></div>
+          <div id="coach-box" class="explain-note">
+            Die SALA-Methode arbeitet in kleinen Portionen: erst fühlen, dann sehen, dann gezielt reparieren.
           </div>
-
-          <div id="status-box"></div>
-        </div>
+        </aside>
       </section>
 
-      <section class="control-card">
-        <p class="control-title">Interaktive Steuerung</p>
-
-        <div class="mode-row" role="group" aria-label="Modellmodus">
-          <button class="mode-btn" data-mode="bias" type="button">Sturkopf (Bias)</button>
-          <button class="mode-btn" data-mode="balance" type="button">Ausgewogen</button>
-          <button class="mode-btn" data-mode="variance" type="button">Nervös (Varianz)</button>
-        </div>
-
-        <div class="sliders">
-          <label class="slider-box">
-            <span class="slider-head"><span>Anzahl Beispiele</span><strong id="count-value">30</strong></span>
-            <input id="sample-count" type="range" min="8" max="80" step="2" value="30" />
-          </label>
-
-          <label class="slider-box">
-            <span class="slider-head"><span>Alltagsrauschen</span><strong id="noise-value">1</strong></span>
-            <input id="noise-level" type="range" min="0" max="3" step="1" value="1" />
-          </label>
-        </div>
-
-        <div class="btn-row">
-          <button id="generate" class="btn-primary" type="button">Neue Beispiele</button>
-          <button id="auto-run" class="btn-secondary" type="button">Auto (25 Läufe)</button>
-        </div>
-
-        <div class="mini-note" id="inline-note"></div>
-      </section>
+      <div class="footer-note">
+        Dieses Einsteiger-Kapitel ist bewusst alltagsnah aufgebaut: nicht „Wie trainiere ich ein ML-Modell?“, sondern „Wie bekomme ich mit besserem Prompting verlässlichere ChatGPT-Antworten?“
+      </div>
     </main>
   </div>
 
   <script>
-    const stepContent = [
-      {
-        title: "Schritt 1: Was sind Bias und Varianz?",
-        text: "Bias heißt: Antworten haben eine feste Schieflage. Varianz heißt: Antworten springen stark je nach Formulierung. Beides siehst du im Alltag mit KI-Systemen wie ChatGPT.",
-        task: "Lies die Begriffe, dann klicke auf \"Nächster Schritt\". Danach starten wir mit dem Bildmodell.",
-        bullets: [
-          "ChatGPT-Bias im Alltag: Eine Sichtweise wird immer wieder bevorzugt.",
-          "ChatGPT-Varianz im Alltag: Ähnliche Fragen liefern deutlich verschiedene Antworten.",
-          "Warum problematisch: Entscheidungen werden entweder einseitig oder unzuverlässig."
-        ],
-        mode: "balance",
-        note: "Merksatz: Gute KI-Antworten sind weder schief noch sprunghaft."
-      },
-      {
-        title: "Schritt 2: Bild lesen lernen",
-        text: "Ohne Mathe: Das Zentrum steht für gute Antwortqualität. Jeder Punkt ist eine mögliche KI-Antwort.",
-        task: "Klicke auf \"Neue Beispiele\" und beobachte Lage und Streuung der Punkte.",
-        bullets: [
-          "ML bedeutet: aus Beispielen Muster lernen.",
-          "Wir prüfen zwei Fragen: liegen Antworten schief? springen Antworten stark?"
-        ],
-        mode: "balance",
-        note: "Das ist deine Referenz für die nächsten Schritte."
-      },
-      {
-        title: "Schritt 3: Bias verstehen",
-        text: "Bias heißt: Die Antworten liegen oft in dieselbe Richtung daneben. Das Modell hat eine feste Schieflage.",
-        task: "Wähle \"Sturkopf (Bias)\" und generiere neue Beispiele.",
-        bullets: [
-          "Die Punkte liegen dicht beieinander, aber nicht im Zentrum.",
-          "Im Alltag: Die KI bleibt konstant bei derselben, aber falschen Tendenz."
-        ],
-        mode: "bias",
-        note: "Hoher Bias = stabil, aber systematisch daneben."
-      },
-      {
-        title: "Schritt 4: Varianz verstehen",
-        text: "Varianz heißt: Antworten springen stark zwischen ähnlichen Anfragen. Das Modell ist zu nervös.",
-        task: "Wähle \"Nervös (Varianz)\" und nutze \"Auto (25 Läufe)\".",
-        bullets: [
-          "Der Mittelwert kann okay sein, aber einzelne Punkte streuen stark.",
-          "Im Alltag: Kleine Prompt-Änderung erzeugt stark andere Antwort."
-        ],
-        mode: "variance",
-        note: "Hohe Varianz = unzuverlässige Antworten trotz guter Einzeltreffer."
-      },
-      {
-        title: "Schritt 5: Der gute Bereich",
-        text: "Ein gutes Modell ist weder stur noch nervös. Es trifft die Mitte und bleibt stabil.",
-        task: "Schalte auf \"Ausgewogen\" und teste Beispielmenge sowie Alltagsrauschen.",
-        bullets: [
-          "Mehr Daten helfen oft gegen hohe Varianz.",
-          "Bessere, klarere Eingaben helfen oft gegen hohen Bias."
-        ],
-        mode: "balance",
-        note: "Ziel: kleine Bias- und Varianz-Werte gleichzeitig."
-      },
-      {
-        title: "Schritt 6: So vermeidest du beides als Nutzer",
-        text: "Auch ohne ML-Wissen kannst du Bias und Varianz bei ChatGPT aktiv reduzieren und im Alltag erkennen.",
-        task: "Nutze die Regeln unten bei deiner nächsten KI-Anfrage und prüfe besonders kulturelle Perspektiven.",
-        bullets: [
-          "Kultureller Bias im Alltag: Bei Impulsen aus anderen Kulturkreisen fällt die KI oft auf den dominanten Trainingskontext zurück.",
-          "Frage konkret: Rolle, Kontext, Ziel und gewünschtes Ausgabeformat angeben.",
-          "Bitte aktiv um Perspektiven: \"Bewerte das aus Sicht verschiedener Kulturkreise.\"",
-          "Lass Gegencheck machen: \"Nenne Gegenargumente und Unsicherheiten.\"",
-          "Stabilisieren: gleiche Frage mit fester Prompt-Vorlage stellen.",
-          "Verifizieren: wichtige Antworten mit einer zweiten Quelle prüfen."
-        ],
-        mode: "balance",
-        note: "Wenn du diese Regeln nutzt, werden KI-Antworten meist robuster und verlässlicher."
-      }
-    ];
+    (function () {
+      var state = {
+        step: 1,
+        sampleReveal: 0,
+        mode: "balanced",
+        chatAnswered: { 4: false, 5: false },
+        quizCorrect: {}
+      };
 
-    const modeConfig = {
-      bias: {
-        label: "Sturkopf (Bias hoch)",
-        color: "#9e2e4f",
-        shift: 0.42,
-        spread: 0.1
-      },
-      balance: {
-        label: "Ausgewogen",
-        color: "#1f8b4c",
-        shift: 0.05,
-        spread: 0.13
-      },
-      variance: {
-        label: "Nervös (Varianz hoch)",
-        color: "#d17b1f",
-        shift: 0,
-        spread: 0.32
-      }
-    };
-
-    const state = {
-      step: 0,
-      mode: "balance",
-      sampleCount: 30,
-      noise: 1,
-      points: [],
-      autoTimer: null,
-      autoRuns: 0
-    };
-
-    const refs = {
-      stepTitle: document.getElementById("step-title"),
-      stepText: document.getElementById("step-text"),
-      stepTask: document.getElementById("step-task"),
-      stepPoints: document.getElementById("step-points"),
-      chipMode: document.getElementById("chip-mode"),
-      chipCount: document.getElementById("chip-count"),
-      chipStep: document.getElementById("chip-step"),
-      pointsLayer: document.getElementById("points-layer"),
-      meanMarker: document.getElementById("mean-marker"),
-      biasValue: document.getElementById("bias-value"),
-      varValue: document.getElementById("var-value"),
-      hitValue: document.getElementById("hit-value"),
-      biasBar: document.getElementById("bias-bar"),
-      varBar: document.getElementById("var-bar"),
-      hitBar: document.getElementById("hit-bar"),
-      statusBox: document.getElementById("status-box"),
-      countInput: document.getElementById("sample-count"),
-      noiseInput: document.getElementById("noise-level"),
-      countValue: document.getElementById("count-value"),
-      noiseValue: document.getElementById("noise-value"),
-      nextStepBtn: document.getElementById("next-step"),
-      resetBtn: document.getElementById("reset-session"),
-      generateBtn: document.getElementById("generate"),
-      autoBtn: document.getElementById("auto-run"),
-      inlineNote: document.getElementById("inline-note"),
-      modeButtons: Array.from(document.querySelectorAll(".mode-btn"))
-    };
-
-    function randomNormal() {
-      const u1 = Math.random() || 1e-8;
-      const u2 = Math.random() || 1e-8;
-      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-    }
-
-    function clampPoint(x, y, maxRadius = 0.47) {
-      const distance = Math.hypot(x, y);
-      if (distance <= maxRadius) return { x, y };
-      const scale = maxRadius / distance;
-      return { x: x * scale, y: y * scale };
-    }
-
-    function stopAutoRun() {
-      if (!state.autoTimer) return;
-      clearInterval(state.autoTimer);
-      state.autoTimer = null;
-      state.autoRuns = 0;
-      refs.autoBtn.textContent = "Auto (25 Läufe)";
-      refs.autoBtn.classList.remove("btn-primary");
-      refs.autoBtn.classList.add("btn-secondary");
-    }
-
-    function setMode(mode, fromStep = false) {
-      if (!modeConfig[mode]) return;
-      state.mode = mode;
-      refs.modeButtons.forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.mode === mode);
-      });
-      refs.chipMode.textContent = modeConfig[mode].label;
-      if (!fromStep) {
-        refs.inlineNote.textContent = "Modus geändert. Erzeuge jetzt neue Beispiele und vergleiche Bias und Varianz.";
-      }
-      generatePoints();
-    }
-
-    function generatePoints() {
-      const cfg = modeConfig[state.mode];
-      const extraNoise = state.noise * 0.03;
-      const points = [];
-
-      for (let i = 0; i < state.sampleCount; i += 1) {
-        const x = cfg.shift + randomNormal() * (cfg.spread + extraNoise * 0.9);
-        const y = randomNormal() * (cfg.spread * 0.85 + extraNoise * 0.8);
-        points.push(clampPoint(x, y));
-      }
-
-      state.points = points;
-      refs.chipCount.textContent = String(state.sampleCount);
-      renderPoints();
-      updateMetrics();
-    }
-
-    function renderPoints() {
-      refs.pointsLayer.innerHTML = "";
-      const color = modeConfig[state.mode].color;
-      state.points.forEach((p) => {
-        const el = document.createElement("div");
-        el.className = "point";
-        el.style.left = `${50 + p.x * 100}%`;
-        el.style.top = `${50 - p.y * 100}%`;
-        el.style.background = color;
-        refs.pointsLayer.appendChild(el);
-      });
-    }
-
-    function updateMetrics() {
-      if (!state.points.length) return;
-
-      const n = state.points.length;
-      let sumX = 0;
-      let sumY = 0;
-
-      state.points.forEach((p) => {
-        sumX += p.x;
-        sumY += p.y;
-      });
-
-      const meanX = sumX / n;
-      const meanY = sumY / n;
-      const biasDistance = Math.hypot(meanX, meanY);
-      const biasIndex = Math.min(100, Math.round((biasDistance / 0.47) * 100));
-
-      let spreadSum = 0;
-      let hitCount = 0;
-
-      state.points.forEach((p) => {
-        const fromMean = Math.hypot(p.x - meanX, p.y - meanY);
-        spreadSum += fromMean * fromMean;
-
-        const fromCenter = Math.hypot(p.x, p.y);
-        if (fromCenter <= 0.16) hitCount += 1;
-      });
-
-      const spread = Math.sqrt(spreadSum / n);
-      const varianceIndex = Math.min(100, Math.round((spread / 0.4) * 100));
-      const hitRate = Math.round((hitCount / n) * 100);
-
-      refs.meanMarker.style.left = `${50 + meanX * 100}%`;
-      refs.meanMarker.style.top = `${50 - meanY * 100}%`;
-
-      refs.biasValue.textContent = String(biasIndex);
-      refs.varValue.textContent = String(varianceIndex);
-      refs.hitValue.textContent = `${hitRate}%`;
-
-      refs.biasBar.style.width = `${biasIndex}%`;
-      refs.varBar.style.width = `${varianceIndex}%`;
-      refs.hitBar.style.width = `${hitRate}%`;
-
-      let headline = "Ausgewogen";
-      let text = "Das Modell liegt insgesamt nah am Ziel und bleibt stabil.";
-      let color = "#1f8b4c";
-
-      if (biasIndex > 45 && varianceIndex <= 50) {
-        headline = "Bias dominiert";
-        text = "Die Vorhersagen liegen oft in dieselbe Richtung daneben. Das Modell hat eine Schieflage.";
-        color = "#be3b33";
-      } else if (varianceIndex > 55 && biasIndex <= 35) {
-        headline = "Varianz dominiert";
-        text = "Die Vorhersagen springen stark. Das Modell reagiert zu nervös auf Unterschiede.";
-        color = "#d17b1f";
-      } else if (varianceIndex > 55 && biasIndex > 45) {
-        headline = "Beides zu hoch";
-        text = "Schieflage und starke Streuung zusammen: So ist das Modell kaum verlässlich.";
-        color = "#8a2d49";
-      }
-
-      refs.statusBox.innerHTML = `<strong style="color:${color}">${headline}</strong>${text}`;
-    }
-
-    function updateStepView() {
-      const data = stepContent[state.step];
-      refs.stepTitle.textContent = data.title;
-      refs.stepText.textContent = data.text;
-      refs.stepTask.textContent = data.task;
-      refs.inlineNote.textContent = data.note;
-      refs.stepPoints.innerHTML = "";
-      data.bullets.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        refs.stepPoints.appendChild(li);
-      });
-      refs.chipStep.textContent = `${state.step + 1}/${stepContent.length}`;
-      setMode(data.mode, true);
-    }
-
-    refs.modeButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        stopAutoRun();
-        setMode(btn.dataset.mode);
-      });
-    });
-
-    refs.countInput.addEventListener("input", (e) => {
-      state.sampleCount = Number(e.target.value);
-      refs.countValue.textContent = String(state.sampleCount);
-      generatePoints();
-    });
-
-    refs.noiseInput.addEventListener("input", (e) => {
-      state.noise = Number(e.target.value);
-      refs.noiseValue.textContent = String(state.noise);
-      generatePoints();
-    });
-
-    refs.generateBtn.addEventListener("click", () => {
-      stopAutoRun();
-      generatePoints();
-    });
-
-    refs.autoBtn.addEventListener("click", () => {
-      if (state.autoTimer) {
-        stopAutoRun();
-        return;
-      }
-
-      state.autoRuns = 0;
-      refs.autoBtn.textContent = "Auto läuft ... stoppen";
-      refs.autoBtn.classList.remove("btn-secondary");
-      refs.autoBtn.classList.add("btn-primary");
-
-      state.autoTimer = setInterval(() => {
-        generatePoints();
-        state.autoRuns += 1;
-        if (state.autoRuns >= 25) {
-          stopAutoRun();
+      var stepContent = {
+        1: {
+          phase: "SALA · S = Spüren",
+          title: "Der sture und der chaotische Koch",
+          text: "Bevor wir messen, schauen wir auf ein Gefühl, das fast alle mit ChatGPT kennen: Manchmal klingt die Antwort zu standardisiert. Manchmal ist sie sprunghaft oder sogar erfunden.",
+          task: "Lies die zwei Koch-Szenarien und klicke auf „Weiter“, um zu sehen, wie dieselben Probleme in einer einfachen KI-Zielscheibe sichtbar werden.",
+          points: [
+            "Bias heißt hier: ChatGPT bleibt stur in einer Richtung.",
+            "Varianz heißt hier: ChatGPT reagiert unruhig und wechselhaft.",
+            "Du brauchst noch keine Mathematik. Nur deinen Alltag mit ChatGPT."
+          ]
+        },
+        2: {
+          phase: "SALA · A = Anschauen",
+          title: "Die Zielscheibe lesen lernen",
+          text: "Jetzt übersetzen wir das Bauchgefühl in ein Bild. Die Mitte ist die perfekte Antwort. Jeder Punkt ist ein Versuch von ChatGPT auf fast dieselbe Anfrage.",
+          task: "Klicke auf „Neue Beispiele“. Zuerst erscheint nur ein Versuch, dann fünf, dann viele. So lernst du die Zielscheibe Schritt für Schritt lesen.",
+          points: [
+            "Ein einzelner Punkt verrät wenig.",
+            "Mehrere Punkte zeigen Muster.",
+            "Erst wenn du viele Versuche siehst, erkennst du Schieflage oder Streuung."
+          ]
+        },
+        3: {
+          phase: "SALA · L = Lenken",
+          title: "Schieflage und Streuung erleben",
+          text: "Jetzt darfst du die beiden Koch-Typen direkt ansteuern. Klick die Modi durch und beobachte, wie sich die Punkte und die Balken verändern.",
+          task: "Wechsle zwischen „Sture Köchin“, „Chaotischer Koch“ und „Ausgewogen“. Achte darauf, ob die Punkte eher verschoben oder eher verstreut sind.",
+          points: [
+            "Sture Köchin = eng beieinander, aber spürbar neben der Mitte.",
+            "Chaotischer Koch = nicht ganz schief, aber wild verstreut.",
+            "Ausgewogen = nah an der Mitte und ruhig."
+          ]
+        },
+        4: {
+          phase: "SALA · A = Anwenden",
+          title: "Prompt-Reparatur: Die sture Köchin bändigen",
+          text: "Bias fühlt sich bei ChatGPT oft wie ein generischer Werbetext an. Die Antwort ist nicht völlig falsch, aber sie ignoriert deinen echten Kontext.",
+          task: "Wähle die Prompt-Ergänzung, die der KI endlich Rolle und Kontext gibt. Damit verlässt sie den Standardbrei.",
+          points: [
+            "Gegen Bias hilft oft: Rolle und Zielgruppe klar benennen.",
+            "Je allgemeiner dein Prompt, desto eher kommt der Standardbrei.",
+            "Kontext ist hier wichtiger als Länge."
+          ]
+        },
+        5: {
+          phase: "SALA · A = Anwenden",
+          title: "Prompt-Reparatur: Den chaotischen Koch zügeln",
+          text: "Varianz fühlt sich bei ChatGPT oft wie ein Ausflug ins Fantasieland an. Die Antwort springt, halluziniert oder nimmt sich mehr Freiheiten, als das Dokument erlaubt.",
+          task: "Vergleiche rechts kurz, worum es im Dokument wirklich geht. Wähle dann die Prompt-Ergänzung, die Format und Leitplanken setzt. Genau damit beruhigst du die Antwort.",
+          points: [
+            "Gegen Varianz helfen feste Formate und klare Regeln.",
+            "„Nur aus dem Dokument“ ist stärker als „sei kreativ“.",
+            "Leitplanken machen Antworten ruhiger und nachvollziehbarer."
+          ]
+        },
+        6: {
+          phase: "SALA · L = Lernen prüfen",
+          title: "Selbsttest: Vom Kennen zum Können",
+          text: "Jetzt musst du die beiden Koch-Muster selbst erkennen. Nicht mehr im Bild, sondern in Alltagssituationen mit ChatGPT.",
+          task: "Beantworte beide Fragen. Du bekommst sofort Rückmeldung in Rot oder Grün und kannst direkt korrigieren.",
+          points: [
+            "Bias = immer dieselbe Schieflage.",
+            "Varianz = Antworten springen oder driften.",
+            "Feste Prompt-Vorlagen sind oft die einfachste Beruhigung."
+          ]
+        },
+        7: {
+          phase: "SALA · A = Mitnehmen und anwenden",
+          title: "Deine Anti-Chaos-Formel zum Mitnehmen",
+          text: "Zum Schluss bekommst du kein abstraktes Fachwort, sondern eine alltagstaugliche Prompt-Schablone. Damit bändigst du ChatGPT schneller und verlässlicher.",
+          task: "Lies die Formel laut mit deinen eigenen Worten. Wenn sie sich nach deinem Alltag anhört, ist sie nützlich.",
+          points: [
+            "Rolle steuert die Perspektive.",
+            "Ziel und Kontext reduzieren Schieflage.",
+            "Format und Gegenargumente beruhigen chaotische Antworten."
+          ]
         }
-      }, 130);
-    });
+      };
 
-    refs.nextStepBtn.addEventListener("click", () => {
-      stopAutoRun();
-      state.step = (state.step + 1) % stepContent.length;
-      updateStepView();
-    });
+      var modeConfig = {
+        bias: {
+          label: "Die sture Köchin kippt alles in dieselbe Richtung. Das Ergebnis ist nicht wild, aber schief.",
+          bias: 82,
+          variance: 18,
+          noise: 28,
+          centerX: 34,
+          centerY: 64,
+          spread: 8
+        },
+        variance: {
+          label: "Der chaotische Sterne-Koch trifft mal gut, mal völlig daneben. Die Antwort springt.",
+          bias: 34,
+          variance: 86,
+          noise: 68,
+          centerX: 50,
+          centerY: 50,
+          spread: 28
+        },
+        balanced: {
+          label: "Ausgewogen heißt: nah an der Mitte und nicht völlig zappelig. So fühlt sich gutes Prompting an.",
+          bias: 16,
+          variance: 22,
+          noise: 18,
+          centerX: 50,
+          centerY: 50,
+          spread: 10
+        }
+      };
 
-    refs.resetBtn.addEventListener("click", () => {
-      stopAutoRun();
-      state.step = 0;
-      state.mode = "balance";
-      state.sampleCount = 30;
-      state.noise = 1;
-      refs.countInput.value = "30";
-      refs.noiseInput.value = "1";
-      refs.countValue.textContent = "30";
-      refs.noiseValue.textContent = "1";
-      updateStepView();
-    });
+      var stepNav = document.getElementById("step-nav");
+      var stepTitle = document.getElementById("step-title");
+      var stepText = document.getElementById("step-text");
+      var stepTask = document.getElementById("step-task");
+      var stepPoints = document.getElementById("step-points");
+      var stepPhase = document.getElementById("step-phase");
+      var prevBtn = document.getElementById("prev-btn");
+      var nextBtn = document.getElementById("next-btn");
+      var restartBtn = document.getElementById("restart-btn");
+      var scenarioPanel = document.getElementById("scenario-panel");
+      var targetPanel = document.getElementById("target-panel");
+      var targetBoard = document.getElementById("target-board");
+      var boardNote = document.getElementById("board-note");
+      var boardCaption = document.getElementById("board-caption");
+      var chatPanel = document.getElementById("chat-panel");
+      var chatKicker = document.getElementById("chat-kicker");
+      var chatTitle = document.getElementById("chat-title");
+      var chatUser = document.getElementById("chat-user");
+      var chatBot = document.getElementById("chat-bot");
+      var chatChoices = document.getElementById("chat-choices");
+      var chatFeedback = document.getElementById("chat-feedback");
+      var docBrief = document.getElementById("doc-brief");
+      var docBriefTitle = document.getElementById("doc-brief-title");
+      var docBriefText = document.getElementById("doc-brief-text");
+      var docBriefList = document.getElementById("doc-brief-list");
+      var quizPanel = document.getElementById("quiz-panel");
+      var quizGrid = document.getElementById("quiz-grid");
+      var formulaPanel = document.getElementById("formula-panel");
+      var exampleControls = document.getElementById("example-controls");
+      var exampleBtn = document.getElementById("example-btn");
+      var exampleNote = document.getElementById("example-note");
+      var modeControls = document.getElementById("mode-controls");
+      var modeFeedback = document.getElementById("mode-feedback");
+      var coachBox = document.getElementById("coach-box");
 
-    updateStepView();
+      var chatSteps = {
+        4: {
+          kicker: "Bias reparieren",
+          title: "Die sture Köchin bändigen",
+          user: "Schreibe mir einen Text für den Sportverein.",
+          bot: "Welcome to our amazing sports club! We empower your athletic journey with passion, excellence and community spirit. Join us for exciting events and become part of our mission.",
+          options: [
+            {
+              text: "Mach den Text einfach länger und emotionaler.",
+              correct: false,
+              feedback: "Das macht die Soße nur dicker. Der Standard bleibt trotzdem derselbe."
+            },
+            {
+              text: "Du bist Texterin für einen kleinen deutschen Sportverein. Schreibe für Eltern, Mitglieder und Ehrenamtliche. Locker, lokal und ohne Werbesprech.",
+              correct: true,
+              feedback: "Genau. Rolle und Kontext holen ChatGPT aus dem Standardmodus heraus."
+            },
+            {
+              text: "Nutze mehr Emojis und einen cooleren Ton.",
+              correct: false,
+              feedback: "Mehr Deko ersetzt keinen Kontext. Der Kern bleibt generisch."
+            }
+          ]
+        },
+        5: {
+          kicker: "Varianz beruhigen",
+          title: "Den chaotischen Koch zügeln",
+          user: "Fasse dieses Dokument zusammen.",
+          bot: "Das Dokument zeigt, dass der Verein seine Mitgliederzahl 2027 verdoppeln will, ein neues Hallenbad plant und bereits Fördermittel aus drei EU-Töpfen bekommen hat.",
+          briefTitle: "Worum es im Dokument wirklich geht",
+          briefText: "Das Originaldokument ist inhaltlich viel kleiner und nüchterner als die halluzinierte Zusammenfassung von ChatGPT.",
+          briefBullets: [
+            "Es geht um ein internes Protokoll zur Überarbeitung der Vereinswebsite.",
+            "Genannt werden drei Baustellen: Startseite, Kontaktformular und Bildauswahl.",
+            "Es gibt keinen Plan für ein Hallenbad, keine EU-Fördermittel und keine Verdopplung der Mitgliederzahl."
+          ],
+          options: [
+            {
+              text: "Mach die Antwort kreativer und überraschender.",
+              correct: false,
+              feedback: "Das lädt den chaotischen Koch eher noch mehr zum Springen ein."
+            },
+            {
+              text: "Antworte nur in 3 Stichpunkten. Nutze ausschließlich Informationen aus dem Dokument. Wenn etwas fehlt, schreibe: ‚Nicht im Dokument‘.",
+              correct: true,
+              feedback: "Genau. Klare Leitplanken und Formatvorgaben beruhigen die Antwort stark."
+            },
+            {
+              text: "Klinge bitte selbstbewusst und überzeugend.",
+              correct: false,
+              feedback: "Selbstbewusst klingt nett, bremst Halluzinationen aber nicht."
+            }
+          ]
+        }
+      };
+
+      var quizQuestions = [
+        {
+          id: "quiz-1",
+          question: "Du fragst ChatGPT nach einem Rezept, und es enthält immer Fleisch, obwohl du vegetarisch geschrieben hast. Ist das eher ...?",
+          options: [
+            { text: "Bias", correct: true, feedback: "Ja. Die Antwort kippt immer in dieselbe Richtung und ignoriert deinen Wunsch." },
+            { text: "Varianz", correct: false, feedback: "Nicht ganz. Varianz wäre eher: jedes Mal etwas anderes und unruhig." }
+          ]
+        },
+        {
+          id: "quiz-2",
+          question: "Auf fast dieselbe Frage bekommst du völlig verschiedene Antworten. Was hilft am ehesten?",
+          options: [
+            { text: "Eine feste Prompt-Vorlage mit Rolle, Ziel und Format", correct: true, feedback: "Richtig. Genau das setzt Leitplanken und beruhigt die Antwort." },
+            { text: "Noch kürzer fragen, damit ChatGPT mehr Freiheit hat", correct: false, feedback: "Mehr Freiheit verstärkt oft genau das Chaos, das du loswerden willst." }
+          ]
+        }
+      ];
+
+      function renderStepNav() {
+        stepNav.innerHTML = "";
+        for (var i = 1; i <= 7; i += 1) {
+          var item = document.createElement("button");
+          item.type = "button";
+          item.className = "step-pill" + (state.step === i ? " is-active" : "");
+          item.setAttribute("aria-label", "Zu Schritt " + i + " wechseln");
+          item.innerHTML = '<span class="dot">' + i + '</span><span>' + stepContent[i].title + '</span>';
+          item.addEventListener("click", (function (targetStep) {
+            return function () {
+              state.step = targetStep;
+              updateStage();
+              scrollStageToTop();
+            };
+          }(i)));
+          stepNav.appendChild(item);
+        }
+      }
+
+      function setPanelVisibility() {
+        scenarioPanel.classList.add("hidden");
+        targetPanel.classList.add("hidden");
+        chatPanel.classList.add("hidden");
+        quizPanel.classList.add("hidden");
+        formulaPanel.classList.add("hidden");
+        exampleControls.classList.add("hidden");
+        modeControls.classList.add("hidden");
+
+        if (state.step === 1) {
+          scenarioPanel.classList.remove("hidden");
+          coachBox.textContent = "Noch keine Regler, keine Balken, keine Zielscheibe. Erst das Gefühl, dann das Bild.";
+        }
+
+        if (state.step === 2) {
+          targetPanel.classList.remove("hidden");
+          exampleControls.classList.remove("hidden");
+          coachBox.textContent = "Jetzt reicht ein einziger Knopf: Mehr Beispiele sichtbar machen. Noch keine Fachbegriffe auf einmal.";
+        }
+
+        if (state.step === 3) {
+          targetPanel.classList.remove("hidden");
+          exampleControls.classList.remove("hidden");
+          modeControls.classList.remove("hidden");
+          coachBox.textContent = "Erst jetzt kommen Modi und Balken dazu. Du hast vorher gelernt, die Zielscheibe überhaupt zu lesen.";
+        }
+
+        if (state.step === 4 || state.step === 5) {
+          chatPanel.classList.remove("hidden");
+          coachBox.textContent = "Die Zielscheibe verschwindet jetzt bewusst. Statt Bildarbeit übst du direkt am Prompt.";
+        }
+
+        if (state.step === 6) {
+          quizPanel.classList.remove("hidden");
+          coachBox.textContent = "Jetzt geht es um Erkennen und Einordnen. Du brauchst keine Theorieblöcke mehr, sondern Entscheidungen.";
+        }
+
+        if (state.step === 7) {
+          formulaPanel.classList.remove("hidden");
+          coachBox.textContent = "Am Ende bleibt kein Fachwort hängen, sondern eine konkrete Formulierung für deinen Alltag mit ChatGPT.";
+        }
+      }
+
+      function clearShots() {
+        targetBoard.querySelectorAll(".shot").forEach(function (node) {
+          node.remove();
+        });
+      }
+
+      function randomAround(center, spread) {
+        var angle = Math.random() * Math.PI * 2;
+        var radius = Math.random() * spread;
+        return {
+          x: center.x + Math.cos(angle) * radius,
+          y: center.y + Math.sin(angle) * radius
+        };
+      }
+
+      function bounded(value) {
+        return Math.max(10, Math.min(90, value));
+      }
+
+      function createShots(mode, amount) {
+        clearShots();
+        var config;
+
+        if (state.step === 2) {
+          config = { centerX: 50, centerY: 50, spread: 12 };
+        } else {
+          config = modeConfig[mode];
+        }
+
+        for (var i = 0; i < amount; i += 1) {
+          var point = randomAround(
+            { x: config.centerX, y: config.centerY },
+            config.spread
+          );
+          var shot = document.createElement("div");
+          shot.className = "shot";
+          shot.style.left = bounded(point.x) + "%";
+          shot.style.top = bounded(point.y) + "%";
+          shot.style.animationDelay = (i * 0.018) + "s";
+          targetBoard.appendChild(shot);
+        }
+      }
+
+      function renderMetrics(mode) {
+        var config = modeConfig[mode];
+        document.getElementById("bias-label").textContent = config.bias + " / 100";
+        document.getElementById("variance-label").textContent = config.variance + " / 100";
+        document.getElementById("noise-label").textContent = config.noise + " / 100";
+        document.getElementById("bias-bar").style.width = config.bias + "%";
+        document.getElementById("variance-bar").style.width = config.variance + "%";
+        document.getElementById("noise-bar").style.width = config.noise + "%";
+        modeFeedback.textContent = config.label;
+      }
+
+      function setActiveMode(mode) {
+        state.mode = mode;
+        document.querySelectorAll(".mode-btn").forEach(function (button) {
+          button.classList.toggle("active", button.dataset.mode === mode);
+        });
+        createShots(mode, state.sampleReveal >= 3 ? 30 : 30);
+        renderMetrics(mode);
+      }
+
+      function handleExampleClick() {
+        state.sampleReveal += 1;
+
+        if (state.sampleReveal === 1) {
+          createShots("balanced", 1);
+          boardNote.textContent = "Ein einziger Punkt kann gut oder schlecht aussehen. Von einem Versuch allein solltest du dich nicht täuschen lassen.";
+          exampleNote.textContent = "Noch ist das nur ein einzelner ChatGPT-Versuch. Klicke noch einmal für mehr Muster.";
+        } else if (state.sampleReveal === 2) {
+          createShots("balanced", 5);
+          boardNote.textContent = "Mit fünf Punkten erkennst du schon eher, ob ChatGPT immer ähnlich antwortet oder anfängt zu springen.";
+          exampleNote.textContent = "Jetzt werden aus Einzelfällen erste Muster. Ein weiterer Klick zeigt dir das volle Bild.";
+        } else {
+          createShots(state.step === 3 ? state.mode : "balanced", 30);
+          boardNote.textContent = "Viele Punkte zeigen das echte Muster. Erst jetzt kannst du Schieflage oder Streuung sicherer sehen.";
+          exampleNote.textContent = "Ab jetzt bekommst du immer wieder neue Gruppen mit 30 Versuchen.";
+        }
+      }
+
+      function renderChatStep() {
+        var config = chatSteps[state.step];
+        chatKicker.textContent = config.kicker;
+        chatTitle.textContent = config.title;
+        chatUser.textContent = config.user;
+        chatBot.textContent = config.bot;
+        chatChoices.innerHTML = "";
+        chatFeedback.className = "feedback hidden";
+        chatFeedback.textContent = "";
+        docBrief.classList.toggle("hidden", state.step !== 5);
+
+        if (state.step === 5) {
+          docBriefTitle.textContent = config.briefTitle;
+          docBriefText.textContent = config.briefText;
+          docBriefList.innerHTML = "";
+          config.briefBullets.forEach(function (item) {
+            var li = document.createElement("li");
+            li.textContent = item;
+            docBriefList.appendChild(li);
+          });
+        } else {
+          docBriefTitle.textContent = "Worum geht es im Dokument?";
+          docBriefText.textContent = "Hier erscheint gleich die Kurzfassung des eigentlichen Dokuments.";
+          docBriefList.innerHTML = "";
+        }
+
+        config.options.forEach(function (option) {
+          var button = document.createElement("button");
+          button.className = "choice-btn";
+          button.type = "button";
+          button.textContent = option.text;
+          button.addEventListener("click", function () {
+            chatChoices.querySelectorAll("button").forEach(function (node) {
+              node.classList.remove("correct", "wrong");
+            });
+            button.classList.add(option.correct ? "correct" : "wrong");
+            chatFeedback.classList.remove("hidden");
+            chatFeedback.classList.add(option.correct ? "good" : "bad");
+            chatFeedback.textContent = option.feedback;
+            state.chatAnswered[state.step] = option.correct;
+            if (option.correct) {
+              chatChoices.querySelectorAll("button").forEach(function (node) {
+                node.disabled = true;
+              });
+            } else {
+              chatFeedback.textContent += " Versuch es noch einmal.";
+            }
+          });
+          chatChoices.appendChild(button);
+        });
+      }
+
+      function renderQuiz() {
+        quizGrid.innerHTML = "";
+
+        quizQuestions.forEach(function (question) {
+          var card = document.createElement("div");
+          card.className = "quiz-card";
+          card.innerHTML = '<div class="quiz-question">' + question.question + "</div>";
+
+          var options = document.createElement("div");
+          options.className = "quiz-options";
+
+          question.options.forEach(function (option, index) {
+            var button = document.createElement("button");
+            button.className = "quiz-option";
+            button.type = "button";
+            button.textContent = option.text;
+            button.addEventListener("click", function () {
+              var feedback = card.querySelector(".feedback");
+              options.querySelectorAll("button").forEach(function (node) {
+                node.classList.remove("correct", "wrong");
+              });
+              button.classList.add(option.correct ? "correct" : "wrong");
+              feedback.textContent = option.feedback;
+              feedback.className = "feedback " + (option.correct ? "good" : "bad");
+              state.quizCorrect[question.id] = option.correct;
+            });
+            options.appendChild(button);
+          });
+
+          var feedbackBox = document.createElement("div");
+          feedbackBox.className = "feedback hidden";
+          card.appendChild(options);
+          card.appendChild(feedbackBox);
+          quizGrid.appendChild(card);
+        });
+      }
+
+      function updateText() {
+        var current = stepContent[state.step];
+        stepPhase.textContent = current.phase;
+        stepTitle.textContent = current.title;
+        stepText.textContent = current.text;
+        stepTask.textContent = current.task;
+        stepPoints.innerHTML = "";
+        current.points.forEach(function (item) {
+          var li = document.createElement("li");
+          li.textContent = item;
+          stepPoints.appendChild(li);
+        });
+      }
+
+      function updateButtons() {
+        prevBtn.disabled = state.step === 1;
+        nextBtn.textContent = state.step === 7 ? "Fertig" : "Weiter";
+        restartBtn.classList.toggle("hidden", state.step !== 7);
+      }
+
+      function updateStage() {
+        updateText();
+        renderStepNav();
+        setPanelVisibility();
+        updateButtons();
+
+        if (state.step === 2) {
+          state.sampleReveal = 0;
+          clearShots();
+          boardCaption.textContent = "Die Mitte ist die perfekte Antwort. Jeder Punkt ist ein Versuch von ChatGPT.";
+          boardNote.textContent = "Noch siehst du nur die Zielscheibe. Gleich zeigen wir erst einen, dann mehrere ChatGPT-Versuche.";
+          exampleNote.textContent = "Beim ersten Klick siehst du nur einen Versuch. Danach werden es mehr.";
+        }
+
+        if (state.step === 3) {
+          if (state.sampleReveal < 3) {
+            state.sampleReveal = 3;
+          }
+          boardCaption.textContent = "Jetzt steuerst du selbst, ob ChatGPT eher stur, chaotisch oder ausgewogen wirkt.";
+          exampleNote.textContent = "Mit „Neue Beispiele“ bekommst du immer wieder neue Versuchsgruppen im selben Modus.";
+          setActiveMode(state.mode);
+        }
+
+        if (state.step === 4 || state.step === 5) {
+          renderChatStep();
+        }
+
+        if (state.step === 6) {
+          renderQuiz();
+        }
+      }
+
+      function scrollStageToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
+
+      function nextStep() {
+        if (state.step < 7) {
+          state.step += 1;
+          updateStage();
+          scrollStageToTop();
+        }
+      }
+
+      function prevStep() {
+        if (state.step > 1) {
+          state.step -= 1;
+          updateStage();
+          scrollStageToTop();
+        }
+      }
+
+      document.querySelectorAll(".mode-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+          setActiveMode(button.dataset.mode);
+        });
+      });
+
+      exampleBtn.addEventListener("click", handleExampleClick);
+      nextBtn.addEventListener("click", nextStep);
+      prevBtn.addEventListener("click", prevStep);
+      restartBtn.addEventListener("click", function () {
+        state = {
+          step: 1,
+          sampleReveal: 0,
+          mode: "balanced",
+          chatAnswered: { 4: false, 5: false },
+          quizCorrect: {}
+        };
+        updateStage();
+      });
+
+      updateStage();
+    }());
   </script>
-  <script defer src="../lernstand_manager.js"></script>
 </body>
 </html>
