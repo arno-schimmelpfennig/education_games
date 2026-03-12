@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiel 1 – Gefährlich oder sicher?</title>
+<style>
+  :root {
+    --brand: #631832;
+    --accent: #173262;
+    --text: #231A24;
+    --link: #606F8C;
+    --surface: #FFFFFF;
+    --soft: rgba(96, 111, 140, 0.12);
+    --brand-soft: rgba(99, 24, 50, 0.12);
+    --shadow: 0 18px 40px rgba(35, 26, 36, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(99, 24, 50, 0.16), transparent 24rem),
+      radial-gradient(circle at top right, rgba(23, 50, 98, 0.16), transparent 24rem),
+      #FFFFFF;
+  }
+
+  a { color: var(--link); text-decoration: none; }
+  button { font: inherit; }
+
+  .page {
+    width: min(1280px, calc(100% - 1.5rem));
+    margin: 0 auto;
+    padding: 0.75rem 0 1.5rem;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--link);
+    font-weight: 700;
+  }
+
+  .title-shell {
+    flex: 1;
+    min-width: 18rem;
+    background: linear-gradient(135deg, var(--brand), var(--accent));
+    color: #FFFFFF;
+    border-radius: 24px;
+    padding: 1.25rem 1.4rem;
+    box-shadow: var(--shadow);
+  }
+
+  .title-shell h1 {
+    font-size: clamp(1.7rem, 4vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .title-shell p {
+    margin-top: 0.5rem;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    opacity: 0.95;
+  }
+
+  .progress-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    color: var(--accent);
+    border: 2px solid rgba(96, 111, 140, 0.24);
+    border-radius: 999px;
+    min-width: 9.5rem;
+    padding: 0.8rem 1rem;
+    font-weight: 700;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .stage {
+    background: var(--surface);
+    border-radius: 24px;
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    box-shadow: var(--shadow);
+  }
+
+  .stage {
+    padding: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .card {
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+    border-radius: 22px;
+    padding: clamp(1.4rem, 4vw, 3rem);
+    text-align: center;
+  }
+
+  .label {
+    color: var(--link);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+  }
+
+  .passwort,
+  .situation {
+    font-size: clamp(1.9rem, 5vw, 4rem);
+    line-height: 1.15;
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  .situation {
+    font-size: clamp(1.45rem, 3.6vw, 2.55rem);
+    font-weight: 600;
+  }
+
+  .reveal {
+    display: none;
+    margin-top: 1rem;
+    border-radius: 22px;
+    padding: 1.2rem 1.25rem;
+    background: var(--soft);
+    border: 2px solid rgba(96, 111, 140, 0.2);
+  }
+
+  .reveal.safe {
+    background: rgba(23, 50, 98, 0.12);
+    border-color: var(--accent);
+  }
+
+  .reveal.danger {
+    background: rgba(99, 24, 50, 0.12);
+    border-color: var(--brand);
+  }
+
+  .verdict {
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    font-weight: 700;
+    margin-bottom: 0.65rem;
+  }
+
+  .reveal.safe .verdict { color: var(--accent); }
+  .reveal.danger .verdict { color: var(--brand); }
+
+  .explanation {
+    font-size: clamp(1rem, 1.9vw, 1.2rem);
+    line-height: 1.55;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 0.9rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .btn {
+    min-height: 3.3rem;
+    padding: 0.9rem 1.2rem;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 700;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .btn:hover { transform: translateY(-2px); }
+  .btn-safe { background: var(--accent); color: #FFFFFF; }
+  .btn-danger { background: var(--brand); color: #FFFFFF; }
+  .btn-next,
+  .btn-restart {
+    background: var(--link);
+    color: #FFFFFF;
+  }
+
+  .hint-row {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--link);
+    font-size: 0.95rem;
+  }
+
+  .finale {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+    padding: clamp(1.3rem, 4vw, 2.5rem);
+  }
+
+  .finale h2 {
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    color: var(--brand);
+  }
+
+  .score {
+    font-size: clamp(2.1rem, 6vw, 4.4rem);
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  .finale p {
+    max-width: 40rem;
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+  }
+
+  .back-link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 3rem;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #FFFFFF;
+    font-weight: 700;
+    padding: 0.8rem 1rem;
+  }
+
+  .result-panel {
+    margin-top: 1rem;
+    border-radius: 22px;
+    padding: 1.2rem;
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+    text-align: left;
+    width: min(100%, 52rem);
+  }
+
+  .result-panel h3 {
+    color: var(--brand);
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    margin-bottom: 0.45rem;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 1rem 0;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .field label {
+    color: var(--link);
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .field input {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 14px;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+    color: var(--text);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .btn-eval { background: var(--brand); color: #FFFFFF; }
+  .btn-reset-eval { background: var(--link); color: #FFFFFF; }
+
+  .result-visual {
+    display: none;
+    gap: 0.85rem;
+  }
+
+  .result-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .result-quote {
+    color: var(--accent);
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 800;
+  }
+
+  .meter {
+    width: 100%;
+    height: 1rem;
+    background: rgba(96, 111, 140, 0.18);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transition: width 0.25s ease;
+  }
+
+  .result-conclusion {
+    background: rgba(23, 50, 98, 0.1);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .result-conclusion strong {
+    color: var(--brand);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  @media (max-width: 640px) {
+    .page { width: min(100% - 0.75rem, 1280px); }
+    .topbar { align-items: stretch; }
+    .progress-badge { width: 100%; }
+    .hint-row { flex-direction: column; }
+    .result-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a class="crumb" href="index.html">← Zur Spielübersicht</a>
+      <div class="title-shell">
+        <h1>Spiel 1 – Gefährlich oder sicher?</h1>
+        <p>Die Gruppe ordnet Beispiele ein. Auflösung und Begründung erscheinen erst nach der Entscheidung.</p>
+      </div>
+      <div class="progress-badge" id="progress">Karte 1 / 8</div>
+    </div>
+
+    <div class="layout">
+      <main class="stage">
+        <section id="game-area">
+          <div class="card" id="card">
+            <div class="label" id="card-label">Passwort</div>
+            <div id="card-content" class="passwort"></div>
+          </div>
+
+          <div class="reveal" id="reveal">
+            <div class="verdict" id="verdict-text"></div>
+            <div class="explanation" id="explanation-text"></div>
+          </div>
+
+          <div class="buttons" id="vote-buttons">
+            <button class="btn btn-safe" onclick="vote('safe')">Sicher</button>
+            <button class="btn btn-danger" onclick="vote('danger')">Gefährlich</button>
+          </div>
+
+          <div class="buttons" id="next-buttons" style="display:none;">
+            <button class="btn btn-next" onclick="nextCard()">Nächste Karte</button>
+          </div>
+
+          <div class="hint-row">
+            <div id="key-hint">Tastatur: `S` = Sicher · `G` = Gefährlich</div>
+            <a href="index.html">Zur Übersicht wechseln</a>
+          </div>
+        </section>
+
+        <section class="finale" id="finale">
+          <h2>Durchgang beendet</h2>
+          <div class="score" id="finale-score"></div>
+          <p id="finale-text"></p>
+          <div class="result-panel">
+            <h3>Dozenten-Auswertung zum Schluss</h3>
+            <p>Lassen Sie abstimmen: Wer kann jetzt besser erkennen, was bei Passwörtern sicher und unsicher ist? Tragen Sie die gehobenen Hände ein.</p>
+            <div class="result-grid">
+              <div class="field">
+                <label for="eval-total-1">Teilnehmende insgesamt</label>
+                <input id="eval-total-1" type="number" min="1" inputmode="numeric" placeholder="z. B. 12">
+              </div>
+              <div class="field">
+                <label for="eval-hands-1">Gehobene Hände</label>
+                <input id="eval-hands-1" type="number" min="0" inputmode="numeric" placeholder="z. B. 9">
+              </div>
+            </div>
+            <div class="result-actions">
+              <button class="btn btn-eval" type="button" onclick="evaluateHands({
+                totalId: 'eval-total-1',
+                handsId: 'eval-hands-1',
+                visualId: 'eval-visual-1',
+                quoteId: 'eval-quote-1',
+                fillId: 'eval-fill-1',
+                strongId: 'eval-strong-1',
+                textId: 'eval-text-1'
+              })">Ergebnis anzeigen</button>
+              <button class="btn btn-reset-eval" type="button" onclick="resetEvaluation('eval-total-1','eval-hands-1','eval-visual-1','eval-fill-1')">Eingaben löschen</button>
+            </div>
+            <div class="result-visual" id="eval-visual-1">
+              <div class="result-topline">
+                <span class="result-quote" id="eval-quote-1"></span>
+                <span>sichtbare Aktivierung der Gruppe</span>
+              </div>
+              <div class="meter"><div class="meter-fill" id="eval-fill-1"></div></div>
+              <div class="result-conclusion">
+                <strong id="eval-strong-1"></strong>
+                <div id="eval-text-1"></div>
+              </div>
+            </div>
+          </div>
+          <div class="buttons">
+            <button class="btn btn-restart" onclick="startGame()">Nochmal spielen</button>
+            <a class="back-link" href="index.html">Zur Spielübersicht</a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+const cards = [
+  {
+    label: "Passwort",
+    content: "123456",
+    type: "passwort",
+    answer: "danger",
+    verdict: "Gefährlich",
+    explanation: "Das ist eines der häufigsten Passwörter. Es wird beim Ausprobieren als Erstes getestet."
+  },
+  {
+    label: "Passwort",
+    content: "Bamberg",
+    type: "passwort",
+    answer: "danger",
+    verdict: "Gefährlich",
+    explanation: "Ein einzelnes Wort ist zu kurz und zu leicht zu erraten."
+  },
+  {
+    label: "Passwort",
+    content: "Geburtstag1960",
+    type: "passwort",
+    answer: "danger",
+    verdict: "Gefährlich",
+    explanation: "Persönliche Daten wie Geburtsjahr oder bekannte Namen sind keine gute Basis für sichere Passwörter."
+  },
+  {
+    label: "Passwort",
+    content: "Meine Katze heißt Mimi!",
+    type: "situation",
+    answer: "safe",
+    verdict: "Sicher",
+    explanation: "Ein langer persönlicher Satz mit Leerzeichen und Sonderzeichen ist deutlich robuster."
+  },
+  {
+    label: "Passwort (Satz-Methode)",
+    content: "MKhM!_Mail",
+    type: "passwort",
+    answer: "safe",
+    verdict: "Sicher",
+    explanation: "Die Satz-Methode erzeugt ein langes, merkbares Passwort und kann mit einem Kontonamen ergänzt werden."
+  },
+  {
+    label: "Passwort",
+    content: "passwort",
+    type: "passwort",
+    answer: "danger",
+    verdict: "Gefährlich",
+    explanation: "Offensichtliche Standardbegriffe werden beim Knacken sehr schnell gefunden."
+  },
+  {
+    label: "Situation",
+    content: "Ich nutze für alle meine Konten dasselbe Passwort.",
+    type: "situation",
+    answer: "danger",
+    verdict: "Gefährlich",
+    explanation: "Wenn ein Konto kompromittiert wird, sind alle anderen Konten sofort mitgefährdet."
+  },
+  {
+    label: "Situation",
+    content: "Ich schreibe mein Passwort in ein Notizbuch, das zu Hause in der Schublade liegt.",
+    type: "situation",
+    answer: "safe",
+    verdict: "Richtig so",
+    explanation: "Ein Notizbuch zu Hause ist sicherer als ein Zettel am Bildschirm oder eine ungeschützte Notiz im Handy."
+  }
+];
+
+let current = 0;
+let revealed = false;
+let correctCount = 0;
+
+function startGame() {
+  current = 0;
+  revealed = false;
+  correctCount = 0;
+  document.getElementById("finale").style.display = "none";
+  document.getElementById("game-area").style.display = "block";
+  showCard();
+}
+
+function showCard() {
+  const c = cards[current];
+  document.getElementById("progress").textContent = `Karte ${current + 1} / ${cards.length}`;
+  document.getElementById("card-label").textContent = c.label;
+  const content = document.getElementById("card-content");
+  content.textContent = c.content;
+  content.className = c.type === "passwort" ? "passwort" : "situation";
+
+  document.getElementById("reveal").style.display = "none";
+  document.getElementById("vote-buttons").style.display = "flex";
+  document.getElementById("next-buttons").style.display = "none";
+  document.getElementById("key-hint").textContent = "Tastatur: S = Sicher · G = Gefährlich";
+  revealed = false;
+}
+
+function vote(choice) {
+  if (revealed) return;
+  revealed = true;
+  const c = cards[current];
+  if (choice === c.answer) correctCount++;
+
+  const revealEl = document.getElementById("reveal");
+  revealEl.className = `reveal ${c.answer}`;
+  document.getElementById("verdict-text").textContent = c.verdict;
+  document.getElementById("explanation-text").textContent = c.explanation;
+  revealEl.style.display = "block";
+
+  document.getElementById("vote-buttons").style.display = "none";
+  document.getElementById("next-buttons").style.display = "flex";
+  document.getElementById("key-hint").textContent = "Leertaste, Enter oder Pfeil rechts = Nächste Karte";
+}
+
+function nextCard() {
+  current++;
+  if (current >= cards.length) {
+    showFinale();
+    return;
+  }
+  showCard();
+}
+
+function showFinale() {
+  document.getElementById("game-area").style.display = "none";
+  const finale = document.getElementById("finale");
+  finale.style.display = "flex";
+  document.getElementById("progress").textContent = "Durchgang beendet";
+  document.getElementById("finale-score").textContent = `${correctCount} / ${cards.length}`;
+
+  const pct = Math.round((correctCount / cards.length) * 100);
+  let msg = "Gut, dass wir das geübt haben. Genau dafür ist dieses Spiel da.";
+  if (pct === 100) msg = "Alle Beispiele richtig eingeordnet. Das Sicherheitsgefühl ist bereits sehr stabil.";
+  else if (pct >= 75) msg = "Solide Trefferquote. Ein paar Fallen waren absichtlich nah an der Alltagsrealität.";
+  document.getElementById("finale-text").textContent = msg;
+}
+
+function evaluateHands(config) {
+  const total = Number(document.getElementById(config.totalId).value);
+  const hands = Number(document.getElementById(config.handsId).value);
+  if (!total || total < 1 || Number.isNaN(total) || Number.isNaN(hands) || hands < 0 || hands > total) return;
+
+  const percent = Math.round((hands / total) * 100);
+  let result = ["Hoher Klärungsbedarf", "Viele sind noch unsicher. Im Kurs sollten Sie sichere und unsichere Beispiele nochmals sichtbar gegeneinanderstellen."];
+  if (percent >= 75) result = ["Stark aktiviert", "Die Mehrheit erkennt die Unterschiede bereits klar. Im Kurs können Sie direkt zu schwierigeren Grenzfällen übergehen."];
+  else if (percent >= 45) result = ["Solide Basis", "Ein großer Teil ist dabei, aber es lohnt sich, im Kurs noch 1 bis 2 Alltagsbeispiele nachzuschieben."];
+
+  document.getElementById(config.visualId).style.display = "grid";
+  document.getElementById(config.quoteId).textContent = `${hands} von ${total} · ${percent}%`;
+  document.getElementById(config.fillId).style.width = `${percent}%`;
+  document.getElementById(config.strongId).textContent = result[0];
+  document.getElementById(config.textId).textContent = result[1];
+}
+
+function resetEvaluation(totalId, handsId, visualId, fillId) {
+  document.getElementById(totalId).value = "";
+  document.getElementById(handsId).value = "";
+  document.getElementById(visualId).style.display = "none";
+  document.getElementById(fillId).style.width = "0";
+}
+
+document.addEventListener("keydown", (event) => {
+  if (!revealed) {
+    if (event.key === "s" || event.key === "S") vote("safe");
+    if (event.key === "g" || event.key === "G") vote("danger");
+    return;
+  }
+
+  if (event.key === " " || event.key === "ArrowRight" || event.key === "Enter") {
+    event.preventDefault();
+    nextCard();
+  }
+});
+
+startGame();
+</script>
+</body>
+</html>

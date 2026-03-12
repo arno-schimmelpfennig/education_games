@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiel 2 – Der Passwort-Detektiv</title>
+<style>
+  :root {
+    --brand: #631832;
+    --accent: #173262;
+    --text: #231A24;
+    --link: #606F8C;
+    --surface: #FFFFFF;
+    --soft: rgba(96, 111, 140, 0.12);
+    --brand-soft: rgba(99, 24, 50, 0.12);
+    --shadow: 0 18px 40px rgba(35, 26, 36, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(99, 24, 50, 0.16), transparent 24rem),
+      radial-gradient(circle at top right, rgba(23, 50, 98, 0.16), transparent 24rem),
+      #FFFFFF;
+  }
+
+  a { color: var(--link); text-decoration: none; }
+  button { font: inherit; }
+
+  .page {
+    width: min(1320px, calc(100% - 1.5rem));
+    margin: 0 auto;
+    padding: 0.75rem 0 1.5rem;
+  }
+
+  .header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+
+  .back-link,
+  .round-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    min-height: 3.25rem;
+    padding: 0.85rem 1rem;
+    font-weight: 700;
+  }
+
+  .back-link {
+    background: #FFFFFF;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    color: var(--link);
+  }
+
+  .title-box {
+    background: linear-gradient(135deg, var(--brand), var(--accent));
+    color: #FFFFFF;
+    border-radius: 26px;
+    padding: 1.3rem 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .title-box h1 {
+    font-size: clamp(1.7rem, 4vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .title-box p {
+    margin-top: 0.55rem;
+    font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+    opacity: 0.95;
+  }
+
+  .round-chip {
+    background: #FFFFFF;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    color: var(--accent);
+    min-width: 10rem;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .tab {
+    border: none;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--link);
+    border: 2px solid rgba(96, 111, 140, 0.18);
+    padding: 0.95rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .stage {
+    background: #FFFFFF;
+    border-radius: 24px;
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    box-shadow: var(--shadow);
+  }
+
+  .stage { padding: 1.2rem; }
+
+  .round { display: none; }
+  .round.active { display: grid; gap: 1rem; }
+
+  .card,
+  .reveal-box,
+  .hint-box,
+  .own-pw-area {
+    border-radius: 22px;
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  .card,
+  .own-pw-area {
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+    text-align: center;
+  }
+
+  .label {
+    color: var(--link);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+
+  .pw,
+  .satz {
+    line-height: 1.18;
+    word-break: break-word;
+  }
+
+  .pw {
+    font-size: clamp(1.9rem, 5vw, 4rem);
+    color: var(--accent);
+    font-family: "Courier New", monospace;
+    font-weight: 700;
+  }
+
+  .satz {
+    font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+    font-weight: 600;
+  }
+
+  .hint-box {
+    background: var(--soft);
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  .reveal-box {
+    display: none;
+    background: rgba(23, 50, 98, 0.1);
+    border: 2px solid var(--accent);
+    text-align: center;
+  }
+
+  .answer-label {
+    color: var(--accent);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.65rem;
+  }
+
+  .answer-text {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    font-weight: 700;
+    word-break: break-word;
+    font-family: "Courier New", monospace;
+  }
+
+  .answer-note {
+    color: var(--text);
+    margin-top: 0.6rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    min-height: 3.2rem;
+    border: none;
+    border-radius: 16px;
+    padding: 0.85rem 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: #FFFFFF;
+  }
+
+  .btn-reveal,
+  .btn-tab { background: var(--accent); }
+  .btn-next { background: var(--brand); }
+
+  .own-pw-area h3 {
+    color: var(--brand);
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    margin-bottom: 0.8rem;
+  }
+
+  .own-pw-area p {
+    font-size: clamp(1rem, 1.9vw, 1.18rem);
+    line-height: 1.6;
+  }
+
+  .big-arrow {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    color: var(--accent);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+
+  .step {
+    background: var(--soft);
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .step .num {
+    color: var(--accent);
+    font-size: 2rem;
+    font-weight: 800;
+  }
+
+  .step .desc { margin-top: 0.4rem; }
+
+  .mini-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--link);
+    font-size: 0.95rem;
+  }
+
+  .summary-panel {
+    border-radius: 22px;
+    padding: 1.2rem;
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+  }
+
+  .summary-panel h3 {
+    color: var(--brand);
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    margin-bottom: 0.45rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 1rem 0;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .field label {
+    color: var(--link);
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .field input {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 14px;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+    color: var(--text);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .summary-actions {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .btn-eval { background: var(--brand); color: #FFFFFF; }
+  .btn-reset-eval { background: var(--link); color: #FFFFFF; }
+
+  .summary-visual {
+    display: none;
+    gap: 0.85rem;
+  }
+
+  .summary-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .summary-quote {
+    color: var(--accent);
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 800;
+  }
+
+  .meter {
+    width: 100%;
+    height: 1rem;
+    background: rgba(96, 111, 140, 0.18);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transition: width 0.25s ease;
+  }
+
+  .summary-note {
+    background: rgba(23, 50, 98, 0.1);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .summary-note strong {
+    color: var(--brand);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  @media (max-width: 760px) {
+    .header { grid-template-columns: 1fr; }
+    .tabs { grid-template-columns: 1fr; }
+    .round-chip { justify-content: flex-start; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="back-link" href="index.html">← Zur Spielübersicht</a>
+      <div class="title-box">
+        <h1>Spiel 2 – Der Passwort-Detektiv</h1>
+        <p>Drei Runden führen von Beispielen über gemeinsames Entschlüsseln bis hin zum eigenen Merksatz.</p>
+      </div>
+      <div class="round-chip" id="runde-label">Runde A</div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchRound('a')" id="tab-a">Runde A · Was steckt dahinter?</button>
+      <button class="tab" onclick="switchRound('b')" id="tab-b">Runde B · Bau das Passwort</button>
+      <button class="tab" onclick="switchRound('c')" id="tab-c">Runde C · Mein eigener Satz</button>
+    </div>
+
+    <div class="layout">
+      <main class="stage">
+        <section class="round active" id="round-a">
+          <div class="card">
+            <div class="label">Passwort – welcher Satz steckt dahinter?</div>
+            <div class="pw" id="ra-pw"></div>
+          </div>
+          <div class="hint-box">Die Gruppe ruft mögliche Sätze. Mehrere Antworten dürfen passen, solange die Buchstabenlogik stimmt.</div>
+          <div class="reveal-box" id="ra-reveal">
+            <div class="answer-label">Ein möglicher Satz</div>
+            <div class="answer-text" id="ra-satz"></div>
+            <div class="answer-note" id="ra-note"></div>
+          </div>
+          <div class="buttons">
+            <button class="btn btn-reveal" onclick="revealA()" id="ra-btn-reveal">Auflösung zeigen</button>
+            <button class="btn btn-next" onclick="nextA()" id="ra-btn-next" style="display:none;">Nächstes Passwort</button>
+          </div>
+          <div class="mini-nav">
+            <div>Tastatur: Leertaste oder Enter = Auflösung · Pfeil rechts = Nächstes</div>
+            <a href="index.html">Zur Übersicht</a>
+          </div>
+        </section>
+
+        <section class="round" id="round-b">
+          <div class="card">
+            <div class="label">Satz – welches Passwort ergibt sich?</div>
+            <div class="satz" id="rb-satz"></div>
+          </div>
+          <div class="hint-box">Nehmen Sie den Anfang jedes Wortes. Zahlen und Satzzeichen bleiben erhalten.</div>
+          <div class="reveal-box" id="rb-reveal">
+            <div class="answer-label">Das Passwort lautet</div>
+            <div class="answer-text" id="rb-pw"></div>
+            <div class="answer-note" id="rb-note"></div>
+          </div>
+          <div class="buttons">
+            <button class="btn btn-reveal" onclick="revealB()" id="rb-btn-reveal">Auflösung zeigen</button>
+            <button class="btn btn-next" onclick="nextB()" id="rb-btn-next" style="display:none;">Nächster Satz</button>
+          </div>
+          <div class="mini-nav">
+            <div>Tastatur: Leertaste oder Enter = Auflösung · Pfeil rechts = Nächstes</div>
+            <a href="index.html">Zur Übersicht</a>
+          </div>
+        </section>
+
+        <section class="round" id="round-c">
+          <div class="own-pw-area">
+            <h3>Jetzt kommt der eigene Satz</h3>
+            <p>Jede Person denkt sich still einen persönlichen Satz aus. Der Satz bleibt privat, nur das resultierende Passwort darf optional gezeigt werden.</p>
+            <div class="big-arrow">↓</div>
+            <div class="steps">
+              <div class="step">
+                <div class="num">1</div>
+                <div class="desc">Persönlichen Satz ausdenken</div>
+              </div>
+              <div class="step">
+                <div class="num">2</div>
+                <div class="desc">Anfangsbuchstaben notieren</div>
+              </div>
+              <div class="step">
+                <div class="num">3</div>
+                <div class="desc">Kontonamen ergänzen</div>
+              </div>
+              <div class="step">
+                <div class="num">4</div>
+                <div class="desc">Auf Zettel notieren</div>
+              </div>
+            </div>
+            <p style="margin-top: 1rem; color: var(--accent); font-weight: 700;">Wer möchte, zeigt nur das Passwort, nicht den Merksatz.</p>
+          </div>
+          <div class="mini-nav">
+            <div>Keine Tastatur nötig. Runde C ist als ruhige Schreibphase angelegt.</div>
+            <a href="index.html">Zur Übersicht</a>
+          </div>
+          <div class="summary-panel">
+            <h3>Dozenten-Auswertung zum Schluss</h3>
+            <p>Lassen Sie abstimmen: Wer traut sich nach diesem Spiel zu, mit der Satz-Methode ein eigenes Passwort zu bauen? Tragen Sie die gehobenen Hände ein.</p>
+            <div class="summary-grid">
+              <div class="field">
+                <label for="eval-total-2">Teilnehmende insgesamt</label>
+                <input id="eval-total-2" type="number" min="1" inputmode="numeric" placeholder="z. B. 12">
+              </div>
+              <div class="field">
+                <label for="eval-hands-2">Gehobene Hände</label>
+                <input id="eval-hands-2" type="number" min="0" inputmode="numeric" placeholder="z. B. 8">
+              </div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-eval" type="button" onclick="evaluateHands({
+                totalId: 'eval-total-2',
+                handsId: 'eval-hands-2',
+                visualId: 'eval-visual-2',
+                quoteId: 'eval-quote-2',
+                fillId: 'eval-fill-2',
+                strongId: 'eval-strong-2',
+                textId: 'eval-text-2'
+              })">Ergebnis anzeigen</button>
+              <button class="btn btn-reset-eval" type="button" onclick="resetEvaluation('eval-total-2','eval-hands-2','eval-visual-2','eval-fill-2')">Eingaben löschen</button>
+            </div>
+            <div class="summary-visual" id="eval-visual-2">
+              <div class="summary-head">
+                <span class="summary-quote" id="eval-quote-2"></span>
+                <span>vertrauen in die Satz-Methode</span>
+              </div>
+              <div class="meter"><div class="meter-fill" id="eval-fill-2"></div></div>
+              <div class="summary-note">
+                <strong id="eval-strong-2"></strong>
+                <div id="eval-text-2"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+const roundA = [
+  {
+    pw: "IlBms9B.",
+    satz: "Ich liebe Bamberg mit seinen 9 Brücken.",
+    note: "Jeder Buchstabe steht für ein Wort, Zahlen und Satzzeichen bleiben erhalten."
+  },
+  {
+    pw: "MOfIHM!",
+    satz: "Meine Oma fährt im Hühnerstall Motorrad!",
+    note: "Ein merkbarer Satz ist wichtiger als ein schwer erratbares Einzelwort."
+  },
+  {
+    pw: "UGh12Ru1A!",
+    satz: "Unser Garten hat 12 Rosenbüsche und 1 Apfelbaum!",
+    note: "Zahlen machen die Struktur lebendig und helfen beim Merken."
+  }
+];
+
+const roundB = [
+  {
+    satz: "Jeden Morgen trinke ich 2 Tassen Kaffee!",
+    pw: "JMti2TK!",
+    note: "Zahlen und Satzzeichen werden direkt übernommen."
+  },
+  {
+    satz: "Mein Mann heißt Klaus und ist 68 Jahre alt.",
+    pw: "MMhKui68Ja.",
+    note: "Auch hier bleibt die Reihenfolge der Satzteile sichtbar."
+  },
+  {
+    satz: "Wir fahren jeden Sommer nach Rügen.",
+    pw: "WfjeSnR.",
+    note: "Selbst ein kurzer Satz erzeugt ein besseres Passwort als ein Einzelwort."
+  }
+];
+
+let idxA = 0;
+let idxB = 0;
+let revA = false;
+let revB = false;
+
+function showA() {
+  const data = roundA[idxA];
+  document.getElementById("ra-pw").textContent = data.pw;
+  document.getElementById("ra-reveal").style.display = "none";
+  document.getElementById("ra-btn-reveal").style.display = "inline-flex";
+  document.getElementById("ra-btn-next").style.display = "none";
+  revA = false;
+}
+
+function revealA() {
+  if (revA) return;
+  revA = true;
+  const data = roundA[idxA];
+  document.getElementById("ra-satz").textContent = data.satz;
+  document.getElementById("ra-note").textContent = data.note;
+  document.getElementById("ra-reveal").style.display = "block";
+  document.getElementById("ra-btn-reveal").style.display = "none";
+  document.getElementById("ra-btn-next").style.display = "inline-flex";
+}
+
+function nextA() {
+  idxA = (idxA + 1) % roundA.length;
+  showA();
+}
+
+function showB() {
+  const data = roundB[idxB];
+  document.getElementById("rb-satz").textContent = data.satz;
+  document.getElementById("rb-reveal").style.display = "none";
+  document.getElementById("rb-btn-reveal").style.display = "inline-flex";
+  document.getElementById("rb-btn-next").style.display = "none";
+  revB = false;
+}
+
+function revealB() {
+  if (revB) return;
+  revB = true;
+  const data = roundB[idxB];
+  document.getElementById("rb-pw").textContent = data.pw;
+  document.getElementById("rb-note").textContent = data.note;
+  document.getElementById("rb-reveal").style.display = "block";
+  document.getElementById("rb-btn-reveal").style.display = "none";
+  document.getElementById("rb-btn-next").style.display = "inline-flex";
+}
+
+function nextB() {
+  idxB = (idxB + 1) % roundB.length;
+  showB();
+}
+
+function switchRound(round) {
+  ["a", "b", "c"].forEach((key) => {
+    document.getElementById(`round-${key}`).classList.remove("active");
+    document.getElementById(`tab-${key}`).classList.remove("active");
+  });
+
+  document.getElementById(`round-${round}`).classList.add("active");
+  document.getElementById(`tab-${round}`).classList.add("active");
+  document.getElementById("runde-label").textContent = round === "a" ? "Runde A" : round === "b" ? "Runde B" : "Runde C";
+
+}
+
+function evaluateHands(config) {
+  const total = Number(document.getElementById(config.totalId).value);
+  const hands = Number(document.getElementById(config.handsId).value);
+  if (!total || total < 1 || Number.isNaN(total) || Number.isNaN(hands) || hands < 0 || hands > total) return;
+
+  const percent = Math.round((hands / total) * 100);
+  let result = ["Noch keine Routine", "Viele brauchen noch geführte Wiederholung. Im Kurs sollten Sie die Satz-Methode nochmals Schritt für Schritt gemeinsam aufbauen."];
+  if (percent >= 75) result = ["Hohe Umsetzungssicherheit", "Die Methode ist in der Gruppe angekommen. Im weiteren Kurs reicht eine kurze Erinnerung, dann kann direkt praktisch gearbeitet werden."];
+  else if (percent >= 45) result = ["Gute Richtung", "Ein Teil der Gruppe ist bereit, ein anderer braucht noch Struktur. Nutzen Sie im Kursverlauf 1 bis 2 weitere gemeinsame Beispiele."];
+
+  document.getElementById(config.visualId).style.display = "grid";
+  document.getElementById(config.quoteId).textContent = `${hands} von ${total} · ${percent}%`;
+  document.getElementById(config.fillId).style.width = `${percent}%`;
+  document.getElementById(config.strongId).textContent = result[0];
+  document.getElementById(config.textId).textContent = result[1];
+}
+
+function resetEvaluation(totalId, handsId, visualId, fillId) {
+  document.getElementById(totalId).value = "";
+  document.getElementById(handsId).value = "";
+  document.getElementById(visualId).style.display = "none";
+  document.getElementById(fillId).style.width = "0";
+}
+
+document.addEventListener("keydown", (event) => {
+  const activeRound = document.querySelector(".round.active").id;
+  if (activeRound === "round-a") {
+    if ((event.key === " " || event.key === "Enter") && !revA) {
+      event.preventDefault();
+      revealA();
+    } else if (event.key === "ArrowRight" && revA) {
+      nextA();
+    }
+  }
+
+  if (activeRound === "round-b") {
+    if ((event.key === " " || event.key === "Enter") && !revB) {
+      event.preventDefault();
+      revealB();
+    } else if (event.key === "ArrowRight" && revB) {
+      nextB();
+    }
+  }
+});
+
+showA();
+showB();
+</script>
+</body>
+</html>

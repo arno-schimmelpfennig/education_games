@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiel 4 – Mein Versprechen</title>
+<style>
+  :root {
+    --brand: #631832;
+    --accent: #173262;
+    --text: #231A24;
+    --link: #606F8C;
+    --surface: #FFFFFF;
+    --soft: rgba(96, 111, 140, 0.12);
+    --brand-soft: rgba(99, 24, 50, 0.12);
+    --shadow: 0 18px 40px rgba(35, 26, 36, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(99, 24, 50, 0.16), transparent 24rem),
+      radial-gradient(circle at top right, rgba(23, 50, 98, 0.16), transparent 24rem),
+      #FFFFFF;
+  }
+
+  a { color: var(--link); text-decoration: none; }
+  button { font: inherit; }
+
+  .page {
+    width: min(1320px, calc(100% - 1.5rem));
+    margin: 0 auto;
+    padding: 0.75rem 0 1.5rem;
+  }
+
+  .header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+
+  .back-link,
+  .phase-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0.85rem 1rem;
+    border-radius: 18px;
+    font-weight: 700;
+  }
+
+  .back-link {
+    background: #FFFFFF;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    color: var(--link);
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--brand), var(--accent));
+    color: #FFFFFF;
+    border-radius: 26px;
+    padding: 1.3rem 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .hero h1 {
+    font-size: clamp(1.7rem, 4vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .hero p {
+    margin-top: 0.55rem;
+    font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+    opacity: 0.95;
+  }
+
+  .phase-badge {
+    background: #FFFFFF;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    color: var(--accent);
+    min-width: 10rem;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .stage {
+    background: #FFFFFF;
+    border-radius: 24px;
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    box-shadow: var(--shadow);
+  }
+
+  .stage { padding: 1.2rem; }
+
+  .phase { display: none; gap: 1rem; }
+  .phase.active { display: grid; }
+
+  .card,
+  .confirm-card,
+  .quiz-card,
+  .preview-card {
+    border-radius: 22px;
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  .card,
+  .quiz-card,
+  .preview-card {
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+  }
+
+  .card h2,
+  .quiz-card h3 {
+    color: var(--brand);
+    margin-bottom: 0.8rem;
+  }
+
+  .card h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
+
+  .formula {
+    background: var(--soft);
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    border-radius: 18px;
+    padding: clamp(1rem, 2vw, 1.6rem);
+    font-size: clamp(1.05rem, 2vw, 1.45rem);
+    line-height: 1.8;
+  }
+
+  .blank {
+    display: inline-block;
+    min-width: clamp(7rem, 18vw, 12rem);
+    border-bottom: 3px solid var(--accent);
+    vertical-align: middle;
+    margin: 0 0.25rem;
+  }
+
+  .note {
+    display: block;
+    margin-top: 0.8rem;
+    color: var(--link);
+    font-size: 0.95rem;
+  }
+
+  .example {
+    background: rgba(23, 50, 98, 0.12);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    border-radius: 18px;
+    padding: 1rem 1.15rem;
+    margin: 1rem 0;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 700;
+  }
+
+  .confirm-card {
+    background: linear-gradient(135deg, var(--brand), var(--accent));
+    color: #FFFFFF;
+  }
+
+  .confirm-card h2 {
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    margin-bottom: 0.75rem;
+  }
+
+  .big-text {
+    font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+    line-height: 1.65;
+    max-width: 45rem;
+  }
+
+  .quiz-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid rgba(96, 111, 140, 0.22);
+    cursor: pointer;
+  }
+
+  .quiz-item:last-child { border-bottom: none; }
+
+  .toggle {
+    color: var(--accent);
+    font-weight: 800;
+    min-width: 1.3rem;
+  }
+
+  .q {
+    flex: 1;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  .a {
+    display: none;
+    background: rgba(23, 50, 98, 0.12);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .quiz-item.revealed .a { display: inline-flex; }
+  .quiz-item.revealed .toggle { color: var(--brand); }
+
+  .nav-buttons {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 16px;
+    min-height: 3.1rem;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .btn-primary { background: var(--accent); }
+  .btn-success { background: var(--brand); }
+  .btn-neutral { background: var(--link); }
+
+  .preview-card {
+    color: var(--text);
+  }
+
+  .preview-card strong { color: var(--brand); }
+
+  .summary-panel {
+    border-radius: 22px;
+    padding: 1.2rem;
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+  }
+
+  .summary-panel h3 {
+    color: var(--brand);
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    margin-bottom: 0.45rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 1rem 0;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .field label {
+    color: var(--link);
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .field input {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 14px;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+    color: var(--text);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .summary-actions {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .btn-eval { background: var(--brand); color: #FFFFFF; }
+  .btn-reset-eval { background: var(--link); color: #FFFFFF; }
+
+  .summary-visual {
+    display: none;
+    gap: 0.85rem;
+  }
+
+  .summary-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .summary-quote {
+    color: var(--accent);
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 800;
+  }
+
+  .meter {
+    width: 100%;
+    height: 1rem;
+    background: rgba(96, 111, 140, 0.18);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transition: width 0.25s ease;
+  }
+
+  .summary-note {
+    background: rgba(23, 50, 98, 0.1);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .summary-note strong {
+    color: var(--brand);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  @media (max-width: 760px) {
+    .header { grid-template-columns: 1fr; }
+    .a { white-space: normal; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="back-link" href="index.html">← Zur Spielübersicht</a>
+      <div class="hero">
+        <h1>Spiel 4 – Mein Versprechen</h1>
+        <p>Die Gruppe formuliert einen konkreten nächsten Schritt, wiederholt zentrale Erkenntnisse und schließt das Modul bewusst ab.</p>
+      </div>
+      <div class="phase-badge" id="phase-badge">Phase 1 / 3</div>
+    </header>
+
+    <div class="layout">
+      <main class="stage">
+        <section class="phase active" id="phase1">
+          <div class="card">
+            <h2>Still notieren</h2>
+            <div class="formula">
+              <div>Diese Woche ändere ich das Passwort für <span class="blank"></span>.</div>
+              <div>Am <span class="blank"></span> um <span class="blank" style="min-width: 5rem;"></span> Uhr.</div>
+              <div>Der Termin dauert höchstens 15 Minuten.</div>
+              <span class="note">Mit einem einfachen Konto beginnen, nicht direkt mit E-Mail oder Banking.</span>
+            </div>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-primary" onclick="showPhase(2)">Weiter: Teilen</button>
+          </div>
+        </section>
+
+        <section class="phase" id="phase2">
+          <div class="card">
+            <h2>Vorsatz teilen</h2>
+            <div class="example">Ich ändere heute Abend mein Amazon-Passwort.</div>
+            <p>Der Dozent beginnt. Danach 3 bis 4 kurze Wortmeldungen. Nie das Passwort selbst nennen lassen, nur Dienst oder Website.</p>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-neutral" onclick="showPhase(1)">Zurück</button>
+            <button class="btn btn-success" onclick="showPhase(3)">Weiter: Bestätigung</button>
+          </div>
+        </section>
+
+        <section class="phase" id="phase3">
+          <div class="confirm-card">
+            <h2>Was heute bereits erreicht wurde</h2>
+            <div class="big-text">
+              Wer heute eine Bildschirmsperre eingerichtet und einen Termin für ein Passwort gesetzt hat, hat bereits einen klaren Sicherheitsgewinn umgesetzt.
+            </div>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-neutral" onclick="showPhase(2)">Zurück</button>
+            <button class="btn btn-primary" onclick="showPhase(4)">Weiter: Quiz-Wiederholung</button>
+          </div>
+        </section>
+
+        <section class="phase" id="phase4">
+          <div class="quiz-card">
+            <h3>Kurze Wiederholung</h3>
+            <div class="quiz-item" onclick="this.classList.toggle('revealed')">
+              <span class="toggle">+</span>
+              <span class="q">Was ist ein häufiges schwaches Passwort?</span>
+              <span class="a">123456</span>
+            </div>
+            <div class="quiz-item" onclick="this.classList.toggle('revealed')">
+              <span class="toggle">+</span>
+              <span class="q">Was ist besser: ein Einzelwort oder ein persönlicher Satz?</span>
+              <span class="a">Ein persönlicher Satz</span>
+            </div>
+            <div class="quiz-item" onclick="this.classList.toggle('revealed')">
+              <span class="toggle">+</span>
+              <span class="q">Darf ich Passwörter aufschreiben?</span>
+              <span class="a">Ja, sicher zu Hause</span>
+            </div>
+            <div class="quiz-item" onclick="this.classList.toggle('revealed')">
+              <span class="toggle">+</span>
+              <span class="q">Wofür ist eine PIN gedacht?</span>
+              <span class="a">Für das Gerät</span>
+            </div>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-neutral" onclick="showPhase(3)">Zurück</button>
+            <button class="btn btn-success" onclick="showPhase(5)">Weiter: Abschlussrunde</button>
+          </div>
+        </section>
+
+        <section class="phase" id="phase5">
+          <div class="confirm-card">
+            <h2>Abschlussrunde</h2>
+            <div class="big-text">Heute habe ich gelernt, dass ...</div>
+          </div>
+          <div class="preview-card">
+            <strong>Vorschau auf Modul 3</strong>
+            <p>Nächste Woche geht es um Fake News und Betrugsversuche. Verdächtige SMS oder E-Mails dürfen gern mitgebracht werden.</p>
+          </div>
+          <div class="summary-panel">
+            <h3>Dozenten-Auswertung zum Schluss</h3>
+            <p>Lassen Sie abstimmen: Wer hat jetzt einen konkreten nächsten Schritt für die eigene digitale Sicherheit geplant? Tragen Sie die gehobenen Hände ein.</p>
+            <div class="summary-grid">
+              <div class="field">
+                <label for="eval-total-4">Teilnehmende insgesamt</label>
+                <input id="eval-total-4" type="number" min="1" inputmode="numeric" placeholder="z. B. 12">
+              </div>
+              <div class="field">
+                <label for="eval-hands-4">Gehobene Hände</label>
+                <input id="eval-hands-4" type="number" min="0" inputmode="numeric" placeholder="z. B. 10">
+              </div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-eval" type="button" onclick="evaluateHands({
+                totalId: 'eval-total-4',
+                handsId: 'eval-hands-4',
+                visualId: 'eval-visual-4',
+                quoteId: 'eval-quote-4',
+                fillId: 'eval-fill-4',
+                strongId: 'eval-strong-4',
+                textId: 'eval-text-4'
+              })">Ergebnis anzeigen</button>
+              <button class="btn btn-reset-eval" type="button" onclick="resetEvaluation('eval-total-4','eval-hands-4','eval-visual-4','eval-fill-4')">Eingaben löschen</button>
+            </div>
+            <div class="summary-visual" id="eval-visual-4">
+              <div class="summary-head">
+                <span class="summary-quote" id="eval-quote-4"></span>
+                <span>sichtbarer Transfer in den Alltag</span>
+              </div>
+              <div class="meter"><div class="meter-fill" id="eval-fill-4"></div></div>
+              <div class="summary-note">
+                <strong id="eval-strong-4"></strong>
+                <div id="eval-text-4"></div>
+              </div>
+            </div>
+          </div>
+          <div class="nav-buttons">
+            <button class="btn btn-neutral" onclick="showPhase(4)">Zurück</button>
+            <a class="btn btn-primary" href="index.html" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none;">Zur Spielübersicht</a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+function showPhase(phase) {
+  for (let index = 1; index <= 5; index++) {
+    document.getElementById(`phase${index}`).classList.remove("active");
+  }
+
+  document.getElementById(`phase${phase}`).classList.add("active");
+  document.getElementById("phase-badge").textContent =
+    phase <= 3 ? `Phase ${phase} / 3` : phase === 4 ? "Quiz" : "Abschluss";
+}
+
+function evaluateHands(config) {
+  const total = Number(document.getElementById(config.totalId).value);
+  const hands = Number(document.getElementById(config.handsId).value);
+  if (!total || total < 1 || Number.isNaN(total) || Number.isNaN(hands) || hands < 0 || hands > total) return;
+
+  const percent = Math.round((hands / total) * 100);
+  let result = ["Transfer noch fragil", "Nur ein kleiner Teil hat bereits einen klaren nächsten Schritt. Im Kurs sollte der Übergang vom Wissen zum Handeln noch stärker begleitet werden."];
+  if (percent >= 75) result = ["Transfer stark verankert", "Die Mehrheit geht mit einem klaren Vorhaben nach Hause. Für den Kurs ist das ein starkes Signal, dass die Inhalte in den Alltag übergehen."];
+  else if (percent >= 45) result = ["Guter Abschluss mit Reserve", "Viele haben einen konkreten Schritt, einige zögern noch. Für den Kurs lohnt sich beim nächsten Termin eine kurze Rückfrage nach der Umsetzung."];
+
+  document.getElementById(config.visualId).style.display = "grid";
+  document.getElementById(config.quoteId).textContent = `${hands} von ${total} · ${percent}%`;
+  document.getElementById(config.fillId).style.width = `${percent}%`;
+  document.getElementById(config.strongId).textContent = result[0];
+  document.getElementById(config.textId).textContent = result[1];
+}
+
+function resetEvaluation(totalId, handsId, visualId, fillId) {
+  document.getElementById(totalId).value = "";
+  document.getElementById(handsId).value = "";
+  document.getElementById(visualId).style.display = "none";
+  document.getElementById(fillId).style.width = "0";
+}
+</script>
+</body>
+</html>

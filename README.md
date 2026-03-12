@@ -29,6 +29,7 @@ http://localhost:8000/
 - `ai-security/` – KI-Sicherheit und Prompting-Awareness
 - `data-science/` – Data-Science-Lernpfad (Interaktion + Code-Praxis)
 - `online_security/` – Online-Sicherheitsübungen
+- `vhs-passworttraining/` – 4-teiliges VHS-Kursmodul zum Thema Passwortsicherheit
 - `data-protection/` – Datenschutz-Formate (u. a. VHS)
 - `cloud_data/` – Cloud-Daten-Spiele
 - `sql/` – SQL-Lernspiele
@@ -63,6 +64,7 @@ http://localhost:8000/
 2. `data-science/lernkompass_notebook_und_toolhilfe_interaktion.html`
 
 Hinweis: Die Übersicht in [`index.html`](./index.html) ist auf diese Reihenfolge abgestimmt.
+Hinweis: VHS-Kursmodule mit eigenem Ablauf liegen als separate Ordner im Projekt und werden ebenfalls über die zentrale Übersicht verlinkt.
 Hinweis: In den Data-Science-Themen ist ein einheitlicher Formel-Leseschlüssel integriert, damit Begriffe wie `logit`, `e_hat`, `MSE` und `Bias²` konsistent erklärt werden.
 
 ## Pflegehinweise

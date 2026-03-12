@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiel 3 – Bau es nach: Bildschirmsperre</title>
+<style>
+  :root {
+    --brand: #631832;
+    --accent: #173262;
+    --text: #231A24;
+    --link: #606F8C;
+    --surface: #FFFFFF;
+    --soft: rgba(96, 111, 140, 0.12);
+    --brand-soft: rgba(99, 24, 50, 0.12);
+    --shadow: 0 18px 40px rgba(35, 26, 36, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(99, 24, 50, 0.16), transparent 24rem),
+      radial-gradient(circle at top right, rgba(23, 50, 98, 0.16), transparent 24rem),
+      #FFFFFF;
+  }
+
+  a { color: var(--link); text-decoration: none; }
+  button { font: inherit; }
+
+  .page {
+    width: min(1360px, calc(100% - 1.5rem));
+    margin: 0 auto;
+    padding: 0.75rem 0 1.5rem;
+  }
+
+  .header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+
+  .back-link,
+  .alert-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0.85rem 1rem;
+    border-radius: 18px;
+    font-weight: 700;
+  }
+
+  .back-link {
+    background: #FFFFFF;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    color: var(--link);
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--brand), var(--accent));
+    color: #FFFFFF;
+    border-radius: 26px;
+    padding: 1.3rem 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .hero h1 {
+    font-size: clamp(1.7rem, 4vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .hero p {
+    margin-top: 0.55rem;
+    font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+    opacity: 0.95;
+  }
+
+  .alert-chip {
+    background: var(--brand);
+    color: #FFFFFF;
+    min-width: 13rem;
+    text-align: center;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .tab {
+    border: none;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--link);
+    border: 2px solid rgba(96, 111, 140, 0.18);
+    padding: 0.95rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .stage {
+    background: #FFFFFF;
+    border-radius: 24px;
+    border: 2px solid rgba(96, 111, 140, 0.2);
+    box-shadow: var(--shadow);
+  }
+
+  .stage { padding: 1.2rem; }
+
+  .device-panel {
+    display: none;
+    gap: 1rem;
+  }
+
+  .device-panel.active { display: grid; }
+
+  .pin-warning,
+  .sync-pause,
+  .success-box {
+    border-radius: 22px;
+    padding: clamp(1rem, 2.5vw, 1.4rem);
+  }
+
+  .pin-warning {
+    background: rgba(99, 24, 50, 0.12);
+    border: 2px solid var(--brand);
+  }
+
+  .pin-warning strong,
+  .steps-title { color: var(--brand); }
+
+  .pin-warning span {
+    display: block;
+    margin-top: 0.45rem;
+    color: var(--text);
+  }
+
+  .steps-title {
+    font-size: clamp(1.35rem, 2vw, 1.7rem);
+    font-weight: 800;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.85rem;
+  }
+
+  .step-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+    border-radius: 20px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+  }
+
+  .step-card:hover { transform: translateY(-2px); }
+
+  .step-card.done {
+    border-color: var(--accent);
+    background: rgba(23, 50, 98, 0.1);
+  }
+
+  .num {
+    min-width: 2rem;
+    color: var(--accent);
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .text {
+    flex: 1;
+    font-size: 1.02rem;
+    line-height: 1.5;
+  }
+
+  .text strong { color: var(--accent); }
+
+  .check {
+    color: var(--brand);
+    font-weight: 800;
+    opacity: 0;
+  }
+
+  .step-card.done .check { opacity: 1; }
+
+  .sync-pause {
+    background: var(--soft);
+    border: 2px solid rgba(96, 111, 140, 0.2);
+  }
+
+  .sync-pause strong {
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .success-box {
+    display: none;
+    background: rgba(23, 50, 98, 0.1);
+    border: 2px solid var(--accent);
+  }
+
+  .success-box h3 {
+    color: var(--accent);
+    font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+    margin-bottom: 0.4rem;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 16px;
+    min-height: 3.1rem;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .btn-reset { background: var(--link); }
+  .btn-home { background: var(--accent); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+
+  .summary-panel {
+    border-radius: 22px;
+    padding: 1.2rem;
+    background: linear-gradient(180deg, #FFFFFF, rgba(96, 111, 140, 0.06));
+    border: 2px solid rgba(96, 111, 140, 0.18);
+  }
+
+  .summary-panel h3 {
+    color: var(--brand);
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    margin-bottom: 0.45rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin: 1rem 0;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .field label {
+    color: var(--link);
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .field input {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 14px;
+    border: 2px solid rgba(96, 111, 140, 0.22);
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+    color: var(--text);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .summary-actions {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .btn-eval { background: var(--brand); color: #FFFFFF; }
+  .btn-reset-eval { background: var(--link); color: #FFFFFF; }
+
+  .summary-visual {
+    display: none;
+    gap: 0.85rem;
+  }
+
+  .summary-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .summary-quote {
+    color: var(--accent);
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 800;
+  }
+
+  .meter {
+    width: 100%;
+    height: 1rem;
+    background: rgba(96, 111, 140, 0.18);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+    transition: width 0.25s ease;
+  }
+
+  .summary-note {
+    background: rgba(23, 50, 98, 0.1);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .summary-note strong {
+    color: var(--brand);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  @media (max-width: 760px) {
+    .header { grid-template-columns: 1fr; }
+    .tabs { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="back-link" href="index.html">← Zur Spielübersicht</a>
+      <div class="hero">
+        <h1>Spiel 3 – Bau es nach</h1>
+        <p>Schrittlisten für iPhone, Android und Windows helfen beim gemeinsamen Einrichten einer Bildschirmsperre.</p>
+      </div>
+      <div class="alert-chip">Zettel jetzt bereitlegen</div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchDevice('iphone')" id="tab-iphone">iPhone</button>
+      <button class="tab" onclick="switchDevice('android')" id="tab-android">Android</button>
+      <button class="tab" onclick="switchDevice('windows')" id="tab-windows">Windows-PC</button>
+    </div>
+
+    <div class="layout">
+      <main class="stage">
+        <section class="device-panel active" id="panel-iphone">
+          <div class="pin-warning">
+            <strong>Vor dem Ändern zuerst die PIN auf einem Zettel notieren.</strong>
+            <span>Der Zettel gehört später sicher nach Hause und nicht zum Gerät.</span>
+          </div>
+          <div class="steps-title">iPhone – Schritt für Schritt</div>
+          <div class="steps-grid" id="steps-iphone"></div>
+          <div class="sync-pause">
+            <strong>Synchronisationspause</strong>
+            Nach jedem Schritt kurz anhalten und sichtbar abfragen, ob die Gruppe folgen konnte.
+          </div>
+          <div class="success-box" id="success-iphone">
+            <h3>Bildschirmsperre eingerichtet</h3>
+            <p>Bitte das iPhone sperren und mit dem neuen Code wieder entsperren.</p>
+          </div>
+          <div class="summary-panel">
+            <h3>Dozenten-Auswertung zum Schluss</h3>
+            <p>Lassen Sie abstimmen: Wer hat die Bildschirmsperre eingerichtet oder versteht jetzt sicher, wie sie am eigenen Gerät gesetzt wird?</p>
+            <div class="summary-grid">
+              <div class="field">
+                <label for="eval-total-3-iphone">Teilnehmende insgesamt</label>
+                <input id="eval-total-3-iphone" type="number" min="1" inputmode="numeric" placeholder="z. B. 12">
+              </div>
+              <div class="field">
+                <label for="eval-hands-3-iphone">Gehobene Hände</label>
+                <input id="eval-hands-3-iphone" type="number" min="0" inputmode="numeric" placeholder="z. B. 7">
+              </div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-eval" type="button" onclick="evaluateHands({
+                totalId: 'eval-total-3-iphone',
+                handsId: 'eval-hands-3-iphone',
+                visualId: 'eval-visual-3-iphone',
+                quoteId: 'eval-quote-3-iphone',
+                fillId: 'eval-fill-3-iphone',
+                strongId: 'eval-strong-3-iphone',
+                textId: 'eval-text-3-iphone'
+              })">Ergebnis anzeigen</button>
+              <button class="btn btn-reset-eval" type="button" onclick="resetEvaluation('eval-total-3-iphone','eval-hands-3-iphone','eval-visual-3-iphone','eval-fill-3-iphone')">Eingaben löschen</button>
+            </div>
+            <div class="summary-visual" id="eval-visual-3-iphone">
+              <div class="summary-head">
+                <span class="summary-quote" id="eval-quote-3-iphone"></span>
+                <span>aktive Umsetzung am Gerät</span>
+              </div>
+              <div class="meter"><div class="meter-fill" id="eval-fill-3-iphone"></div></div>
+              <div class="summary-note">
+                <strong id="eval-strong-3-iphone"></strong>
+                <div id="eval-text-3-iphone"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-reset" onclick="resetSteps('iphone')">Schritte zurücksetzen</button>
+            <a class="btn btn-home" href="index.html">Zur Übersicht</a>
+          </div>
+        </section>
+
+        <section class="device-panel" id="panel-android">
+          <div class="pin-warning">
+            <strong>Vor dem Ändern zuerst die PIN auf einem Zettel notieren.</strong>
+            <span>Die genaue Menübezeichnung kann je nach Hersteller etwas anders aussehen.</span>
+          </div>
+          <div class="steps-title">Android – Schritt für Schritt</div>
+          <div class="steps-grid" id="steps-android"></div>
+          <div class="sync-pause">
+            <strong>Synchronisationspause</strong>
+            Wer fertig ist, unterstuetzt den Nachbarn. Erst weitergehen, wenn die Gruppe gesammelt nachkommt.
+          </div>
+          <div class="success-box" id="success-android">
+            <h3>Bildschirmsperre eingerichtet</h3>
+            <p>Bitte das Gerät sperren und mit der neuen PIN wieder entsperren.</p>
+          </div>
+          <div class="summary-panel">
+            <h3>Dozenten-Auswertung zum Schluss</h3>
+            <p>Lassen Sie abstimmen: Wer hat die Bildschirmsperre eingerichtet oder versteht jetzt sicher, wie sie am eigenen Gerät gesetzt wird?</p>
+            <div class="summary-grid">
+              <div class="field">
+                <label for="eval-total-3-android">Teilnehmende insgesamt</label>
+                <input id="eval-total-3-android" type="number" min="1" inputmode="numeric" placeholder="z. B. 12">
+              </div>
+              <div class="field">
+                <label for="eval-hands-3-android">Gehobene Hände</label>
+                <input id="eval-hands-3-android" type="number" min="0" inputmode="numeric" placeholder="z. B. 8">
+              </div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-eval" type="button" onclick="evaluateHands({
+                totalId: 'eval-total-3-android',
+                handsId: 'eval-hands-3-android',
+                visualId: 'eval-visual-3-android',
+                quoteId: 'eval-quote-3-android',
+                fillId: 'eval-fill-3-android',
+                strongId: 'eval-strong-3-android',
+                textId: 'eval-text-3-android'
+              })">Ergebnis anzeigen</button>
+              <button class="btn btn-reset-eval" type="button" onclick="resetEvaluation('eval-total-3-android','eval-hands-3-android','eval-visual-3-android','eval-fill-3-android')">Eingaben löschen</button>
+            </div>
+            <div class="summary-visual" id="eval-visual-3-android">
+              <div class="summary-head">
+                <span class="summary-quote" id="eval-quote-3-android"></span>
+                <span>aktive Umsetzung am Gerät</span>
+              </div>
+              <div class="meter"><div class="meter-fill" id="eval-fill-3-android"></div></div>
+              <div class="summary-note">
+                <strong id="eval-strong-3-android"></strong>
+                <div id="eval-text-3-android"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-reset" onclick="resetSteps('android')">Schritte zurücksetzen</button>
+            <a class="btn btn-home" href="index.html">Zur Übersicht</a>
+          </div>
+        </section>
+
+        <section class="device-panel" id="panel-windows">
+          <div class="pin-warning">
+            <strong>Am VHS-PC kann bereits eine PIN vorhanden sein.</strong>
+            <span>Falls ja, den Test der Sperre zeigen und den Änderungsweg nur kurz einordnen.</span>
+          </div>
+          <div class="steps-title">Windows 10 / 11 – Schritt für Schritt</div>
+          <div class="steps-grid" id="steps-windows"></div>
+          <div class="sync-pause">
+            <strong>Synchronisationspause</strong>
+            Den Tastaturbefehl zum Sperren sichtbar zeigen: Windows-Taste plus L.
+          </div>
+          <div class="success-box" id="success-windows">
+            <h3>Windows-Sperre eingerichtet</h3>
+            <p>Jetzt den Bildschirm mit Windows-Taste plus L sperren und die Rückkehr testen.</p>
+          </div>
+          <div class="summary-panel">
+            <h3>Dozenten-Auswertung zum Schluss</h3>
+            <p>Lassen Sie abstimmen: Wer hat die Bildschirmsperre eingerichtet oder versteht jetzt sicher, wie sie am eigenen Gerät gesetzt wird?</p>
+            <div class="summary-grid">
+              <div class="field">
+                <label for="eval-total-3-windows">Teilnehmende insgesamt</label>
+                <input id="eval-total-3-windows" type="number" min="1" inputmode="numeric" placeholder="z. B. 12">
+              </div>
+              <div class="field">
+                <label for="eval-hands-3-windows">Gehobene Hände</label>
+                <input id="eval-hands-3-windows" type="number" min="0" inputmode="numeric" placeholder="z. B. 6">
+              </div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn btn-eval" type="button" onclick="evaluateHands({
+                totalId: 'eval-total-3-windows',
+                handsId: 'eval-hands-3-windows',
+                visualId: 'eval-visual-3-windows',
+                quoteId: 'eval-quote-3-windows',
+                fillId: 'eval-fill-3-windows',
+                strongId: 'eval-strong-3-windows',
+                textId: 'eval-text-3-windows'
+              })">Ergebnis anzeigen</button>
+              <button class="btn btn-reset-eval" type="button" onclick="resetEvaluation('eval-total-3-windows','eval-hands-3-windows','eval-visual-3-windows','eval-fill-3-windows')">Eingaben löschen</button>
+            </div>
+            <div class="summary-visual" id="eval-visual-3-windows">
+              <div class="summary-head">
+                <span class="summary-quote" id="eval-quote-3-windows"></span>
+                <span>aktive Umsetzung am Gerät</span>
+              </div>
+              <div class="meter"><div class="meter-fill" id="eval-fill-3-windows"></div></div>
+              <div class="summary-note">
+                <strong id="eval-strong-3-windows"></strong>
+                <div id="eval-text-3-windows"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-reset" onclick="resetSteps('windows')">Schritte zurücksetzen</button>
+            <a class="btn btn-home" href="index.html">Zur Übersicht</a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+const stepsData = {
+  iphone: [
+    { text: "Auf <strong>Einstellungen</strong> tippen." },
+    { text: "Zu <strong>Face ID &amp; Code</strong> oder <strong>Touch ID &amp; Code</strong> wechseln." },
+    { text: "<strong>Code aktivieren</strong> auswählen." },
+    { text: "Einen neuen <strong>6-stelligen Code</strong> eingeben." },
+    { text: "Den Code zur Bestätigung erneut eingeben." },
+    { text: "Das iPhone sperren und den neuen Code direkt testen." }
+  ],
+  android: [
+    { text: "Auf <strong>Einstellungen</strong> tippen." },
+    { text: "<strong>Sperrbildschirm</strong> oder <strong>Sicherheit</strong> öffnen." },
+    { text: "<strong>Sperrbildschirmtyp</strong> wählen." },
+    { text: "<strong>PIN</strong> als Methode auswählen." },
+    { text: "Eine neue <strong>4 bis 6-stellige Zahl</strong> eingeben." },
+    { text: "Die PIN zur Bestätigung erneut eingeben." },
+    { text: "Gerät sperren und mit der neuen PIN entsperren." }
+  ],
+  windows: [
+    { text: "Die <strong>Windows-Taste</strong> drücken." },
+    { text: "Das <strong>Zahnrad</strong> für die Einstellungen auswählen." },
+    { text: "<strong>Konten</strong> öffnen." },
+    { text: "<strong>Anmeldeoptionen</strong> auswählen." },
+    { text: "Unter <strong>PIN (Windows Hello)</strong> auf <strong>Hinzufügen</strong> oder <strong>Ändern</strong> klicken." },
+    { text: "Den Dialog für die neue PIN abschließen." },
+    { text: "Mit <strong>Windows-Taste + L</strong> die Sperre testen." }
+  ]
+};
+
+const doneState = { iphone: [], android: [], windows: [] };
+
+function buildSteps(device) {
+  const grid = document.getElementById(`steps-${device}`);
+  grid.innerHTML = "";
+
+  stepsData[device].forEach((step, index) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `step-card${doneState[device][index] ? " done" : ""}`;
+    card.innerHTML = `
+      <div class="num">${index + 1}</div>
+      <div class="text">${step.text}</div>
+      <div class="check">OK</div>
+    `;
+    card.addEventListener("click", () => toggleStep(device, index));
+    grid.appendChild(card);
+  });
+
+  checkAllDone(device);
+}
+
+function toggleStep(device, index) {
+  doneState[device][index] = !doneState[device][index];
+  buildSteps(device);
+}
+
+function checkAllDone(device) {
+  const total = stepsData[device].length;
+  const done = doneState[device].filter(Boolean).length;
+  document.getElementById(`success-${device}`).style.display = done === total ? "block" : "none";
+}
+
+function resetSteps(device) {
+  doneState[device] = [];
+  buildSteps(device);
+}
+
+function switchDevice(device) {
+  ["iphone", "android", "windows"].forEach((key) => {
+    document.getElementById(`panel-${key}`).classList.remove("active");
+    document.getElementById(`tab-${key}`).classList.remove("active");
+  });
+
+  document.getElementById(`panel-${device}`).classList.add("active");
+  document.getElementById(`tab-${device}`).classList.add("active");
+
+}
+
+function evaluateHands(config) {
+  const total = Number(document.getElementById(config.totalId).value);
+  const hands = Number(document.getElementById(config.handsId).value);
+  if (!total || total < 1 || Number.isNaN(total) || Number.isNaN(hands) || hands < 0 || hands > total) return;
+
+  const percent = Math.round((hands / total) * 100);
+  let result = ["Deutliches Nachfassen nötig", "Viele brauchen noch Begleitung am Gerät. Für den Kurs ist eine langsamere Demonstration mit Zwischenstopps sinnvoll."];
+  if (percent >= 75) result = ["Praxisziel erreicht", "Die meisten haben den Schritt umgesetzt. Im Kurs können Sie beim nächsten Mal direkt mit kurzen Einzelhilfen statt mit langer Gesamtwiederholung arbeiten."];
+  else if (percent >= 45) result = ["Teilweise umgesetzt", "Ein relevanter Teil ist mitgekommen, aber nicht alle. Planen Sie im Kurs eine kurze Wiederholung plus Buddy-Unterstützung ein."];
+
+  document.getElementById(config.visualId).style.display = "grid";
+  document.getElementById(config.quoteId).textContent = `${hands} von ${total} · ${percent}%`;
+  document.getElementById(config.fillId).style.width = `${percent}%`;
+  document.getElementById(config.strongId).textContent = result[0];
+  document.getElementById(config.textId).textContent = result[1];
+}
+
+function resetEvaluation(totalId, handsId, visualId, fillId) {
+  document.getElementById(totalId).value = "";
+  document.getElementById(handsId).value = "";
+  document.getElementById(visualId).style.display = "none";
+  document.getElementById(fillId).style.width = "0";
+}
+
+buildSteps("iphone");
+buildSteps("android");
+buildSteps("windows");
+</script>
+</body>
+</html>
