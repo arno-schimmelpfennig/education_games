@@ -1202,7 +1202,7 @@
         title: "🎯 Die beste Gerade finden - OLS und Residuen",
         analogy: [
           "Denk an ein Gummiband, das du durch eine Punktewolke spannst. Jeder Punkt zieht daran. Du willst die Position finden, bei der die gesamte Spannung möglichst klein wird.",
-          "Die Methode der kleinsten Quadrate, kurz OLS, macht genau das mathematisch sauber. Sie sucht die Gerade, bei der die quadrierten Abstaende zwischen Punkten und Linie insgesamt am kleinsten sind."
+          "Die Methode der kleinsten Quadrate, kurz OLS, macht genau das mathematisch sauber. Sie sucht die Gerade, bei der die quadrierten Abstände zwischen Punkten und Linie insgesamt am kleinsten sind."
         ],
         goals: [
           "du verstehst, was ein Residuum ist",
@@ -1370,7 +1370,7 @@
             "import pandas as pd",
             "",
             "df = pd.DataFrame({",
-            "    \"wohnflaeche\": [55, 70, 85],",
+            "    \"wohnfläche\": [55, 70, 85],",
             "    \"zimmer\": [2, 3, 4],",
             "    \"preis\": [220000, 280000, 360000]",
             "})",
@@ -1383,15 +1383,15 @@
             "import pandas as pd",
             "",
             "df = pd.DataFrame({",
-            "    \"wohnflaeche\": [55, 70, 85],",
+            "    \"wohnfläche\": [55, 70, 85],",
             "    \"zimmer\": [2, 3, 4],",
             "    \"preis\": [220000, 280000, 360000]",
             "})",
             "",
-            "X = df[[\"wohnflaeche\", \"zimmer\"]]",
+            "X = df[[\"wohnfläche\", \"zimmer\"]]",
             "print(list(X.columns))"
           ].join("\n"),
-          output: "['wohnflaeche', 'zimmer']"
+          output: "['wohnfläche', 'zimmer']"
         },
         demoType: "multiple",
         badgeHint: "Gemeinsamer Badge mit Modul 6: 🚗 Multi-Talent",
@@ -1466,7 +1466,7 @@
         demoType: "encoding",
         badgeHint: "Zusammen mit Modul 5 verdienst du 🚗 Multi-Talent",
         quiz: [
-          { q: "Warum ist USA = 1, EU = 2, Asia = 3 oft problematisch?", options: ["Weil Zahlen in Python verboten sind", "Weil dadurch eine künstliche Reihenfolge entsteht", "Weil das Modell dann schneller wird"], correct: 1, explanation: "Die Zahlen suggerieren Abstaende und Ordnung, die inhaltlich nicht existieren." },
+          { q: "Warum ist USA = 1, EU = 2, Asia = 3 oft problematisch?", options: ["Weil Zahlen in Python verboten sind", "Weil dadurch eine künstliche Reihenfolge entsteht", "Weil das Modell dann schneller wird"], correct: 1, explanation: "Die Zahlen suggerieren Abstände und Ordnung, die inhaltlich nicht existieren." },
           { q: "Was erzeugt One-Hot-Encoding?", options: ["Eine Gerade", "Mehrere 0/1-Spalten", "Eine Zielvariable"], correct: 1, explanation: "Jede Kategorie bekommt eine eigene Ja/Nein-Spalte." },
           { q: "Was ist die Dummy-Falle?", options: ["Zu viele Daten", "Perfekte Multikollinearität durch alle Dummy-Spalten", "Ein Ausreißer im Zielwert"], correct: 1, explanation: "Wenn alle Kategorien gleichzeitig enthalten sind, wird eine Spalte linear aus den anderen ableitbar." },
           { q: "Was macht die Referenzkategorie?", options: ["Sie ist der Vergleichspunkt", "Sie ist immer die beste Kategorie", "Sie wird automatisch vorhergesagt"], correct: 0, explanation: "Die weggelassene Kategorie dient als Basis für die Interpretation." }

@@ -353,27 +353,27 @@
       </div>
 
       <div class="answer-box">
-        <strong>Aufloesung</strong>
+        <strong>Auflösung</strong>
         <p id="answer-text"></p>
       </div>
 
       <div class="timeline" id="timeline"></div>
 
       <div class="usage-box">
-        <strong>Praxis-Uebertrag:</strong><br>
-        Diese Struktur spart Zeit in jedem Notebook, egal ob `scikit-learn`, `statsmodels` oder spaeter Deep Learning.
+        <strong>Praxis-Übertrag:</strong><br>
+        Diese Struktur spart Zeit in jedem Notebook, egal ob `scikit-learn`, `statsmodels` oder später Deep Learning.
       </div>
 
       <div class="path-box">
-        <strong>Naechste Schritte</strong>
+        <strong>Nächste Schritte</strong>
         <div class="path-status" id="path-status">Nach Schritt 5 und Mini-Check wird Thema 1 freigeschaltet.</div>
         <a id="to-next-link" class="path-link disabled" href="lineare_regression_interaktion.html" aria-disabled="true">Weiter zu Thema 1: Lineare Regression</a>
-        <a class="path-link" href="bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html">Zurueck zum Einsteiger-Start</a>
+        <a class="path-link" href="bias-varianz-einsteiger/bias_varianz_einsteiger_interaktion.html">Zurück zum Einsteiger-Start</a>
       </div>
 
       <div class="ctrl-group">
         <button id="prev-step" class="secondary" hidden>Vorheriger Schritt</button>
-        <button id="next-step">Naechster Schritt</button>
+        <button id="next-step">Nächster Schritt</button>
         <button id="reset-session" class="secondary">Reset</button>
       </div>
     </aside>
@@ -384,7 +384,7 @@
           <h3>Notebook-Zelle lesen</h3>
           <p>Farblogik: Aufgabe -> Code -> Ausgabe. So bleibt die Orientierung stabil. Erst lesen, was verlangt ist, dann verstehen, was der Code schon macht, und erst danach die Ausgabe deuten.</p>
           <div class="notebook-cell">
-            <div id="cell-task" class="cell-part"><strong>Aufgabe:</strong> Waehle ein sinnvolles `k` und begruende es mit Testfehler.</div>
+            <div id="cell-task" class="cell-part"><strong>Aufgabe:</strong> Wähle ein sinnvolles `k` und begründe es mit Testfehler.</div>
             <div id="cell-code" class="cell-part"><strong>Code:</strong> <code>model = KNeighborsClassifier(n_neighbors=5, metric="euclidean", weights="uniform")</code></div>
             <div id="cell-output" class="cell-part"><strong>Ausgabe:</strong> Accuracy Test = 0.81, 14 Fehlklassifikationen.</div>
           </div>
@@ -393,12 +393,12 @@
         </article>
 
         <article class="tool-card">
-          <h3>Hilfekette (wenn du haengst)</h3>
-          <p>Immer in dieser Reihenfolge, damit Fragen praezise werden. Die Doku ist dabei kein Roman, sondern vor allem eine Nachschlagehilfe fuer Parameter, Rueckgabewerte und kurze Beispiele.</p>
+          <h3>Hilfekette (wenn du hängst)</h3>
+          <p>Immer in dieser Reihenfolge, damit Fragen präzise werden. Die Doku ist dabei kein Roman, sondern vor allem eine Nachschlagehilfe für Parameter, Rückgabewerte und kurze Beispiele.</p>
           <div class="help-lane" id="help-lane">
             <div class="help-item recommended"><strong>1) Notebook selbst</strong> Ziel und geforderte Ausgabe markieren.</div>
-            <div class="help-item"><strong>2) Bibliotheks-Doku</strong> Parameterbedeutung pruefen (`n_neighbors`, `metric`, `weights`).</div>
-            <div class="help-item"><strong>3) Support-Channel</strong> Frage im Format: "Zelle, Erwartung, aktueller Fehler". So kann jemand anders das Problem fast ohne Rueckfragen eingrenzen.</div>
+            <div class="help-item"><strong>2) Bibliotheks-Doku</strong> Parameterbedeutung prüfen (`n_neighbors`, `metric`, `weights`).</div>
+            <div class="help-item"><strong>3) Support-Channel</strong> Frage im Format: "Zelle, Erwartung, aktueller Fehler". So kann jemand anders das Problem fast ohne Rückfragen eingrenzen.</div>
           </div>
           <div class="metric-row" style="margin-top:10px;">
             <div class="metric">Schrittklarheit<b id="m-clarity">0%</b></div>
@@ -413,11 +413,11 @@
         <div class="quiz-box">
           <label><input type="radio" name="q1" value="a"> `n_neighbors` steuert die Anzahl betrachteter Nachbarn.</label>
           <label><input type="radio" name="q1" value="b"> `n_neighbors` ist immer der Lernratenparameter.</label>
-          <label><input type="radio" name="q1" value="c"> `n_neighbors` ist nur fuer Regression erlaubt.</label>
+          <label><input type="radio" name="q1" value="c"> `n_neighbors` ist nur für Regression erlaubt.</label>
           <label><input type="radio" name="q2" value="a"> Erst Doku, dann Aufgabe lesen.</label>
           <label><input type="radio" name="q2" value="b"> Erst Aufgabe lesen, dann Code, dann Ausgabe.</label>
           <label><input type="radio" name="q2" value="c"> Reihenfolge ist egal.</label>
-          <label><input type="radio" name="q3" value="a"> Eine gute Supportfrage enthaelt Zellnummer, Erwartung und beobachteten Fehler.</label>
+          <label><input type="radio" name="q3" value="a"> Eine gute Supportfrage enthält Zellnummer, Erwartung und beobachteten Fehler.</label>
           <label><input type="radio" name="q3" value="b"> Eine gute Supportfrage ist nur: "Geht nicht."</label>
           <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
             <button id="grade-quiz" class="mini-btn" type="button">Mini-Check auswerten</button>
@@ -433,38 +433,38 @@
     const steps = [
       {
         title: "Schritt 1: Orientierung in 30 Sekunden",
-        text: "Trenne jede Notebook-Zelle in drei Teile: Auftrag, Code, Ausgabe. Erst wenn diese Reihenfolge klar ist, startest du mit Loesen. Viele Fehler entstehen, weil Lernende die Ausgabe fuer die neue Aufgabe halten.",
-        action: "Markiere im Kopf: Wo ist die Aufgabe, wo der ausfuehrbare Code, wo das Ergebnis?",
-        chat: "Was war bei dir bisher am haeufigsten unklar: Auftrag oder Ausgabe?",
-        answer: "Die meisten Blocker entstehen, wenn Ausgabe mit Aufgabe verwechselt wird. Die Ausgabe beantwortet die vorige Rechnung, die Aufgabe sagt dir erst den naechsten Arbeitsschritt."
+        text: "Trenne jede Notebook-Zelle in drei Teile: Auftrag, Code, Ausgabe. Erst wenn diese Reihenfolge klar ist, startest du mit Lösen. Viele Fehler entstehen, weil Lernende die Ausgabe für die neue Aufgabe halten.",
+        action: "Markiere im Kopf: Wo ist die Aufgabe, wo der ausführbare Code, wo das Ergebnis?",
+        chat: "Was war bei dir bisher am häufigsten unklar: Auftrag oder Ausgabe?",
+        answer: "Die meisten Blocker entstehen, wenn Ausgabe mit Aufgabe verwechselt wird. Die Ausgabe beantwortet die vorige Rechnung, die Aufgabe sagt dir erst den nächsten Arbeitsschritt."
       },
       {
         title: "Schritt 2: Hyperparameter finden",
-        text: "Lies den Modellaufruf wie eine Einkaufsliste. Jeder Parameter ist ein Stellhebel mit klarer Funktion. Du musst dabei nicht sofort alles wissen, sondern zuerst nur erkennen, welcher Parameter ueberhaupt veraendert werden soll.",
+        text: "Lies den Modellaufruf wie eine Einkaufsliste. Jeder Parameter ist ein Stellhebel mit klarer Funktion. Du musst dabei nicht sofort alles wissen, sondern zuerst nur erkennen, welcher Parameter überhaupt verändert werden soll.",
         action: "Fokussiere `n_neighbors`, danach `metric`, danach `weights`.",
-        chat: "Welcher der drei Parameter wirkt fuer dich am intuitivsten?",
-        answer: "`n_neighbors` ist meist der leichteste Einstieg, weil er direkt Nachbarschaftsgroesse beschreibt. `metric` erklaert dagegen, wie Entfernung gemessen wird, und `weights`, wie stark nahe Punkte zaehlen."
+        chat: "Welcher der drei Parameter wirkt für dich am intuitivsten?",
+        answer: "`n_neighbors` ist meist der leichteste Einstieg, weil er direkt Nachbarschaftsgröße beschreibt. `metric` erklärt dagegen, wie Entfernung gemessen wird, und `weights`, wie stark nahe Punkte zählen."
       },
       {
         title: "Schritt 3: Unklare Frage zerlegen",
-        text: "Wenn eine Aufgabe unklar ist, zerlege sie: (1) erwartete Kennzahl, (2) zu veraendernder Parameter, (3) geforderte Begruendung. So wird aus einer vagen Anweisung ein kleines Arbeitsprotokoll.",
-        action: "Formuliere die Aufgabe als Satz: 'Ich soll ... veraendern und mit ... begruenden.'",
-        chat: "Welche Kennzahl steht in deinen Aufgaben am haeufigsten im Mittelpunkt?",
-        answer: "Im KNN-Kontext oft Fehlklassifikationen, Accuracy oder Validierungsfehler. Die Kennzahl sagt dir, woran du spaeter beurteilst, ob deine Aenderung geholfen hat."
+        text: "Wenn eine Aufgabe unklar ist, zerlege sie: (1) erwartete Kennzahl, (2) zu verändernder Parameter, (3) geforderte Begründung. So wird aus einer vagen Anweisung ein kleines Arbeitsprotokoll.",
+        action: "Formuliere die Aufgabe als Satz: 'Ich soll ... verändern und mit ... begründen.'",
+        chat: "Welche Kennzahl steht in deinen Aufgaben am häufigsten im Mittelpunkt?",
+        answer: "Im KNN-Kontext oft Fehlklassifikationen, Accuracy oder Validierungsfehler. Die Kennzahl sagt dir, woran du später beurteilst, ob deine Änderung geholfen hat."
       },
       {
         title: "Schritt 4: Hilfekette konsequent nutzen",
-        text: "Nutze immer dieselbe Kette: Notebook -> Doku -> Support. Dadurch werden Fragen praeziser und schneller beantwortbar. Du fragst also nicht zuerst allgemein, sondern erst, nachdem du die sichtbaren Hinweise schon ausgewertet hast.",
-        action: "Pruefe, ob du erst in der Doku nachgelesen hast, bevor du fragst.",
-        chat: "Warum spart die feste Reihenfolge Zeit, obwohl sie zusaetzlich wirkt?",
-        answer: "Weil unscharfe Rueckfragen entfallen und Probleme schneller eingegrenzt sind. Gute Hilfe spart nicht beim ersten Lesen Zeit, sondern beim Vermeiden spaeterer Umwege."
+        text: "Nutze immer dieselbe Kette: Notebook -> Doku -> Support. Dadurch werden Fragen präziser und schneller beantwortbar. Du fragst also nicht zuerst allgemein, sondern erst, nachdem du die sichtbaren Hinweise schon ausgewertet hast.",
+        action: "Prüfe, ob du erst in der Doku nachgelesen hast, bevor du fragst.",
+        chat: "Warum spart die feste Reihenfolge Zeit, obwohl sie zusätzlich wirkt?",
+        answer: "Weil unscharfe Rückfragen entfallen und Probleme schneller eingegrenzt sind. Gute Hilfe spart nicht beim ersten Lesen Zeit, sondern beim Vermeiden späterer Umwege."
       },
       {
         title: "Schritt 5: Transfer in den Lernpfad",
-        text: "Mit dieser Struktur startest du robust in Thema 1 und spaeter in KNN-Notebooks. Ziel: weniger Frust, mehr Fokus auf Verstehen.",
-        action: "Fuehre den Mini-Check aus und schalte danach den Weiterlink frei.",
-        chat: "Was aenderst du ab heute konkret bei Notebook-Aufgaben?",
-        answer: "Zuerst Struktur lesen, dann Parameter identifizieren, dann gezielt testen und begruenden."
+        text: "Mit dieser Struktur startest du robust in Thema 1 und später in KNN-Notebooks. Ziel: weniger Frust, mehr Fokus auf Verstehen.",
+        action: "Führe den Mini-Check aus und schalte danach den Weiterlink frei.",
+        chat: "Was änderst du ab heute konkret bei Notebook-Aufgaben?",
+        answer: "Zuerst Struktur lesen, dann Parameter identifizieren, dann gezielt testen und begründen."
       }
     ];
 
@@ -624,7 +624,7 @@
         quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - du kannst Thema 1 freischalten.`;
         quizFeedbackEl.className = "feedback ok";
       } else {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Pruefe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Prüfe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
         quizFeedbackEl.className = "feedback warn";
       }
     });

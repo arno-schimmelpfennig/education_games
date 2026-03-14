@@ -332,7 +332,7 @@
     <aside id="sidebar">
       <div class="brandline">AS Digital Marketing | Data Science Lernpfad</div>
       <h1>Thema 7: Distanz und Scaling</h1>
-      <p class="lead">Welche Distanz passt zum Problem? Und warum muessen Merkmale vor Distanzmodellen skaliert werden?</p>
+      <p class="lead">Welche Distanz passt zum Problem? Und warum müssen Merkmale vor Distanzmodellen skaliert werden?</p>
 
       <div class="card">
         <strong>Story</strong>
@@ -340,8 +340,8 @@
       </div>
 
       <div class="card">
-        <strong>Formel-Leseschluessel</strong>
-        <p>Euklidisch: d = sqrt((x1-x2)^2 + (y1-y2)^2). Manhattan: d = |x1-x2| + |y1-y2|. Minkowski verallgemeinert beide mit p. Cosinus vergleicht Richtung statt absolute Distanz. Wichtig: Cosinus fragt eher nach Aehnlichkeit der Richtung als nach echter Entfernung.</p>
+        <strong>Formel-Leseschlüssel</strong>
+        <p>Euklidisch: d = sqrt((x1-x2)^2 + (y1-y2)^2). Manhattan: d = |x1-x2| + |y1-y2|. Minkowski verallgemeinert beide mit p. Cosinus vergleicht Richtung statt absolute Distanz. Wichtig: Cosinus fragt eher nach Ähnlichkeit der Richtung als nach echter Entfernung.</p>
       </div>
 
       <div class="step-box">
@@ -356,28 +356,28 @@
       </div>
 
       <div class="answer-box">
-        <strong>Aufloesung</strong>
+        <strong>Auflösung</strong>
         <p id="answer-text"></p>
       </div>
 
       <div class="timeline" id="timeline"></div>
 
       <div class="usage-box">
-        <strong>Praxis-Uebertrag:</strong><br>
-        Bei KNN und anderen distanzbasierten Verfahren entscheidet die Metrik plus Skalierung direkt ueber Nachbarschaften. Skalierung veraendert dabei nicht die Geschichte der Daten, sondern nur, welche Achse die Distanz dominieren darf.
+        <strong>Praxis-Übertrag:</strong><br>
+        Bei KNN und anderen distanzbasierten Verfahren entscheidet die Metrik plus Skalierung direkt über Nachbarschaften. Skalierung verändert dabei nicht die Geschichte der Daten, sondern nur, welche Achse die Distanz dominieren darf.
       </div>
 
       <div class="path-box">
-        <strong>Naechste Schritte</strong>
+        <strong>Nächste Schritte</strong>
         <div class="path-status" id="path-status">Nach Schritt 7 und Mini-Check wird das Kapitel Decision Trees freigeschaltet.</div>
         <a class="path-link" href="feature_engineering.html">Optional davor: Thema 7a Feature Engineering</a>
         <a id="to-next-link" class="path-link disabled" href="decision_trees_interaktion.html" aria-disabled="true">Weiter zu Decision Trees</a>
-        <a class="path-link" href="knn_hyperparameter_tuning_interaktion.html">Zurueck zu Thema 6: KNN Hyperparameter-Tuning</a>
+        <a class="path-link" href="knn_hyperparameter_tuning_interaktion.html">Zurück zu Thema 6: KNN Hyperparameter-Tuning</a>
       </div>
 
       <div class="ctrl-group">
         <button id="prev-step" class="secondary" hidden>Vorheriger Schritt</button>
-        <button id="next-step">Naechster Schritt</button>
+        <button id="next-step">Nächster Schritt</button>
         <button id="reset-session" class="secondary">Reset</button>
       </div>
     </aside>
@@ -386,7 +386,7 @@
       <section class="grid">
         <article class="viz-card">
           <h3>Punktabstand live</h3>
-          <p>Punkt A und B im zweidimensionalen Raum. Distanzlinie folgt der gewaehlten Metrik.</p>
+          <p>Punkt A und B im zweidimensionalen Raum. Distanzlinie folgt der gewählten Metrik.</p>
           <div class="viz-wrap">
             <canvas id="distance-canvas" width="760" height="460" aria-label="Visualisierung verschiedener Distanzmetriken"></canvas>
           </div>
@@ -400,7 +400,7 @@
               <option value="euclidean">Euklidische Distanz</option>
               <option value="manhattan">Manhattan-Distanz</option>
               <option value="minkowski">Minkowski-Distanz</option>
-              <option value="cosine">Cosinus-Aehnlichkeit</option>
+              <option value="cosine">Cosinus-Ähnlichkeit</option>
             </select>
           </div>
 
@@ -461,11 +461,11 @@
 
       <section class="quiz-box">
         <h3>Mini-Check (3 Fragen)</h3>
-        <label><input type="radio" name="q1" value="a"> Manhattan passt gut zu Strassennetz-/Raster-Intuition.</label>
+        <label><input type="radio" name="q1" value="a"> Manhattan passt gut zu Straßennetz-/Raster-Intuition.</label>
         <label><input type="radio" name="q1" value="b"> Manhattan entspricht immer der Luftlinie.</label>
         <label><input type="radio" name="q2" value="a"> Minkowski mit p=2 entspricht der euklidischen Distanz.</label>
-        <label><input type="radio" name="q2" value="b"> Minkowski mit p=2 entspricht Cosinus-Aehnlichkeit.</label>
-        <label><input type="radio" name="q3" value="a"> Ohne Scaling koennen Merkmale mit grossem Wertebereich die Distanz dominieren.</label>
+        <label><input type="radio" name="q2" value="b"> Minkowski mit p=2 entspricht Cosinus-Ähnlichkeit.</label>
+        <label><input type="radio" name="q3" value="a"> Ohne Scaling können Merkmale mit großem Wertebereich die Distanz dominieren.</label>
         <label><input type="radio" name="q3" value="b"> Scaling ist bei Distanzmodellen nie relevant.</label>
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
           <button id="grade-quiz" class="mini-btn" type="button">Mini-Check auswerten</button>
@@ -480,10 +480,10 @@
     const steps = [
       {
         title: "Schritt 1: Distanz ist Modelllogik",
-        text: "KNN nutzt Distanz, um Naehe zu definieren. Aendere die Metrik und beobachte, wie sich derselbe Punktabstand anders liest.",
+        text: "KNN nutzt Distanz, um Nähe zu definieren. Ändere die Metrik und beobachte, wie sich derselbe Punktabstand anders liest.",
         action: "Wechsle von Euklidisch auf Manhattan.",
-        chat: "Warum kann eine andere Distanzmetrik zu anderer Nachbarschaft fuehren?",
-        answer: "Weil 'naehe' mathematisch unterschiedlich definiert wird."
+        chat: "Warum kann eine andere Distanzmetrik zu anderer Nachbarschaft führen?",
+        answer: "Weil 'Nähe' mathematisch unterschiedlich definiert wird."
       },
       {
         title: "Schritt 2: Euklidisch als Luftlinie",
@@ -494,38 +494,38 @@
       },
       {
         title: "Schritt 3: Manhattan als Rasterweg",
-        text: "Manhattan summiert absolute Achsenunterschiede. Das passt zu Gitter- oder Strassenlogik.",
+        text: "Manhattan summiert absolute Achsenunterschiede. Das passt zu Gitter- oder Straßenlogik.",
         action: "Vergleiche denselben Punktabstand in Manhattan und Euklidisch.",
-        chat: "Warum ist Manhattan oft groesser oder gleich euklidisch?",
-        answer: "Weil Umwege ueber Achsen summiert werden statt direkter Diagonale."
+        chat: "Warum ist Manhattan oft größer oder gleich euklidisch?",
+        answer: "Weil Umwege über Achsen summiert werden statt direkter Diagonale."
       },
       {
         title: "Schritt 4: Minkowski als Generalisierung",
-        text: "Minkowski steuert mit p, wie stark grosse Differenzen gewichtet werden. p=1 ist Manhattan, p=2 euklidisch.",
-        action: "Waehle Minkowski und variiere p von 1.0 bis 5.0.",
-        chat: "Was aendert sich sichtbar, wenn p steigt?",
-        answer: "Grosse Komponenten gewinnen relativ mehr Einfluss."
+        text: "Minkowski steuert mit p, wie stark große Differenzen gewichtet werden. p=1 ist Manhattan, p=2 euklidisch.",
+        action: "Wähle Minkowski und variiere p von 1.0 bis 5.0.",
+        chat: "Was ändert sich sichtbar, wenn p steigt?",
+        answer: "Große Komponenten gewinnen relativ mehr Einfluss."
       },
       {
-        title: "Schritt 5: Cosinus fuer Richtungsaehnlichkeit",
-        text: "Cosinus vergleicht Richtungen von Vektoren statt absolute Laengen. Wichtig bei Text- und Embeddingraeumen.",
+        title: "Schritt 5: Cosinus für Richtungsähnlichkeit",
+        text: "Cosinus vergleicht Richtungen von Vektoren statt absolute Längen. Wichtig bei Text- und Embeddingräumen.",
         action: "Schalte auf Cosinus und beobachte den Similarity-Wert.",
-        chat: "Warum kann Cosinus hoch sein, obwohl die Punktlaengen verschieden sind?",
-        answer: "Weil die Richtung aehnlich bleibt, auch wenn die Laenge skaliert ist."
+        chat: "Warum kann Cosinus hoch sein, obwohl die Punktlängen verschieden sind?",
+        answer: "Weil die Richtung ähnlich bleibt, auch wenn die Länge skaliert ist."
       },
       {
         title: "Schritt 6: Warum Scaling Pflicht ist",
-        text: "Wenn y viel groessere Werte hat als x, dominiert y die Distanz. Scaling bringt Merkmale auf vergleichbare Skalen.",
+        text: "Wenn y viel größere Werte hat als x, dominiert y die Distanz. Scaling bringt Merkmale auf vergleichbare Skalen.",
         action: "Schalte Scaling an/aus und beobachte x/y-Anteile.",
         chat: "Was passiert ohne Scaling in diesem Beispiel?",
-        answer: "Die y-Differenz ueberdeckt fast den gesamten Distanzbeitrag."
+        answer: "Die y-Differenz überdeckt fast den gesamten Distanzbeitrag."
       },
       {
-        title: "Schritt 7: Bruecke zu Decision Trees",
-        text: "Jetzt sind Metrik und Skalierung klar. Als naechstes schauen wir auf ein Modell, das gar keine Distanz braucht, sondern mit Ja/Nein-Fragen arbeitet: Decision Trees. Genau daran siehst du spaeter gut, wann Distanzmodelle sinnvoll sind und wann nicht.",
-        action: "Fuehre den Mini-Check aus und schalte das Kapitel Decision Trees frei.",
+        title: "Schritt 7: Brücke zu Decision Trees",
+        text: "Jetzt sind Metrik und Skalierung klar. Als nächstes schauen wir auf ein Modell, das gar keine Distanz braucht, sondern mit Ja/Nein-Fragen arbeitet: Decision Trees. Genau daran siehst du später gut, wann Distanzmodelle sinnvoll sind und wann nicht.",
+        action: "Führe den Mini-Check aus und schalte das Kapitel Decision Trees frei.",
         chat: "Warum ist nach Distanzlogik ein Baum-Modell als Vergleich spannend?",
-        answer: "Weil du so zwei sehr unterschiedliche Modellideen direkt vergleichen kannst: Nachbarschaft ueber Distanz versus Regeln ueber Splits."
+        answer: "Weil du so zwei sehr unterschiedliche Modellideen direkt vergleichen kannst: Nachbarschaft über Distanz versus Regeln über Splits."
       }
     ];
 
@@ -725,10 +725,10 @@
       statusBannerEl.className = "status-banner";
       if (!state.scaling && m.yPart > 85) {
         statusBannerEl.classList.add("warn");
-        statusBannerEl.textContent = "Warnung: y dominiert die Distanz stark. Bei KNN fuehrt das oft zu verzerrter Nachbarschaft. Scaling empfohlen.";
+        statusBannerEl.textContent = "Warnung: y dominiert die Distanz stark. Bei KNN führt das oft zu verzerrter Nachbarschaft. Scaling empfohlen.";
       } else {
         const metricText = state.metric === "cosine"
-          ? "Cosinus bewertet Richtungsnaehe statt absolute Laenge."
+          ? "Cosinus bewertet Richtungsnähe statt absolute Länge."
           : `${state.metric} basiert auf dx=${m.scaledDx.toFixed(2)} und dy=${m.scaledDy.toFixed(2)} im aktuellen Raum.`;
         statusBannerEl.textContent = metricText;
       }
@@ -738,7 +738,7 @@
         ["Euklidisch", m.euclid.toFixed(3), "Luftlinie"],
         ["Manhattan", m.manhattan.toFixed(3), "Rasterweg"],
         ["Minkowski (p)", m.minkowski.toFixed(3), `Generalisierung mit p=${state.p.toFixed(1)}`],
-        ["Cosinus", m.cosine.toFixed(3), "Richtungsaehnlichkeit"]
+        ["Cosinus", m.cosine.toFixed(3), "Richtungsähnlichkeit"]
       ];
       rows.forEach((row) => {
         const tr = document.createElement("tr");
@@ -883,7 +883,7 @@
         quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Thema 8 kann freigeschaltet werden.`;
         quizFeedbackEl.className = "feedback ok";
       } else {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Pruefe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Prüfe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
         quizFeedbackEl.className = "feedback warn";
       }
     });

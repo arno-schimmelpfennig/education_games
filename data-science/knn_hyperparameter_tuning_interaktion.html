@@ -338,12 +338,12 @@
 
       <div class="card">
         <strong>Story</strong>
-        <p>Mira vergleicht Stadtviertel: Mit zu kleinem Radius ist alles nervoes, mit zu grossem Radius wird alles zu grob.</p>
+        <p>Mira vergleicht Stadtviertel: Mit zu kleinem Radius ist alles nervös, mit zu großem Radius wird alles zu grob.</p>
       </div>
 
       <div class="card">
-        <strong>Formel-Leseschluessel</strong>
-        <p>Validierungswahl: k* = argmin_k Fehler_val(k). Kleines k fuehrt oft zu Overfitting, grosses k eher zu Underfitting. Hyperparameter werden vor dem Training gesetzt und empirisch getestet. Wichtig: Der Validierungsfehler hilft beim Auswaehlen, der Testfehler ist erst die spaetere Abschlusspruefung.</p>
+        <strong>Formel-Leseschlüssel</strong>
+        <p>Validierungswahl: k* = argmin_k Fehler_val(k). Kleines k führt oft zu Overfitting, großes k eher zu Underfitting. Hyperparameter werden vor dem Training gesetzt und empirisch getestet. Wichtig: Der Validierungsfehler hilft beim Auswählen, der Testfehler ist erst die spätere Abschlussprüfung.</p>
       </div>
 
       <div class="step-box">
@@ -358,27 +358,27 @@
       </div>
 
       <div class="answer-box">
-        <strong>Aufloesung</strong>
+        <strong>Auflösung</strong>
         <p id="answer-text"></p>
       </div>
 
       <div class="timeline" id="timeline"></div>
 
       <div class="usage-box">
-        <strong>Praxis-Uebertrag:</strong><br>
-        Kern-Logik: Hyperparameter (`k`, `metric`, `weights`) immer ueber Validierungs-/Testfehler waehlen, nie nur nach Bauchgefuehl. Sonst optimierst du leicht auf eine huebsche Einzelbeobachtung statt auf robuste Generalisierung.
+        <strong>Praxis-Übertrag:</strong><br>
+        Kern-Logik: Hyperparameter (`k`, `metric`, `weights`) immer über Validierungs-/Testfehler wählen, nie nur nach Bauchgefühl. Sonst optimierst du leicht auf eine hübsche Einzelbeobachtung statt auf robuste Generalisierung.
       </div>
 
       <div class="path-box">
-        <strong>Naechste Schritte</strong>
+        <strong>Nächste Schritte</strong>
         <div class="path-status" id="path-status">Nach Schritt 6 und Mini-Check wird Thema 7 (Distanzmetriken + Scaling) freigeschaltet.</div>
         <a id="to-next-link" class="path-link disabled" href="distanzmetriken_und_scaling_interaktion.html" aria-disabled="true">Weiter zu Thema 7: Distanzmetriken und Scaling</a>
-        <a class="path-link" href="knn_grundlagen_interaktion.html">Zurueck zu Thema 5: KNN Grundlagen</a>
+        <a class="path-link" href="knn_grundlagen_interaktion.html">Zurück zu Thema 5: KNN Grundlagen</a>
       </div>
 
       <div class="ctrl-group">
         <button id="prev-step" class="secondary" hidden>Vorheriger Schritt</button>
-        <button id="next-step">Naechster Schritt</button>
+        <button id="next-step">Nächster Schritt</button>
         <button id="reset-session" class="secondary">Reset</button>
       </div>
     </aside>
@@ -386,10 +386,10 @@
     <main id="stage">
       <section class="grid">
         <article class="plot-card">
-          <h3>Fehlerkurven ueber k</h3>
+          <h3>Fehlerkurven über k</h3>
           <p>Blau = Trainingsfehler, Orange = Validierungsfehler. Ziel ist ein kleines, stabiles Validierungsminimum.</p>
           <div class="plot-wrap">
-            <canvas id="error-canvas" width="760" height="460" aria-label="Fehlerkurven fuer verschiedene k-Werte"></canvas>
+            <canvas id="error-canvas" width="760" height="460" aria-label="Fehlerkurven für verschiedene k-Werte"></canvas>
           </div>
         </article>
 
@@ -433,11 +433,11 @@
 
       <section class="quiz-box">
         <h3>Mini-Check (3 Fragen)</h3>
-        <label><input type="radio" name="q1" value="a"> Sehr kleines k (z. B. 1) erhoeht oft Overfitting-Risiko.</label>
-        <label><input type="radio" name="q1" value="b"> Sehr kleines k fuehrt automatisch zu Underfitting.</label>
-        <label><input type="radio" name="q2" value="a"> Bestes k wird empirisch ueber Validierungs-/Testfehler bestimmt.</label>
+        <label><input type="radio" name="q1" value="a"> Sehr kleines k (z. B. 1) erhöht oft Overfitting-Risiko.</label>
+        <label><input type="radio" name="q1" value="b"> Sehr kleines k führt automatisch zu Underfitting.</label>
+        <label><input type="radio" name="q2" value="a"> Bestes k wird empirisch über Validierungs-/Testfehler bestimmt.</label>
         <label><input type="radio" name="q2" value="b"> Bestes k ergibt sich aus einer festen Formel ohne Testlauf.</label>
-        <label><input type="radio" name="q3" value="a"> Distanzgewichtung kann naeheren Nachbarn mehr Einfluss geben.</label>
+        <label><input type="radio" name="q3" value="a"> Distanzgewichtung kann näheren Nachbarn mehr Einfluss geben.</label>
         <label><input type="radio" name="q3" value="b"> Distanzgewichtung ignoriert Entfernungen komplett.</label>
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
           <button id="grade-quiz" class="mini-btn" type="button">Mini-Check auswerten</button>
@@ -464,14 +464,14 @@
     const steps = [
       {
         title: "Schritt 1: Die eigentliche KNN-Frage",
-        text: "KNN funktioniert schnell, aber die Leistung haengt stark von Hyperparametern ab (`k`, Distanzmetrik, Gewichtung). Deshalb testen wir mehrere Kandidaten systematisch.",
+        text: "KNN funktioniert schnell, aber die Leistung hängt stark von Hyperparametern ab (`k`, Distanzmetrik, Gewichtung). Deshalb testen wir mehrere Kandidaten systematisch.",
         action: "Lies die Kurvenlegende und stelle k auf 1, dann auf 9.",
         chat: "Warum reicht ein einzelner k-Test nicht aus?",
-        answer: "Weil die Fehlerkurve nicht linear verlaeuft und oft ein lokales Minimum hat."
+        answer: "Weil die Fehlerkurve nicht linear verläuft und oft ein lokales Minimum hat."
       },
       {
         title: "Schritt 2: Kleines k und Overfitting",
-        text: "Bei sehr kleinem k passt sich das Modell stark an einzelne Punkte an. Trainingsfehler klein, Validierungsfehler oft hoeher.",
+        text: "Bei sehr kleinem k passt sich das Modell stark an einzelne Punkte an. Trainingsfehler klein, Validierungsfehler oft höher.",
         action: "Setze k=1 oder k=3 und beobachte den Gap zwischen Train und Val.",
         chat: "Welches Signal zeigt Overfitting hier?",
         answer: "Train sehr niedrig, Val deutlich hoeher."
@@ -480,15 +480,15 @@
         title: "Schritt 3: Mittleres k als Sweet Spot",
         text: "Im mittleren Bereich sinkt der Validierungsfehler oft auf ein Minimum. Das ist meist ein robuster Kandidat.",
         action: "Teste k=7, 9, 11 und vergleiche den Val-Fehler im Chip.",
-        chat: "Wuerdest du den minimalen oder den stabilsten Bereich waehlen?",
+        chat: "Würdest du den minimalen oder den stabilsten Bereich wählen?",
         answer: "Meist den stabilen Minimumsbereich, nicht nur einen einzelnen Punkt."
       },
       {
-        title: "Schritt 4: Zu grosses k und Underfitting",
-        text: "Wird k zu gross, mittelt KNN zu stark. Dann verliert das Modell lokale Struktur und wird zu grob.",
+        title: "Schritt 4: Zu großes k und Underfitting",
+        text: "Wird k zu groß, mittelt KNN zu stark. Dann verliert das Modell lokale Struktur und wird zu grob.",
         action: "Setze k>=21 und beobachte steigenden Validierungsfehler.",
         chat: "Warum steigt der Fehler wieder an?",
-        answer: "Weil zu viele, auch unpassende Nachbarn in die Entscheidung einfliessen."
+        answer: "Weil zu viele, auch unpassende Nachbarn in die Entscheidung einfließen."
       },
       {
         title: "Schritt 5: Gewichtung ausprobieren",
@@ -499,10 +499,10 @@
       },
       {
         title: "Schritt 6: Empirische Entscheidung dokumentieren",
-        text: "Jetzt triffst du eine nachvollziehbare Wahl: k-Wert + Gewichtung + Begruendung ueber Validierungsfehler.",
-        action: "Fuehre den Mini-Check aus und schalte Thema 7 frei.",
-        chat: "Was gehoert in eine saubere Modellentscheidung fuer KNN?",
-        answer: "Getestete k-Werte, gewaehlte Distanz-/Gewichtungsoption und Fehlervergleich auf Validation/Test."
+        text: "Jetzt triffst du eine nachvollziehbare Wahl: k-Wert + Gewichtung + Begründung über Validierungsfehler.",
+        action: "Führe den Mini-Check aus und schalte Thema 7 frei.",
+        chat: "Was gehört in eine saubere Modellentscheidung für KNN?",
+        answer: "Getestete k-Werte, gewählte Distanz-/Gewichtungsoption und Fehlervergleich auf Validation/Test."
       }
     ];
 
@@ -809,7 +809,7 @@
         quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Sehr gut - Thema 7 kann freigeschaltet werden.`;
         quizFeedbackEl.className = "feedback ok";
       } else {
-        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Pruefe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
+        quizFeedbackEl.textContent = `Ergebnis: ${score}/3 richtig. Noch offen. Prüfe besonders Frage ${wrongQuestions.join(", ")} und versuche es direkt noch einmal.`;
         quizFeedbackEl.className = "feedback warn";
       }
     });

@@ -5,52 +5,52 @@ Bezug: Erweiterungen in `README.md` (Schritte `0a`, `5`, `6`, `7`)
 
 ## Vorgehen
 - Jeder neue Schritt wurde in einzelne Lernziele zerlegt.
-- Je Lernziel wurde eine bewaehrte Methode ausgewaehlt, die fuer Einsteiger ohne IT-/Mathehintergrund besonders robust ist.
-- Pro Lernziel wurde die Schrittgestaltung konkret optimiert (Einstieg, Aktivitaet, Rueckmeldung, Transfer).
+- Je Lernziel wurde eine bewährte Methode ausgewählt, die für Einsteiger ohne IT-/Mathehintergrund besonders robust ist.
+- Pro Lernziel wurde die Schrittgestaltung konkret optimiert (Einstieg, Aktivität, Rückmeldung, Transfer).
 
 ## Lernziel-Mapping
-| Neuer Schritt | Lernziel | Bewaehrte Methode | Warum diese Methode hier am besten passt | Optimierte Schrittgestaltung |
+| Neuer Schritt | Lernziel | Bewährte Methode | Warum diese Methode hier am besten passt | Optimierte Schrittgestaltung |
 |---|---|---|---|---|
-| 0a Lernkompass | Lernende koennen in einem Notebook Aufgabe, Eingabe und erwartete Ausgabe sicher unterscheiden | Scaffolding (schrittweise Hilfen) | Das Transkript zeigt Ueberforderung bei unklaren Aufgaben; Scaffolding reduziert Startbarrieren | Start mit "Lesebrille fuer Notebooks" (3 Farben: Aufgabe, Code, Ergebnis), danach gefuehrte 1-Minuten-Uebung |
-| 0a Lernkompass | Lernende finden Hyperparameter (`k`, `alpha`, `metric`) in typischen Bibliotheksaufrufen | Worked Example + Fading | Ein konkretes Vorbild verhindert Suchfrust; anschliessend Hilfeabbau foerdert Selbststaendigkeit | Erst voll geloestes Beispiel, dann halboffene Aufgabe, dann freier Transferfall |
-| 5 KNN-Grundlagen | Lernende erklaeren KNN in Alltagssprache ("aehnliche Dinge liegen nah") | Guided Discovery mit konkretem Beispiel | Die KNN-Idee ist intuitiv, wenn Lernende erst selbst tippen und dann visualisiert sehen | Katzen/Huehner- oder Produktregal-Beispiel: erst Vermutung, dann Distanzlinien einblenden |
+| 0a Lernkompass | Lernende können in einem Notebook Aufgabe, Eingabe und erwartete Ausgabe sicher unterscheiden | Scaffolding (schrittweise Hilfen) | Das Transkript zeigt Überforderung bei unklaren Aufgaben; Scaffolding reduziert Startbarrieren | Start mit "Lesebrille für Notebooks" (3 Farben: Aufgabe, Code, Ergebnis), danach geführte 1-Minuten-Übung |
+| 0a Lernkompass | Lernende finden Hyperparameter (`k`, `alpha`, `metric`) in typischen Bibliotheksaufrufen | Worked Example + Fading | Ein konkretes Vorbild verhindert Suchfrust; anschließend Hilfeabbau fördert Selbstständigkeit | Erst voll gelöstes Beispiel, dann halboffene Aufgabe, dann freier Transferfall |
+| 5 KNN-Grundlagen | Lernende erklären KNN in Alltagssprache ("ähnliche Dinge liegen nah") | Guided Discovery mit konkretem Beispiel | Die KNN-Idee ist intuitiv, wenn Lernende erst selbst tippen und dann visualisiert sehen | Katzen/Hühner- oder Produktregal-Beispiel: erst Vermutung, dann Distanzlinien einblenden |
 | 5 KNN-Grundlagen | Lernende unterscheiden Modus (Klassifikation) und Mittelwert (Regression) korrekt | Dual Coding (Wort + kleine Tabelle) | Begriffe werden stabiler, wenn verbale und visuelle Darstellung kombiniert werden | Zwei Mini-Karten: links Klassenmehrheit, rechts Zahlenmittel; danach 1 Entscheidungsfrage |
-| 6 KNN-Hyperparameter | Lernende erkennen Overfit/Underfit als Folge falscher `k`-Wahl | Prediction-Observation-Explanation (POE) | Die Wirkung von `k` wird erst durch Vorhersage und Gegenpruefung wirklich verstanden | k-Slider mit drei Pflichtstopps (`1`, `10`, `100`) und kurzer Begruendung pro Stopp |
-| 6 KNN-Hyperparameter | Lernende waehlen `k` empirisch ueber Validierungsfehler statt Bauchgefuehl | Formative Assessment | Sofortiges Feedback auf Fehlklassifikationen staerkt Diagnosekompetenz | "Teste 5 Werte" -> Tabelle mit Fehlern fuellen -> bestes `k` markieren -> Rueckmeldung |
-| 7 Distanzmetriken + Scaling | Lernende waehlen zwischen euklidischer, Manhattan- und Minkowski-Distanz passend zum Kontext | Contrasting Cases | Gegenueberstellung aehnlicher, aber relevanter Faelle erleichtert Metrikwahl | Paarvergleich: Luftlinie (Berlin->Nuernberg) vs Strassennetz (Mannheim-Grid), dann Auswahl mit Begruendung |
-| 7 Distanzmetriken + Scaling | Lernende begruenden, warum Skalierung vor Distanzmodellen noetig ist | Self-Explanation | Eigenes Erklaeren deckt Missverstaendnisse bei Zahlenbereichen schnell auf | Vorher/Nachher-Beispiel mit stark unterschiedlichen Achsenskalierungen, dann kurze freie Erklaerung |
-| 7 Distanzmetriken + Scaling | Lernende kennen Cosinus-Aehnlichkeit als Bruecke zu Suche/LLM, ohne Formelueberfrachtung | Anchored Analogy | Fuer Einsteiger ist Anwendungsbezug wichtiger als Herleitung | "Aehnliche Suchbegriffe" als Vektoridee, danach 1 Transferfrage ("Wann waere Cosinus besser als Luftlinie?") |
+| 6 KNN-Hyperparameter | Lernende erkennen Overfit/Underfit als Folge falscher `k`-Wahl | Prediction-Observation-Explanation (POE) | Die Wirkung von `k` wird erst durch Vorhersage und Gegenprüfung wirklich verstanden | k-Slider mit drei Pflichtstopps (`1`, `10`, `100`) und kurzer Begründung pro Stopp |
+| 6 KNN-Hyperparameter | Lernende wählen `k` empirisch über Validierungsfehler statt Bauchgefühl | Formative Assessment | Sofortiges Feedback auf Fehlklassifikationen stärkt Diagnosekompetenz | "Teste 5 Werte" -> Tabelle mit Fehlern füllen -> bestes `k` markieren -> Rückmeldung |
+| 7 Distanzmetriken + Scaling | Lernende wählen zwischen euklidischer, Manhattan- und Minkowski-Distanz passend zum Kontext | Contrasting Cases | Gegenüberstellung ähnlicher, aber relevanter Fälle erleichtert Metrikwahl | Paarvergleich: Luftlinie (Berlin->Nürnberg) vs Straßennetz (Mannheim-Grid), dann Auswahl mit Begründung |
+| 7 Distanzmetriken + Scaling | Lernende begründen, warum Skalierung vor Distanzmodellen nötig ist | Self-Explanation | Eigenes Erklären deckt Missverständnisse bei Zahlenbereichen schnell auf | Vorher/Nachher-Beispiel mit stark unterschiedlichen Achsenskalierungen, dann kurze freie Erklärung |
+| 7 Distanzmetriken + Scaling | Lernende kennen Cosinus-Ähnlichkeit als Brücke zu Suche/LLM, ohne Formelüberfrachtung | Anchored Analogy | Für Einsteiger ist Anwendungsbezug wichtiger als Herleitung | "Ähnliche Suchbegriffe" als Vektoridee, danach 1 Transferfrage ("Wann wäre Cosinus besser als Luftlinie?") |
 
 ## Feingranulare Optimierung pro Schritt
 ### Schritt 0a: Lernkompass
 - Einstieg: 60-Sekunden-Orientierung "Wo schaue ich zuerst hin?"
 - Aktion: Markiere in einer Beispielzelle `Aufgabe`, `Parameter`, `Output`.
-- Rueckmeldung: Sofortige Aufloesung mit Positionshinweis im Notebook.
-- Transfer: Gleiche Suche in einer zweiten, leicht veraenderten Zelle.
+- Rückmeldung: Sofortige Auflösung mit Positionshinweis im Notebook.
+- Transfer: Gleiche Suche in einer zweiten, leicht veränderten Zelle.
 
 ### Schritt 5: KNN-Grundlagen
 - Einstieg: Alltagsfrage "Welchem Regal ordnen wir ein neues Produkt zu?"
-- Aktion: Lernende waehlen Klasse zuerst ohne Formel.
-- Rueckmeldung: Distanzlinien und Nachbarn werden eingeblendet.
-- Transfer: Gleiche Logik fuer Regression (Mittelwert statt Mehrheitsklasse).
+- Aktion: Lernende wählen Klasse zuerst ohne Formel.
+- Rückmeldung: Distanzlinien und Nachbarn werden eingeblendet.
+- Transfer: Gleiche Logik für Regression (Mittelwert statt Mehrheitsklasse).
 
 ### Schritt 6: KNN-Hyperparameter
 - Einstieg: Aussagekarte "Ein kleines `k` ist immer besser" (bewusst provokant).
-- Aktion: 3 feste `k`-Werte vergleichen, Fehler zaehlen.
-- Rueckmeldung: Modellgrenze und Fehlerrate simultan anzeigen.
-- Transfer: Eigenen `k`-Vorschlag fuer neuen Datensatz begruenden.
+- Aktion: 3 feste `k`-Werte vergleichen, Fehler zählen.
+- Rückmeldung: Modellgrenze und Fehlerrate simultan anzeigen.
+- Transfer: Eigenen `k`-Vorschlag für neuen Datensatz begründen.
 
 ### Schritt 7: Distanzmetriken und Skalierung
-- Einstieg: Routenvergleich (Luftlinie vs Strassennetz).
-- Aktion: Metrik je Szenario auswaehlen und kurz begruenden.
-- Rueckmeldung: Entscheidungsbaum zeigt passende/ungeeignete Metrik.
+- Einstieg: Routenvergleich (Luftlinie vs Straßennetz).
+- Aktion: Metrik je Szenario auswählen und kurz begründen.
+- Rückmeldung: Entscheidungsbaum zeigt passende/ungeeignete Metrik.
 - Transfer: Skalierungsaufgabe mit zwei Features in sehr unterschiedlichen Wertebereichen.
 
-## Abnahmekriterien fuer die neuen Schritte
+## Abnahmekriterien für die neuen Schritte
 - Niedrigschwelligkeit: Jede Seite ist ohne Formelwissen startbar.
-- Benutzerfuehrung: Jede Interaktion nennt exakt den naechsten Klick.
-- Verstaendlichkeit: Jeder Fachbegriff hat ein alltagsnahes Gegenbild.
-- Roter Faden: Jede neue Seite beantwortet explizit "Warum kommt als naechstes Thema Matrix?".
+- Benutzerführung: Jede Interaktion nennt exakt den nächsten Klick.
+- Verständlichkeit: Jeder Fachbegriff hat ein alltagsnahes Gegenbild.
+- Roter Faden: Jede neue Seite beantwortet explizit "Warum kommt als nächstes Thema Matrix?".
 - Transfer: Am Ende jeder Seite mindestens eine Mini-Entscheidungsaufgabe.
 
 ## Methodische Referenzen (Auswahl)
