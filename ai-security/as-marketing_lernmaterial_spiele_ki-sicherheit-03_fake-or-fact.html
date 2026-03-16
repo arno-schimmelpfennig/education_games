@@ -107,6 +107,67 @@
             letter-spacing: 1px;
         }
 
+        .game-intro {
+            margin: -10px auto 30px auto;
+            max-width: 620px;
+            color: #555;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+
+        /* --- CONTEXT BOX --- */
+        .context-box {
+            background: linear-gradient(180deg, #fff8f4 0%, #fff 100%);
+            border: 1px solid #f0d8cb;
+            border-left: 5px solid var(--brand-primary);
+            border-radius: var(--radius-md);
+            padding: 28px 28px 22px 28px;
+            text-align: left;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .context-label {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #fff8f4;
+            padding: 0 10px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--brand-primary);
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid #f0d8cb;
+            border-radius: 4px;
+        }
+
+        .context-copy {
+            color: #4a404b;
+            line-height: 1.65;
+        }
+
+        .context-copy p {
+            margin: 0 0 14px 0;
+        }
+
+        .context-copy p:last-child {
+            margin-bottom: 0;
+        }
+
+        .context-prompt {
+            background-color: rgba(99, 24, 50, 0.06);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .context-prompt strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--brand-primary);
+            font-size: 0.95rem;
+        }
+
         /* --- AI RESPONSE BOX --- */
         .ai-box {
             background-color: var(--bg-ai-response);
@@ -305,6 +366,25 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @media (max-width: 640px) {
+            .content-area {
+                padding: 28px 20px;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .context-box,
+            .ai-box {
+                padding: 24px 18px 20px 18px;
+            }
+
+            .btn-decision {
+                width: 100%;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -327,6 +407,14 @@
             <div id="game-screen">
                 <span class="scenario-counter" id="scenario-counter">Szenario 1/3</span>
                 <h2 id="scenario-title">Titel lädt...</h2>
+                <p class="game-intro">Lies zuerst den Fall und die Anfrage an die KI. Entscheide danach, ob die Antwort verlässlich ist oder ob die KI etwas erfindet.</p>
+
+                <div class="context-box">
+                    <span class="context-label">Fallbeschreibung</span>
+                    <div class="context-copy" id="context-text">
+                        <p>...</p>
+                    </div>
+                </div>
 
                 <div class="ai-box">
                     <span class="ai-label">🤖 KI Antwort</span>
@@ -372,18 +460,24 @@
         const scenarios = [
             {
                 title: "Laptop-Kauf",
+                context: "Eine Teilnehmerin sucht einen einfachen Laptop für E-Mails, Videoanrufe und Online-Banking. Sie möchte ein günstiges Gerät und vertraut der ersten Antwort der KI.",
+                prompt: "Nenne mir bitte drei konkrete Laptop-Modelle für Senioren unter 500 Euro, mit kurzer Begründung.",
                 text: "Ich empfehle dir 3 Laptops für Senioren unter 500€:\n1. SeniorBook Pro X – 299€, große Tastatur\n2. UltraLight Senior 15 – 349€, lange Akkulaufzeit\n3. MegaOffice 17 Zoll – 399€, großer Bildschirm",
                 correctType: "FAKE",
                 feedback: "Das Modell 'SeniorBook Pro X' existiert gar nicht. Die KI hat es erfunden (= Halluzination). Tipp: Immer bei Produktempfehlungen kurz googeln!"
             },
             {
                 title: "Rezept-Recherche",
+                context: "Ein Kochanfänger möchte ein klassisches Gericht ausprobieren. Er braucht kein Profi-Rezept, sondern eine verlässliche Standardversion zum Nachkochen.",
+                prompt: "Gib mir ein einfaches Grundrezept für Spaghetti Carbonara mit den wichtigsten Zutaten.",
                 text: "Ein einfaches Rezept für Spaghetti Carbonara:\n- 400g Spaghetti\n- 200g Guanciale (oder Bacon)\n- 4 Eigelb\n- 100g Pecorino Romano\n- Pfeffer, Salz",
                 correctType: "FACT",
                 feedback: "Dieses Rezept ist korrekt. KI ist gut bei bekannten, oft dokumentierten Informationen. Aber: Bei Allergien oder speziellen Ernährungsfragen immer einen Experten fragen!"
             },
             {
                 title: "Historisches Datum",
+                context: "Ein Schüler bereitet ein Kurzreferat zur deutschen Wiedervereinigung vor. Er braucht ein einzelnes Datum, das in Büchern und Lexika gut dokumentiert ist.",
+                prompt: "Wann fiel die Berliner Mauer? Antworte mit Datum und kurzer Einordnung.",
                 text: "Die Berliner Mauer fiel am 9. November 1989. Dieser Tag markierte das Ende der deutschen Teilung.",
                 correctType: "FACT",
                 feedback: "Historische Fakten sind meist korrekt, weil sie oft dokumentiert sind. Dennoch: Bei weniger bekannten Ereignissen oder Details kann die KI halluzinieren. Immer kritisch bleiben!"
@@ -399,6 +493,7 @@
         const resultScreen = document.getElementById('result-screen');
         const scenarioCounter = document.getElementById('scenario-counter');
         const scenarioTitle = document.getElementById('scenario-title');
+        const contextText = document.getElementById('context-text');
         const aiText = document.getElementById('ai-text');
         const feedbackArea = document.getElementById('feedback-area');
         const nextBtn = document.getElementById('next-btn');
@@ -434,6 +529,10 @@
             const s = scenarios[currentIndex];
             scenarioCounter.innerText = `Szenario ${currentIndex + 1} / ${scenarios.length}`;
             scenarioTitle.innerText = s.title;
+            contextText.innerHTML = `
+                <p>${s.context}</p>
+                <p class="context-prompt"><strong>Anfrage an die KI</strong>${s.prompt}</p>
+            `;
             aiText.innerText = s.text;
         }
 
