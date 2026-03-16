@@ -464,7 +464,7 @@
                 prompt: "Nenne mir bitte drei konkrete Laptop-Modelle für Senioren unter 500 Euro, mit kurzer Begründung.",
                 text: "Ich empfehle dir 3 Laptops für Senioren unter 500€:\n1. SeniorBook Pro X – 299€, große Tastatur\n2. UltraLight Senior 15 – 349€, lange Akkulaufzeit\n3. MegaOffice 17 Zoll – 399€, großer Bildschirm",
                 correctType: "FAKE",
-                feedback: "Das Modell 'SeniorBook Pro X' existiert gar nicht. Die KI hat es erfunden (= Halluzination). Tipp: Immer bei Produktempfehlungen kurz googeln!"
+                feedback: "Bei einer Stichproben-Recherche auf großen Händlerseiten ließen sich für keinen der drei exakten Modellnamen belastbare Treffer finden. Existenz, Preis und Merkmale sind damit nicht verifizierbar. Die Antwort ist FAKE: Sie klingt konkret, ist aber sehr wahrscheinlich halluziniert."
             },
             {
                 title: "Rezept-Recherche",
@@ -472,7 +472,7 @@
                 prompt: "Gib mir ein einfaches Grundrezept für Spaghetti Carbonara mit den wichtigsten Zutaten.",
                 text: "Ein einfaches Rezept für Spaghetti Carbonara:\n- 400g Spaghetti\n- 200g Guanciale (oder Bacon)\n- 4 Eigelb\n- 100g Pecorino Romano\n- Pfeffer, Salz",
                 correctType: "FACT",
-                feedback: "Dieses Rezept ist korrekt. KI ist gut bei bekannten, oft dokumentierten Informationen. Aber: Bei Allergien oder speziellen Ernährungsfragen immer einen Experten fragen!"
+                feedback: "Als Grundrezept ist die Antwort plausibel. Seriöse Carbonara-Rezepte nennen ebenfalls Pasta, Guanciale, Eigelb, Pecorino und Pfeffer; nur die Mengen variieren je nach Quelle. Für ein einfaches Basisrezept ist die Antwort daher FACT, auch wenn Bacon nur eine vereinfachende Alltags-Alternative ist."
             },
             {
                 title: "Historisches Datum",
@@ -480,7 +480,7 @@
                 prompt: "Wann fiel die Berliner Mauer? Antworte mit Datum und kurzer Einordnung.",
                 text: "Die Berliner Mauer fiel am 9. November 1989. Dieser Tag markierte das Ende der deutschen Teilung.",
                 correctType: "FACT",
-                feedback: "Historische Fakten sind meist korrekt, weil sie oft dokumentiert sind. Dennoch: Bei weniger bekannten Ereignissen oder Details kann die KI halluzinieren. Immer kritisch bleiben!"
+                feedback: "Das ist FACT. Britannica datiert die Öffnung der Grenze und den Fall der Mauer auf den 9. November 1989. Solche gut dokumentierten Grunddaten sind meist verlässlich, sollten bei wichtigen Arbeiten aber dennoch gegengeprüft werden."
             },
             {
                 title: "Datenspur in ChatGPT",
@@ -488,7 +488,7 @@
                 prompt: "Stimmt diese Aussage über ChatGPT? Antworte kurz und eindeutig.",
                 text: "„ChatGPT merkt sich alles, was ich je eingegeben habe – für immer.“",
                 correctType: "FAKE",
-                feedback: "Das ist zu pauschal und so nicht richtig. ChatGPT merkt sich nicht automatisch 'alles für immer' im Sinn eines perfekten Dauer-Gedächtnisses. Je nach Einstellungen, Konto und Anbieter können Inhalte gespeichert oder für Funktionen wie Verlauf und Erinnerung genutzt werden. Trotzdem gilt: Keine sensiblen Daten eingeben und die Datenschutz-Einstellungen prüfen."
+                feedback: "Die Aussage ist FAKE. Laut OpenAI kann ChatGPT zwar Erinnerungen und Chatverlauf nutzen, merkt sich aber nicht automatisch jede Einzelheit aus allen Chats. Erinnerungen lassen sich zudem löschen oder ganz ausschalten."
             },
             {
                 title: "Vertrauen in KI-Texte",
@@ -496,7 +496,7 @@
                 prompt: "Bewerte diese Aussage über KI-Texte.",
                 text: "„KI-Texte sind immer richtig – die KI lügt nicht.“",
                 correctType: "FAKE",
-                feedback: "Falsch. KI kann überzeugend formulieren und trotzdem Fehler erfinden oder Fakten verwechseln. Gerade bei Zahlen, Namen, Quellen und aktuellen Informationen muss man die Antwort prüfen."
+                feedback: "Die Aussage ist FAKE. OpenAI weist selbst darauf hin, dass ChatGPT Fehler machen kann und wichtige Informationen geprüft werden sollten. KI formuliert oft sicher, kann aber trotzdem halluzinieren."
             },
             {
                 title: "KI ohne Programmieren",
@@ -504,7 +504,7 @@
                 prompt: "Ist diese Aussage für den Alltag mit KI richtig?",
                 text: "„Ich brauche Programmierkenntnisse, um KI sinnvoll zu nutzen.“",
                 correctType: "FAKE",
-                feedback: "Nein. Für viele sinnvolle Anwendungen reichen klare Fragen, gutes Prüfen und Fachwissen aus dem eigenen Alltag. Programmierkenntnisse helfen bei Spezialaufgaben, sind für den Einstieg aber nicht nötig."
+                feedback: "Die Aussage ist FAKE. Für viele sinnvolle Anwendungen reicht natürliche Sprache. OpenAI beschreibt Funktionen, die sich ohne Code per Beschreibung nutzen oder sogar erstellen lassen; Programmieren hilft vor allem bei fortgeschrittenen Spezialfällen."
             },
             {
                 title: "Lernmythos Alter",
@@ -512,7 +512,7 @@
                 prompt: "Ordne diese Aussage ein.",
                 text: "„Ältere Menschen lernen KI-Tools langsamer als jüngere.“",
                 correctType: "FAKE",
-                feedback: "Das ist ein Vorurteil, kein Fakt. Lernerfolg hängt eher von Übung, Begleitung, Motivation und Vorerfahrung ab als vom Alter allein. Mit gutem Kontext und ruhigem Tempo können Menschen jeden Alters KI sicher lernen."
+                feedback: "Die Aussage ist als Pauschalurteil FAKE. AARP-Daten zeigen, dass viele Erwachsene 50+ generative KI kennen und nutzen. Genannte Hürden sind eher Bedienbarkeit, Unterstützung, Kosten und Datenschutz als 'Alter allein'."
             }
         ];
 
