@@ -405,7 +405,7 @@
 
             <!-- GAME SCREEN -->
             <div id="game-screen">
-                <span class="scenario-counter" id="scenario-counter">Szenario 1/3</span>
+                <span class="scenario-counter" id="scenario-counter">Szenario 1/7</span>
                 <h2 id="scenario-title">Titel lädt...</h2>
                 <p class="game-intro">Lies zuerst den Fall und die Anfrage an die KI. Entscheide danach, ob die Antwort verlässlich ist oder ob die KI etwas erfindet.</p>
 
@@ -434,7 +434,7 @@
             <!-- RESULT SCREEN -->
             <div id="result-screen">
                 <h2>Auswertung</h2>
-                <div class="score-display" id="final-score">0/3</div>
+                <div class="score-display" id="final-score">0/7</div>
                 <p id="result-message" style="font-size: 1.2rem; color: #555;"></p>
 
                 <div class="key-takeaways">
@@ -481,6 +481,38 @@
                 text: "Die Berliner Mauer fiel am 9. November 1989. Dieser Tag markierte das Ende der deutschen Teilung.",
                 correctType: "FACT",
                 feedback: "Historische Fakten sind meist korrekt, weil sie oft dokumentiert sind. Dennoch: Bei weniger bekannten Ereignissen oder Details kann die KI halluzinieren. Immer kritisch bleiben!"
+            },
+            {
+                title: "Datenspur in ChatGPT",
+                context: "In einem Einführungskurs sorgt sich eine Teilnehmerin um ihre Privatsphäre. Sie möchte wissen, ob jede Eingabe dauerhaft persönlich gespeichert bleibt.",
+                prompt: "Stimmt diese Aussage über ChatGPT? Antworte kurz und eindeutig.",
+                text: "„ChatGPT merkt sich alles, was ich je eingegeben habe – für immer.“",
+                correctType: "FAKE",
+                feedback: "Das ist zu pauschal und so nicht richtig. ChatGPT merkt sich nicht automatisch 'alles für immer' im Sinn eines perfekten Dauer-Gedächtnisses. Je nach Einstellungen, Konto und Anbieter können Inhalte gespeichert oder für Funktionen wie Verlauf und Erinnerung genutzt werden. Trotzdem gilt: Keine sensiblen Daten eingeben und die Datenschutz-Einstellungen prüfen."
+            },
+            {
+                title: "Vertrauen in KI-Texte",
+                context: "Ein Teilnehmer möchte einen KI-Text ungeprüft in ein Handout übernehmen, weil der Text sehr sicher und flüssig klingt.",
+                prompt: "Bewerte diese Aussage über KI-Texte.",
+                text: "„KI-Texte sind immer richtig – die KI lügt nicht.“",
+                correctType: "FAKE",
+                feedback: "Falsch. KI kann überzeugend formulieren und trotzdem Fehler erfinden oder Fakten verwechseln. Gerade bei Zahlen, Namen, Quellen und aktuellen Informationen muss man die Antwort prüfen."
+            },
+            {
+                title: "KI ohne Programmieren",
+                context: "Eine Einsteigerin glaubt, KI sei nur etwas für Technikprofis. Deshalb traut sie sich noch nicht an ChatGPT oder andere Tools heran.",
+                prompt: "Ist diese Aussage für den Alltag mit KI richtig?",
+                text: "„Ich brauche Programmierkenntnisse, um KI sinnvoll zu nutzen.“",
+                correctType: "FAKE",
+                feedback: "Nein. Für viele sinnvolle Anwendungen reichen klare Fragen, gutes Prüfen und Fachwissen aus dem eigenen Alltag. Programmierkenntnisse helfen bei Spezialaufgaben, sind für den Einstieg aber nicht nötig."
+            },
+            {
+                title: "Lernmythos Alter",
+                context: "In einer Gruppe sagt jemand, KI sei vor allem etwas für junge Menschen. Eine ältere Teilnehmerin wird dadurch unsicher.",
+                prompt: "Ordne diese Aussage ein.",
+                text: "„Ältere Menschen lernen KI-Tools langsamer als jüngere.“",
+                correctType: "FAKE",
+                feedback: "Das ist ein Vorurteil, kein Fakt. Lernerfolg hängt eher von Übung, Begleitung, Motivation und Vorerfahrung ab als vom Alter allein. Mit gutem Kontext und ruhigem Tempo können Menschen jeden Alters KI sicher lernen."
             }
         ];
 
@@ -539,6 +571,8 @@
         function makeDecision(userChoice) {
             const s = scenarios[currentIndex];
             const isCorrect = userChoice === s.correctType;
+            const correctLabel = s.correctType === 'FACT' ? '✅ FACT' : '❌ FAKE';
+            const feedbackText = `<strong>Richtige Antwort: ${correctLabel}</strong><br>${s.feedback}`;
 
             // Buttons visual update & disable
             buttons.forEach(btn => {
@@ -559,9 +593,9 @@
 
             if (isCorrect) {
                 score++;
-                showFeedback(true, "Richtig erkannt! " + s.feedback);
+                showFeedback(true, "Richtig erkannt! " + feedbackText);
             } else {
-                showFeedback(false, "Nicht ganz! " + s.feedback);
+                showFeedback(false, "Nicht ganz! " + feedbackText);
             }
 
             // Next Button Logic
@@ -591,12 +625,14 @@
         function showResults() {
             gameScreen.style.display = 'none';
             resultScreen.style.display = 'block';
+            const totalScenarios = scenarios.length;
+            const ratio = score / totalScenarios;
             
-            finalScore.innerText = `${score} / 3`;
+            finalScore.innerText = `${score} / ${totalScenarios}`;
             
             let msg = "";
-            if (score === 3) msg = "Perfekt! Du bist ein echter Halluzinations-Detektiv!";
-            else if (score === 2) msg = "Sehr gut! Du hast ein gutes Gespür für die Gefahr.";
+            if (score === totalScenarios) msg = "Perfekt! Du bist ein echter Halluzinations-Detektiv!";
+            else if (ratio >= 0.7) msg = "Sehr gut! Du hast ein gutes Gespür für typische KI-Irrtümer.";
             else msg = "Gut gemacht. Denk dran: KI ist ein Werkzeug, kein Lexikon.";
             
             resultMessage.innerText = msg;
