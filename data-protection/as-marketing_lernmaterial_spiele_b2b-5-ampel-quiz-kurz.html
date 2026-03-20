@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Ampel-Quiz Kompakt | B2B</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --brand-main: #631832;
+            --brand-accent: #173262;
+            --text-main: #231A24;
+            --text-light: #606F8C;
+            --bg-body: #f0f2f5;
+            --sidebar-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            height: 100%;
+        }
+
+        #sidebar {
+            background: var(--sidebar-bg);
+            border-right: 1px solid #ddd;
+            padding: 28px;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+        }
+
+        .brand-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 18px;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: var(--brand-main);
+            font-size: 1.35rem;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #444;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--brand-accent);
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: var(--brand-accent);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(23, 50, 98, 0.15);
+        }
+
+        button:hover {
+            background: #1f4282;
+            transform: translateY(-1px);
+        }
+
+        #restart-btn {
+            background: #555;
+            margin-top: 10px;
+            display: none;
+        }
+
+        #stage {
+            background: #eef2f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 36px;
+            position: relative;
+        }
+
+        #game-title {
+            font-size: 2.35rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #game-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            padding: 14px 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--brand-accent);
+        }
+
+        #question-card {
+            background: #fff;
+            padding: 36px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 760px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            background: #f8f9fa;
+            color: var(--text-main);
+            border: 2px solid #ddd;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+
+        .answer-btn:hover {
+            background: #e9ecef;
+            border-color: var(--brand-accent);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        #feedback {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.98rem;
+            font-weight: 600;
+            display: none;
+            line-height: 1.6;
+        }
+
+        #feedback.show { display: block; }
+        #feedback.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        #feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        #final-screen {
+            display: none;
+            text-align: center;
+        }
+
+        #final-screen.show { display: block; }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin: 20px 0;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        @media (max-width: 980px) {
+            body { height: auto; overflow: auto; }
+            #app-layout { grid-template-columns: 1fr; }
+            #score-display {
+                position: static;
+                margin-bottom: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <div id="sidebar">
+            <div class="brand-header">B2B · AI Act · Risikoklassen</div>
+            <h2>🎯 5-Ampel-Quiz Kompakt</h2>
+            <p>Fuenf typische Unternehmensfaelle, fuenf Risikoklassen. Die kurze Version ist fuer Mitarbeitende in fast jedem B2B-Kontext einsetzbar.</p>
+
+            <div class="highlight-box">
+                <strong>Spielidee:</strong><br>
+                • Nur 5 Fragen<br>
+                • Jede Ampelklasse kommt einmal vor<br>
+                • Keine VHS-Beispiele, sondern allgemeine Firmensituationen
+            </div>
+
+            <div class="highlight-box">
+                <strong>Die 5 Klassen:</strong><br>
+                🔴 Verboten<br>
+                🟠 Hochrisiko<br>
+                🟡 Begrenzt<br>
+                🟢 Gering<br>
+                ⚪ Minimal
+            </div>
+
+            <button id="restart-btn" type="button">Spiel neu starten</button>
+        </div>
+
+        <div id="stage">
+            <div id="score-display">Frage: <span id="current-q">1</span>/5 | Punkte: <span id="score">0</span></div>
+            <div id="game-title">5-Ampel-Quiz Kompakt</div>
+            <div id="game-subtitle">B2B-Szenarien im 5-Ampel-System einordnen</div>
+
+            <div id="question-card">
+                <div id="question-text"></div>
+                <div class="answer-grid" id="answers"></div>
+                <div id="feedback"></div>
+            </div>
+
+            <div id="final-screen">
+                <div class="final-score" id="final-score"></div>
+                <p id="final-message"></p>
+            </div>
+
+            <div class="footer">Kompaktversion fuer B2B-Schulungen</div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "Ein Website-Chatbot beantwortet einfache Kundenanfragen und weist darauf hin, dass er KI nutzt.",
+                correct: "🟡 Begrenzt",
+                explanation: "Interaktive KI mit Transparenzhinweis faellt typischerweise unter begrenztes Risiko."
+            },
+            {
+                q: "Ein KI-System sortiert Bewerbungen fuer eine offene Stelle vor und erstellt ein Ranking der Kandidaten.",
+                correct: "🟠 Hochrisiko",
+                explanation: "KI in Beschaeftigung und Personalauswahl ist ein klassischer Hochrisiko-Bereich."
+            },
+            {
+                q: "Ein Spam-Filter sortiert automatisch unerwuenschte E-Mails aus.",
+                correct: "⚪ Minimal",
+                explanation: "Das ist ein etabliertes Beispiel fuer minimales Risiko."
+            },
+            {
+                q: "Eine KI empfiehlt Wartungsfenster fuer Maschinen auf Basis von Sensordaten, Menschen treffen die Entscheidung.",
+                correct: "🟢 Gering",
+                explanation: "Unterstuetzende Optimierung ohne direkte Grundrechtseingriffe liegt eher im geringen Risiko."
+            },
+            {
+                q: "Eine Firma analysiert per Kamera die Emotionen von Mitarbeitenden in Videokonferenzen, um Motivation zu bewerten.",
+                correct: "🔴 Verboten",
+                explanation: "Emotionserkennung am Arbeitsplatz gehoert zu den verbotenen Praktiken."
+            }
+        ];
+
+        const answers = ["🔴 Verboten", "🟠 Hochrisiko", "🟡 Begrenzt", "🟢 Gering", "⚪ Minimal"];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const item = questions[currentQuestion];
+            document.getElementById('question-text').innerText = item.q;
+            document.getElementById('current-q').innerText = currentQuestion + 1;
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+
+            answers.forEach((answer) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.type = 'button';
+                btn.innerText = answer;
+                btn.onclick = () => checkAnswer(answer, btn);
+                answersContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, button) {
+            if (answered) return;
+            answered = true;
+
+            const item = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const allButtons = document.querySelectorAll('.answer-btn');
+
+            allButtons.forEach((btn) => {
+                btn.style.pointerEvents = 'none';
+            });
+
+            if (selected === item.correct) {
+                score += 1;
+                document.getElementById('score').innerText = score;
+                button.classList.add('correct');
+                feedback.className = 'show correct';
+                feedback.innerText = 'Richtig. ' + item.explanation;
+            } else {
+                button.classList.add('incorrect');
+                feedback.className = 'show incorrect';
+                feedback.innerText = 'Nicht ganz. Richtig ist: ' + item.correct + '. ' + item.explanation;
+                allButtons.forEach((btn) => {
+                    if (btn.innerText === item.correct) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentQuestion += 1;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showFinalScreen();
+                }
+            }, 3400);
+        }
+
+        function showFinalScreen() {
+            document.getElementById('question-card').style.display = 'none';
+            document.getElementById('final-screen').classList.add('show');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').innerText = score + ' / ' + questions.length + ' (' + percentage + '%)';
+
+            let message = 'Die Kurzversion reicht oft, um das Grundmuster der fuenf Klassen im Unternehmen zu verankern.';
+            if (score === questions.length) {
+                message = 'Sehr stark. Alle fuenf Klassen wurden im B2B-Kontext sicher erkannt.';
+            } else if (score <= 2) {
+                message = 'Fuer den Einstieg reicht ein einfacher Merksatz: Transparenz, Personal, Emotionen, Alltagsautomatisierung und Standardtools klar trennen.';
+            }
+
+            document.getElementById('final-message').innerText = message;
+            document.getElementById('restart-btn').style.display = 'block';
+        }
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score').innerText = '0';
+            document.getElementById('question-card').style.display = 'block';
+            document.getElementById('final-screen').classList.remove('show');
+            document.getElementById('restart-btn').style.display = 'none';
+            loadQuestion();
+        });
+
+        loadQuestion();
+    </script>
+</body>
+</html>
