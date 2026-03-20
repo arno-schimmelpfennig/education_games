@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance-Check | AI Act Risikoklassen</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --brand-main: #631832;
+            --brand-accent: #173262;
+            --text-main: #231A24;
+            --text-light: #606F8C;
+            --bg-body: #f0f2f5;
+            --sidebar-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            height: 100vh; overflow: hidden;
+        }
+
+        #app-layout {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            height: 100%;
+        }
+
+        /* SIDEBAR */
+        #sidebar {
+            background: var(--sidebar-bg);
+            border-right: 1px solid #ddd;
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+        }
+
+        .brand-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: var(--brand-main);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #444;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--brand-accent);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: var(--brand-accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: 100%;
+            margin-bottom: 8px;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(23, 50, 98, 0.15);
+        }
+
+        button:hover {
+            background: #1f4282;
+            transform: translateY(-1px);
+        }
+
+        button.restart-btn {
+            background: #555;
+            margin-top: 10px;
+        }
+
+        /* STAGE */
+        #stage {
+            background: #eef2f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        #game-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #game-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--brand-accent);
+        }
+
+        #scenario-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .scenario-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--brand-accent);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        #scenario-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--brand-main);
+            border-radius: 8px;
+        }
+
+        .prompt-box {
+            background: #fff3cd;
+            border: 2px dashed #856404;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #856404;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .answer-btn {
+            background: #f8f9fa;
+            color: var(--text-main);
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+
+        .answer-btn:hover {
+            background: #e9ecef;
+            border-color: var(--brand-accent);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            line-height: 1.6;
+            display: none;
+        }
+
+        #feedback.show {
+            display: block;
+        }
+
+        #feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        #feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        #final-screen {
+            display: none;
+            text-align: center;
+        }
+
+        #final-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin: 20px 0;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <!-- SIDEBAR -->
+        <div id="sidebar">
+            <div class="brand-header">AI Act Zertifizierungskurs</div>
+            <h2>🛡️ Compliance-Check</h2>
+            <p>Identifizieren Sie AI-Act-Verstöße und Transparenzpflichten in KI-Anwendungen!</p>
+
+            <div class="highlight-box">
+                <strong>Spielregeln:</strong><br>
+                • Sie sehen 8 verschiedene Szenarien<br>
+                • Jedes Szenario zeigt einen Prompt oder eine KI-Nutzung<br>
+                • Entscheiden Sie: AI-Act-konform oder Verstoß?<br>
+                • Sofortiges Feedback mit Erklärung
+            </div>
+
+            <div class="highlight-box">
+                <strong>Worauf achten:</strong><br>
+                ⚠️ Verbotene Praktiken<br>
+                ⚠️ Hochrisiko in Bildung/Personal<br>
+                ⚠️ Biometrische Identifizierung<br>
+                ⚠️ Transparenz/Kennzeichnung
+            </div>
+
+            <button id="restart-btn" class="restart-btn" style="display:none;">Spiel neu starten</button>
+        </div>
+
+        <!-- STAGE -->
+        <div id="stage">
+            <div id="score-display">Szenario: <span id="current-q">1</span>/8 | Punkte: <span id="score">0</span></div>
+
+            <div id="game-title">Compliance-Check</div>
+            <div id="game-subtitle">Finden Sie die AI-Act-Verstöße!</div>
+
+            <div id="scenario-card">
+                <div class="scenario-label">Szenario</div>
+                <div id="scenario-text"></div>
+                <div class="prompt-box" id="prompt-box"></div>
+                <div class="question-text">Ist diese Nutzung AI-Act-konform?</div>
+                <div class="answer-grid">
+                    <button class="answer-btn" onclick="checkAnswer(true)">✓ Ja, compliant</button>
+                    <button class="answer-btn" onclick="checkAnswer(false)">✗ Nein, Verstoß!</button>
+                </div>
+                <div id="feedback"></div>
+            </div>
+
+            <div id="final-screen">
+                <div class="final-score" id="final-score"></div>
+                <p id="final-message"></p>
+            </div>
+
+            <div class="footer">© VHS Göttingen Osterode | Arno Schimmelpfennig | 2026</div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                scenario: "Die Öffentlichkeitsarbeit erstellt Kursbeschreibungen",
+                prompt: '"Formuliere eine kurze Kursbeschreibung für den Spanisch-A2-Kurs der VHS. Ton: einladend."',
+                compliant: true,
+                explanation: "✓ Konform. Generative Textunterstützung für allgemeine Inhalte ist in der Regel minimales Risiko."
+            },
+            {
+                scenario: "Die Personalstelle möchte Bewerbungen automatisch vorsortieren",
+                prompt: '"Bewerte diese Bewerbungen und erstelle eine Rangliste der besten Kandidat*innen für eine VHS-Stelle."',
+                compliant: false,
+                explanation: "✗ VERSTOSS! Bewerberauswahl ist Hochrisiko. Ohne dokumentierte Pflichten (Risikomanagement, Datenqualität, Transparenz, menschliche Aufsicht) nicht zulässig."
+            },
+            {
+                scenario: "Eine Kursleitung will Aufmerksamkeit messen",
+                prompt: '"Analysiere Kameraaufnahmen aus dem Unterricht und erkenne die Emotionen der Teilnehmenden, um die Aufmerksamkeit zu bewerten."',
+                compliant: false,
+                explanation: "✗ VERSTOSS! Emotionserkennung in Bildungseinrichtungen ist grundsätzlich untersagt (nur enge Ausnahmen)."
+            },
+            {
+                scenario: "Die Hausverwaltung möchte Anwesenheit per Gesichtserkennung erfassen",
+                prompt: '"Nutze Gesichtserkennung am Eingang, um Anwesenheit in Integrationskursen automatisch zu erfassen."',
+                compliant: false,
+                explanation: "✗ VERSTOSS! Biometrische Identifizierung ist Hochrisiko und erfordert strenge Bedingungen; hier fehlen Grundlage und Transparenz."
+            },
+            {
+                scenario: "Das Service-Team möchte Infoflyer übersetzen",
+                prompt: '"Übersetze diesen allgemeinen VHS-Flyer ins Englische und vereinfache die Sprache."',
+                compliant: true,
+                explanation: "✓ Konform. Übersetzung allgemeiner Inhalte ist minimales Risiko."
+            },
+            {
+                scenario: "Das Marketing möchte ein Werbevideo mit KI-Avatar",
+                prompt: '"Erzeuge ein Video, in dem unsere Dozentin als KI-Avatar für den Kurs wirbt, ohne Hinweis auf die KI-Erzeugung."',
+                compliant: false,
+                explanation: "✗ VERSTOSS! KI-generierte Medien müssen klar als synthetisch gekennzeichnet werden (Transparenzpflicht)."
+            },
+            {
+                scenario: "Das Qualitätsmanagement analysiert Kursfeedbacks",
+                prompt: '"Fasse anonymisierte Kursfeedbacks zusammen und nenne häufige Verbesserungsvorschläge."',
+                compliant: true,
+                explanation: "✓ Konform. Anonymisierte Auswertung ohne Personenbezug ist unkritisch."
+            },
+            {
+                scenario: "Die Kurskoordination will Prüfungen automatisch benoten",
+                prompt: '"Bewerte die Prüfungsleistungen der Teilnehmenden automatisch und vergebe Endnoten ohne menschliche Kontrolle."',
+                compliant: false,
+                explanation: "✗ VERSTOSS! Bewertung in Bildung ist Hochrisiko; es braucht u.a. menschliche Aufsicht und dokumentierte Pflichten."
+            }
+        ];
+
+        let currentScenario = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadScenario() {
+            answered = false;
+            const s = scenarios[currentScenario];
+            document.getElementById('scenario-text').innerText = s.scenario;
+            document.getElementById('prompt-box').innerText = s.prompt;
+            document.getElementById('current-q').innerText = currentScenario + 1;
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+
+            const btns = document.querySelectorAll('.answer-btn');
+            btns.forEach(btn => {
+                btn.classList.remove('correct', 'incorrect');
+                btn.style.pointerEvents = 'auto';
+            });
+        }
+
+        function checkAnswer(userAnswer) {
+            if (answered) return;
+            answered = true;
+
+            const s = scenarios[currentScenario];
+            const feedback = document.getElementById('feedback');
+            const btns = document.querySelectorAll('.answer-btn');
+
+            btns.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (userAnswer === s.compliant) {
+                feedback.className = 'show correct';
+                feedback.innerHTML = '<strong>Richtig!</strong><br>' + s.explanation;
+                score++;
+                document.getElementById('score').innerText = score;
+                
+                btns.forEach(btn => {
+                    if ((btn.innerText.includes('Ja') && userAnswer) || (btn.innerText.includes('Nein') && !userAnswer)) {
+                        btn.classList.add('correct');
+                    }
+                });
+            } else {
+                feedback.className = 'show incorrect';
+                feedback.innerHTML = '<strong>Falsch!</strong><br>' + s.explanation;
+                
+                btns.forEach(btn => {
+                    if ((btn.innerText.includes('Ja') && userAnswer) || (btn.innerText.includes('Nein') && !userAnswer)) {
+                        btn.classList.add('incorrect');
+                    } else {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentScenario++;
+                if (currentScenario < scenarios.length) {
+                    loadScenario();
+                } else {
+                    showFinalScreen();
+                }
+            }, 5000);
+        }
+
+        function showFinalScreen() {
+            document.getElementById('scenario-card').style.display = 'none';
+            const finalScreen = document.getElementById('final-screen');
+            finalScreen.classList.add('show');
+
+            const percentage = Math.round((score / scenarios.length) * 100);
+            document.getElementById('final-score').innerText = score + ' / ' + scenarios.length + ' (' + percentage + '%)';
+
+            let message = '';
+            if (score >= 7) {
+                message = '🏆 Hervorragend! Sie haben ein ausgezeichnetes Compliance-Bewusstsein!';
+            } else if (score >= 5) {
+                message = '✅ Gut! Sie erkennen die meisten Risiken.';
+            } else {
+                message = '💪 Weiter üben! Achten Sie besonders auf personenbezogene Daten und Geschäftsgeheimnisse.';
+            }
+
+            document.getElementById('final-message').innerText = message;
+            document.getElementById('restart-btn').style.display = 'block';
+        }
+
+        document.getElementById('restart-btn').onclick = () => {
+            currentScenario = 0;
+            score = 0;
+            document.getElementById('score').innerText = 0;
+            document.getElementById('scenario-card').style.display = 'block';
+            document.getElementById('final-screen').classList.remove('show');
+            document.getElementById('restart-btn').style.display = 'none';
+            loadScenario();
+        };
+
+        // Init
+        loadScenario();
+    </script>
+</body>
+</html>
