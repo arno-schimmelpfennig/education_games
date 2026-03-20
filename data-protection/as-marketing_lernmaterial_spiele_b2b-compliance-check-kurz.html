@@ -21,14 +21,14 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow: auto;
         }
 
         #app-layout {
             display: grid;
-            grid-template-columns: 400px 1fr;
-            height: 100%;
+            grid-template-columns: minmax(320px, 420px) 1fr;
+            min-height: 100vh;
         }
 
         #sidebar {
@@ -40,7 +40,7 @@
         }
 
         .brand-header {
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-light);
@@ -50,7 +50,7 @@
 
         h2 {
             color: var(--brand-main);
-            font-size: 1.35rem;
+            font-size: 1.7rem;
             margin-bottom: 14px;
             font-weight: 700;
         }
@@ -58,7 +58,7 @@
         p {
             line-height: 1.6;
             color: #444;
-            font-size: 0.95rem;
+            font-size: 1.08rem;
             margin-bottom: 15px;
         }
 
@@ -68,18 +68,18 @@
             padding: 14px;
             border-radius: 6px;
             margin-bottom: 18px;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         button {
             background: var(--brand-accent);
             color: #fff;
             border: none;
-            padding: 14px;
+            padding: 16px 18px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 1.08rem;
             width: 100%;
             transition: transform 0.1s;
             box-shadow: 0 4px 6px rgba(23, 50, 98, 0.15);
@@ -102,12 +102,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 36px;
+            padding: 40px;
             position: relative;
         }
 
         #game-title {
-            font-size: 2.35rem;
+            font-size: clamp(2.3rem, 3vw, 3.4rem);
             font-weight: 800;
             color: var(--brand-main);
             margin-bottom: 10px;
@@ -115,10 +115,11 @@
         }
 
         #game-subtitle {
-            font-size: 1.05rem;
+            font-size: 1.3rem;
             color: var(--text-light);
             margin-bottom: 30px;
             text-align: center;
+            max-width: 760px;
         }
 
         #score-display {
@@ -129,14 +130,14 @@
             padding: 14px 22px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--brand-accent);
         }
 
         #scenario-card {
             background: #fff;
-            padding: 36px;
+            padding: 42px;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             max-width: 860px;
@@ -144,7 +145,7 @@
         }
 
         .scenario-label {
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--brand-accent);
             text-transform: uppercase;
@@ -152,12 +153,12 @@
         }
 
         #scenario-text {
-            font-size: 1.2rem;
+            font-size: 1.55rem;
             font-weight: 600;
             color: var(--text-main);
             margin-bottom: 18px;
             line-height: 1.5;
-            padding: 18px;
+            padding: 22px;
             background: #f8f9fa;
             border-left: 4px solid var(--brand-main);
             border-radius: 8px;
@@ -166,17 +167,17 @@
         .prompt-box {
             background: #fff3cd;
             border: 2px dashed #856404;
-            padding: 18px;
+            padding: 20px 22px;
             border-radius: 8px;
             margin-bottom: 24px;
             font-family: 'Courier New', monospace;
-            font-size: 0.98rem;
+            font-size: 1.08rem;
             color: #856404;
-            line-height: 1.5;
+            line-height: 1.65;
         }
 
         .question-text {
-            font-size: 1.2rem;
+            font-size: 1.35rem;
             font-weight: 600;
             color: var(--text-main);
             margin-bottom: 18px;
@@ -194,9 +195,9 @@
             background: #f8f9fa;
             color: var(--text-main);
             border: 2px solid #ddd;
-            padding: 18px;
+            padding: 22px 18px;
             border-radius: 12px;
-            font-size: 1.02rem;
+            font-size: 1.15rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -223,10 +224,10 @@
 
         #feedback {
             margin-top: 16px;
-            padding: 18px;
+            padding: 20px 22px;
             border-radius: 8px;
-            font-size: 0.98rem;
-            line-height: 1.6;
+            font-size: 1.08rem;
+            line-height: 1.7;
             display: none;
         }
 
@@ -260,18 +261,37 @@
         .footer {
             position: absolute;
             bottom: 20px;
-            font-size: 0.8rem;
+            font-size: 0.95rem;
             color: #999;
         }
 
         @media (max-width: 980px) {
-            body { height: auto; overflow: auto; }
             #app-layout { grid-template-columns: 1fr; }
             #score-display {
                 position: static;
                 margin-bottom: 18px;
             }
             .answer-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            #sidebar,
+            #stage,
+            #scenario-card {
+                padding: 22px;
+            }
+
+            #scenario-text {
+                font-size: 1.28rem;
+            }
+
+            .prompt-box,
+            #feedback,
+            .answer-btn,
+            button,
+            p {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -335,11 +355,11 @@
                 scenario: "Eine Mitarbeiterin kopiert Kundendaten in ein frei verfügbares KI-Tool.",
                 prompt: '"Hier sind Namen, E-Mail-Adressen und Vertragsdetails unserer Kunden. Bitte schreibe daraus ein Upselling-Angebot."',
                 compliant: false,
-                explanation: "Nicht compliant. Personenbezogene Daten und vertrauliche Vertragsdaten gehören nicht ohne Freigabe, Rechtsgrundlage und Tool-Pruefung in ein offenes KI-System."
+                explanation: "Nicht compliant. Personenbezogene Daten und vertrauliche Vertragsdaten gehören nicht ohne Freigabe, Rechtsgrundlage und Tool-Prüfung in ein offenes KI-System."
             },
             {
                 scenario: "HR will Bewerbungen automatisiert vorsortieren lassen.",
-                prompt: '"Bewerte alle Bewerbungen fuer die offene Stelle und sortiere die Kandidaten nach Eignung."',
+                prompt: '"Bewerte alle Bewerbungen für die offene Stelle und sortiere die Kandidaten nach Eignung."',
                 compliant: false,
                 explanation: "Nicht compliant. Schon ohne AI-Act ist klar: Bewerberdaten sind sensibel, Entscheidungen brauchen Kontrolle, Transparenz und klare Verantwortlichkeiten."
             },
@@ -353,7 +373,7 @@
                 scenario: "Marketing nutzt einen KI-Avatar ohne Kennzeichnung.",
                 prompt: '"Erstelle ein Produktvideo mit einem synthetischen Sprecher. Wir weisen nirgends darauf hin, dass die Person KI-generiert ist."',
                 compliant: false,
-                explanation: "Nicht compliant. Fehlende Kennzeichnung ist ein Transparenzproblem. Auch ohne Detailwissen merken viele sofort: Das fuehrt leicht zu Taeuschung."
+                explanation: "Nicht compliant. Fehlende Kennzeichnung ist ein Transparenzproblem. Auch ohne Detailwissen merken viele sofort: Das führt leicht zu Täuschung."
             }
         ];
 
@@ -426,7 +446,7 @@
 
             let message = 'Vieles war bereits aus DSGVO, Vertraulichkeit und normaler Compliance ableitbar.';
             if (score === scenarios.length) {
-                message = 'Sehr stark. Genau das ist die Botschaft: Mitarbeitende bringen oft schon belastbares Vorwissen fuer KI-Entscheidungen mit.';
+                message = 'Sehr stark. Genau das ist die Botschaft: Mitarbeitende bringen oft schon belastbares Vorwissen für KI-Entscheidungen mit.';
             } else if (score <= 2) {
                 message = 'Die Logik ist gut trainierbar: Erst auf Daten, Transparenz und Verantwortung schauen, dann auf die KI.';
             }
