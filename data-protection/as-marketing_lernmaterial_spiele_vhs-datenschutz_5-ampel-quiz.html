@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Ampel-Quiz | AI Act Risikoklassen</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --brand-main: #631832;
+            --brand-accent: #173262;
+            --text-main: #231A24;
+            --text-light: #606F8C;
+            --bg-body: #f0f2f5;
+            --sidebar-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            height: 100vh; overflow: hidden;
+        }
+
+        #app-layout {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            height: 100%;
+        }
+
+        /* SIDEBAR */
+        #sidebar {
+            background: var(--sidebar-bg);
+            border-right: 1px solid #ddd;
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+        }
+
+        .brand-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: var(--brand-main);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #444;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--brand-accent);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: var(--brand-accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: 100%;
+            margin-bottom: 8px;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(23, 50, 98, 0.15);
+        }
+
+        button:hover {
+            background: #1f4282;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: white;
+            color: var(--text-light);
+            border: 1px solid #ddd;
+            box-shadow: none;
+        }
+
+        button.restart-btn {
+            background: #555;
+            margin-top: 10px;
+        }
+
+        /* STAGE */
+        #stage {
+            background: #eef2f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        #game-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #game-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--brand-accent);
+        }
+
+        #question-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #question-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            background: #f8f9fa;
+            color: var(--text-main);
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+
+        .answer-btn:hover {
+            background: #e9ecef;
+            border-color: var(--brand-accent);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        #feedback.show {
+            display: block;
+        }
+
+        #feedback.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        #feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        #final-screen {
+            display: none;
+            text-align: center;
+        }
+
+        #final-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--brand-main);
+            margin: 20px 0;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-layout">
+        <!-- SIDEBAR -->
+        <div id="sidebar">
+            <div class="brand-header">AI Act Risikoklassen</div>
+            <h2>🎯 5-Ampel-Quiz</h2>
+            <p>Ordnen Sie die KI-Systeme der passenden Risikoklasse im 5-Ampel-System zu.</p>
+
+            <div class="highlight-box">
+                <strong>Spielregeln:</strong><br>
+                • Sie sehen 10 verschiedene KI-Systeme<br>
+                • Ordnen Sie jedes System einer der 5 Risikoklassen zu<br>
+                • Sofortiges Feedback nach jeder Antwort<br>
+                • Ziel: Mindestens 7 von 10 richtig
+            </div>
+
+            <div class="highlight-box">
+                <strong>Die 5 Risikoklassen:</strong><br>
+                🔴 <strong>Verboten</strong> - Striktes Verbot<br>
+                🟠 <strong>Hochrisiko</strong> - Umfassende Pflichten<br>
+                🟡 <strong>Begrenzt</strong> - Transparenzpflicht<br>
+                🟢 <strong>Gering</strong> - Basis-Standards<br>
+                ⚪ <strong>Minimal</strong> - Keine zusätzlichen Anforderungen
+            </div>
+
+            <button id="restart-btn" class="restart-btn" style="display:none;">Spiel neu starten</button>
+        </div>
+
+        <!-- STAGE -->
+        <div id="stage">
+            <div id="score-display">Frage: <span id="current-q">1</span>/10 | Punkte: <span id="score">0</span></div>
+
+            <div id="game-title">5-Ampel-Quiz</div>
+            <div id="game-subtitle">Testen Sie Ihr Wissen über das 5-Ampel-System im AI Act</div>
+
+            <div id="question-card">
+                <div id="question-text"></div>
+                <div class="answer-grid" id="answers"></div>
+                <div id="feedback"></div>
+            </div>
+
+            <div id="final-screen">
+                <div class="final-score" id="final-score"></div>
+                <p id="final-message"></p>
+            </div>
+
+            <div class="footer">© VHS Göttingen Osterode | Arno Schimmelpfennig | 2026</div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "Ein Chatbot auf der VHS-Website, der Kursanfragen beantwortet",
+                correct: "🟡 Begrenzt",
+                explanation: "Interaktive KI muss als KI erkennbar sein (Transparenzpflicht)."
+            },
+            {
+                q: "Ein KI-System, das Bewerbungen für VHS-Stellen automatisch vorsortiert",
+                correct: "🟠 Hochrisiko",
+                explanation: "KI zur Auswahl/Beurteilung von Bewerber*innen fällt unter Hochrisiko."
+            },
+            {
+                q: "Ein Spam-Filter für E-Mails der VHS",
+                correct: "⚪ Minimal",
+                explanation: "Spam-Filter gelten als minimales Risiko ohne zusätzliche AI-Act-Pflichten."
+            },
+            {
+                q: "Ein System, das Teilnehmende nach ihrem Verhalten bewertet und ihnen Kurse verweigert",
+                correct: "🔴 Verboten",
+                explanation: "Social Scoring ist als Praxis verboten."
+            },
+            {
+                q: "Ein Empfehlungssystem, das VHS-Kurse passend zu Interessen vorschlägt",
+                correct: "🟢 Gering",
+                explanation: "Empfehlungen gelten als geringes Risiko mit Basis-Standards."
+            },
+            {
+                q: "Ein KI-Tool, das Lehrhonorare anhand von Leistungsdaten automatisiert festlegt",
+                correct: "🟠 Hochrisiko",
+                explanation: "Systeme, die über Beschäftigungsbedingungen entscheiden, sind Hochrisiko."
+            },
+            {
+                q: "Ein KI-Tool, das Dozent*innen als Deepfakes für Werbevideos erzeugt",
+                correct: "🟡 Begrenzt",
+                explanation: "Deepfakes müssen klar als synthetisch gekennzeichnet werden."
+            },
+            {
+                q: "Eine KI, die Anmeldungen für VHS-Kurse auf Fehler prüft (z.B. fehlende Felder)",
+                correct: "🟢 Gering",
+                explanation: "Administrative Prüfungen ohne sensible Folgen gelten als geringes Risiko."
+            },
+            {
+                q: "Ein KI-System, das gezielt Schwächen (z.B. Sucht, Alter) ausnutzt, um Teilnehmende zu Kursbuchungen zu drängen",
+                correct: "🔴 Verboten",
+                explanation: "Ausnutzung von Schwächen mit schädlicher Wirkung ist verboten."
+            },
+            {
+                q: "Ein automatisches Übersetzungstool für allgemeine VHS-Infoblätter",
+                correct: "⚪ Minimal",
+                explanation: "Übersetzungstools haben minimales Risiko."
+            }
+        ];
+
+        const answers = ["🔴 Verboten", "🟠 Hochrisiko", "🟡 Begrenzt", "🟢 Gering", "⚪ Minimal"];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('current-q').innerText = currentQuestion + 1;
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+
+            answers.forEach(answer => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.innerText = answer;
+                btn.onclick = () => checkAnswer(answer, btn);
+                answersContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, btn) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const allBtns = document.querySelectorAll('.answer-btn');
+
+            allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+            if (selected === q.correct) {
+                btn.classList.add('correct');
+                feedback.className = 'show correct';
+                feedback.innerText = '✓ Richtig! ' + q.explanation;
+                score++;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.classList.add('incorrect');
+                feedback.className = 'show incorrect';
+                feedback.innerText = '✗ Falsch! Richtig wäre: ' + q.correct + '. ' + q.explanation;
+                
+                // Highlight correct answer
+                allBtns.forEach(b => {
+                    if (b.innerText === q.correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showFinalScreen();
+                }
+            }, 4000);
+        }
+
+        function showFinalScreen() {
+            document.getElementById('question-card').style.display = 'none';
+            const finalScreen = document.getElementById('final-screen');
+            finalScreen.classList.add('show');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').innerText = score + ' / ' + questions.length + ' (' + percentage + '%)';
+
+            let message = '';
+            if (score >= 9) {
+                message = '🏆 Hervorragend! Sie sind ein AI Act Experte!';
+            } else if (score >= 7) {
+                message = '✅ Sehr gut! Sie haben die Risikoklassen verstanden.';
+            } else if (score >= 5) {
+                message = '📚 Gut! Noch etwas Übung und Sie sind sicher.';
+            } else {
+                message = '💪 Weiter üben! Schauen Sie sich die Präsentation nochmal an.';
+            }
+
+            document.getElementById('final-message').innerText = message;
+            document.getElementById('restart-btn').style.display = 'block';
+        }
+
+        document.getElementById('restart-btn').onclick = () => {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score').innerText = 0;
+            document.getElementById('question-card').style.display = 'block';
+            document.getElementById('final-screen').classList.remove('show');
+            document.getElementById('restart-btn').style.display = 'none';
+            loadQuestion();
+        };
+
+        // Init
+        loadQuestion();
+    </script>
+</body>
+</html>
