@@ -106,6 +106,72 @@
       font-size: 14px;
     }
 
+    .trainer-callout{
+      max-width: 760px;
+      margin: 0 auto 26px;
+      padding: 18px 20px;
+      border: 1px solid rgba(107,30,58,.16);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(107,30,58,.05), rgba(107,30,58,.02));
+      text-align: left;
+    }
+
+    .trainer-eyebrow{
+      display: inline-block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+
+    .trainer-title{
+      margin: 0 0 8px;
+      padding-top: 0;
+      border-top: 0;
+      font-family: "Roboto Condensed", Inter, sans-serif;
+      font-size: 26px;
+      color: var(--brand);
+    }
+
+    .trainer-copy{
+      margin: 0 0 14px;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .trainer-actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .trainer-link{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-radius: 12px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 12px 22px rgba(107,30,58,.16);
+      transition: .15s ease;
+    }
+
+    .trainer-link:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(107,30,58,.20);
+    }
+
+    .trainer-note{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
     .tabs{
       display:flex;
       flex-wrap:wrap;
@@ -345,6 +411,21 @@
         <p class="subtitle">
           Interaktive Lernspiele für KI-Sicherheit, Datenschutz, SQL und mehr. Wähle eine Kategorie und starte direkt.
         </p>
+
+        <section class="trainer-callout" aria-label="Prompt-Trainer">
+          <span class="trainer-eyebrow">Neu</span>
+          <h2 class="trainer-title">Prompt-Trainer für Schulungen</h2>
+          <p class="trainer-copy">
+            Für Webinare und Prompting-Trainings steht zusätzlich ein eigener Prompt-Trainer bereit. Dort lassen sich Prompts Schritt für Schritt aufbauen, prüfen und verbessern.
+          </p>
+          <div class="trainer-actions">
+            <a class="trainer-link" href="https://prompts.ki-lernarchitekt.de" target="_blank" rel="noopener noreferrer">
+              Prompt-Trainer öffnen
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M9 7h8v8"></path></svg>
+            </a>
+            <span class="trainer-note">Öffnet den Trainer in einem neuen Tab.</span>
+          </div>
+        </section>
 
         <a class="cta" href="#kategorien" id="jump">
           Übersicht öffnen
